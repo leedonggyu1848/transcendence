@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  noder:
+    container_name: yooh
+    image: node
+    volumes:
+      - ./:/tmp
+    entrypoint: tail -f
+    ports:
+      - "5173:5173"
