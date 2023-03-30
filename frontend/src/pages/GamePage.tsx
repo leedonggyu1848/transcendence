@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import ChatBox from "../components/Chat/ChatBox";
+import OpponentInfo from "../components/OpponentInfo";
 
 const GamePage = () => {
   return (
@@ -8,7 +10,10 @@ const GamePage = () => {
         <h2>yooh vs jpark2</h2>
         <GameBox />
       </GameContainer>
-      <SubContainer></SubContainer>
+      <SubContainer>
+        <OpponentInfo />
+        <ChatBox />
+      </SubContainer>
     </GamePageContainer>
   );
 };
@@ -34,13 +39,17 @@ const GameContainer = styled.div`
 const SubContainer = styled.div`
   width: 300px;
   height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const GamePageContainer = styled.div`
   height: 95%;
-  background: green;
   display: flex;
   color: white;
+  width: 90%;
 `;
 
 export default GamePage;

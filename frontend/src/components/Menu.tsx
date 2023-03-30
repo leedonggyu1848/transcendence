@@ -31,16 +31,16 @@ const Logo = styled.div`
   cursor: pointer;
 `;
 const Game = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background-image: url("/src/assets/PongIcon.png");
   background-size: 100% 100%;
   margin-top: 20px;
   cursor: pointer;
 `;
 const Chat = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background-image: url("/src/assets/chatIcon.png");
   background-size: 100% 100%;
   margin-top: 20px;
@@ -48,17 +48,17 @@ const Chat = styled.div`
 `;
 
 const History = styled.div`
-  width: 40px;
-  height: 35px;
+  width: 30px;
+  height: 30px;
   background-image: url("/src/assets/recordsIcon.png");
   background-size: 100% 100%;
-  margin-top: 20px;
+  margin-top: 25px;
   cursor: pointer;
 `;
 
 const Setting = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background-image: url("/src/assets/settingIcon.png");
   background-size: 100% 100%;
   margin-bottom: 20px;
