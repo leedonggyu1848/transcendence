@@ -10,10 +10,24 @@ services:
     ports:
       - "5173:5173"
       - "3000:3000"
-  data:
-    container_name: jpark2
-    image: postgres
+    networks:
+      - tcnetwork
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwe123
+      POSTGRES_DB: transcendence
     volumes:
-      -./data:/data
+      - ./data:/var/lib/postgresql/data
     expose:
-      - 1234
+      - 5432
+    networks:
+      - tcnetwork
+
+networks:
+  tcnetwork:
+    driver: bridge
