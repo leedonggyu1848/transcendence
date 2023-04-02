@@ -45,41 +45,41 @@ export class GameService {
     return false;
   }
 
-  // async joinGame(game: GameDto, user: User) {
-  // 	const found_game = await this.gameRepository.findOneBy({title: game.title});
-  // 	if (!found_game)
-  // 		return { join: false, data: 'No game has such title' };
-  // 	if (found_game.private_mode && found_game.password !== game.password)
-  // 		return { join: false, data: 'Password mismatch' };
-  // 	if (found_game.playing)
-  // 		return { join: false, data: 'The game is playing' };
-  // 	if (user.join_game)
-  // 		return { join: false, data: 'The user has already joined a game' };
+  //   async joinGame(game: GameDto, user: User) {
+  //   	const found_game = await this.gameRepository.findOneBy({title: game.title});
+  //   	if (!found_game)
+  //   		return { join: false, data: 'No game has such title' };
+  //   	if (found_game.private_mode && found_game.password !== game.password)
+  //   		return { join: false, data: 'Password mismatch' };
+  //   	if (found_game.playing)
+  //   		return { join: false, data: 'The game is playing' };
+  //   	if (user.join_game)
+  //   		return { join: false, data: 'The user has already joined a game' };
 
-  // 	const users = found_game.users;
-  // 	const players = found_game.players;
-  // 	if (players.length === 2) {
-  // 		users.push(user);
-  // 		this.gameRepository.update(found_game.id, {users: users});
-  // 	}
-  // 	else {
-  // 		players.push(user);
-  // 		this.gameRepository.update(found_game.id, {players: players});
-  // 	}
-  // 	this.userRepository.update(user.id, {join_game: found_game});
-  // 	return {
-  // 		join: true,
-  // 		data: {
-  // 			title: found_game.title,
-  // 			interrupt_mode: found_game.interrupt_mode,
-  // 			private_mode: found_game.private_mode,
-  // 			password: found_game.password,
-  // 			playing: found_game.playing,
-  // 			players: players,
-  // 			users: users
-  // 		}
-  // 	};
-  // }
+  //   	const users = found_game.users;
+  //   	const players = found_game.players;
+  //   	if (players.length === 2) {
+  //   		users.push(user);
+  //   		this.gameRepository.update(found_game.id, {users: users});
+  //   	}
+  //   	else {
+  //   		players.push(user);
+  //   		this.gameRepository.update(found_game.id, {players: players});
+  //   	}
+  //   	this.userRepository.update(user.id, {join_game: found_game});
+  //   	return {
+  //   		join: true,
+  //   		data: {
+  //   			title: found_game.title,
+  //   			interrupt_mode: found_game.interrupt_mode,
+  //   			private_mode: found_game.private_mode,
+  //   			password: found_game.password,
+  //   			playing: found_game.playing,
+  //   			players: players,
+  //   			users: users
+  //   		}
+  //   	};
+  //   }
 
   // async leaveGame(game: GameDto, user: User) {
   // 	const found_user = await this.userRepository.findOneBy({intra_id: user.intra_id});

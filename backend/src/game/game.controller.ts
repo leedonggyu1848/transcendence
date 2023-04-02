@@ -41,7 +41,7 @@ export class GameController {
       await this.authService.addUser(user1);
       await this.authService.addUser(user2);
       let found_user = await this.authService.findUserByIntraId(user1.intra_id);
-      this.gameService.createGame(
+      await this.gameService.createGame(
         {
           title: 'game1',
           interrupt_mode: false,
@@ -51,7 +51,7 @@ export class GameController {
         found_user,
       );
       found_user = await this.authService.findUserByIntraId(user2.intra_id);
-      this.gameService.createGame(
+      await this.gameService.createGame(
         {
           title: 'game2',
           interrupt_mode: true,
