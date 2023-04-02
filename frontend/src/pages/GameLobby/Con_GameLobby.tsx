@@ -22,12 +22,6 @@ const GameLobbyContainer = () => {
 
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(
-      e.currentTarget.mode.checked,
-      e.currentTarget.type.checked,
-      e.currentTarget.roomName.value,
-      e.currentTarget.password.value
-    );
     createNormalGame();
 
     e.currentTarget.mode.checked = false;

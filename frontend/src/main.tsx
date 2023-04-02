@@ -22,18 +22,16 @@ const Background = styled.div`
 `;
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <CookiesProvider>
-        <RecoilRoot>
-          <Background>
-            <Routes>
-              <Route path="/" element={<LoginPage />} />
-              <Route path="/main/*" element={<MainPage />} />
-            </Routes>
-          </Background>
-        </RecoilRoot>
-      </CookiesProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <CookiesProvider>
+      <RecoilRoot>
+        <Background>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/main/*" element={<MainPage />} />
+          </Routes>
+        </Background>
+      </RecoilRoot>
+    </CookiesProvider>
+  </BrowserRouter>
 );

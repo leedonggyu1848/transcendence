@@ -88,11 +88,11 @@ const data = [
   },
 ];
 
-const ChatBox = () => {
+const ChatBox = ({ height }: { height: number }) => {
   const opponent = "jpark2";
   return (
-    <ChatBoxWrapper>
-      <ChatBoxContainer>
+    <ChatBoxWrapper h={height}>
+      <ChatBoxContainer h={height}>
         {data.map(({ sender, msg, time }, idx) => (
           <Chat key={idx} sender={sender} myName="yooh" msg={msg} time={time} />
         ))}
@@ -115,9 +115,9 @@ const ChatInput = styled.input`
   }
 `;
 
-const ChatBoxContainer = styled.div`
+const ChatBoxContainer = styled.div<{ h: number }>`
   width: 100%;
-  height: 320px;
+  height: ${({ h }) => h - 80 + "px"};
   overflow-y: auto;
   color: white;
   display: flex;
@@ -138,10 +138,10 @@ const ChatBoxContainer = styled.div`
   }
 `;
 
-const ChatBoxWrapper = styled.div`
+const ChatBoxWrapper = styled.div<{ h: number }>`
   width: 100%;
   background: var(--sub-bg-color);
-  height: 400px;
+  height: ${({ h }) => h + "px"};
   border-radius: 20px;
   overflow: hidden;
   display: flex;
