@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DataModule } from './game/game.module';
+import { GameModule } from './game/game.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './configs/typeorm.config';
 import { ConfigModule } from '@nestjs/config';
@@ -9,7 +9,7 @@ import configurations from './configs/configurations';
 @Module({
   imports: [
     AuthModule,
-    DataModule,
+    GameModule,
     ConfigModule.forRoot({
       load: [configurations],
       isGlobal: true,

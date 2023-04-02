@@ -37,7 +37,7 @@ export class User {
 	@NotEquals(null)
 	rank_lose: number;
 
-	@ManyToOne(() => Game, (game) => game.users)
-	@JoinColumn({name: 'game_id'})
-	join_game: Game;
+	// @ManyToOne(() => Game, (game) => game.users)
+	// @JoinColumn({name: 'game_id'})
+	// join_game: Game;
 }

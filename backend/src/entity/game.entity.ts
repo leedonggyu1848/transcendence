@@ -27,9 +27,9 @@ export class Game {
 	@NotEquals(null)
 	playing: boolean;
 
-	@OneToMany(() => User, (user) => user.id)
+	@OneToMany(() => User, (user) => user.id, {cascade: true})
 	players: User[];
 
-	@OneToMany(() => User, (user) => user.id)
+	@OneToMany(() => User, (user) => user.id, {cascade: true})
 	users: User[];
 }

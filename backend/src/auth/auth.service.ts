@@ -13,12 +13,20 @@ export class AuthService {
 		private userRepository: Repository<User>,
 	) {}
 
-	async findUserById(user_id: number) {
-		return await this.userRepository.findOneBy({user_id: user_id});
+	async findUserById(id: number) {
+		return this.userRepository.findOneBy({id: id});
+	}
+
+	async findUserByUserId(user_id: number) {
+		return this.userRepository.findOneBy({user_id: user_id});
+	}
+
+	async findUserByIntraId(intra_id: string) {
+		return this.userRepository.findOneBy({intra_id: intra_id});
 	}
 
 	async addUser(user: UserSessionDto) {
-		const found = await this.findUserById(user.user_id);
+		const found = await this.findUserByUserId(user.user_id);
 		if (!found) {
 			await this.userRepository.save({
 				user_id: user.user_id,

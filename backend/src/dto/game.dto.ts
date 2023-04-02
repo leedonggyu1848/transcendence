@@ -1,5 +1,3 @@
-import { UserDto } from "./user.dto";
-
 export class GameDto {
 	title: string;
 	interupt_mode: boolean;

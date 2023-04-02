@@ -6,7 +6,7 @@ import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class DataService {
+export class GameService {
 	constructor(
 		@InjectRepository(Game)
 		private gameRepository: Repository<Game>,
@@ -22,18 +22,17 @@ export class DataService {
 	async createGame(gameDto: GameDto, user: User) {
 		const found = await this.gameRepository.findOneBy({title: gameDto.title});
 		if (!found) {
-			let players: User[];
-			let users: User[];
-			players.push(user);
-			const game = {
+			let players: User[] = [user];
+			let users: User[] = [];
+			const game = this.gameRepository.create({
 				title: gameDto.title,
 				interrupt_mode: gameDto.interupt_mode,
 				private_mode: gameDto.private_mode,
 				password: gameDto.password,
 				playing: false,
 				players: players,
-				users: users
-			}
+				users: null
+			});
 			await this.gameRepository.save(game);
 			return true;
 		}

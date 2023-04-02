@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-import { User } from 'src/decorator/user.decorator';
+import { UserDeco } from 'src/decorator/user.decorator';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { AuthService } from './auth.service';
 import { PhGuard } from './ft/guard/auth.guard';
@@ -23,7 +23,7 @@ export class AuthController {
 
 	@Get('/logincallback')
 	@UseGuards(PhGuard, JwtSignGuard)
-	async loginCallback(@Res() res: Response, @User() user: UserSessionDto) {
+	async loginCallback(@Res() res: Response, @UserDeco() user: UserSessionDto) {
 		console.log(user.intra_id, 'login');
 		await this.authService.addUser(user);
 		return res.redirect(`${this.configService.get<string>('frontend_home')}`);
@@ -32,7 +32,7 @@ export class AuthController {
 	@Get('/logout')
 	@UseGuards(JwtGuard)
 	@HttpCode(204)
-	logout(@Res() res: Response, @User() user: UserSessionDto) {
+	logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
 		console.log(user.intra_id, 'logout');
 		res.clearCookie('access_token');
 		res.send();

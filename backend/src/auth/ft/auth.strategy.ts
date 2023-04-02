@@ -20,7 +20,7 @@ export class PhStrategy extends PassportStrategy(Strategy, '42') {
 	}
 
 	async validate(req, access_token, refreshToken, profile, cb) {
-		const userEmail = profile.email.split('.');
+		const userEmail = (profile.email||'').split('.');
 		const user: UserSessionDto = {
 			user_id: profile.userId,
 			intra_id: profile.login,
