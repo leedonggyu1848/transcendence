@@ -5,6 +5,7 @@ import styled from "@emotion/styled";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
+import { CookiesProvider } from "react-cookie";
 
 const Background = styled.div`
   background-image: url("/src/assets/background.png");
@@ -22,12 +23,14 @@ const Background = styled.div`
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Background>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/main/*" element={<MainPage />} />
-        </Routes>
-      </Background>
+      <CookiesProvider>
+        <Background>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/main/*" element={<MainPage />} />
+          </Routes>
+        </Background>
+      </CookiesProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
