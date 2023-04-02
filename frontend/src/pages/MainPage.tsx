@@ -5,10 +5,17 @@ import GamePage from "./GamePage";
 import ChatLobby from "./ChatLobby";
 import { useCookies } from "react-cookie";
 import { useEffect } from "react";
-import GameLobby from "./GameLobby/GameLobby";
+import GameLobbyContainer from "./GameLobby/Con_GameLobby";
+import { useRecoilValue } from "recoil";
+import { modalBackToggleState, rankWaitModalToggleState } from "../api/atom";
+import ModalBackground from "../components/ModalBackground";
+import RankWaitModal from "../components/Modals/RankWaitModal";
+import NormalGamePage from "./NormalGame/NormalGamePage";
 
 const MainPage = () => {
   const [token, setToken] = useCookies(["access_token"]);
+  const modalBackToggle = useRecoilValue(modalBackToggleState);
+  const rankWaitModalToggle = useRecoilValue(rankWaitModalToggleState);
 
   useEffect(() => {
     console.log(token);
@@ -17,10 +24,13 @@ const MainPage = () => {
     <MainPageContainer>
       <Menu />
       <Routes>
-        <Route path="lobby" element={<GameLobby />} />
+        <Route path="lobby" element={<GameLobbyContainer />} />
         <Route path="/game" element={<GamePage />} />
+        <Route path="/game/normal" element={<NormalGamePage />} />
         <Route path="/chat" element={<ChatLobby />} />
       </Routes>
+      {modalBackToggle && <ModalBackground />}
+      {rankWaitModalToggle && <RankWaitModal />}
     </MainPageContainer>
   );
 };
