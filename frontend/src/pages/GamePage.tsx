@@ -6,8 +6,8 @@ const GamePage = () => {
   return (
     <GamePageContainer>
       <GameContainer>
-        <h1>Normal Game</h1>
-        <h2>yooh vs jpark2</h2>
+        <h1>Game Lobby</h1>
+        <h2></h2>
         <GameBox />
       </GameContainer>
       <SubContainer>
@@ -20,8 +20,8 @@ const GamePage = () => {
 
 const GameBox = styled.div`
   width: 530px;
-  height: 530px;
-  background: black;
+  height: 510px;
+  background: var(--sub-bg-color);
   border-radius: 20px;
   margin: 0 auto;
 `;
@@ -33,12 +33,13 @@ const GameContainer = styled.div`
   & > h1,
   h2 {
     margin-left: 30px;
+    height: 45px;
   }
 `;
 
 const SubContainer = styled.div`
   width: 300px;
-  height: 100%;
+  height: 95%;
   display: flex;
   align-items: center;
   flex-direction: column;

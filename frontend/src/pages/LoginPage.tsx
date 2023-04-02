@@ -1,10 +1,14 @@
 import styled from "@emotion/styled";
 
 const LoginPage = () => {
+  const loginURL = "http://localhost:3000/api/auth/login";
+  const clickLogin = () => {
+    window.location.replace(loginURL);
+  };
   return (
     <LoginPageContainer>
       <h1>PH18 PONG</h1>
-      <LoginButton>Log In</LoginButton>
+      <LoginButton onClick={clickLogin}>Log In</LoginButton>
     </LoginPageContainer>
   );
 };
