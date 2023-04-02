@@ -1,5 +1,13 @@
 version: "3"
 
+volumes:
+  pg:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data
+      o: bind
+
 services:
   noder:
     container_name: yooh
