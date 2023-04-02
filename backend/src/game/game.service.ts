@@ -17,7 +17,6 @@ export class GameService {
 
   async getLobbyInfo() {
     const founds = await this.gameRepository.find();
-    console.log(founds);
     const games: LobbyDto[] = founds.map(
       ({ title, interrupt_mode, private_mode, count }) => ({
         title,

@@ -26,6 +26,7 @@ export class GameController {
   @Get('/lobby')
   @UseGuards(JwtGuard)
   async lobby() {
+    console.log('game : request lobby info');
     let games = await this.gameService.getLobbyInfo();
     if (games.length === 0) {
       // test code => TODO: delete
@@ -71,6 +72,7 @@ export class GameController {
     @Body() gameDto: GameDto,
     @UserDeco() user: UserSessionDto,
   ) {
+    console.log('game : create new game');
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     if (!(await this.gameService.createGame(gameDto, found_user)))
       throw BadRequestException;
