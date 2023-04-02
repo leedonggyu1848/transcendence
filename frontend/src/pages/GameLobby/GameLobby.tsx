@@ -7,10 +7,12 @@ const GameLobby = ({
   data,
   myName,
   onCreateRoom,
+  clickRankGame,
 }: {
   data: GameDto[];
   myName: string;
   onCreateRoom: React.FormEventHandler<HTMLFormElement>;
+  clickRankGame: React.MouseEventHandler;
 }) => {
   return (
     <GameLobbyContainer>
@@ -22,7 +24,7 @@ const GameLobby = ({
       <RightContainer>
         <div />
         <Container>
-          <Rank>RANK</Rank>
+          <Rank onClick={clickRankGame}>RANK</Rank>
           <CreateForm myName={myName} onCreateRoom={onCreateRoom} />
         </Container>
       </RightContainer>

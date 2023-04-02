@@ -1,11 +1,23 @@
 import React from "react";
-import { useRecoilValue } from "recoil";
-import { myNameState } from "../../api/atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  modalBackToggleState,
+  myNameState,
+  rankWaitModalToggleState,
+} from "../../api/atom";
 import { GameDto } from "../../api/interface";
 import GameLobby from "./GameLobby";
 
 const GameLobbyContainer = () => {
   const myName = useRecoilValue(myNameState);
+  const setModalBack = useSetRecoilState(modalBackToggleState);
+  const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
+
+  const clickRankGame = () => {
+    setModalBack(true);
+    setRankWaitModal(true);
+  };
+
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(
@@ -25,6 +37,7 @@ const GameLobbyContainer = () => {
       data={createDummyData()}
       myName={myName}
       onCreateRoom={onCreateRoom}
+      clickRankGame={clickRankGame}
     />
   );
 };

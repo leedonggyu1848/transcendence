@@ -19,3 +19,18 @@ export const myNameState = selector({
     return myInfo.name;
   },
 });
+
+export const modalBackToggleState = atom({
+  key: "modalBackToggleState",
+  default: false,
+});
+
+export const rankWaitModalToggleState = atom({
+  key: "rankWaitModalToggleState",
+  default: false,
+});
+
+export const currentNormalGameInfoState = atom({
+  key: "currentNormalGameInfoState",
+  default: {},
+});
