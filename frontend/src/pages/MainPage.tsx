@@ -10,6 +10,7 @@ import { useRecoilValue } from "recoil";
 import { modalBackToggleState, rankWaitModalToggleState } from "../api/atom";
 import ModalBackground from "../components/ModalBackground";
 import RankWaitModal from "../components/Modals/RankWaitModal";
+import NormalGamePage from "./NormalGame/NormalGamePage";
 
 const MainPage = () => {
   const [token, setToken] = useCookies(["access_token"]);
@@ -25,6 +26,7 @@ const MainPage = () => {
       <Routes>
         <Route path="lobby" element={<GameLobbyContainer />} />
         <Route path="/game" element={<GamePage />} />
+        <Route path="/game/normal" element={<NormalGamePage />} />
         <Route path="/chat" element={<ChatLobby />} />
       </Routes>
       {modalBackToggle && <ModalBackground />}
