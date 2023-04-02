@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   modalBackToggleState,
@@ -6,12 +6,14 @@ import {
   rankWaitModalToggleState,
 } from "../../api/atom";
 import { GameDto } from "../../api/interface";
+import { axiosCreateGame, axiosGetGameList } from "../../api/request";
 import GameLobby from "./GameLobby";
 
 const GameLobbyContainer = () => {
   const myName = useRecoilValue(myNameState);
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
+  const [gameList, setGameList] = useState<GameDto[]>([]);
 
   const clickRankGame = () => {
     setModalBack(true);
@@ -26,15 +28,38 @@ const GameLobbyContainer = () => {
       e.currentTarget.roomName.value,
       e.currentTarget.password.value
     );
+    createNormalGame();
 
     e.currentTarget.mode.checked = false;
     e.currentTarget.type.checked = false;
     e.currentTarget.roomName.value = "";
     e.currentTarget.password.value = "";
+    async function createNormalGame() {
+      try {
+        await axiosCreateGame(
+          e.currentTarget.roomName.value,
+          e.currentTarget.mode.checked,
+          e.currentTarget.type.checked,
+          e.currentTarget.password.value
+        );
+      } catch (e) {
+        console.error(e);
+        alert("게임생성실패");
+      }
+    }
   };
+
+  useEffect(() => {
+    async function getData() {
+      const result = await axiosGetGameList();
+      setGameList(result);
+    }
+    getData();
+  }, []);
+
   return (
     <GameLobby
-      data={createDummyData()}
+      data={gameList}
       myName={myName}
       onCreateRoom={onCreateRoom}
       clickRankGame={clickRankGame}

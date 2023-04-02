@@ -41,6 +41,3 @@ services:
 networks:
   tcnetwork:
     driver: bridge
-
-volumes:
-  data:

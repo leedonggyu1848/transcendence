@@ -5,7 +5,7 @@ import { UserDeco } from 'src/decorator/user.decorator';
 import { GameService } from './game.service';
 import { AuthService } from 'src/auth/auth.service';
 
-@Controller('/game')
+@Controller('/api/game')
 export class GameController {
   constructor(
     private authService: AuthService,
