@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserDto } from 'src/dto/user.dto';
-import { User } from 'src/entity/entity.user';
+import { UserSessionDto } from 'src/dto/usersession.dto';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -17,13 +17,19 @@ export class AuthService {
 		return await this.userRepository.findOneBy({user_id: user_id});
 	}
 
-	async addUser(user: UserDto) {
+	async addUser(user: UserSessionDto) {
 		const found = await this.findUserById(user.user_id);
-		if (!found)
+		if (!found) {
 			await this.userRepository.save({
 				user_id: user.user_id,
-				username: user.intra_id,
-				email: user.email
+				intra_id: user.intra_id,
+				profile: '',
+				introduce: '',
+				normal_win: 0,
+				normal_lose: 0,
+				rank_win: 0,
+				rank_lose: 0,
 			});
+		}
 	}
 }

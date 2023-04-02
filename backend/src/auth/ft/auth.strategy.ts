@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from 'passport-42';
-import { UserDto } from "src/dto/user.dto";
+import { UserSessionDto } from "src/dto/usersession.dto";
 
 @Injectable()
 export class PhStrategy extends PassportStrategy(Strategy, '42') {
@@ -14,7 +14,6 @@ export class PhStrategy extends PassportStrategy(Strategy, '42') {
 			passReqToCallback: true,
 			profileFields: {
 				userId: 'id',
-				email: 'email',
 				login: 'login',
 			}
 		});
@@ -22,10 +21,9 @@ export class PhStrategy extends PassportStrategy(Strategy, '42') {
 
 	async validate(req, access_token, refreshToken, profile, cb) {
 		const userEmail = profile.email.split('.');
-		const user: UserDto = {
+		const user: UserSessionDto = {
 			user_id: profile.userId,
 			intra_id: profile.login,
-			email: profile.email
 		}
 		cb(null, user);
 	}

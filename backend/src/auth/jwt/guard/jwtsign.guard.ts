@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request, Response } from "express";
-import { UserDto } from "src/dto/user.dto";
+import { UserSessionDto } from "src/dto/usersession.dto";
 
 @Injectable()
 export class JwtSignGuard implements CanActivate {
@@ -14,7 +14,7 @@ export class JwtSignGuard implements CanActivate {
 	}
 
 	private generateToken(req: Request, res: Response): boolean {
-		const user = req.user as UserDto | undefined;
+		const user = req.user as UserSessionDto | undefined;
 		if (user === undefined)
 			return false;
 		const token = this.jwtService.sign(user);
