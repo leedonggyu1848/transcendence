@@ -1,11 +1,5 @@
 import { NotEquals } from 'class-validator';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -28,10 +22,6 @@ export class Game {
   @Column()
   @NotEquals(null)
   password: string;
-
-  @Column()
-  @NotEquals(null)
-  playing: boolean;
 
   @Column()
   @NotEquals(null)

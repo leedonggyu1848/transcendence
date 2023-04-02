@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GameDto } from 'src/dto/game.dto';
 import { LobbyDto } from 'src/dto/lobby.dto';
+import { GameDto } from 'src/dto/game.dto';
 import { Game } from 'src/entity/game.entity';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -19,11 +19,10 @@ export class GameService {
     const founds = await this.gameRepository.find();
     console.log(founds);
     const games: LobbyDto[] = founds.map(
-      ({ title, interrupt_mode, private_mode, playing, count }) => ({
+      ({ title, interrupt_mode, private_mode, count }) => ({
         title,
         interrupt_mode,
         private_mode,
-        playing,
         cur: count,
       }),
     );
@@ -35,13 +34,13 @@ export class GameService {
     if (!found) {
       const game = this.gameRepository.create({
         title: gameDto.title,
-        interrupt_mode: gameDto.interupt_mode,
+        interrupt_mode: gameDto.interrupt_mode,
         private_mode: gameDto.private_mode,
         password: gameDto.password,
-        playing: false,
         count: 1,
       });
       await this.gameRepository.save(game);
+      await this.userRepository.update(user.id, { join_game: game });
       return true;
     }
     return false;
