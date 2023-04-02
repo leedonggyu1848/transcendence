@@ -3,6 +3,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  --dark-bg-color: #1e1e1e;
   --main-bg-color: #444444;
   --blue-color: #4375f4;
   --purple-color: #9c4fff;

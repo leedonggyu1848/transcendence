@@ -2,15 +2,24 @@ import styled from "@emotion/styled";
 import { Route, Routes } from "react-router-dom";
 import Menu from "../components/Menu";
 import GamePage from "./GamePage";
-import LobbyPage from "./LobbyPage";
+import ChatLobby from "./ChatLobby";
+import { useCookies } from "react-cookie";
+import { useEffect } from "react";
+import GameLobby from "./GameLobby/GameLobby";
 
 const MainPage = () => {
+  const [token, setToken] = useCookies(["access_token"]);
+
+  useEffect(() => {
+    console.log(token);
+  });
   return (
     <MainPageContainer>
       <Menu />
       <Routes>
+        <Route path="lobby" element={<GameLobby />} />
         <Route path="/game" element={<GamePage />} />
-        <Route path="/lobby" element={<LobbyPage />} />
+        <Route path="/chat" element={<ChatLobby />} />
       </Routes>
     </MainPageContainer>
   );
