@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
 import { CookiesProvider } from "react-cookie";
+import { RecoilRoot } from "recoil";
 
 const Background = styled.div`
   background-image: url("/src/assets/background.png");
@@ -24,12 +25,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <CookiesProvider>
-        <Background>
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/main/*" element={<MainPage />} />
-          </Routes>
-        </Background>
+        <RecoilRoot>
+          <Background>
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              <Route path="/main/*" element={<MainPage />} />
+            </Routes>
+          </Background>
+        </RecoilRoot>
       </CookiesProvider>
     </BrowserRouter>
   </React.StrictMode>

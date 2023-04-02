@@ -7,11 +7,12 @@ const GameList = ({ data }: { data: GameDto[] }) => {
     <GameListContainer>
       {data.length ? (
         <ListContainer>
-          {data.map(({ title, players, private_mode }, idx) => (
+          {data.map(({ title, cur, private_mode, interrupt_mode }, idx) => (
             <RoomInfo
               title={title}
-              cur={players.length}
+              cur={cur}
               private_mode={private_mode}
+              interrupt_mode={interrupt_mode}
               key={idx}
             />
           ))}

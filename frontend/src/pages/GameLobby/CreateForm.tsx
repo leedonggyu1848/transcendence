@@ -1,8 +1,14 @@
 import styled from "@emotion/styled";
 
-const CreateForm = () => {
+const CreateForm = ({
+  myName,
+  onCreateRoom,
+}: {
+  myName: string;
+  onCreateRoom: React.FormEventHandler<HTMLFormElement>;
+}) => {
   return (
-    <CreateFormContainer>
+    <CreateFormContainer onSubmit={onCreateRoom}>
       <h2>일반 게임</h2>
       <CheckContainer>
         <div>
@@ -15,14 +21,18 @@ const CreateForm = () => {
         </div>
       </CheckContainer>
       <InputContainer>
-        <label htmlFor="name">방 제목</label>
-        <input type="text" id="name" />
+        <label htmlFor="roomName">방 제목</label>
+        <input
+          type="text"
+          id="roomName"
+          placeholder={myName + "님의 일반 게임"}
+        />
       </InputContainer>
       <InputContainer>
         <label htmlFor="password">비밀번호</label>
         <input type="password" id="password" />
       </InputContainer>
-      <CreateButton>생성하기</CreateButton>
+      <CreateButton type="submit">생성하기</CreateButton>
     </CreateFormContainer>
   );
 };

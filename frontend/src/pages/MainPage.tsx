@@ -5,7 +5,7 @@ import GamePage from "./GamePage";
 import ChatLobby from "./ChatLobby";
 import { useCookies } from "react-cookie";
 import { useEffect } from "react";
-import GameLobby from "./GameLobby/GameLobby";
+import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 
 const MainPage = () => {
   const [token, setToken] = useCookies(["access_token"]);
@@ -17,7 +17,7 @@ const MainPage = () => {
     <MainPageContainer>
       <Menu />
       <Routes>
-        <Route path="lobby" element={<GameLobby />} />
+        <Route path="lobby" element={<GameLobbyContainer />} />
         <Route path="/game" element={<GamePage />} />
         <Route path="/chat" element={<ChatLobby />} />
       </Routes>

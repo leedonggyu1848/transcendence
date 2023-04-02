@@ -3,14 +3,17 @@ import styled from "@emotion/styled";
 const RoomInfo = ({
   title,
   private_mode,
+  interrupt_mode,
   cur,
 }: {
   title: string;
   private_mode: boolean;
+  interrupt_mode: boolean;
   cur: number;
 }) => {
   return (
     <RoomInfoContainer>
+      <InterruptMode interruptMode={interrupt_mode} />
       <Private private_mode={private_mode} />
       <Name title={title}>
         {title.slice(0, 17)}
@@ -22,6 +25,15 @@ const RoomInfo = ({
     </RoomInfoContainer>
   );
 };
+
+const InterruptMode = styled.div<{ interruptMode: boolean }>`
+  width: 23px;
+  height: 20px;
+  background-image: ${({ interruptMode }) =>
+    interruptMode ? 'url("/src/assets/ObstacleIcon.png")' : "none"};
+  background-size: 100% 100%;
+  margin-left: 10px;
+`;
 
 const Empty = styled.div`
   width: 42px;
@@ -42,7 +54,6 @@ const Private = styled.div<{ private_mode: boolean }>`
   background-image: ${({ private_mode }) =>
     private_mode ? 'url("/src/assets/lockIcon.png")' : "none"};
   background-size: 100% 100%;
-  margin-left: 10px;
 `;
 const Name = styled.div`
   width: 50%;

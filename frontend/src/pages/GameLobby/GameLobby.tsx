@@ -3,36 +3,27 @@ import { GameDto } from "../../api/interface";
 import CreateForm from "./CreateForm";
 import GameList from "./GameList";
 
-function createDummyData(): GameDto[] {
-  let list = [];
-
-  for (let i = 0; i < 20; i++) {
-    let ran = Math.floor(Math.random() * 2);
-    list.push({
-      private_mode: ran ? true : false,
-      title: `열심히 하겠습니다. 한수 알려주시면 감사하겠습니다 선생님, 당장 옥상으로 올라오시죠 ${
-        i + 1
-      }`,
-      interrupt_mode: ran ? true : false,
-      cur: ran ? 1 : 2,
-    });
-  }
-  return list;
-}
-
-const GameLobby = () => {
+const GameLobby = ({
+  data,
+  myName,
+  onCreateRoom,
+}: {
+  data: GameDto[];
+  myName: string;
+  onCreateRoom: React.FormEventHandler<HTMLFormElement>;
+}) => {
   return (
     <GameLobbyContainer>
       <LeftContainer>
         <h1>Game Lobby</h1>
         <h2></h2>
-        <GameList data={createDummyData()} />
+        <GameList data={data} />
       </LeftContainer>
       <RightContainer>
         <div />
         <Container>
           <Rank>RANK</Rank>
-          <CreateForm />
+          <CreateForm myName={myName} onCreateRoom={onCreateRoom} />
         </Container>
       </RightContainer>
     </GameLobbyContainer>
