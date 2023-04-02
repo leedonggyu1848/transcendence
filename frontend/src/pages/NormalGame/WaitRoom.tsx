@@ -2,18 +2,16 @@ import styled from "@emotion/styled";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { myInfoState } from "../../api/atom";
+import UserInfo from "./UserInfo";
 
 const WaitRoom = () => {
   const myInfo = useRecoilValue(myInfoState);
   const [Opponent, setOpponent] = useState(null);
-  const normalRate =
-    (myInfo.normal_win / (myInfo.normal_lose + myInfo.normal_win)) * 100;
-  const rankRate =
-    (myInfo.rank_win / (myInfo.rank_lose + myInfo.rank_win)) * 100;
+
   return (
     <WaitRoomContainer>
       {Opponent ? (
-        <UserInfo />
+        <UserInfo {...myInfo} />
       ) : (
         <NoUser>
           <span>상대방을 기다리는 중입니다</span>
@@ -21,81 +19,10 @@ const WaitRoom = () => {
         </NoUser>
       )}
       <OptionContainer>VS</OptionContainer>
-      <UserInfo>
-        <Profile profile={myInfo.profile} />
-        <Info>
-          <div>{myInfo.intra_id}</div>
-          <div>
-            <div>일반 게임</div>
-            <div>
-              {myInfo.normal_win}승 {myInfo.normal_lose}패{" "}
-              {normalRate.toFixed(1)}%
-            </div>
-          </div>
-          <div>
-            <div>랭크 게임</div>
-            <div>
-              {myInfo.rank_win}승 {myInfo.rank_lose}패 {rankRate.toFixed(1)}%
-            </div>
-          </div>
-        </Info>
-        <IntroduceContainer>
-          <div>인삿말</div>
-          <Introduce>{myInfo.introduce || "안녕하세요~"}</Introduce>
-        </IntroduceContainer>
-      </UserInfo>
+      <UserInfo {...myInfo} />
     </WaitRoomContainer>
   );
 };
-
-const IntroduceContainer = styled.div`
-  width: 140px;
-  height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const Introduce = styled.div`
-  padding: 10px;
-  background: var(--main-bg-color);
-  width: 80%;
-  height: 65%;
-  margin-top: 20px;
-  border-radius: 10px;
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-    border-radius: 5px;
-    width: 5px;
-  }
-  &::-webkit-scrollbar-track {
-    background: white;
-    border-radius: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: var(--gray-color);
-    width: 2px;
-    border-radius: 10px;
-  }
-`;
-
-const Info = styled.div`
-  width: 140px;
-  height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-`;
-
-const Profile = styled.div<{ profile: string }>`
-  width: 140px;
-  height: 140px;
-  border-radius: 10px;
-  background-image: ${({ profile }) =>
-    profile ? `url(${profile})` : 'url("/src/assets/defaultProfile.png")'};
-  background-size: 100% 100%;
-  margin-left: 10px;
-`;
 
 const OptionContainer = styled.div`
   height: 60px;
@@ -195,16 +122,6 @@ const NoUser = styled.div`
       box-shadow: 10014px 15px 0 0 rgba(152, 128, 255, 0);
     }
   }
-`;
-
-const UserInfo = styled.div`
-  width: 500px;
-  height: 180px;
-  background: var(--dark-bg-color);
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
 `;
 
 const WaitRoomContainer = styled.div`

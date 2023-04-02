@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
+import { NormalGameUserDto } from "../../api/interface";
 import ChatBox from "../../components/Chat/ChatBox";
-import OpponentInfo from "../../components/OpponentInfo";
+import CurrentUserInfo from "./CurrentUserInfo";
 import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
@@ -14,13 +15,47 @@ const NormalGamePage = () => {
         {!start ? <WaitRoom /> : <GameBox />}
       </GameContainer>
       <SubContainer>
-        <Options></Options>
-        <CurrentUserInfo />
+        <Options>
+          <Button className="active">시작하기</Button>
+          <Button className="active">나가기</Button>
+        </Options>
+        <CurrentUserInfo data={createDummyData()} />
         <ChatBox height={350} />
       </SubContainer>
     </NormalGamePageContainer>
   );
 };
+
+function createDummyData() {
+  const result: NormalGameUserDto[] = [];
+
+  result.push({ name: "yooh", type: "owner" });
+  result.push({ name: "jpark2", type: "opponent" });
+
+  for (let i = 0; i < 50; i < i++) {
+    let temp: NormalGameUserDto = {
+      name: "User " + (i + 1),
+      type: "watcher",
+    };
+    result.push(temp);
+  }
+  return result;
+}
+
+const Button = styled.div`
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0 10px;
+  &.active {
+    border: 1px solid white;
+    cursor: pointer;
+  }
+  &.notActive {
+    border: 1px solid var(--gray-color);
+    color: var(--gray-color);
+    cursor: not-allowed;
+  }
+`;
 
 const Options = styled.div`
   width: 100%;
@@ -28,14 +63,9 @@ const Options = styled.div`
   background: var(--sub-bg-color);
   border-radius: 10px;
   margin-bottom: 95px;
-`;
-
-const CurrentUserInfo = styled.div`
-  width: 100%;
-  height: 150px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  background: var(--sub-bg-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const GameBox = styled.div`

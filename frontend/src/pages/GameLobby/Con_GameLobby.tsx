@@ -31,7 +31,7 @@ const GameLobbyContainer = () => {
     async function createNormalGame() {
       try {
         await axiosCreateGame(
-          e.currentTarget.roomName.value,
+          e.currentTarget.roomName.value || `${myName}의 일반 게임`,
           e.currentTarget.mode.checked,
           e.currentTarget.type.checked,
           e.currentTarget.password.value

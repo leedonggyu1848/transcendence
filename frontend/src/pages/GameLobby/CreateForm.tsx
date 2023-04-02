@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useState } from "react";
 
 const CreateForm = ({
   myName,
@@ -7,6 +8,9 @@ const CreateForm = ({
   myName: string;
   onCreateRoom: React.FormEventHandler<HTMLFormElement>;
 }) => {
+  const [pwToggle, setToggle] = useState(true);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setToggle(!e.currentTarget.checked);
   return (
     <CreateFormContainer onSubmit={onCreateRoom}>
       <h2>일반 게임</h2>
@@ -17,7 +21,7 @@ const CreateForm = ({
         </div>
         <div>
           <label htmlFor="type">비밀방</label>
-          <input id="type" type="checkbox" />
+          <input onChange={onChange} id="type" type="checkbox" />
         </div>
       </CheckContainer>
       <InputContainer>
@@ -30,7 +34,7 @@ const CreateForm = ({
       </InputContainer>
       <InputContainer>
         <label htmlFor="password">비밀번호</label>
-        <input type="password" id="password" />
+        <input disabled={pwToggle} type="password" id="password" />
       </InputContainer>
       <CreateButton type="submit">생성하기</CreateButton>
     </CreateFormContainer>

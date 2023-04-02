@@ -16,3 +16,8 @@ export interface GameDto {
   private_mode: boolean;
   cur: number;
 }
+
+export interface NormalGameUserDto {
+  name: string;
+  type: string;
+}
