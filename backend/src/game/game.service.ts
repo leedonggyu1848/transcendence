@@ -76,12 +76,13 @@ export class GameService {
 
   async serviceJoinGame(title: string, password: string, user: User) {
     const game = await this.gameRepository.findOneBy({ title: title });
-    if (!game) return { join: false, data: 'No game has such title' };
+    if (!game) return { join: false, data: '해당 방이 없습니다.' };
     if (game.private_mode && game.password !== password)
-      return { join: false, data: 'Password mismatch' };
-    if (game.count == 2) return { join: false, data: 'The game is full' };
+      return { join: false, data: '비밀번호가 맞지 않습니다.' };
+    if (game.count == 2)
+      return { join: false, data: '해당 방에 자리가 없습니다.' };
     if (user.join_game)
-      return { join: false, data: 'The user has already joined a game' };
+      return { join: false, data: '이미 다른 방에 참가 중 입니다.' };
 
     await this.gameRepository.update(game.id, { count: game.count + 1 });
     await this.userRepository.update(user.id, {
@@ -110,11 +111,11 @@ export class GameService {
 
   async serviceWatchGame(title: string, password: string, user: User) {
     const game = await this.gameRepository.findOneBy({ title: title });
-    if (!game) return { join: false, data: 'No game has such title' };
+    if (!game) return { join: false, data: '해당 방이 없습니다.' };
     if (game.private_mode && game.password !== password)
-      return { join: false, data: 'Password mismatch' };
+      return { join: false, data: '비밀번호가 맞지 않습니다.' };
     if (user.join_game)
-      return { join: false, data: 'The user has already joined a game' };
+      return { join: false, data: '이미 다른 방에 참가 중 입니다.' };
 
     await this.userRepository.update(user.id, {
       join_game: game,

@@ -1,4 +1,11 @@
-import { Controller, Get, HttpCode, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Logger,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { UserDeco } from 'src/decorator/user.decorator';
@@ -10,31 +17,32 @@ import { JwtSignGuard } from './jwt/guard/jwtsign.guard';
 
 @Controller('/api/auth')
 export class AuthController {
-	constructor(
-		private authService: AuthService,
-		private configService: ConfigService,
-	) {}
+  private logger = new Logger(AuthController.name);
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
-	@Get('/login')
-	@UseGuards(PhGuard)
-	login() {
-		console.log('login');
-	}
+  @Get('/login')
+  @UseGuards(PhGuard)
+  login() {
+    this.logger.log('Login');
+  }
 
-	@Get('/logincallback')
-	@UseGuards(PhGuard, JwtSignGuard)
-	async loginCallback(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-		console.log(user.intra_id, 'login');
-		await this.authService.addUser(user);
-		return res.redirect(`${this.configService.get<string>('frontend_home')}`);
-	}
+  @Get('/logincallback')
+  @UseGuards(PhGuard, JwtSignGuard)
+  async loginCallback(@Res() res: Response, @UserDeco() user: UserSessionDto) {
+    this.logger.log('Login:', user.intra_id);
+    await this.authService.addUser(user);
+    return res.redirect(`${this.configService.get<string>('frontend_home')}`);
+  }
 
-	@Get('/logout')
-	@UseGuards(JwtGuard)
-	@HttpCode(204)
-	logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-		console.log(user.intra_id, 'logout');
-		res.clearCookie('access_token');
-		res.send();
-	}
+  @Get('/logout')
+  @UseGuards(JwtGuard)
+  @HttpCode(204)
+  logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
+    this.logger.log('Logout:', user.intra_id);
+    res.clearCookie('access_token');
+    res.send();
+  }
 }

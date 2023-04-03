@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Res,
   UseGuards,
@@ -18,6 +19,7 @@ import { Response } from 'express';
 
 @Controller('/api/game')
 export class GameController {
+  private logger = new Logger(GameController.name);
   constructor(
     private authService: AuthService,
     private gameService: GameService,
@@ -26,7 +28,7 @@ export class GameController {
   @Get('/lobby')
   @UseGuards(JwtGuard)
   async lobby() {
-    console.log('game : request lobby info');
+    this.logger.log('Request lobby info');
     let games = await this.gameService.getLobbyInfo();
     if (games.length === 0) {
       // test code => TODO: delete
@@ -72,10 +74,12 @@ export class GameController {
     @Body() gameDto: GameDto,
     @UserDeco() user: UserSessionDto,
   ) {
-    console.log('game : create new game');
+    this.logger.log('Create new game:', user.intra_id);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
-    if (!(await this.gameService.createGame(gameDto, found_user)))
+    if (!(await this.gameService.createGame(gameDto, found_user))) {
+      this.logger.log('Bad request: 게임 생성 실패');
       throw new BadRequestException('게임 생성 실패');
+    }
     res.status(HttpStatus.OK).send();
   }
 
@@ -86,15 +90,17 @@ export class GameController {
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
   ) {
-    console.log('game : join game');
+    this.logger.log('Join game:', title, '/', user.intra_id);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.gameService.serviceJoinGame(
       title,
       password,
       found_user,
     );
-    if (!data.join) throw new BadRequestException(data.data);
-    console.log('game controller : join data', data);
+    if (!data.join) {
+      this.logger.log('Bad request:', data.data);
+      throw new BadRequestException(data.data);
+    }
     return data.data;
   }
 
@@ -105,15 +111,17 @@ export class GameController {
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
   ) {
-    console.log('game : watch game');
+    this.logger.log('Watch game:', title, '/', user.intra_id);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.gameService.serviceWatchGame(
       title,
       password,
       found_user,
     );
-    if (!data.join) throw new BadRequestException(data.data);
-    console.log('game controller : watch data', data);
+    if (!data.join) {
+      this.logger.log('Bad request:', data.data);
+      throw new BadRequestException(data.data);
+    }
     return data.data;
   }
 }
