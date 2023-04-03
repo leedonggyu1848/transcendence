@@ -143,6 +143,19 @@ export class GameService {
     };
   }
 
+  async flushGame(title: string) {
+    const game = await this.gameRepository.findOneBy({ title: title });
+    const player = await this.userRepository.findOneBy({
+      join_game: game,
+      join_type: JoinType.PLAYER,
+    });
+    this.gameRepository.update(game.id, { count: game.count - 1 });
+    this.userRepository.update(player.id, {
+      join_game: null,
+      join_type: JoinType.NONE,
+    });
+  }
+
   // async leaveGame(game: GameDto, user: User) {
   // 	const found_user = await this.userRepository.findOneBy({intra_id: user.intra_id});
   // 	if (!found_user)

@@ -74,7 +74,7 @@ export class GameController {
     @Body() gameDto: GameDto,
     @UserDeco() user: UserSessionDto,
   ) {
-    this.logger.log('Create new game:', user.intra_id);
+    this.logger.log(`Create new game: ${user.intra_id}`);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     if (!(await this.gameService.createGame(gameDto, found_user))) {
       this.logger.log('Bad request: 게임 생성 실패');
@@ -90,7 +90,7 @@ export class GameController {
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
   ) {
-    this.logger.log('Join game:', title, '/', user.intra_id);
+    this.logger.log(`Join game: ${title} / ${user.intra_id}`);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.gameService.serviceJoinGame(
       title,
@@ -98,7 +98,7 @@ export class GameController {
       found_user,
     );
     if (!data.join) {
-      this.logger.log('Bad request:', data.data);
+      this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
     return data.data;
@@ -111,7 +111,7 @@ export class GameController {
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
   ) {
-    this.logger.log('Watch game:', title, '/', user.intra_id);
+    this.logger.log(`Watch game: ${title} / ${user.intra_id}`);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.gameService.serviceWatchGame(
       title,
@@ -119,9 +119,15 @@ export class GameController {
       found_user,
     );
     if (!data.join) {
-      this.logger.log('Bad request:', data.data);
+      this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
     return data.data;
+  }
+
+  @Post('/flush') // test code => TODO: delete
+  async flush(@Res() res: Response, @Body('title') title: string) {
+    this.gameService.flushGame(title);
+    res.status(HttpStatus.OK).send();
   }
 }

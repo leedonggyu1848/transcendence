@@ -32,7 +32,7 @@ export class AuthController {
   @Get('/logincallback')
   @UseGuards(PhGuard, JwtSignGuard)
   async loginCallback(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log('Login:', user.intra_id);
+    this.logger.log(`Login: ${user.intra_id}`);
     await this.authService.addUser(user);
     return res.redirect(`${this.configService.get<string>('frontend_home')}`);
   }
@@ -41,7 +41,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @HttpCode(204)
   logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log('Logout:', user.intra_id);
+    this.logger.log(`Logout: ${user.intra_id}`);
     res.clearCookie('access_token');
     res.send();
   }

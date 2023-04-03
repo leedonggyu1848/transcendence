@@ -32,13 +32,13 @@ export class EventsGateway
   @WebSocketServer() nsp: Namespace;
 
   afterInit() {
-    this.nsp.adapter.on('DeleteRoom', (room) => {
+    this.nsp.adapter.on('delete-room', (room) => {
       const deletedRoom = createdRooms.find(
         (createdRoom) => createdRoom === room,
       );
       if (!deletedRoom) return;
 
-      this.nsp.emit('DeleteRoom', deletedRoom);
+      this.nsp.emit('delete-room', deletedRoom);
       createdRooms = createdRooms.filter(
         (createdRoom) => createdRoom !== deletedRoom,
       );
@@ -67,12 +67,12 @@ export class EventsGateway
     return { username: socket.id, message };
   }
 
-  @SubscribeMessage('RoomList')
+  @SubscribeMessage('room-list')
   handleRoomList() {
     return createdRooms;
   }
 
-  @SubscribeMessage('CreateRoom')
+  @SubscribeMessage('create-room')
   handleCreateRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
@@ -82,11 +82,11 @@ export class EventsGateway
       return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
     socket.join(roomName);
     createdRooms.push(roomName);
-    this.nsp.emit('CreateRoom', roomName);
+    this.nsp.emit('create-room', roomName);
     return { success: true, payload: roomName };
   }
 
-  @SubscribeMessage('JoinRoom')
+  @SubscribeMessage('join-room')
   handleJoinRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
@@ -98,7 +98,7 @@ export class EventsGateway
     return { success: true };
   }
 
-  @SubscribeMessage('LeaveRoom')
+  @SubscribeMessage('leave-room')
   handleLeaveRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
