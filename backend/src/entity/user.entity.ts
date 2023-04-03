@@ -11,7 +11,7 @@ import { JoinType } from './common.enum';
 import { Game } from './game.entity';
 
 @Entity()
-export class User {
+export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 

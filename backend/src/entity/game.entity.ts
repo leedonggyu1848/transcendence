@@ -1,6 +1,6 @@
 import { NotEquals } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from './user.entity';
+import { Users } from './user.entity';
 
 @Entity()
 export class Game {
@@ -27,9 +27,9 @@ export class Game {
   @NotEquals(null)
   count: number;
 
-  @OneToMany(() => User, (user) => user.id, { cascade: true })
-  players: User[];
+  @OneToMany(() => Users, (user) => user.join_game, { cascade: true })
+  players: Users[];
 
-  @OneToMany(() => User, (user) => user.id, { cascade: true })
-  users: User[];
+  @OneToMany(() => Users, (user) => user.join_game, { cascade: true })
+  users: Users[];
 }

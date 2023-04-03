@@ -76,11 +76,12 @@ export class GameController {
   ) {
     this.logger.log(`Create new game: ${user.intra_id}`);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
-    if (!(await this.gameService.createGame(gameDto, found_user))) {
-      this.logger.log('Bad request: 게임 생성 실패');
-      throw new BadRequestException('게임 생성 실패');
+    const data = await this.gameService.createGame(gameDto, found_user);
+    if (!data.success) {
+      this.logger.log(`Bad request: ${data.data}`);
+      throw new BadRequestException(data.data);
     }
-    res.status(HttpStatus.OK).send();
+    return data.data;
   }
 
   @Post('/join')
@@ -97,7 +98,7 @@ export class GameController {
       password,
       found_user,
     );
-    if (!data.join) {
+    if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
@@ -118,7 +119,7 @@ export class GameController {
       password,
       found_user,
     );
-    if (!data.join) {
+    if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
