@@ -12,6 +12,7 @@ import {
   axiosCreateGame,
   axiosGetGameList,
   axiosJoinGame,
+  axiosPostFlush,
   axiosWatchGame,
 } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
@@ -26,8 +27,6 @@ const GameLobbyContainer = () => {
   const navigator = useNavigate();
   const socket = useContext(WebsocketContext);
   console.log(socket);
-
-  const flushData = () => {};
 
   const clickRankGame = () => {
     setModalBack(true);
@@ -53,14 +52,15 @@ const GameLobbyContainer = () => {
 
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createNormalGame();
 
     e.currentTarget.mode.checked = false;
     e.currentTarget.type.checked = false;
     e.currentTarget.roomName.value = "";
     e.currentTarget.password.value = "";
+    createNormalGame();
     async function createNormalGame() {
       try {
+        console.log("before");
         await axiosCreateGame(
           e.currentTarget.roomName.value || `${myName}의 일반 게임`,
           e.currentTarget.mode.checked,
@@ -68,6 +68,7 @@ const GameLobbyContainer = () => {
           e.currentTarget.password.value
         );
         navigator("/main/game/normal");
+        console.log("good~!");
       } catch (e) {
         console.error(e);
         alert("게임생성실패");

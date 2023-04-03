@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { axiosPostFlush } from "../../api/request";
 
 const RoomInfo = ({
   title,
@@ -15,11 +16,14 @@ const RoomInfo = ({
   clickWatch: React.MouseEventHandler;
   clickJoin: Function;
 }) => {
+  const flushData = (title: string) => {
+    axiosPostFlush(title);
+  };
   return (
     <RoomInfoContainer>
       <InterruptMode interruptMode={interrupt_mode} />
       <Private private_mode={private_mode} />
-      <Name title={title}>
+      <Name title={title} onClick={() => flushData(title)}>
         {title.slice(0, 17)}
         {title.length > 17 ? "..." : ""}
       </Name>

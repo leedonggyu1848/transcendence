@@ -49,7 +49,11 @@ export const axiosJoinGame = async (title: string, password: string) => {
   console.log(response);
 };
 
-const axiosPostFlushURL = '/game/flush';
-export const axiosPostFlush = async (title:string) => {
-  
-}
+const axiosPostFlushURL = "/game/flush";
+export const axiosPostFlush = async (title: string) => {
+  const response = await instance.post(axiosPostFlushURL, {
+    title,
+  });
+
+  console.log(response);
+};
