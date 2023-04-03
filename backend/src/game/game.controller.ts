@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Logger,
+  Param,
   Post,
   Res,
   UseGuards,
@@ -65,6 +66,13 @@ export class GameController {
       games = await this.gameService.getLobbyInfo();
     }
     return games;
+  }
+
+  @Get('/userinfo/:intra_id')
+  @UseGuards(JwtGuard)
+  async getUserInfo(@Param('intra_id') intra_id: string) {
+    this.logger.log(`User info request: ${intra_id}`);
+    return await this.gameService.getUserInfo(intra_id);
   }
 
   @Post('/new_game')

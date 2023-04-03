@@ -7,6 +7,7 @@ import { Users } from 'src/entity/user.entity';
 import { getRepository, Repository } from 'typeorm';
 import { JoinType } from 'src/entity/common.enum';
 import { UserDto } from 'src/dto/user.dto';
+import { UserSessionDto } from 'src/dto/usersession.dto';
 
 @Injectable()
 export class GameService {
@@ -39,6 +40,13 @@ export class GameService {
       rank_lose: user.rank_lose,
     };
     return userDto;
+  }
+
+  async getUserInfo(intra_id: string) {
+    const found_user = await this.usersRepository.findOneBy({
+      intra_id: intra_id,
+    });
+    return await this.userToUserDto(found_user);
   }
 
   async getLobbyInfo() {
