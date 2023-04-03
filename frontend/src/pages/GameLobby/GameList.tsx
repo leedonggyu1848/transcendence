@@ -2,7 +2,15 @@ import styled from "@emotion/styled";
 import { GameDto } from "../../api/interface";
 import RoomInfo from "./RoomInfo";
 
-const GameList = ({ data }: { data: GameDto[] }) => {
+const GameList = ({
+  data,
+  clickJoin,
+  clickWatch,
+}: {
+  data: GameDto[];
+  clickJoin: React.MouseEventHandler;
+  clickWatch: React.MouseEventHandler;
+}) => {
   return (
     <GameListContainer>
       {data.length ? (
@@ -14,6 +22,8 @@ const GameList = ({ data }: { data: GameDto[] }) => {
               private_mode={private_mode}
               interrupt_mode={interrupt_mode}
               key={idx}
+              clickJoin={clickJoin}
+              clickWatch={clickWatch}
             />
           ))}
         </ListContainer>

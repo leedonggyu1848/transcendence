@@ -6,7 +6,12 @@ import {
   rankWaitModalToggleState,
 } from "../../api/atom";
 import { GameDto } from "../../api/interface";
-import { axiosCreateGame, axiosGetGameList } from "../../api/request";
+import {
+  axiosCreateGame,
+  axiosGetGameList,
+  axiosJoinGame,
+  axiosWatchGame,
+} from "../../api/request";
 import GameLobby from "./GameLobby";
 
 const GameLobbyContainer = () => {
@@ -18,6 +23,14 @@ const GameLobbyContainer = () => {
   const clickRankGame = () => {
     setModalBack(true);
     setRankWaitModal(true);
+  };
+
+  const clickJoin = () => {
+    axiosJoinGame("game1", "1234");
+  };
+
+  const clickWatch = () => {
+    axiosWatchGame("game2", "");
   };
 
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
@@ -57,6 +70,8 @@ const GameLobbyContainer = () => {
       myName={myName}
       onCreateRoom={onCreateRoom}
       clickRankGame={clickRankGame}
+      clickJoin={clickJoin}
+      clickWatch={clickWatch}
     />
   );
 };

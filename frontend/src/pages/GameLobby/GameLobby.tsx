@@ -8,18 +8,22 @@ const GameLobby = ({
   myName,
   onCreateRoom,
   clickRankGame,
+  clickJoin,
+  clickWatch,
 }: {
   data: GameDto[];
   myName: string;
   onCreateRoom: React.FormEventHandler<HTMLFormElement>;
   clickRankGame: React.MouseEventHandler;
+  clickJoin: React.MouseEventHandler;
+  clickWatch: React.MouseEventHandler;
 }) => {
   return (
     <GameLobbyContainer>
       <LeftContainer>
         <h1>Game Lobby</h1>
         <h2></h2>
-        <GameList data={data} />
+        <GameList data={data} clickJoin={clickJoin} clickWatch={clickWatch} />
       </LeftContainer>
       <RightContainer>
         <div />
