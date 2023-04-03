@@ -101,7 +101,7 @@ export class GameService {
       join_game: game,
       join_type: JoinType.PLAYER,
     });
-    const opponent = game.players.filter(
+    const owner = game.players.filter(
       (player) => player.join_type === JoinType.OWNER,
     );
     const watchers = game.users.filter(
@@ -113,9 +113,14 @@ export class GameService {
       private_mode: game.private_mode,
       password: game.password,
     };
+    const ownerDto: UserDto = this.userToUserDto(owner[0]);
+    const opponentDto: UserDto = this.userToUserDto(user);
+    const watchersDto: UserDto[] = watchers.map((element) =>
+      this.userToUserDto(element),
+    );
     return {
       success: true,
-      data: { gameDto, user, opponent, watchers },
+      data: { gameDto, ownerDto, opponentDto, watchersDto },
     };
   }
 
@@ -147,13 +152,13 @@ export class GameService {
       return { success: false, data: '데이터 저장 오류' };
     const gameDto: GameDto = this.gameToGameDto(game);
     const ownerDto: UserDto = this.userToUserDto(owner[0]);
-    const playerDto: UserDto = this.userToUserDto(player[0]);
+    const opponentDto: UserDto = this.userToUserDto(player[0]);
     const watchersDto: UserDto[] = watchers.map((element) =>
       this.userToUserDto(element),
     );
     return {
       success: true,
-      data: { gameDto, ownerDto, playerDto, watchersDto },
+      data: { gameDto, ownerDto, opponentDto, watchersDto },
     };
   }
 
