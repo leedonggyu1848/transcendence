@@ -95,6 +95,7 @@ const GameContainer = styled.div`
   h2 {
     margin-left: 30px;
     height: 45px;
+    color: white;
   }
 `;
 

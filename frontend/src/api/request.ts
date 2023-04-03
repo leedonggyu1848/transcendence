@@ -47,6 +47,7 @@ export const axiosJoinGame = async (title: string, password: string) => {
     password,
   });
   console.log(response);
+  return response.data;
 };
 
 const axiosPostFlushURL = "/game/flush";
@@ -56,4 +57,12 @@ export const axiosPostFlush = async (title: string) => {
   });
 
   console.log(response);
+};
+
+const axiosGetMyInfoURL = "/game/userinfo/";
+export const axiosGetMyInfo = async () => {
+  const response = await instance.get(axiosGetMyInfoURL);
+
+  console.log(response);
+  return response.data;
 };

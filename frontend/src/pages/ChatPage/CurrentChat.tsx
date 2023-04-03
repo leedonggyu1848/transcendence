@@ -7,7 +7,7 @@ const CurrentChat = ({ data }: { data: JoinnedUserDto[] }) => {
   return (
     <CurrentChatContainer>
       <CurrentUserInfo data={data} />
-      <ChatBox height={340} />
+      <ChatBox height={340} data={[]} myName="" />
     </CurrentChatContainer>
   );
 };

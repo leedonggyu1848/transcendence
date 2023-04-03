@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  currentNormalGameInfoState,
   joinGameModalToggleState,
   modalBackToggleState,
+  myInfoState,
   myNameState,
   rankWaitModalToggleState,
 } from "../../api/atom";
@@ -11,6 +13,7 @@ import { GameDto } from "../../api/interface";
 import {
   axiosCreateGame,
   axiosGetGameList,
+  axiosGetMyInfo,
   axiosJoinGame,
   axiosPostFlush,
   axiosWatchGame,
@@ -23,6 +26,10 @@ const GameLobbyContainer = () => {
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const setJoinGameModal = useSetRecoilState(joinGameModalToggleState);
+  const setMyInfo = useSetRecoilState(myInfoState);
+  const setCurrentNormalGameInfoState = useSetRecoilState(
+    currentNormalGameInfoState
+  );
   const [gameList, setGameList] = useState<GameDto[]>([]);
   const navigator = useNavigate();
   const socket = useContext(WebsocketContext);
@@ -33,10 +40,11 @@ const GameLobbyContainer = () => {
     setRankWaitModal(true);
   };
 
-  const clickJoin = (title: string, private_mode: boolean) => {
+  const clickJoin = async (title: string, private_mode: boolean) => {
     if (!private_mode) {
       try {
-        axiosJoinGame(title, "");
+        const data = await axiosJoinGame(title, "");
+        setCurrentNormalGameInfoState(data);
         navigator("/main/game/normal");
       } catch (e) {
         console.error(e);
@@ -53,21 +61,22 @@ const GameLobbyContainer = () => {
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    createNormalGame();
     e.currentTarget.mode.checked = false;
     e.currentTarget.type.checked = false;
     e.currentTarget.roomName.value = "";
     e.currentTarget.password.value = "";
-    createNormalGame();
-    async function createNormalGame() {
+    function createNormalGame() {
       try {
         console.log("before");
-        await axiosCreateGame(
+        axiosCreateGame(
           e.currentTarget.roomName.value || `${myName}의 일반 게임`,
           e.currentTarget.mode.checked,
           e.currentTarget.type.checked,
           e.currentTarget.password.value
         );
         navigator("/main/game/normal");
+
         console.log("good~!");
       } catch (e) {
         console.error(e);
@@ -79,6 +88,8 @@ const GameLobbyContainer = () => {
   useEffect(() => {
     async function getData() {
       const result = await axiosGetGameList();
+      const myInfo = await axiosGetMyInfo();
+      setMyInfo(myInfo);
       setGameList(result);
     }
     getData();
