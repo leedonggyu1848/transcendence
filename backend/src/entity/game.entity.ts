@@ -31,5 +31,5 @@ export class Game {
   players: Users[];
 
   @OneToMany(() => Users, (user) => user.join_game, { cascade: true })
-  users: Users[];
+  watchers: Users[];
 }

@@ -87,7 +87,6 @@ export class GameService {
       where: { title: title },
       relations: ['players', 'users'],
     });
-    console.log(game);
     if (!game) return { success: false, data: '해당 방이 없습니다.' };
     if (game.private_mode && game.password !== password)
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
@@ -104,7 +103,7 @@ export class GameService {
     const owner = game.players.filter(
       (player) => player.join_type === JoinType.OWNER,
     );
-    const watchers = game.users.filter(
+    const watchers = game.watchers.filter(
       (user) => user.join_type === JoinType.WATCHER,
     );
     const gameDto: GameDto = {
@@ -145,7 +144,7 @@ export class GameService {
     const player = game.players.filter(
       (player) => player.join_type === JoinType.PLAYER,
     );
-    const watchers = game.users.filter(
+    const watchers = game.watchers.filter(
       (user) => user.join_type === JoinType.WATCHER,
     );
     if (owner.length >= 2 || player.length >= 2)
@@ -163,16 +162,23 @@ export class GameService {
   }
 
   async flushGame(title: string) {
-    const game = await this.gameRepository.findOneBy({ title: title });
-    const player = await this.usersRepository.findOneBy({
-      join_game: game,
-      join_type: JoinType.PLAYER,
+    const game = await this.gameRepository.findOne({
+      where: { title: title },
+      relations: ['players', 'users'],
     });
-    this.gameRepository.update(game.id, { count: game.count - 1 });
-    this.usersRepository.update(player.id, {
-      join_game: null,
-      join_type: JoinType.NONE,
-    });
+    this.gameRepository.delete({ id: game.id });
+    game.players.map((player) =>
+      this.usersRepository.update(player.id, {
+        join_game: null,
+        join_type: JoinType.NONE,
+      }),
+    );
+    game.watchers.map((watcher) =>
+      this.usersRepository.update(watcher.id, {
+        join_game: null,
+        join_type: JoinType.NONE,
+      }),
+    );
   }
 
   // async leaveGame(game: GameDto, user: User) {
