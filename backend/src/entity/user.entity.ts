@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { JoinType } from './common.enum';
 import { Game } from './game.entity';
 
 @Entity()
@@ -47,4 +48,8 @@ export class User {
   @ManyToOne(() => Game, (game) => game.users)
   @JoinColumn({ name: 'game_id' })
   join_game: Game;
+
+  @Column({ type: 'enum', name: 'join_type', enum: JoinType })
+  @NotEquals(null)
+  join_type: JoinType;
 }

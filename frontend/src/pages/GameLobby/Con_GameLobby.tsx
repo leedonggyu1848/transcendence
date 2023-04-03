@@ -26,7 +26,7 @@ const GameLobbyContainer = () => {
   };
 
   const clickJoin = () => {
-    axiosJoinGame("game1", "1234");
+    axiosJoinGame("game1", "asdf");
   };
 
   const clickWatch = () => {

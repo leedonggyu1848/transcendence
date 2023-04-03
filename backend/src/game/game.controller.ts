@@ -75,7 +75,45 @@ export class GameController {
     console.log('game : create new game');
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     if (!(await this.gameService.createGame(gameDto, found_user)))
-      throw BadRequestException;
+      throw new BadRequestException('게임 생성 실패');
     res.status(HttpStatus.OK).send();
+  }
+
+  @Post('/join')
+  @UseGuards(JwtGuard)
+  async joinGame(
+    @Body('title') title: string,
+    @Body('password') password: string,
+    @UserDeco() user: UserSessionDto,
+  ) {
+    console.log('game : join game');
+    const found_user = await this.authService.findUserByIntraId(user.intra_id);
+    const data = await this.gameService.serviceJoinGame(
+      title,
+      password,
+      found_user,
+    );
+    if (!data.join) throw new BadRequestException(data.data);
+    console.log('game controller : join data', data);
+    return data.data;
+  }
+
+  @Post('/watch')
+  @UseGuards(JwtGuard)
+  async watchGame(
+    @Body('title') title: string,
+    @Body('password') password: string,
+    @UserDeco() user: UserSessionDto,
+  ) {
+    console.log('game : watch game');
+    const found_user = await this.authService.findUserByIntraId(user.intra_id);
+    const data = await this.gameService.serviceWatchGame(
+      title,
+      password,
+      found_user,
+    );
+    if (!data.join) throw new BadRequestException(data.data);
+    console.log('game controller : watch data', data);
+    return data.data;
   }
 }

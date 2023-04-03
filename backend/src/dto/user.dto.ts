@@ -7,5 +7,4 @@ export class UserDto {
   normal_lose: number;
   rank_win: number;
   rank_lose: number;
-  join_game: number;
 }
