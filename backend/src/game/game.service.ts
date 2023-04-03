@@ -162,23 +162,30 @@ export class GameService {
   }
 
   async flushGame(title: string) {
+    console.log(title);
     const game = await this.gameRepository.findOne({
       where: { title: title },
       relations: ['players', 'watchers'],
     });
+    if (!game) return;
+    console.log(game);
+    if (game.players) {
+      game.players.map((player) =>
+        this.usersRepository.update(player.id, {
+          join_game: null,
+          join_type: JoinType.NONE,
+        }),
+      );
+    }
+    if (game.watchers) {
+      game.watchers.map((watcher) =>
+        this.usersRepository.update(watcher.id, {
+          join_game: null,
+          join_type: JoinType.NONE,
+        }),
+      );
+    }
     this.gameRepository.delete({ id: game.id });
-    game.players.map((player) =>
-      this.usersRepository.update(player.id, {
-        join_game: null,
-        join_type: JoinType.NONE,
-      }),
-    );
-    game.watchers.map((watcher) =>
-      this.usersRepository.update(watcher.id, {
-        join_game: null,
-        join_type: JoinType.NONE,
-      }),
-    );
   }
 
   // async leaveGame(game: GameDto, user: User) {
