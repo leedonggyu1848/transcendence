@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  chatLogState,
+  currentNormalGameInfoState,
+  myNameState,
+} from "../../api/atom";
 import { JoinnedUserDto } from "../../api/interface";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
@@ -7,11 +13,16 @@ import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
   const [start, setStart] = useState(false);
+  const gameInfo = useRecoilValue(currentNormalGameInfoState);
+  const [chatLogs, setChatLogs] = useRecoilState(chatLogState);
+  const myName = useRecoilValue(myNameState);
+
+  console.log(gameInfo);
   return (
     <NormalGamePageContainer>
       <GameContainer>
-        <h1>Normal Game</h1>
-        <h2>yooh의 일반 게임</h2>
+        <h1>일반 게임</h1>
+        <h2>{gameInfo.gameDto.title}</h2>
         {!start ? <WaitRoom /> : <GameBox />}
       </GameContainer>
       <SubContainer>
@@ -20,7 +31,7 @@ const NormalGamePage = () => {
           <Button className="active">나가기</Button>
         </Options>
         <CurrentUserInfo data={createDummyData()} />
-        <ChatBox height={350} />
+        <ChatBox height={350} data={chatLogs} myName={myName} />
       </SubContainer>
     </NormalGamePageContainer>
   );

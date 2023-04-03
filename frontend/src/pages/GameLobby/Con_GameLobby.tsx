@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  joinGameModalToggleState,
   modalBackToggleState,
   myNameState,
   rankWaitModalToggleState,
@@ -19,9 +21,13 @@ const GameLobbyContainer = () => {
   const myName = useRecoilValue(myNameState);
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
+  const setJoinGameModal = useSetRecoilState(joinGameModalToggleState);
   const [gameList, setGameList] = useState<GameDto[]>([]);
+  const navigator = useNavigate();
   const socket = useContext(WebsocketContext);
   console.log(socket);
+
+  const flushData = () => {};
 
   const clickRankGame = () => {
     setModalBack(true);
@@ -30,7 +36,13 @@ const GameLobbyContainer = () => {
 
   const clickJoin = (title: string, private_mode: boolean) => {
     if (!private_mode) {
-      axiosJoinGame(title, "");
+      try {
+        axiosJoinGame(title, "");
+        navigator("/main/game/normal");
+      } catch (e) {
+        console.error(e);
+        alert("게임 참가 실패!");
+      }
       return;
     }
   };
@@ -55,6 +67,7 @@ const GameLobbyContainer = () => {
           e.currentTarget.type.checked,
           e.currentTarget.password.value
         );
+        navigator("/main/game/normal");
       } catch (e) {
         console.error(e);
         alert("게임생성실패");

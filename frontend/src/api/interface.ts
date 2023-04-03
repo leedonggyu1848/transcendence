@@ -33,3 +33,36 @@ export interface JoinListDto {
   private_mode: boolean;
   newMessage: number;
 }
+
+interface INormalRoomInfo {
+  interrupt_mode: boolean;
+  password: string;
+  private_mode: boolean;
+  title: string;
+}
+
+interface IGameUserInfo {
+  id: number;
+  intra_id: string;
+  introduce: string;
+  join_type: number;
+  normal_lose: number;
+  normal_win: number;
+  profile: string;
+  rank_lose: number;
+  rank_win: number;
+  user_id: number;
+}
+
+export interface ICurrentNormalGame {
+  gameDto: INormalRoomInfo;
+  opponent: null;
+  user: IGameUserInfo;
+  watcher: Array<any>;
+}
+
+export interface IChatLog {
+  sender: string;
+  msg: string;
+  time: Date;
+}

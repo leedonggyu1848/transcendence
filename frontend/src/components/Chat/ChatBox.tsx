@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { IChatLog } from "../../api/interface";
 import Chat from "./Chat";
 
 const data = [
@@ -88,16 +89,23 @@ const data = [
   },
 ];
 
-const ChatBox = ({ height }: { height: number }) => {
-  const opponent = "jpark2";
+const ChatBox = ({
+  height,
+  data,
+  myName,
+}: {
+  height: number;
+  data: IChatLog[];
+  myName: string;
+}) => {
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer h={height}>
-        {data.map(({ sender, msg, time }, idx) => (
-          <Chat key={idx} sender={sender} myName="yooh" msg={msg} time={time} />
+        {data.map((info, idx) => (
+          <Chat key={idx} {...info} myName={myName} />
         ))}
       </ChatBoxContainer>
-      <ChatInput placeholder={`${opponent}와 대화하기`} />
+      <ChatInput placeholder="대화하기" />
     </ChatBoxWrapper>
   );
 };

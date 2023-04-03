@@ -8,6 +8,7 @@ import { useContext, useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  joinGameModalToggleState,
   modalBackToggleState,
   rankWaitModalToggleState,
   socketState,
@@ -16,11 +17,13 @@ import ModalBackground from "../components/ModalBackground";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
 import { WebsocketContext } from "../api/WebsocketContext";
+import JoinGameModal from "../components/Modals/JoinGameModal";
 
 const MainPage = () => {
   const [token, setToken] = useCookies(["access_token"]);
   const modalBackToggle = useRecoilValue(modalBackToggleState);
   const rankWaitModalToggle = useRecoilValue(rankWaitModalToggleState);
+  const joinGameModalToggle = useRecoilValue(joinGameModalToggleState);
   const navigate = useNavigate();
   const socket = useContext(WebsocketContext);
 
@@ -40,6 +43,7 @@ const MainPage = () => {
         </Routes>
         {modalBackToggle && <ModalBackground />}
         {rankWaitModalToggle && <RankWaitModal />}
+        {joinGameModalToggle && <JoinGameModal />}
       </MainPageContainer>
     )
   );
