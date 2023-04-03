@@ -17,7 +17,7 @@ export interface GameDto {
   cur: number;
 }
 
-export interface NormalGameUserDto {
+export interface JoinnedUserDto {
   name: string;
   type: string;
 }

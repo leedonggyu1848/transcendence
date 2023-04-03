@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   modalBackToggleState,
@@ -12,6 +12,7 @@ import {
   axiosJoinGame,
   axiosWatchGame,
 } from "../../api/request";
+import { WebsocketContext } from "../../api/WebsocketContext";
 import GameLobby from "./GameLobby";
 
 const GameLobbyContainer = () => {
@@ -19,14 +20,19 @@ const GameLobbyContainer = () => {
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const [gameList, setGameList] = useState<GameDto[]>([]);
+  const socket = useContext(WebsocketContext);
+  console.log(socket);
 
   const clickRankGame = () => {
     setModalBack(true);
     setRankWaitModal(true);
   };
 
-  const clickJoin = () => {
-    axiosJoinGame("game1", "asdf");
+  const clickJoin = (title: string, private_mode: boolean) => {
+    if (!private_mode) {
+      axiosJoinGame(title, "");
+      return;
+    }
   };
 
   const clickWatch = () => {
@@ -62,6 +68,7 @@ const GameLobbyContainer = () => {
       setGameList(result);
     }
     getData();
+    //socket?.on()
   }, []);
 
   return (

@@ -13,7 +13,7 @@ const RoomInfo = ({
   interrupt_mode: boolean;
   cur: number;
   clickWatch: React.MouseEventHandler;
-  clickJoin: React.MouseEventHandler;
+  clickJoin: Function;
 }) => {
   return (
     <RoomInfoContainer>
@@ -24,7 +24,11 @@ const RoomInfo = ({
         {title.length > 17 ? "..." : ""}
       </Name>
       <Current>{cur} / 2</Current>
-      {cur === 1 ? <Button onClick={clickJoin}>참가</Button> : <Empty />}
+      {cur === 1 ? (
+        <Button onClick={() => clickJoin(title, private_mode)}>참가</Button>
+      ) : (
+        <Empty />
+      )}
       <Button onClick={clickWatch}>관전</Button>
     </RoomInfoContainer>
   );

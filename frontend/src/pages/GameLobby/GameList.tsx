@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import React from "react";
 import { GameDto } from "../../api/interface";
 import RoomInfo from "./RoomInfo";
 
@@ -8,7 +9,7 @@ const GameList = ({
   clickWatch,
 }: {
   data: GameDto[];
-  clickJoin: React.MouseEventHandler;
+  clickJoin: Function;
   clickWatch: React.MouseEventHandler;
 }) => {
   return (

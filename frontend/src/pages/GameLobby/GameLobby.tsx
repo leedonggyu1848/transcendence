@@ -15,7 +15,7 @@ const GameLobby = ({
   myName: string;
   onCreateRoom: React.FormEventHandler<HTMLFormElement>;
   clickRankGame: React.MouseEventHandler;
-  clickJoin: React.MouseEventHandler;
+  clickJoin: Function;
   clickWatch: React.MouseEventHandler;
 }) => {
   return (

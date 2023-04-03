@@ -142,7 +142,7 @@ const ChatBoxWrapper = styled.div<{ h: number }>`
   width: 100%;
   background: var(--sub-bg-color);
   height: ${({ h }) => h + "px"};
-  border-radius: 20px;
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   justify-content: center;

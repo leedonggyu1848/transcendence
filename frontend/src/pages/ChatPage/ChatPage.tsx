@@ -1,7 +1,10 @@
 import styled from "@emotion/styled";
-import { ChatListDto, JoinListDto } from "../../api/interface";
+import { useRecoilValue } from "recoil";
+import { socketState } from "../../api/atom";
+import { ChatListDto, JoinListDto, JoinnedUserDto } from "../../api/interface";
 import ChatBox from "../../components/Chat/ChatBox";
 import ChatList from "./ChatList";
+import CurrentChat from "./CurrentChat";
 import JoinList from "./JoinList";
 
 const ChatPage = () => {
@@ -16,16 +19,39 @@ const ChatPage = () => {
         <ChatList data={createDummyChatList()}></ChatList>
       </WapperContainer>
       <WapperContainer>
-        <HeaderContainer></HeaderContainer>
-        <ChatBox height={510}></ChatBox>
+        <HeaderContainer>
+          <div>현재 참가 중인 방</div>
+        </HeaderContainer>
+        <CurrentChat data={createDummyData()} />
       </WapperContainer>
       <WapperContainer>
-        <HeaderContainer></HeaderContainer>
+        <HeaderContainer>
+          <div>참여 중인 방 목록</div>
+        </HeaderContainer>
         <JoinList data={createDummyJoinList()} />
       </WapperContainer>
     </ChatPageContainer>
   );
 };
+
+function createDummyData() {
+  const result: JoinnedUserDto[] = [];
+  const socket = useRecoilValue(socketState);
+
+  console.log(socket);
+
+  result.push({ name: "yooh", type: "owner" });
+  result.push({ name: "jpark2", type: "opponent" });
+
+  for (let i = 0; i < 50; i < i++) {
+    let temp: JoinnedUserDto = {
+      name: "User " + (i + 1),
+      type: "watcher",
+    };
+    result.push(temp);
+  }
+  return result;
+}
 
 function createDummyChatList() {
   const result: ChatListDto[] = [];
@@ -48,7 +74,7 @@ function createDummyJoinList() {
   const result: JoinListDto[] = [];
   for (let i = 0; i < 100; i++) {
     const ran = Math.floor(Math.random() * 2);
-    const newMessage = Math.floor(Math.random() * 150);
+    const newMessage = Math.floor(Math.random() * 2);
     result.push({
       title:
         "톰과 제리의 환상적인 콜라보레이션 보고싶은 분들은 이 방으로 들어오세요 시간이 없습니다~!" +
@@ -81,13 +107,6 @@ const HeaderContainer = styled.div`
     color: white;
     font-size: 1.25rem;
   }
-`;
-
-const Container = styled.div`
-  width: 100%;
-  height: 510px;
-  background: var(--sub-bg-color);
-  border-radius: 10px;
 `;
 
 const WapperContainer = styled.div`

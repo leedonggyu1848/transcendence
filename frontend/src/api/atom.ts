@@ -1,4 +1,5 @@
 import { atom, selector } from "recoil";
+import { io, Socket } from "socket.io-client";
 
 export const myInfoState = atom({
   key: "myInfoState",
@@ -36,4 +37,9 @@ export const rankWaitModalToggleState = atom({
 export const currentNormalGameInfoState = atom({
   key: "currentNormalGameInfoState",
   default: {},
+});
+
+export const socketState = atom<Socket | null>({
+  key: "socketState",
+  default: null,
 });

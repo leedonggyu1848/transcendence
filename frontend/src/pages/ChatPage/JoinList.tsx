@@ -6,17 +6,40 @@ const JoinList = ({ data }: { data: JoinListDto[] }) => {
     <JoinListContainer>
       {data.map(({ title, private_mode, newMessage }, idx) => (
         <Room>
+          {newMessage > 0 ? <NewMessage /> : <Empty />}
           <Private private_mode={private_mode} />
-          <Title>
+          <Title title={title}>
             {title.slice(0, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
-          <NewMessage>{newMessage > 0 ? newMessage : ""}</NewMessage>
+          <LeaveButton>나가기</LeaveButton>
         </Room>
       ))}
     </JoinListContainer>
   );
 };
+
+const Empty = styled.div`
+  width: 7px;
+  height: 7px;
+  margin-left: 10px;
+`;
+
+const NewMessage = styled.div`
+  width: 7px;
+  height: 7px;
+  border-radius: 10px;
+  background: #ff4a4a;
+  margin-left: 10px;
+`;
+
+const LeaveButton = styled.div`
+  padding: 5px 8px;
+  color: white;
+  border: 1px solid white;
+  border-radius: 10px;
+  cursor: pointer;
+`;
 
 const Private = styled.div<{ private_mode: boolean }>`
   width: 15px;
@@ -27,16 +50,16 @@ const Private = styled.div<{ private_mode: boolean }>`
 `;
 
 const Title = styled.div`
-  width: 60%;
+  width: 55%;
 `;
 
-const NewMessage = styled.div``;
-
 const Room = styled.div`
-  width: 85%;
+  width: 95%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  margin: 5px;
 `;
 
 const JoinListContainer = styled.div`

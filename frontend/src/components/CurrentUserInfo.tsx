@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-import { NormalGameUserDto } from "../../api/interface";
+import { JoinnedUserDto } from "../api/interface";
 
-const CurrentUserInfo = ({ data }: { data: NormalGameUserDto[] }) => {
+const CurrentUserInfo = ({ data }: { data: JoinnedUserDto[] }) => {
   return (
     <CurrentUserInfoContainer>
       <Title>참여중인 사람 : {data.length}명</Title>

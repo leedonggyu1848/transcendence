@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
-import { NormalGameUserDto } from "../../api/interface";
+import { JoinnedUserDto } from "../../api/interface";
 import ChatBox from "../../components/Chat/ChatBox";
-import CurrentUserInfo from "./CurrentUserInfo";
+import CurrentUserInfo from "../../components/CurrentUserInfo";
 import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
@@ -27,13 +27,13 @@ const NormalGamePage = () => {
 };
 
 function createDummyData() {
-  const result: NormalGameUserDto[] = [];
+  const result: JoinnedUserDto[] = [];
 
   result.push({ name: "yooh", type: "owner" });
   result.push({ name: "jpark2", type: "opponent" });
 
   for (let i = 0; i < 50; i < i++) {
-    let temp: NormalGameUserDto = {
+    let temp: JoinnedUserDto = {
       name: "User " + (i + 1),
       type: "watcher",
     };
