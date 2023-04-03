@@ -30,3 +30,21 @@ export const axiosCreateGame = async (
 
   console.log(response);
 };
+
+const axiosWatchGameURL = "/game/watch";
+export const axiosWatchGame = async (title: string, password: string) => {
+  const response = await instance.post(axiosWatchGameURL, {
+    title,
+    password,
+  });
+  console.log(response);
+};
+
+const axiosJoinGameURL = "/game/join";
+export const axiosJoinGame = async (title: string, password: string) => {
+  const response = await instance.post(axiosJoinGameURL, {
+    title,
+    password,
+  });
+  console.log(response);
+};

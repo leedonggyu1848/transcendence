@@ -21,3 +21,15 @@ export interface NormalGameUserDto {
   name: string;
   type: string;
 }
+
+export interface ChatListDto {
+  title: string;
+  private_mode: boolean;
+  cur: number;
+}
+
+export interface JoinListDto {
+  title: string;
+  private_mode: boolean;
+  newMessage: number;
+}

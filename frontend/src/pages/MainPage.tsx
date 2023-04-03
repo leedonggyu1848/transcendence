@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Menu from "../components/Menu";
 import GamePage from "./GamePage";
-import ChatLobby from "./ChatLobby";
+import ChatPage from "./ChatPage/ChatPage";
 import { useCookies } from "react-cookie";
 import { useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
@@ -11,7 +11,6 @@ import { modalBackToggleState, rankWaitModalToggleState } from "../api/atom";
 import ModalBackground from "../components/ModalBackground";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
-import NotFoundPage from "./NotFoundPage";
 
 const MainPage = () => {
   const [token, setToken] = useCookies(["access_token"]);
@@ -30,7 +29,7 @@ const MainPage = () => {
           <Route path="lobby" element={<GameLobbyContainer />} />
           <Route path="/game" element={<GamePage />} />
           <Route path="/game/normal" element={<NormalGamePage />} />
-          <Route path="/chat" element={<ChatLobby />} />
+          <Route path="/chat" element={<ChatPage />} />
           <Route path="*" element={<Navigate to="/not_found" />} />
         </Routes>
         {modalBackToggle && <ModalBackground />}
