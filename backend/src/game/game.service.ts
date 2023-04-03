@@ -164,7 +164,7 @@ export class GameService {
   async flushGame(title: string) {
     const game = await this.gameRepository.findOne({
       where: { title: title },
-      relations: ['players', 'users'],
+      relations: ['players', 'watchers'],
     });
     this.gameRepository.delete({ id: game.id });
     game.players.map((player) =>
