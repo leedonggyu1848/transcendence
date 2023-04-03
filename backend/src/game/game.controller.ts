@@ -70,8 +70,13 @@ export class GameController {
 
   @Get('/userinfo/:intra_id')
   @UseGuards(JwtGuard)
-  async getUserInfo(@Param('intra_id') intra_id: string) {
+  async getUserInfo(
+    @Param('intra_id') intra_id: string,
+    @UserDeco() user: UserSessionDto,
+  ) {
     this.logger.log(`User info request: ${intra_id}`);
+    if (intra_id === '')
+      return await this.gameService.getUserInfo(user.intra_id);
     return await this.gameService.getUserInfo(intra_id);
   }
 
