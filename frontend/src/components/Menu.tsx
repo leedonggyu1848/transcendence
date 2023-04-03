@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { NavLink } from "react-router-dom";
 
 const Menu = () => {
   return (
@@ -6,9 +7,15 @@ const Menu = () => {
       <Logo />
       <NavContainer>
         <IconConatiner>
-          <Game />
-          <Chat />
-          <History />
+          <NavLink to="/main/lobby">
+            <Game />
+          </NavLink>
+          <NavLink to="/main/chat">
+            <Chat />
+          </NavLink>
+          <NavLink to="/main/history">
+            <History />
+          </NavLink>
         </IconConatiner>
         <Setting />
       </NavContainer>

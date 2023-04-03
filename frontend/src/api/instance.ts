@@ -32,7 +32,7 @@ instance.interceptors.response.use(
         path: "/",
         domain: "localhost",
       });
-      //window.location.href = "/";
+      window.location.href = "/no_auth";
       //alert(error.response.data.message);
     }
     return Promise.reject(error);

@@ -7,6 +7,8 @@ import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
 import { CookiesProvider } from "react-cookie";
 import { RecoilRoot } from "recoil";
+import NoAuthPage from "./pages/NoAuthPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const Background = styled.div`
   background-image: url("/src/assets/background.png");
@@ -29,6 +31,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/main/*" element={<MainPage />} />
+            <Route path="/no_auth" element={<NoAuthPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Background>
       </RecoilRoot>
