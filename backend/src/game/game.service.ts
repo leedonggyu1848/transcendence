@@ -85,7 +85,7 @@ export class GameService {
   async serviceJoinGame(title: string, password: string, user: Users) {
     const game = await this.gameRepository.findOne({
       where: { title: title },
-      relations: ['players', 'users'],
+      relations: ['players', 'watchers'],
     });
     if (!game) return { success: false, data: '해당 방이 없습니다.' };
     if (game.private_mode && game.password !== password)
@@ -126,7 +126,7 @@ export class GameService {
   async serviceWatchGame(title: string, password: string, user: Users) {
     const game = await this.gameRepository.findOne({
       where: { title: title },
-      relations: ['players', 'users'],
+      relations: ['players', 'watchers'],
     });
     if (!game) return { success: false, data: '해당 방이 없습니다.' };
     if (game.private_mode && game.password !== password)
