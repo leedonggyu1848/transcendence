@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Logger,
   Res,
   UseGuards,
@@ -39,10 +40,9 @@ export class AuthController {
 
   @Get('/logout')
   @UseGuards(JwtGuard)
-  @HttpCode(204)
   logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Logout: ${user.intra_id}`);
     res.clearCookie('access_token');
-    res.send();
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 }

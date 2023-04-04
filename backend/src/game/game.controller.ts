@@ -17,18 +17,20 @@ import { AuthService } from 'src/auth/auth.service';
 import { GameDto } from 'src/dto/game.dto';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('/api/game')
 export class GameController {
   private logger = new Logger(GameController.name);
   constructor(
+    private readonly configSerive: ConfigService,
     private authService: AuthService,
     private gameService: GameService,
   ) {}
 
   @Get('/lobby')
   @UseGuards(JwtGuard)
-  async lobby() {
+  async lobby(@Res() res: Response) {
     this.logger.log('Request lobby info');
     let games = await this.gameService.getLobbyInfo();
     if (games.length === 0) {
@@ -65,14 +67,15 @@ export class GameController {
       );
       games = await this.gameService.getLobbyInfo();
     }
-    return games;
+    res.status(HttpStatus.OK).send(games);
   }
 
   @Get('/userinfo')
   @UseGuards(JwtGuard)
-  async getUserInfo(@UserDeco() user: UserSessionDto) {
+  async getUserInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`User info request: ${user.intra_id}`);
-    return await this.gameService.getUserInfo(user.intra_id);
+    const data = await this.gameService.getUserInfo(user.intra_id);
+    res.status(HttpStatus.OK).send(data);
   }
 
   @Post('/new_game')
@@ -89,12 +92,13 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    return data.data;
+    res.status(HttpStatus.OK).send(data);
   }
 
   @Post('/join')
   @UseGuards(JwtGuard)
   async joinGame(
+    @Res() res: Response,
     @Body('title') title: string,
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
@@ -110,12 +114,13 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    return data.data;
+    res.status(HttpStatus.OK).send(data);
   }
 
   @Post('/watch')
   @UseGuards(JwtGuard)
   async watchGame(
+    @Res() res: Response,
     @Body('title') title: string,
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
@@ -131,7 +136,7 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    return data.data;
+    res.status(HttpStatus.OK).send(data);
   }
 
   @Post('/flush') // test code => TODO: delete
