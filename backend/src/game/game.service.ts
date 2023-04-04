@@ -236,9 +236,6 @@ export class GameService {
         join_type: JoinType.NONE,
       });
     } else if (user.join_type === JoinType.WATCHER) {
-      await this.gameRepository.update(game.id, {
-        count: game.count - 1,
-      });
       await this.usersRepository.update(user.id, {
         watch_game: null,
         join_type: JoinType.NONE,
