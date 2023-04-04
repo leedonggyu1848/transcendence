@@ -8,6 +8,7 @@ import {
   myInfoState,
   myNameState,
   rankWaitModalToggleState,
+  selectedNormalGameTitleState,
 } from "../../api/atom";
 import { GameDto } from "../../api/interface";
 import {
@@ -26,6 +27,9 @@ const GameLobbyContainer = () => {
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const setJoinGameModal = useSetRecoilState(joinGameModalToggleState);
   const setBackgroundModal = useSetRecoilState(modalBackToggleState);
+  const setSelectedNormalGameTitle = useSetRecoilState(
+    selectedNormalGameTitleState
+  );
   const setMyInfo = useSetRecoilState(myInfoState);
   const setCurrentNormalGameInfoState = useSetRecoilState(
     currentNormalGameInfoState
@@ -54,6 +58,7 @@ const GameLobbyContainer = () => {
     }
     setBackgroundModal(true);
     setJoinGameModal(true);
+    setSelectedNormalGameTitle(title);
   };
 
   const clickWatch = () => {

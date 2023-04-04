@@ -41,7 +41,6 @@ const MainPage = () => {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="*" element={<Navigate to="/not_found" />} />
         </Routes>
-        {modalBackToggle && <ModalBackground />}
         {rankWaitModalToggle && <RankWaitModal />}
         {joinGameModalToggle && <JoinGameModal />}
       </MainPageContainer>
