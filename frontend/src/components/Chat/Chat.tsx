@@ -13,7 +13,11 @@ const Chat = ({
   time: Date;
 }) => {
   const mine = sender === myName;
-  return (
+  return sender === "admin" ? (
+    <ChatContainer>
+      <div className="admin">{msg}</div>
+    </ChatContainer>
+  ) : (
     <ChatContainer>
       <Container>
         {mine ? <div /> : ""}

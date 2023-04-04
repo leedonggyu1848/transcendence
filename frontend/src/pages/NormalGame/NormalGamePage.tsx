@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   chatLogState,
@@ -9,6 +10,7 @@ import {
   myNameState,
 } from "../../api/atom";
 import { IChatLog, JoinnedUserDto, UserDto } from "../../api/interface";
+import { axiosLeaveNormalGame } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
@@ -23,6 +25,7 @@ const NormalGamePage = () => {
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
+  const navigate = useNavigate();
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e.target.value);
@@ -41,6 +44,17 @@ const NormalGamePage = () => {
     }
   };
 
+  const clickExit = async () => {
+    try {
+      await axiosLeaveNormalGame();
+      socket.emit("leave-room", gameInfo.gameDto.title);
+      navigate("/main/lobby");
+    } catch (e) {
+      console.error(e);
+      alert(e);
+    }
+  };
+
   useEffect(() => {
     if (gameInfo.ownerDto.intra_id === myName) {
       socket.emit("create-room", gameInfo.gameDto.title);
@@ -53,6 +67,10 @@ const NormalGamePage = () => {
     }
     socket.on("join-room", ({ userInfo, message }) => {
       console.log(message, userInfo);
+      setChatLogs([
+        ...chatLogs,
+        { sender: "admin", msg: message, time: new Date() },
+      ]);
       if (!gameInfo.opponentDto) {
         setGameInfo({ ...gameInfo, opponentDto: { ...userInfo } });
       }
@@ -65,6 +83,35 @@ const NormalGamePage = () => {
         { sender: username, msg: message, time: new Date() },
       ]);
     });
+
+    socket.on(
+      "leave-room",
+      ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
+        if (userInfo.intra_id === gameInfo.ownerDto.intra_id) {
+          navigate("/main/lobby");
+        } else if (
+          gameInfo.opponentDto &&
+          userInfo.intra_id === gameInfo.opponentDto.intra_id
+        ) {
+          setChatLogs([
+            ...chatLogs,
+            { sender: "admin", msg: message, time: new Date() },
+          ]);
+          setGameInfo({ ...gameInfo, opponentDto: null });
+        } else {
+          setChatLogs([
+            ...chatLogs,
+            { sender: "admin", msg: message, time: new Date() },
+          ]);
+          setGameInfo({
+            ...gameInfo,
+            watchersDto: gameInfo.watchersDto.filter(
+              (watcher) => watcher.intra_id !== userInfo.intra_id
+            ),
+          });
+        }
+      }
+    );
   }, [chatLogs]);
   return (
     <NormalGamePageContainer>
@@ -76,7 +123,9 @@ const NormalGamePage = () => {
       <SubContainer>
         <Options>
           <Button className="active">시작하기</Button>
-          <Button className="active">나가기</Button>
+          <Button className="active" onClick={clickExit}>
+            나가기
+          </Button>
         </Options>
         <CurrentUserInfo data={usersInfo} />
         <ChatBox

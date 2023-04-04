@@ -73,3 +73,10 @@ export const axiosGetMyInfo = async () => {
   console.log(response);
   return response.data;
 };
+
+const axiosLeaveNormalGameURL = "/game/leave";
+export const axiosLeaveNormalGame = async () => {
+  const response = await instance.get(axiosLeaveNormalGameURL);
+
+  console.log(response);
+};
