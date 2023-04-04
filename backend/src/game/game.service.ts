@@ -28,6 +28,7 @@ export class GameService {
   }
 
   private userToUserDto(user: Users) {
+    if (!user) return null;
     const userDto: UserDto = {
       user_id: user.user_id,
       intra_id: user.intra_id,
@@ -94,7 +95,7 @@ export class GameService {
       where: { title: title },
       relations: ['players', 'watchers'],
     });
-    if (!game) return { success: false, data: '해당 방이 없습니다.' };
+    if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && game.password !== password)
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
     if (game.count == 2)
@@ -107,12 +108,17 @@ export class GameService {
       join_game: game,
       join_type: JoinType.PLAYER,
     });
+    if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
     const owner = game.players.filter(
       (player) => player.join_type === JoinType.OWNER,
     );
-    const watchers = game.watchers.filter(
-      (user) => user.join_type === JoinType.WATCHER,
-    );
+    let watchersDto: UserDto[];
+    if (game.watchers) {
+      const watchers = game.watchers.filter(
+        (user) => user.join_type === JoinType.WATCHER,
+      );
+      watchersDto = watchers.map((element) => this.userToUserDto(element));
+    } else watchersDto = null;
     const gameDto: GameDto = {
       title: game.title,
       interrupt_mode: game.interrupt_mode,
@@ -121,9 +127,6 @@ export class GameService {
     };
     const ownerDto: UserDto = this.userToUserDto(owner[0]);
     const opponentDto: UserDto = this.userToUserDto(user);
-    const watchersDto: UserDto[] = watchers.map((element) =>
-      this.userToUserDto(element),
-    );
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
@@ -135,7 +138,7 @@ export class GameService {
       where: { title: title },
       relations: ['players', 'watchers'],
     });
-    if (!game) return { success: false, data: '해당 방이 없습니다.' };
+    if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && game.password !== password)
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
     if (user.join_game)
@@ -145,23 +148,25 @@ export class GameService {
       join_game: game,
       join_type: JoinType.WATCHER,
     });
+    if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
     const owner = game.players.filter(
       (player) => player.join_type === JoinType.OWNER,
     );
     const player = game.players.filter(
       (player) => player.join_type === JoinType.PLAYER,
     );
-    const watchers = game.watchers.filter(
-      (user) => user.join_type === JoinType.WATCHER,
-    );
+    let watchersDto: UserDto[];
+    if (game.watchers) {
+      const watchers = game.watchers.filter(
+        (user) => user.join_type === JoinType.WATCHER,
+      );
+      watchersDto = watchers.map((element) => this.userToUserDto(element));
+    } else watchersDto = null;
     if (owner.length >= 2 || player.length >= 2)
       return { success: false, data: '데이터 저장 오류' };
     const gameDto: GameDto = this.gameToGameDto(game);
     const ownerDto: UserDto = this.userToUserDto(owner[0]);
     const opponentDto: UserDto = this.userToUserDto(player[0]);
-    const watchersDto: UserDto[] = watchers.map((element) =>
-      this.userToUserDto(element),
-    );
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
@@ -193,15 +198,18 @@ export class GameService {
     this.gameRepository.delete({ id: game.id });
   }
 
-  // async leaveGame(game: GameDto, user: User) {
-  // 	const found_user = await this.userRepository.findOneBy({intra_id: user.intra_id});
-  // 	if (!found_user)
-  // 		return { join: false, data: 'No user has such intra id' };
-  // 	if (!found_user.join_game)
-  // 		return { join: false, data: `The user does not join any game` };
-
-  // 	const found_game = await this.gameRepository.findOneBy({title: game.title});
-  // 	if (!found_game)
-  // 		return { join: false, data: 'No game has such title' };
-  // }
+  async leaveGame(title: string, user: Users) {
+    const game = await this.gameRepository.findOne({
+      where: { title: title },
+      relations: ['players', 'watchers'],
+    });
+    if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
+    if (
+      !game.players ||
+      !game.players.find((player) => player.intra_id === user.intra_id)
+    )
+      return { success: false, data: '해당 방에 플레이어가 없습니다.' };
+    if (user.join_game.title !== title)
+      return { success: false, data: '요청한 방과 다른 방에 참가 중 입니다.' };
+  }
 }

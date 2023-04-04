@@ -19,6 +19,7 @@ interface JoinPayload {
 
 interface MessagePayload {
   roomName: string;
+  userName: string;
   message: string;
 }
 
@@ -64,11 +65,11 @@ export class EventsGateway
   @SubscribeMessage('message')
   handleMessage(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, message }: MessagePayload,
+    @MessageBody() { roomName, userName, message }: MessagePayload,
   ) {
     socket.broadcast
       .to(roomName)
-      .emit('message', { username: socket.id, message });
+      .emit('message', { username: userName, message });
 
     return { username: socket.id, message };
   }
@@ -98,7 +99,7 @@ export class EventsGateway
     @MessageBody() { roomName, userInfo }: JoinPayload,
   ) {
     socket.join(roomName);
-    socket.broadcast.to(roomName).emit('message', {
+    socket.broadcast.to(roomName).emit('join-room', {
       message: `${userInfo.intra_id}가 들어왔습니다.`,
       userInfo: userInfo,
     });
