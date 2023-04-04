@@ -1,93 +1,7 @@
 import styled from "@emotion/styled";
+import { useEffect, useRef } from "react";
 import { IChatLog } from "../../api/interface";
 import Chat from "./Chat";
-
-const data = [
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "jpark2",
-    receiver: "yooh",
-    msg: "hello world hello world hello world hello world hello world hello world hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "jpark2",
-    receiver: "yooh",
-    msg: "hello world hello world hello world hello world hello world hello world hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-  {
-    sender: "yooh",
-    receiver: "jpark2",
-    msg: "hello world",
-    time: new Date(),
-  },
-];
 
 const ChatBox = ({
   height,
@@ -104,9 +18,16 @@ const ChatBox = ({
   onSend: React.KeyboardEventHandler<HTMLInputElement>;
   msg: string;
 }) => {
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [data]);
   return (
     <ChatBoxWrapper h={height}>
-      <ChatBoxContainer h={height}>
+      <ChatBoxContainer ref={chatBoxRef} h={height}>
         {data.map((info, idx) => (
           <Chat key={idx} {...info} myName={myName} />
         ))}

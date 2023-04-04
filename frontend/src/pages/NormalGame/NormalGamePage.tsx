@@ -18,7 +18,7 @@ const NormalGamePage = () => {
   const [start, setStart] = useState(false);
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const usersInfo = useRecoilValue(currentNormaGameUsersState);
-  const [chatLogs, setChatLogs] = useState<IChatLog>([]);
+  const [chatLogs, setChatLogs] = useState<IChatLog[]>([]);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
@@ -30,10 +30,11 @@ const NormalGamePage = () => {
   };
 
   const onSend = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      console.log("hi");
+    if (e.key === "Enter" && msg) {
+      setChatLogs([...chatLogs, { sender: myName, msg, time: new Date() }]);
       socket.emit("message", {
         roomName: gameInfo.gameDto.title,
+        userName: myName,
         message: msg,
       });
       setMsg("");
@@ -59,8 +60,12 @@ const NormalGamePage = () => {
 
     socket.on("message", ({ username, message }) => {
       console.log(username, message);
+      setChatLogs([
+        ...chatLogs,
+        { sender: username, msg: message, time: new Date() },
+      ]);
     });
-  }, []);
+  }, [chatLogs]);
   return (
     <NormalGamePageContainer>
       <GameContainer>
