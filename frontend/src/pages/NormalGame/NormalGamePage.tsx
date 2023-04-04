@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   chatLogState,
@@ -8,6 +8,7 @@ import {
   myNameState,
 } from "../../api/atom";
 import { JoinnedUserDto } from "../../api/interface";
+import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
 import WaitRoom from "./WaitRoom";
@@ -18,8 +19,18 @@ const NormalGamePage = () => {
   const usersInfo = useRecoilValue(currentNormaGameUsersState);
   const [chatLogs, setChatLogs] = useRecoilState(chatLogState);
   const myName = useRecoilValue(myNameState);
+  const socket = useContext(WebsocketContext);
 
   console.log(gameInfo);
+
+  useEffect(() => {
+    if (gameInfo.ownerDto.intra_id === myName) {
+      socket.emit("create-room", gameInfo.gameDto.title);
+    } else {
+      socket.emit("join-room", myName);
+    }
+    socket.on("message", (message: string) => console.log(message));
+  }, []);
   return (
     <NormalGamePageContainer>
       <GameContainer>

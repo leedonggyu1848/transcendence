@@ -82,6 +82,7 @@ export class EventsGateway
       return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
     socket.join(roomName);
     createdRooms.push(roomName);
+    this.logger.log(roomName);
     this.nsp.emit('create-room', roomName);
     return { success: true, payload: roomName };
   }
