@@ -92,7 +92,7 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    res.status(HttpStatus.OK).send(data);
+    res.status(HttpStatus.OK).send(data.data);
   }
 
   @Post('/join')
@@ -114,7 +114,7 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    res.status(HttpStatus.OK).send(data);
+    res.status(HttpStatus.OK).send(data.data);
   }
 
   @Post('/watch')
@@ -136,7 +136,7 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    res.status(HttpStatus.OK).send(data);
+    res.status(HttpStatus.OK).send(data.data);
   }
 
   @Post('/flush') // test code => TODO: delete

@@ -170,13 +170,11 @@ export class GameService {
   }
 
   async flushGame(title: string) {
-    console.log(title);
     const game = await this.gameRepository.findOne({
       where: { title: title },
       relations: ['players', 'watchers'],
     });
     if (!game) return;
-    console.log(game);
     if (game.players) {
       game.players.map((player) =>
         this.usersRepository.update(player.id, {
