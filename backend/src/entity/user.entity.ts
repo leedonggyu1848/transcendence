@@ -45,9 +45,13 @@ export class Users {
   @NotEquals(null)
   rank_lose: number;
 
-  @ManyToOne(() => Game, (game) => game.watchers)
-  @JoinColumn({ name: 'game_id' })
-  join_game: Game;
+  @ManyToOne(() => Game, (game) => game.players, { cascade: true })
+  @JoinColumn({ name: 'play_game_id' })
+  play_game: Game;
+
+  @ManyToOne(() => Game, (game) => game.watchers, { cascade: true })
+  @JoinColumn({ name: 'watch_game_id' })
+  watch_game: Game;
 
   @Column({ type: 'enum', name: 'join_type', enum: JoinType })
   @NotEquals(null)

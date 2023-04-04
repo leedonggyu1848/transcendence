@@ -141,7 +141,7 @@ export class GameController {
 
   @Post('/flush') // test code => TODO: delete
   async flush(@Res() res: Response, @Body('title') title: string) {
-    this.gameService.flushGame(title);
+    await this.gameService.flushGame(title);
     res.status(HttpStatus.OK).send();
   }
 

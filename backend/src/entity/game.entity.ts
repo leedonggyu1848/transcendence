@@ -27,9 +27,9 @@ export class Game {
   @NotEquals(null)
   count: number;
 
-  @OneToMany(() => Users, (user) => user.join_game, { cascade: true })
+  @OneToMany(() => Users, (user) => user.play_game)
   players: Users[];
 
-  @OneToMany(() => Users, (user) => user.join_game, { cascade: true })
+  @OneToMany(() => Users, (user) => user.watch_game)
   watchers: Users[];
 }
