@@ -12,7 +12,7 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { UserDto } from 'src/dto/user.dto';
 
-interface JoinPayload {
+interface userPayload {
   roomName: string;
   userInfo: UserDto;
 }
@@ -98,7 +98,7 @@ export class EventsGateway
   @SubscribeMessage('join-room')
   handleJoinRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userInfo }: JoinPayload,
+    @MessageBody() { roomName, userInfo }: userPayload,
   ) {
     this.logger.log(userInfo);
     socket.join(roomName);
@@ -112,12 +112,15 @@ export class EventsGateway
   @SubscribeMessage('leave-room')
   handleLeaveRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
+    @MessageBody() { roomName, userInfo }: userPayload,
   ) {
     socket.leave(roomName);
     socket.broadcast
       .to(roomName)
-      .emit('message', { message: `${socket.id}가 나갔습니다.` });
+      .emit('leave-room', {
+        message: `${userInfo.intra_id}가 나갔습니다.`,
+        userInfo: userInfo,
+      });
     return { success: true };
   }
 }

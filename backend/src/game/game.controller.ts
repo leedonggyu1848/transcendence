@@ -149,7 +149,10 @@ export class GameController {
   async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.gameService.serviceLeaveGame(found_user);
-    if (!data.success) throw new BadRequestException(data.data);
+    if (!data.success) {
+      this.logger.log(`Bad request: ${data.data}`);
+      throw new BadRequestException(data.data);
+    }
     res.status(HttpStatus.OK).send();
   }
 }
