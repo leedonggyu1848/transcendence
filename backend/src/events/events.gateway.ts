@@ -15,6 +15,7 @@ import { UserDto } from 'src/dto/user.dto';
 interface userPayload {
   roomName: string;
   userInfo: UserDto;
+  type: string;
 }
 
 interface MessagePayload {
@@ -67,7 +68,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, userName, message }: MessagePayload,
   ) {
-    this.logger.log(roomName, message);
+    this.logger.log(`${roomName} message => ${userName}: ${message}`);
     socket.broadcast
       .to(roomName)
       .emit('message', { username: userName, message });
@@ -90,7 +91,7 @@ export class EventsGateway
       return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
     socket.join(roomName);
     createdRooms.push(roomName);
-    this.logger.log(`socket create room: ${roomName}`);
+    this.logger.log(`room ${roomName} is created`);
     this.nsp.emit('create-room', roomName);
     return { success: true, payload: roomName };
   }
@@ -98,13 +99,14 @@ export class EventsGateway
   @SubscribeMessage('join-room')
   handleJoinRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userInfo }: userPayload,
+    @MessageBody() { roomName, userInfo, type }: userPayload,
   ) {
-    this.logger.log(`socket join room: ${roomName} / ${userInfo.intra_id}`);
+    this.logger.log(`${userInfo.intra_id} join room ${roomName} as ${type}`);
     socket.join(roomName);
     socket.broadcast.to(roomName).emit('join-room', {
       message: `${userInfo.intra_id}가 들어왔습니다.`,
       userInfo: userInfo,
+      type: type,
     });
     return { success: true };
   }
@@ -112,13 +114,14 @@ export class EventsGateway
   @SubscribeMessage('leave-room')
   handleLeaveRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userInfo }: userPayload,
+    @MessageBody() { roomName, userInfo, type }: userPayload,
   ) {
-    this.logger.log(`socket leave room: ${roomName} / ${userInfo.intra_id}`);
+    this.logger.log(`${userInfo.intra_id} leave room ${roomName} as ${type}`);
     socket.leave(roomName);
     socket.broadcast.to(roomName).emit('leave-room', {
       message: `${userInfo.intra_id}가 나갔습니다.`,
       userInfo: userInfo,
+      type: type,
     });
     return { success: true };
   }
