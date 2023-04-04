@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserDto } from 'src/dto/user.dto';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { Users } from 'src/entity/user.entity';
