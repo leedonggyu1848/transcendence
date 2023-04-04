@@ -205,11 +205,38 @@ export class GameService {
     });
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (
-      !game.players ||
-      !game.players.find((player) => player.intra_id === user.intra_id)
+      (!game.players && !game.watchers) ||
+      !user.join_game ||
+      user.join_game.title !== title ||
+      (!game.players.find((player) => player.intra_id === user.intra_id) &&
+        !game.watchers.find((player) => player.intra_id === user.intra_id))
     )
       return { success: false, data: '해당 방에 플레이어가 없습니다.' };
-    if (user.join_game.title !== title)
-      return { success: false, data: '요청한 방과 다른 방에 참가 중 입니다.' };
+    if (user.join_type === JoinType.OWNER) {
+      this.flushGame(title);
+    } else if (user.join_type === JoinType.PLAYER) {
+      const players = game.players.filter(
+        (player) => player.intra_id !== user.intra_id,
+      );
+      await this.gameRepository.update(game.id, {
+        count: game.count - 1,
+        players: players,
+      });
+    } else if (user.join_type === JoinType.WATCHER) {
+      const watchers = game.watchers.filter(
+        (watcher) => watcher.intra_id !== user.intra_id,
+      );
+      await this.gameRepository.update(game.id, {
+        count: game.count - 1,
+        watchers: watchers,
+      });
+    } else {
+      return { success: false, data: '데이터 저장 오류' };
+    }
+    await this.usersRepository.update(user.id, {
+      join_game: null,
+      join_type: JoinType.NONE,
+    });
+    return { success: true, data: null };
   }
 }
