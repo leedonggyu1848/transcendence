@@ -16,15 +16,24 @@ export class AuthService {
   ) {}
 
   async findUserById(id: number) {
-    return this.usersRepository.findOneBy({ id: id });
+    return this.usersRepository.findOne({
+      where: { id: id },
+      relations: ['play_game', 'watch_game'],
+    });
   }
 
   async findUserByUserId(user_id: number) {
-    return this.usersRepository.findOneBy({ user_id: user_id });
+    return this.usersRepository.findOne({
+      where: { user_id: user_id },
+      relations: ['play_game', 'watch_game'],
+    });
   }
 
   async findUserByIntraId(intra_id: string) {
-    return this.usersRepository.findOneBy({ intra_id: intra_id });
+    return this.usersRepository.findOne({
+      where: { intra_id: intra_id },
+      relations: ['play_game', 'watch_game'],
+    });
   }
 
   async addUser(user: UserSessionDto) {
