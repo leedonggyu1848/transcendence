@@ -69,25 +69,24 @@ export class GameService {
         data: '이미 다른 방에 참여 중입니다.',
       };
     const found = await this.gameRepository.findOneBy({ title: gameDto.title });
-    if (!found) {
-      const game = this.gameRepository.create({
-        title: gameDto.title,
-        interrupt_mode: gameDto.interrupt_mode,
-        private_mode: gameDto.private_mode,
-        password: gameDto.password,
-        count: 1,
-      });
-      await this.gameRepository.save(game);
-      await this.usersRepository.update(user.id, {
-        join_game: game,
-        join_type: JoinType.OWNER,
-      });
-      return {
-        success: true,
-        data: { gameDto, user, opponent: null, watchers: null },
-      };
-    }
-    return { success: false, data: '같은 이름의 방이 이미 존재합니다.' };
+    if (found)
+      return { success: false, data: '같은 이름의 방이 이미 존재합니다.' };
+    const game = this.gameRepository.create({
+      title: gameDto.title,
+      interrupt_mode: gameDto.interrupt_mode,
+      private_mode: gameDto.private_mode,
+      password: gameDto.password,
+      count: 1,
+    });
+    await this.gameRepository.save(game);
+    await this.usersRepository.update(user.id, {
+      join_game: game,
+      join_type: JoinType.OWNER,
+    });
+    return {
+      success: true,
+      data: { gameDto, user, opponent: null, watchers: null },
+    };
   }
 
   async serviceJoinGame(title: string, password: string, user: Users) {
@@ -221,22 +220,14 @@ export class GameService {
     )
       return { success: false, data: '해당 방에 플레이어가 없습니다.' };
     if (user.join_type === JoinType.OWNER) {
-      this.flushGame(game.title);
+      await this.flushGame(game.title);
     } else if (user.join_type === JoinType.PLAYER) {
-      const players = game.players.filter(
-        (player) => player.intra_id !== user.intra_id,
-      );
       await this.gameRepository.update(game.id, {
         count: game.count - 1,
-        players: players,
       });
     } else if (user.join_type === JoinType.WATCHER) {
-      const watchers = game.watchers.filter(
-        (watcher) => watcher.intra_id !== user.intra_id,
-      );
       await this.gameRepository.update(game.id, {
         count: game.count - 1,
-        watchers: watchers,
       });
     } else {
       return { success: false, data: '데이터 저장 오류' };
