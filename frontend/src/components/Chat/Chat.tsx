@@ -67,6 +67,10 @@ const Message = styled.div<{ mine: boolean }>`
 
 const ChatContainer = styled.div`
   width: 95%;
+  & .admin {
+    text-align: center;
+    color: lightgray;
+  }
 `;
 
 export default Chat;

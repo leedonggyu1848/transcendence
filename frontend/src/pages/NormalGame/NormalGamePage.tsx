@@ -47,7 +47,7 @@ const NormalGamePage = () => {
   const clickExit = async () => {
     try {
       await axiosLeaveNormalGame();
-      socket.emit("leave-room", gameInfo.gameDto.title);
+      socket.emit("leave-room", gameInfo.gameDto.title, myInfo);
       navigate("/main/lobby");
     } catch (e) {
       console.error(e);
@@ -112,6 +112,21 @@ const NormalGamePage = () => {
         }
       }
     );
+
+    return () => {
+      leaveGame();
+    };
+
+    async function leaveGame() {
+      try {
+        await axiosLeaveNormalGame();
+        socket.emit("leave-room", gameInfo.gameDto.title);
+        navigate("/main/lobby");
+      } catch (e) {
+        console.error(e);
+        alert(e);
+      }
+    }
   }, [chatLogs]);
   return (
     <NormalGamePageContainer>
