@@ -199,16 +199,24 @@ export class GameService {
   }
 
   async serviceLeaveGame(user: Users) {
-    if (!user || !user.join_game)
-      return { success: false, data: '잘못된 유저 정보입니다.' };
-    const game = await this.gameRepository.findOne({
-      where: { title: user.join_game.title },
+    if (!user) return { success: false, data: '잘못된 유저 정보입니다.' };
+    let game = await this.gameRepository.findOne({
+      where: { players: user },
       relations: ['players', 'watchers'],
     });
-    if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
+    if (!game) {
+      game = await this.gameRepository.findOne({
+        where: { watchers: user },
+        relations: ['players', 'watchers'],
+      });
+      if (!game)
+        return { success: false, data: '해당 방이 존재하지 않습니다.' };
+    }
     if (
       (!game.players && !game.watchers) ||
-      (!game.players.find((player) => player.intra_id === user.intra_id) &&
+      (game.players &&
+        !game.players.find((player) => player.intra_id === user.intra_id) &&
+        game.watchers &&
         !game.watchers.find((player) => player.intra_id === user.intra_id))
     )
       return { success: false, data: '해당 방에 플레이어가 없습니다.' };

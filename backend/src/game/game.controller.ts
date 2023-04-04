@@ -146,7 +146,9 @@ export class GameController {
   }
 
   @Get('/leave')
+  @UseGuards(JwtGuard)
   async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
+    this.logger.log(`Leave game: ${user.intra_id}`);
     const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.gameService.serviceLeaveGame(found_user);
     if (!data.success) {

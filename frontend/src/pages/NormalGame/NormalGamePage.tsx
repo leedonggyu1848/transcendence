@@ -47,7 +47,10 @@ const NormalGamePage = () => {
   const clickExit = async () => {
     try {
       await axiosLeaveNormalGame();
-      socket.emit("leave-room", gameInfo.gameDto.title);
+      socket.emit("leave-room", {
+        roomName: gameInfo.gameDto.title,
+        userInfo: myInfo,
+      });
       navigate("/main/lobby");
     } catch (e) {
       console.error(e);
