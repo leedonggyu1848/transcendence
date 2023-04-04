@@ -4,10 +4,9 @@ import { LobbyDto } from 'src/dto/lobby.dto';
 import { GameDto } from 'src/dto/game.dto';
 import { Game } from 'src/entity/game.entity';
 import { Users } from 'src/entity/user.entity';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JoinType } from 'src/entity/common.enum';
 import { UserDto } from 'src/dto/user.dto';
-import { UserSessionDto } from 'src/dto/usersession.dto';
 
 @Injectable()
 export class GameService {

@@ -10,6 +10,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { UserDto } from 'src/dto/user.dto';
+
+interface JoinPayload {
+  roomName: string;
+  userInfo: UserDto;
+}
 
 interface MessagePayload {
   roomName: string;
@@ -89,12 +95,13 @@ export class EventsGateway
   @SubscribeMessage('join-room')
   handleJoinRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
+    @MessageBody() { roomName, userInfo }: JoinPayload,
   ) {
     socket.join(roomName);
-    socket.broadcast
-      .to(roomName)
-      .emit('message', { message: `${socket.id}가 들어왔습니다.` });
+    socket.broadcast.to(roomName).emit('message', {
+      message: `${userInfo.intra_id}가 들어왔습니다.`,
+      userInfo: userInfo,
+    });
     return { success: true };
   }
 
