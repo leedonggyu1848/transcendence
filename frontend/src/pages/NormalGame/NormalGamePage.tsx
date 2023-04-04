@@ -1,13 +1,14 @@
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   chatLogState,
   currentNormaGameUsersState,
   currentNormalGameInfoState,
+  myInfoState,
   myNameState,
 } from "../../api/atom";
-import { JoinnedUserDto } from "../../api/interface";
+import { IChatLog, JoinnedUserDto, UserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
@@ -15,21 +16,50 @@ import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
   const [start, setStart] = useState(false);
-  const gameInfo = useRecoilValue(currentNormalGameInfoState);
+  const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const usersInfo = useRecoilValue(currentNormaGameUsersState);
-  const [chatLogs, setChatLogs] = useRecoilState(chatLogState);
+  const [chatLogs, setChatLogs] = useState<IChatLog>([]);
+  const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
+  const [msg, setMsg] = useState("");
 
-  console.log(gameInfo);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    setMsg(e.target.value);
+  };
+
+  const onSend = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      console.log("hi");
+      socket.emit("message", {
+        roomName: gameInfo.gameDto.title,
+        message: msg,
+      });
+      setMsg("");
+    }
+  };
 
   useEffect(() => {
     if (gameInfo.ownerDto.intra_id === myName) {
       socket.emit("create-room", gameInfo.gameDto.title);
     } else {
-      socket.emit("join-room", myName);
+      console.log(myInfo);
+      socket.emit("join-room", {
+        roomName: gameInfo.gameDto.title,
+        userInfo: myInfo,
+      });
     }
-    socket.on("message", (message: string) => console.log(message));
+    socket.on("join-room", ({ userInfo, message }) => {
+      console.log(message, userInfo);
+      if (!gameInfo.opponentDto) {
+        setGameInfo({ ...gameInfo, opponentDto: { ...userInfo } });
+      }
+    });
+
+    socket.on("message", ({ username, message }) => {
+      console.log(username, message);
+    });
   }, []);
   return (
     <NormalGamePageContainer>
@@ -44,7 +74,14 @@ const NormalGamePage = () => {
           <Button className="active">나가기</Button>
         </Options>
         <CurrentUserInfo data={usersInfo} />
-        <ChatBox height={350} data={chatLogs} myName={myName} />
+        <ChatBox
+          onSend={onSend}
+          onChange={onChange}
+          msg={msg}
+          height={350}
+          data={chatLogs}
+          myName={myName}
+        />
       </SubContainer>
     </NormalGamePageContainer>
   );

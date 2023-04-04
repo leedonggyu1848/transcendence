@@ -93,10 +93,16 @@ const ChatBox = ({
   height,
   data,
   myName,
+  onChange,
+  onSend,
+  msg,
 }: {
   height: number;
   data: IChatLog[];
   myName: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onSend: React.KeyboardEventHandler<HTMLInputElement>;
+  msg: string;
 }) => {
   return (
     <ChatBoxWrapper h={height}>
@@ -105,7 +111,12 @@ const ChatBox = ({
           <Chat key={idx} {...info} myName={myName} />
         ))}
       </ChatBoxContainer>
-      <ChatInput placeholder="대화하기" />
+      <ChatInput
+        value={msg}
+        onChange={onChange}
+        onKeyUp={onSend}
+        placeholder="대화하기"
+      />
     </ChatBoxWrapper>
   );
 };

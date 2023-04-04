@@ -66,6 +66,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, message }: MessagePayload,
   ) {
+    this.logger.log(roomName, message);
     socket.broadcast
       .to(roomName)
       .emit('message', { username: socket.id, message });
@@ -98,8 +99,9 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, userInfo }: JoinPayload,
   ) {
+    this.logger.log(userInfo);
     socket.join(roomName);
-    socket.broadcast.to(roomName).emit('message', {
+    socket.broadcast.to(roomName).emit('join-room', {
       message: `${userInfo.intra_id}가 들어왔습니다.`,
       userInfo: userInfo,
     });
