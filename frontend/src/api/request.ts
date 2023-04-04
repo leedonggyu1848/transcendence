@@ -21,14 +21,21 @@ export const axiosCreateGame = async (
   private_mode: boolean,
   password: string
 ) => {
-  const response = await instance.post(axiosCreateGameURL, {
-    title,
-    interrupt_mode,
-    private_mode,
-    password,
-  });
+  try {
+    const response = await instance.post(axiosCreateGameURL, {
+      title,
+      interrupt_mode,
+      private_mode,
+      password,
+    });
 
-  console.log(response);
+    console.log(response.data);
+
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
 };
 
 const axiosWatchGameURL = "/game/watch";

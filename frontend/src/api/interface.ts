@@ -18,8 +18,8 @@ export interface GameDto {
 }
 
 export interface JoinnedUserDto {
-  name: string;
-  type: string;
+  intra_id: string;
+  type?: string;
 }
 
 export interface ChatListDto {
@@ -41,7 +41,7 @@ interface INormalRoomInfo {
   title: string;
 }
 
-interface IGameUserInfo {
+export interface IGameUserInfo {
   id: number;
   intra_id: string;
   introduce: string;
@@ -56,9 +56,9 @@ interface IGameUserInfo {
 
 export interface ICurrentNormalGame {
   gameDto: INormalRoomInfo;
-  opponent: null;
-  user: IGameUserInfo;
-  watcher: Array<any>;
+  opponentDto: IGameUserInfo | null;
+  ownerDto: IGameUserInfo;
+  watchersDto: Array<any>;
 }
 
 export interface IChatLog {

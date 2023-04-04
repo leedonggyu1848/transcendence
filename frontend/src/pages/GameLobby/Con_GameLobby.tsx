@@ -15,7 +15,6 @@ import {
   axiosGetGameList,
   axiosGetMyInfo,
   axiosJoinGame,
-  axiosPostFlush,
   axiosWatchGame,
 } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
@@ -26,6 +25,7 @@ const GameLobbyContainer = () => {
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const setJoinGameModal = useSetRecoilState(joinGameModalToggleState);
+  const setBackgroundModal = useSetRecoilState(modalBackToggleState);
   const setMyInfo = useSetRecoilState(myInfoState);
   const setCurrentNormalGameInfoState = useSetRecoilState(
     currentNormalGameInfoState
@@ -52,48 +52,50 @@ const GameLobbyContainer = () => {
       }
       return;
     }
+    setBackgroundModal(true);
+    setJoinGameModal(true);
   };
 
   const clickWatch = () => {
     axiosWatchGame("game2", "");
   };
 
-  const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
+  const onCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    createNormalGame();
+    try {
+      const data = await axiosCreateGame(
+        e.currentTarget.roomName.value || `${myName}의 일반 게임`,
+        e.currentTarget.mode.checked,
+        e.currentTarget.type.checked,
+        e.currentTarget.password.value
+      );
+      setCurrentNormalGameInfoState({
+        gameDto: data.gameDto,
+        opponentDto: data.opponent,
+        ownerDto: data.user,
+        watchersDto: data.watchers ?? [],
+      });
+      navigator("/main/game/normal");
+    } catch (e) {
+      alert("게임생성실패");
+      console.error(e);
+    }
     e.currentTarget.mode.checked = false;
     e.currentTarget.type.checked = false;
     e.currentTarget.roomName.value = "";
     e.currentTarget.password.value = "";
-    function createNormalGame() {
-      try {
-        console.log("before");
-        axiosCreateGame(
-          e.currentTarget.roomName.value || `${myName}의 일반 게임`,
-          e.currentTarget.mode.checked,
-          e.currentTarget.type.checked,
-          e.currentTarget.password.value
-        );
-        navigator("/main/game/normal");
-
-        console.log("good~!");
-      } catch (e) {
-        console.error(e);
-        alert("게임생성실패");
-      }
-    }
   };
 
   useEffect(() => {
     async function getData() {
-      const result = await axiosGetGameList();
+      const gameList = await axiosGetGameList();
       const myInfo = await axiosGetMyInfo();
       setMyInfo(myInfo);
-      setGameList(result);
+      setGameList(gameList);
+      console.log(gameList);
     }
     getData();
-    //socket?.on()
   }, []);
 
   return (

@@ -27,13 +27,15 @@ const UserInfo = ({
         <div>
           <div>일반 게임</div>
           <div>
-            {normal_win}승 {normal_lose}패 {normalRate.toFixed(1)}%
+            {normal_win}승 {normal_lose}패{" "}
+            {isNaN(normalRate) ? 0 : normalRate.toFixed(1)}%
           </div>
         </div>
         <div>
           <div>랭크 게임</div>
           <div>
-            {rank_win}승 {rank_lose}패 {rankRate.toFixed(1)}%
+            {rank_win}승 {rank_lose}패{" "}
+            {isNaN(rankRate) ? 0 : rankRate.toFixed(1)}%
           </div>
         </div>
       </Info>

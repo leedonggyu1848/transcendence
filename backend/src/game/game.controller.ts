@@ -89,7 +89,8 @@ export class GameController {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
     }
-    return data.data;
+    res.status(HttpStatus.OK).send(data.data);
+    //return data.data;
   }
 
   @Post('/join')
