@@ -90,7 +90,7 @@ export class EventsGateway
       return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
     socket.join(roomName);
     createdRooms.push(roomName);
-    this.logger.log(roomName);
+    this.logger.log(`socket create room: ${roomName}`);
     this.nsp.emit('create-room', roomName);
     return { success: true, payload: roomName };
   }
@@ -100,7 +100,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, userInfo }: userPayload,
   ) {
-    this.logger.log(userInfo);
+    this.logger.log(`socket join room: ${roomName} / ${userInfo.intra_id}`);
     socket.join(roomName);
     socket.broadcast.to(roomName).emit('join-room', {
       message: `${userInfo.intra_id}가 들어왔습니다.`,
@@ -114,13 +114,12 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, userInfo }: userPayload,
   ) {
+    this.logger.log(`socket leave room: ${roomName} / ${userInfo.intra_id}`);
     socket.leave(roomName);
-    socket.broadcast
-      .to(roomName)
-      .emit('leave-room', {
-        message: `${userInfo.intra_id}가 나갔습니다.`,
-        userInfo: userInfo,
-      });
+    socket.broadcast.to(roomName).emit('leave-room', {
+      message: `${userInfo.intra_id}가 나갔습니다.`,
+      userInfo: userInfo,
+    });
     return { success: true };
   }
 }
