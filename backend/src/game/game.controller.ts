@@ -144,4 +144,12 @@ export class GameController {
     this.gameService.flushGame(title);
     res.status(HttpStatus.OK).send();
   }
+
+  @Get('/leave')
+  async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
+    const found_user = await this.authService.findUserByIntraId(user.intra_id);
+    const data = await this.gameService.serviceLeaveGame(found_user);
+    if (!data.success) throw new BadRequestException(data.data);
+    res.status(HttpStatus.OK).send();
+  }
 }

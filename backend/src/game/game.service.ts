@@ -198,22 +198,22 @@ export class GameService {
     this.gameRepository.delete({ id: game.id });
   }
 
-  async leaveGame(title: string, user: Users) {
+  async serviceLeaveGame(user: Users) {
+    if (!user || !user.join_game)
+      return { success: false, data: '잘못된 유저 정보입니다.' };
     const game = await this.gameRepository.findOne({
-      where: { title: title },
+      where: { title: user.join_game.title },
       relations: ['players', 'watchers'],
     });
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (
       (!game.players && !game.watchers) ||
-      !user.join_game ||
-      user.join_game.title !== title ||
       (!game.players.find((player) => player.intra_id === user.intra_id) &&
         !game.watchers.find((player) => player.intra_id === user.intra_id))
     )
       return { success: false, data: '해당 방에 플레이어가 없습니다.' };
     if (user.join_type === JoinType.OWNER) {
-      this.flushGame(title);
+      this.flushGame(game.title);
     } else if (user.join_type === JoinType.PLAYER) {
       const players = game.players.filter(
         (player) => player.intra_id !== user.intra_id,
