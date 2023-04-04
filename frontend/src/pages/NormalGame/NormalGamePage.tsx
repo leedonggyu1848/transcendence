@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   chatLogState,
+  currentNormaGameUsersState,
   currentNormalGameInfoState,
   myNameState,
 } from "../../api/atom";
@@ -14,6 +15,7 @@ import WaitRoom from "./WaitRoom";
 const NormalGamePage = () => {
   const [start, setStart] = useState(false);
   const gameInfo = useRecoilValue(currentNormalGameInfoState);
+  const usersInfo = useRecoilValue(currentNormaGameUsersState);
   const [chatLogs, setChatLogs] = useRecoilState(chatLogState);
   const myName = useRecoilValue(myNameState);
 
@@ -30,28 +32,12 @@ const NormalGamePage = () => {
           <Button className="active">시작하기</Button>
           <Button className="active">나가기</Button>
         </Options>
-        <CurrentUserInfo data={createDummyData()} />
+        <CurrentUserInfo data={usersInfo} />
         <ChatBox height={350} data={chatLogs} myName={myName} />
       </SubContainer>
     </NormalGamePageContainer>
   );
 };
-
-function createDummyData() {
-  const result: JoinnedUserDto[] = [];
-
-  result.push({ name: "yooh", type: "owner" });
-  result.push({ name: "jpark2", type: "opponent" });
-
-  for (let i = 0; i < 50; i < i++) {
-    let temp: JoinnedUserDto = {
-      name: "User " + (i + 1),
-      type: "watcher",
-    };
-    result.push(temp);
-  }
-  return result;
-}
 
 const Button = styled.div`
   border-radius: 5px;

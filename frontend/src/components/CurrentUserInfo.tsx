@@ -6,9 +6,9 @@ const CurrentUserInfo = ({ data }: { data: JoinnedUserDto[] }) => {
     <CurrentUserInfoContainer>
       <Title>참여중인 사람 : {data.length}명</Title>
       <UserNameContainer>
-        {data.map(({ name, type }, idx) => (
+        {data.map(({ intra_id, type }, idx) => (
           <UserName key={idx} className={type}>
-            {name}
+            {intra_id}
           </UserName>
         ))}
       </UserNameContainer>

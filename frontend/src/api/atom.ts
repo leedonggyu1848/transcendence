@@ -1,6 +1,11 @@
 import { atom, selector } from "recoil";
-import { io, Socket } from "socket.io-client";
-import { IChatLog, ICurrentNormalGame } from "./interface";
+import { Socket } from "socket.io-client";
+import {
+  IChatLog,
+  ICurrentNormalGame,
+  IGameUserInfo,
+  JoinnedUserDto,
+} from "./interface";
 
 export const myInfoState = atom({
   key: "myInfoState",
@@ -54,8 +59,8 @@ export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
       private_mode: false,
       title: "",
     },
-    opponent: null,
-    user: {
+    opponentDto: null,
+    ownerDto: {
       id: 4,
       intra_id: "jpark2",
       introduce: "",
@@ -67,11 +72,43 @@ export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
       rank_win: 0,
       user_id: 131546,
     },
-    watcher: [],
+    watchersDto: [],
+  },
+});
+
+export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
+  key: "currentNormaGameUsersState",
+  get: ({ get }) => {
+    const data = get(currentNormalGameInfoState);
+    console.log(data);
+    const result = [];
+    result.push({ type: "owner", intra_id: data.ownerDto.intra_id });
+    if (data.opponentDto)
+      result.push({ type: "opponent", intra_id: data.opponentDto.intra_id });
+    data.watchersDto.forEach((person) => {
+      result.push({ type: "watcher", intra_id: person.intra_id });
+    });
+    return result;
   },
 });
 
 export const chatLogState = atom<IChatLog[]>({
   key: "chatLogState",
   default: [],
+});
+
+export const opponentInfoState = selector<IGameUserInfo | null>({
+  key: "opponentInfoState",
+  get: ({ get }) => {
+    const { opponentDto, ownerDto } = get(currentNormalGameInfoState);
+    const myName = get(myNameState);
+
+    if (!opponentDto) return null;
+    return opponentDto.intra_id === myName ? ownerDto : opponentDto;
+  },
+});
+
+export const selectedNormalGameTitleState = atom({
+  key: "selectedNormalGameTitleState",
+  default: "",
 });

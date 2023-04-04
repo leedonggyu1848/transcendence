@@ -1,17 +1,16 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
 import { useRecoilValue } from "recoil";
-import { myInfoState } from "../../api/atom";
+import { myInfoState, opponentInfoState } from "../../api/atom";
 import UserInfo from "./UserInfo";
 
 const WaitRoom = () => {
   const myInfo = useRecoilValue(myInfoState);
-  const [Opponent, setOpponent] = useState(null);
+  const opponentInfo = useRecoilValue(opponentInfoState);
 
   return (
     <WaitRoomContainer>
-      {Opponent ? (
-        <UserInfo {...myInfo} />
+      {opponentInfo ? (
+        <UserInfo {...opponentInfo} />
       ) : (
         <NoUser>
           <span>상대방을 기다리는 중입니다</span>
