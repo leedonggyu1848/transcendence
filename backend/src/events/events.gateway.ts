@@ -9,7 +9,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { number, string } from 'joi';
 import { Namespace, Socket } from 'socket.io';
 import { UserDto } from 'src/dto/user.dto';
 

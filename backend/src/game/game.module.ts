@@ -3,13 +3,26 @@ import { HttpModule } from '@nestjs/axios';
 import { GameController } from './game.controller';
 import { GameService } from './game.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/entity/user.entity';
 import { Game } from 'src/entity/game.entity';
-import { AuthService } from 'src/auth/auth.service';
+import { Users } from 'src/entity/user.entity';
+import { GameRepository } from './repository/game.repository';
+import { UserService } from 'src/user/user.service';
+import { UserModule } from 'src/user/user.module';
+import { UserRepository } from 'src/user/repository/users.repository';
+
+const userRepo = {
+  provide: 'IUserRepository',
+  useClass: UserRepository,
+};
+
+const gameRepo = {
+  provide: 'IGameRepository',
+  useClass: GameRepository,
+};
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([Users, Game])],
   controllers: [GameController],
-  providers: [GameService, AuthService],
+  providers: [userRepo, gameRepo, GameService, UserService],
 })
 export class GameModule {}

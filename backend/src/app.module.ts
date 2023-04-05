@@ -3,13 +3,13 @@ import { GameModule } from './game/game.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './configs/typeorm.config';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 import configurations from './configs/configurations';
 import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
-    AuthModule,
+    UserModule,
     GameModule,
     EventsModule,
     ConfigModule.forRoot({
