@@ -148,14 +148,12 @@ export class GameService {
       join_type: JoinType.WATCHER,
     });
     if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
-    const owner = game.players.filter(
+    const owner = game.players.find(
       (player) => player.join_type === JoinType.OWNER,
     );
-    const player = game.players.filter(
+    const player = game.players.find(
       (player) => player.join_type === JoinType.PLAYER,
     );
-    if (owner.length >= 2 || player.length >= 2)
-      return { success: false, data: '데이터 저장 오류' };
     let watchersDto: UserDto[];
     if (game.watchers) {
       const watchers = game.watchers.filter(
@@ -165,12 +163,38 @@ export class GameService {
     } else watchersDto = null;
     watchersDto.push(this.userToUserDto(user));
     const gameDto: GameDto = this.gameToGameDto(game);
-    const ownerDto: UserDto = this.userToUserDto(owner[0]);
-    const opponentDto: UserDto = this.userToUserDto(player[0]);
+    const ownerDto: UserDto = this.userToUserDto(owner);
+    const opponentDto: UserDto = this.userToUserDto(player);
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
     };
+  }
+
+  async saveGameResult(winner: Users, loser: Users, type: string) {
+    if (!winner || !loser)
+      return { success: false, data: '유저 이름이 맞지 않습니다.' };
+    if (winner.play_game.id !== loser.play_game.id)
+      return { success: false, data: '두 사람이 참가 중인 게임이 다릅니다.' };
+    if (type !== 'normal' && type !== 'rank')
+      return { success: false, data: '게임 타입이 맞지 않습니다.' };
+
+    if (type == 'normal') {
+      await this.usersRepository.update(winner.id, {
+        normal_win: winner.normal_win + 1,
+      });
+      await this.usersRepository.update(loser.id, {
+        normal_lose: loser.normal_lose + 1,
+      });
+    } else {
+      await this.usersRepository.update(winner.id, {
+        rank_win: winner.rank_win + 1,
+      });
+      await this.usersRepository.update(loser.id, {
+        rank_lose: loser.rank_lose + 1,
+      });
+    }
+    return { success: true, data: null };
   }
 
   async flushGame(title: string) {

@@ -139,6 +139,20 @@ export class GameController {
     res.status(HttpStatus.OK).send(data.data);
   }
 
+  @Post('/result')
+  async gameResult(
+    @Res() res: Response,
+    @Body('win') win: string,
+    @Body('lose') lose: string,
+    @Body('type') type: string,
+  ) {
+    const winner = await this.authService.findUserByIntraId(win);
+    const loser = await this.authService.findUserByIntraId(lose);
+    const data = await this.gameService.saveGameResult(winner, loser, type);
+    if (!data.success) throw new BadRequestException(data.data);
+    res.status(HttpStatus.OK).send();
+  }
+
   @Post('/flush') // test code => TODO: delete
   async flush(@Res() res: Response, @Body('title') title: string) {
     await this.gameService.flushGame(title);
