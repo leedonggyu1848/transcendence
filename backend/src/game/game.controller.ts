@@ -16,6 +16,7 @@ import { UserService } from 'src/user/user.service';
 import { GameDto } from 'src/dto/game.dto';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { Response } from 'express';
+import { GameType } from 'src/entity/common.enum';
 
 @Controller('/api/game')
 export class GameController {
@@ -104,13 +105,13 @@ export class GameController {
     res.status(HttpStatus.OK).send(data.data);
   }
 
-  @Post('/normal')
+  @Post('/result')
   @UseGuards(JwtGuard)
   async gameResult(
     @Res() res: Response,
     @Body('win') win: string,
     @Body('lose') lose: string,
-    @Body('type') type: string,
+    @Body('type') type: GameType,
   ) {
     const winner = await this.userService.findUser(win);
     const loser = await this.userService.findUser(lose);

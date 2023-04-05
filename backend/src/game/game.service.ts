@@ -2,10 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { LobbyDto } from 'src/dto/lobby.dto';
 import { GameDto } from 'src/dto/game.dto';
 import { Users } from 'src/entity/user.entity';
-import { JoinType } from 'src/entity/common.enum';
+import { GameType, JoinType } from 'src/entity/common.enum';
 import { UserDto } from 'src/dto/user.dto';
 import { IGameRepository } from './repository/game.interface.repository';
 import { IUserRepository } from '../user/repository/users.interface.repository';
+import { IRecordRepository } from './repository/record.interface.repository';
 
 @Injectable()
 export class GameService {
@@ -14,6 +15,8 @@ export class GameService {
     private gameRepository: IGameRepository,
     @Inject('IUserRepository')
     private userRepository: IUserRepository,
+    @Inject('IRecordRepository')
+    private recordRepository: IRecordRepository,
   ) {}
 
   async getUserInfo(intra_id: string) {
@@ -117,21 +120,24 @@ export class GameService {
     };
   }
 
-  async saveGameResult(winner: Users, loser: Users, type: string) {
+  async saveGameResult(winner: Users, loser: Users, type: GameType) {
     if (!winner || !loser)
       return { success: false, data: '유저 이름이 맞지 않습니다.' };
     if (winner.play_game.id !== loser.play_game.id)
       return { success: false, data: '두 사람이 참가 중인 게임이 다릅니다.' };
-    if (type !== 'normal' && type !== 'rank')
-      return { success: false, data: '게임 타입이 맞지 않습니다.' };
 
-    if (type == 'normal') {
+    if (type == GameType.NORMAL) {
       await this.userRepository.updateNormalWin(winner.id, winner.normal_win);
       await this.userRepository.updateNormalLose(loser.id, loser.normal_lose);
     } else {
       await this.userRepository.updateRankWin(winner.id, winner.rank_win);
       await this.userRepository.updateRankLose(loser.id, loser.rank_lose);
     }
+    await this.recordRepository.addRecord(
+      type,
+      winner.intra_id,
+      loser.intra_id,
+    );
     return { success: true, data: null };
   }
 
