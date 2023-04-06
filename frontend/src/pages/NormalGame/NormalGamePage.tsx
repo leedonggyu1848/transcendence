@@ -3,13 +3,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
-  chatLogState,
   currentNormaGameUsersState,
   currentNormalGameInfoState,
   myInfoState,
   myNameState,
+  normalJoinTypeState,
 } from "../../api/atom";
-import { IChatLog, JoinnedUserDto, UserDto } from "../../api/interface";
+import { IChatLog, UserDto } from "../../api/interface";
 import { axiosLeaveNormalGame } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -26,11 +26,11 @@ const NormalGamePage = () => {
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
+  const normalJoinType = useRecoilValue(normalJoinTypeState);
+  const [joinSocketState, setJoinSocketState] = useState(false);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
-  };
 
   const onSend = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && msg) {
@@ -62,20 +62,29 @@ const NormalGamePage = () => {
     if (gameInfo.ownerDto.intra_id === myName) {
       socket.emit("create-room", gameInfo.gameDto.title);
     } else {
-      console.log(myInfo);
-      socket.emit("join-room", {
-        roomName: gameInfo.gameDto.title,
-        userInfo: myInfo,
-      });
+      console.log(gameInfo);
+      if (!joinSocketState) {
+        socket.emit("join-room", {
+          roomName: gameInfo.gameDto.title,
+          userInfo: myInfo,
+          type: normalJoinType,
+        });
+        setJoinSocketState(true);
+      }
     }
-    socket.on("join-room", ({ userInfo, message }) => {
-      console.log(message, userInfo);
+    socket.on("join-room", ({ userInfo, message, type }) => {
+      console.log(message, userInfo, type);
       setChatLogs([
         ...chatLogs,
         { sender: "admin", msg: message, time: new Date() },
       ]);
-      if (!gameInfo.opponentDto) {
+      if (type === "join") {
         setGameInfo({ ...gameInfo, opponentDto: { ...userInfo } });
+      } else {
+        setGameInfo({
+          ...gameInfo,
+          watchersDto: [...gameInfo.watchersDto, userInfo],
+        });
       }
     });
 
@@ -116,9 +125,7 @@ const NormalGamePage = () => {
       }
     );
 
-    //return () => {
-    //  leaveGame();
-    //};
+    return () => {};
 
     //async function leaveGame() {
     //  try {

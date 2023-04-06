@@ -13,7 +13,7 @@ const RoomInfo = ({
   private_mode: boolean;
   interrupt_mode: boolean;
   cur: number;
-  clickWatch: React.MouseEventHandler;
+  clickWatch: Function;
   clickJoin: Function;
 }) => {
   const flushData = (title: string) => {
@@ -33,7 +33,7 @@ const RoomInfo = ({
       ) : (
         <Empty />
       )}
-      <Button onClick={clickWatch}>관전</Button>
+      <Button onClick={() => clickWatch(title, private_mode)}>관전</Button>
     </RoomInfoContainer>
   );
 };

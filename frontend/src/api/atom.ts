@@ -47,7 +47,7 @@ export const socketState = atom<Socket | null>({
 
 export const joinGameModalToggleState = atom({
   key: "joinGameModalToggleState",
-  default: false,
+  default: { toggle: false, type: "" },
 });
 
 export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
@@ -88,6 +88,7 @@ export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
     data.watchersDto.forEach((person) => {
       result.push({ type: "watcher", intra_id: person.intra_id });
     });
+    console.log(data, result);
     return result;
   },
 });
@@ -110,5 +111,10 @@ export const opponentInfoState = selector<IGameUserInfo | null>({
 
 export const selectedNormalGameTitleState = atom({
   key: "selectedNormalGameTitleState",
+  default: "",
+});
+
+export const normalJoinTypeState = atom({
+  key: "normalJoinTypeState",
   default: "",
 });

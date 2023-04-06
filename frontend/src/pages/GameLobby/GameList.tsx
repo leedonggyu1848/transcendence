@@ -10,7 +10,7 @@ const GameList = ({
 }: {
   data: GameDto[];
   clickJoin: Function;
-  clickWatch: React.MouseEventHandler;
+  clickWatch: Function;
 }) => {
   return (
     <GameListContainer>

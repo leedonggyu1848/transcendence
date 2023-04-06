@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   currentNormalGameInfoState,
   joinGameModalToggleState,
   modalBackToggleState,
   myInfoState,
   myNameState,
+  normalJoinTypeState,
   rankWaitModalToggleState,
   selectedNormalGameTitleState,
 } from "../../api/atom";
@@ -27,10 +28,11 @@ const GameLobbyContainer = () => {
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const setJoinGameModal = useSetRecoilState(joinGameModalToggleState);
   const setBackgroundModal = useSetRecoilState(modalBackToggleState);
+  const setNormalJoinType = useSetRecoilState(normalJoinTypeState);
   const setSelectedNormalGameTitle = useSetRecoilState(
     selectedNormalGameTitleState
   );
-  const setMyInfo = useSetRecoilState(myInfoState);
+  const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const setCurrentNormalGameInfoState = useSetRecoilState(
     currentNormalGameInfoState
   );
@@ -48,7 +50,9 @@ const GameLobbyContainer = () => {
     if (!private_mode) {
       try {
         const data = await axiosJoinGame(title, "");
-        setCurrentNormalGameInfoState(data);
+        console.log(data);
+        setCurrentNormalGameInfoState({ ...data });
+        setNormalJoinType("join");
         navigator("/main/game/normal");
       } catch (e) {
         console.error(e);
@@ -57,16 +61,38 @@ const GameLobbyContainer = () => {
       return;
     }
     setBackgroundModal(true);
-    setJoinGameModal(true);
+    setJoinGameModal({ toggle: false, type: "join" });
     setSelectedNormalGameTitle(title);
   };
 
-  const clickWatch = () => {
-    axiosWatchGame("game2", "");
+  const clickWatch = async (title: string, private_mode: boolean) => {
+    if (!private_mode) {
+      try {
+        const data = await axiosWatchGame(title, "");
+        console.log(data);
+        setCurrentNormalGameInfoState({
+          ...data,
+        });
+        setNormalJoinType("watch");
+        navigator("/main/game/normal");
+      } catch (e) {
+        console.error(e);
+        alert("게임 참가 실패!");
+      }
+      return;
+    }
+    setBackgroundModal(true);
+    setJoinGameModal({ toggle: false, type: "watch" });
+    setSelectedNormalGameTitle(title);
   };
 
   const onCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (e.currentTarget.type.checked && !e.currentTarget.password.value) {
+      alert("비밀번호 입력해주세요");
+      return;
+    }
 
     try {
       const data = await axiosCreateGame(

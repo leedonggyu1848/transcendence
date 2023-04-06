@@ -44,7 +44,8 @@ export const axiosWatchGame = async (title: string, password: string) => {
     title,
     password,
   });
-  console.log(response);
+  console.log(response.data);
+  return response.data;
 };
 
 const axiosJoinGameURL = "/game/join";

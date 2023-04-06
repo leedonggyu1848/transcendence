@@ -42,7 +42,7 @@ const MainPage = () => {
           <Route path="*" element={<Navigate to="/not_found" />} />
         </Routes>
         {rankWaitModalToggle && <RankWaitModal />}
-        {joinGameModalToggle && <JoinGameModal />}
+        {joinGameModalToggle.toggle && <JoinGameModal />}
       </MainPageContainer>
     )
   );

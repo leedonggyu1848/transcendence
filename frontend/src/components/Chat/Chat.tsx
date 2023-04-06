@@ -61,6 +61,7 @@ const Message = styled.div<{ mine: boolean }>`
   padding: 8px;
   border-radius: 10px;
   margin: 5px;
+  word-break: break-all;
   background-color: ${({ mine }) =>
     mine ? "var(--blue-color)" : "var(--purple-color)"};
 `;

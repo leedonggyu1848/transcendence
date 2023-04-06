@@ -1,12 +1,15 @@
 import styled from "@emotion/styled";
 import React, { useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  currentNormalGameInfoState,
   joinGameModalToggleState,
   modalBackToggleState,
+  normalJoinTypeState,
   selectedNormalGameTitleState,
 } from "../../api/atom";
-import { axiosJoinGame } from "../../api/request";
+import { axiosJoinGame, axiosWatchGame } from "../../api/request";
 import ModalBackground from "../ModalBackground";
 
 const JoinGameModal = () => {
@@ -14,11 +17,16 @@ const JoinGameModal = () => {
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const setBackgroundModal = useSetRecoilState(modalBackToggleState);
-  const setJoinModal = useSetRecoilState(joinGameModalToggleState);
+  const [joinModal, setJoinModal] = useRecoilState(joinGameModalToggleState);
+  const setCurrentNormalGameInfo = useSetRecoilState(
+    currentNormalGameInfoState
+  );
+  const setNormalJoinType = useSetRecoilState(normalJoinTypeState);
+  const navigator = useNavigate();
 
   const onCancel = () => {
     setBackgroundModal(false);
-    setJoinModal(false);
+    setJoinModal({ toggle: false, type: "" });
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -26,7 +34,14 @@ const JoinGameModal = () => {
 
   const clickJoin = async () => {
     try {
-      const data = await axiosJoinGame(gameTitle, password);
+      const data =
+        joinModal.type === "join"
+          ? await axiosJoinGame(gameTitle, password)
+          : await axiosWatchGame(gameTitle, password);
+      setCurrentNormalGameInfo({ ...data });
+      navigator("/main/game/normal");
+      setJoinModal({ toggle: false, type: "" });
+      setNormalJoinType(joinModal.type === "join" ? "join" : "watch");
     } catch (e: any) {
       console.log("hi");
       if (e.response.status === 400) {
