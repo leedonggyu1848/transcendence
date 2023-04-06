@@ -1,40 +1,17 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
+import { useSetRecoilState } from "recoil";
+import { selectedGameRecord } from "../../api/atom";
 import { IGameHistory } from "../../api/interface";
 import { axiosGetHistory } from "../../api/request";
 import useInitHook from "../../api/useInitHook";
 import GameDetailInfo from "./GameDetailInfo";
 import Records from "./Records";
 
-const data = {
-  time: new Date(),
-  type: "rank",
-  win: "yooh",
-  player1: {
-    user_id: 23,
-    intra_id: "yooh",
-    profile: "",
-    introduce: "",
-    normal_win: 14,
-    normal_lose: 8,
-    rank_win: 11,
-    rank_lose: 9,
-  },
-  player2: {
-    user_id: 25,
-    intra_id: "jpark2",
-    profile: "",
-    introduce: "",
-    normal_win: 55,
-    normal_lose: 11,
-    rank_win: 2,
-    rank_lose: 18,
-  },
-};
-
 const HistoryPage = () => {
   useInitHook();
   const [list, setList] = useState<IGameHistory[]>([]);
+  const setSelectedGameRecord = useSetRecoilState(selectedGameRecord);
   useEffect(() => {
     async function getData() {
       const result = await axiosGetHistory(1);
@@ -42,6 +19,37 @@ const HistoryPage = () => {
       setList([...result]);
     }
     getData();
+    return () => {
+      setSelectedGameRecord({
+        record: {
+          gameType: -1,
+          id: -1,
+          loser: "",
+          winner: "",
+          time: "",
+        },
+        winner: {
+          user_id: -1,
+          intra_id: "",
+          profile: "",
+          introduce: "",
+          normal_win: -1,
+          normal_lose: -1,
+          rank_win: -1,
+          rank_lose: -1,
+        },
+        loser: {
+          user_id: -1,
+          intra_id: "",
+          profile: "",
+          introduce: "",
+          normal_win: -1,
+          normal_lose: -1,
+          rank_win: -1,
+          rank_lose: -1,
+        },
+      });
+    };
   }, []);
   return (
     <HistoryPageContainer>

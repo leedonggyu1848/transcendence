@@ -13,18 +13,37 @@ function convertTime(time: Date) {
 }
 
 const GameDetailInfo = ({}: {}) => {
-  const { record, winner, loser } = useRecoilValue(selectedGameRecord);
-  return (
+  const selectedGameInfo = useRecoilValue(selectedGameRecord);
+  return selectedGameInfo.record.gameType !== -1 ? (
     <GameDetailInfoContainer>
       <GameInfo>
-        <div>{record?.gameType ? "랭크" : "일반"}</div>
-        <div>{convertTime(new Date(record ? record.time : ""))}</div>
+        <div>{selectedGameInfo.record?.gameType ? "랭크" : "일반"}</div>
+        <div>
+          {convertTime(
+            new Date(
+              selectedGameInfo.record ? selectedGameInfo.record.time : ""
+            )
+          )}
+        </div>
       </GameInfo>
-      <DetailProfile player={winner} type="W" />
-      <DetailProfile player={loser} type="L" />
+      <DetailProfile player={selectedGameInfo.winner} type="W" />
+      <DetailProfile player={selectedGameInfo.loser} type="L" />
     </GameDetailInfoContainer>
+  ) : (
+    <NotSelected>기록을 선택해주세요</NotSelected>
   );
 };
+
+const NotSelected = styled.div`
+  width: 100%;
+  background: var(--sub-bg-color);
+  height: 510px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+`;
 
 const GameInfo = styled.div`
   background: var(--dark-bg-color);
