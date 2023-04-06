@@ -186,12 +186,13 @@ export class GameService {
   }
 
   async getTotalHistory(page: number) {
-    const recordCount = await this.recordRepository.findAll().length;
+    const allRecords = await this.recordRepository.findAll();
     const pageRecords = await this.recordRepository.findPage(page, 10);
-    const records = pageRecords.map(
+    const tmp = pageRecords.map(
       async (record) => await this.recordRepository.recordToRecordDto(record),
     );
-    await Promise.all(records);
+    const records = await Promise.all(tmp);
+    const recordCount = allRecords.length;
     return { records, recordCount };
   }
 
