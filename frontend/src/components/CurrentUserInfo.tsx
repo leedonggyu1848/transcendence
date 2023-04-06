@@ -1,10 +1,30 @@
 import styled from "@emotion/styled";
 import { JoinnedUserDto } from "../api/interface";
 
-const CurrentUserInfo = ({ data }: { data: JoinnedUserDto[] }) => {
+const CurrentUserInfo = ({
+  data,
+  title,
+  operator,
+  clickOperatorButton,
+}: {
+  data: JoinnedUserDto[];
+  title: string;
+  operator: boolean;
+  clickOperatorButton: Function;
+}) => {
   return (
     <CurrentUserInfoContainer>
-      <Title>참여중인 사람 : {data.length}명</Title>
+      <HeaderContainer>
+        <Title>
+          {title.slice(0, 13)}
+          {title.length > 13 ? "..." : ""}
+        </Title>
+        <InfoContainer>
+          {operator && <OperatorIcon />}
+          <UserIcon />
+          {data.length}
+        </InfoContainer>
+      </HeaderContainer>
       <UserNameContainer>
         {data.map(({ intra_id, type }, idx) => (
           <UserName key={idx} className={type}>
@@ -16,9 +36,37 @@ const CurrentUserInfo = ({ data }: { data: JoinnedUserDto[] }) => {
   );
 };
 
+const OperatorIcon = styled.div`
+  background-image: url("/src/assets/adminIcon.png");
+  width: 15px;
+  height: 15px;
+  background-size: 100% 100%;
+  cursor: pointer;
+  margin-right: 10px;
+`;
+
+const UserIcon = styled.div`
+  background-image: url("/src/assets/userIcon.png");
+  width: 15px;
+  height: 15px;
+  background-size: 100% 100%;
+  margin-right: 10px;
+`;
+
+const InfoContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const HeaderContainer = styled.div`
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const Title = styled.div`
   font-size: 1.1rem;
-  width: 90%;
   margin-bottom: 10px;
 `;
 

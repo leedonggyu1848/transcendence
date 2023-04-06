@@ -112,3 +112,8 @@ export const selectedNormalGameTitleState = atom({
   key: "selectedNormalGameTitleState",
   default: "",
 });
+
+export const operatorModalToggleState = atom({
+  key: "operatorModalToggleState",
+  default: false,
+});

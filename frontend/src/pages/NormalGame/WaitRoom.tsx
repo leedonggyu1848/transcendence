@@ -3,7 +3,7 @@ import { useRecoilValue } from "recoil";
 import { myInfoState, opponentInfoState } from "../../api/atom";
 import UserInfo from "./UserInfo";
 
-const WaitRoom = () => {
+const WaitRoom = ({ count }: { count: number }) => {
   const myInfo = useRecoilValue(myInfoState);
   const opponentInfo = useRecoilValue(opponentInfoState);
 
@@ -17,7 +17,7 @@ const WaitRoom = () => {
           <span className="dot-falling" />
         </NoUser>
       )}
-      <OptionContainer>VS</OptionContainer>
+      <OptionContainer>{count === 4 ? "VS" : count}</OptionContainer>
       <UserInfo {...myInfo} />
     </WaitRoomContainer>
   );
