@@ -184,6 +184,22 @@ export class GameService {
     return { success: true, data: null };
   }
 
+  async getTotalHistory(page: number) {
+    const recordCount = await this.recordRepository.findAll().length;
+    const pageRecords = await this.recordRepository.findPage(page, 10);
+    const records = pageRecords.map(
+      async (record) => await this.recordRepository.recordToRecordDto(record),
+    );
+    await Promise.all(records);
+    return { records, recordCount };
+  }
+
+  async getRecordById(id: number) {
+    const record = await this.recordRepository.findById(id);
+    if (!record) return null;
+    return this.recordRepository.recordToRecordDto(record);
+  }
+
   // code for test -> TODO: delete
   async addDummyData() {
     await this.userRepository.createUser(123, 'dummy_user1');

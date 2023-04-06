@@ -5,7 +5,10 @@ import {
   Get,
   HttpStatus,
   Logger,
+  NotFoundException,
+  Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -138,5 +141,22 @@ export class GameController {
       throw new BadRequestException(data.data);
     }
     res.status(HttpStatus.OK).send();
+  }
+
+  @Get('/history')
+  @UseGuards(JwtGuard)
+  async getHistory(@Res() res: Response, @Query('page') page: number) {
+    this.logger.log(`Get history: ${page} page`);
+    const data = await this.gameService.getTotalHistory(page);
+    res.status(HttpStatus.OK).send(data);
+  }
+
+  @Get('/history/:id')
+  @UseGuards(JwtGuard)
+  async getRecord(@Res() res: Response, @Param('id') id: number) {
+    this.logger.log(`Get record: ${id}`);
+    const data = await this.gameService.getRecordById(id);
+    if (!data) throw new BadRequestException('잘못된 데이터 요청입니다.');
+    res.status(HttpStatus.OK).send(data);
   }
 }
