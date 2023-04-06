@@ -41,9 +41,17 @@ export class GameController {
 
   @Get('/userinfo')
   @UseGuards(JwtGuard)
-  async getUserInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
+  async getMyInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`User info request: ${user.intra_id}`);
     const data = await this.gameService.getUserInfo(user.intra_id);
+    res.status(HttpStatus.OK).send(data);
+  }
+
+  @Get('/userinfo/:intra_id')
+  @UseGuards(JwtGuard)
+  async getUserInfo(@Res() res: Response, @Param('intra_id') intra_id: string) {
+    this.logger.log(`User info request: ${intra_id}`);
+    const data = await this.gameService.getUserInfo(intra_id);
     res.status(HttpStatus.OK).send(data);
   }
 
