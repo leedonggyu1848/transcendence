@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IGameHistory } from "../../api/interface";
+import { axiosGetHistory } from "../../api/request";
 import useInitHook from "../../api/useInitHook";
 import GameDetailInfo from "./GameDetailInfo";
 import Records from "./Records";
@@ -33,12 +34,21 @@ const data = {
 
 const HistoryPage = () => {
   useInitHook();
+  const [list, setList] = useState<IGameHistory[]>([]);
+  useEffect(() => {
+    async function getData() {
+      const result = await axiosGetHistory(1);
+      console.log(result);
+      setList([...result]);
+    }
+    getData();
+  }, []);
   return (
     <HistoryPageContainer>
       <GameContainer>
         <h1>게임 기록</h1>
         <h2></h2>
-        <Records data={createDummyData()} />
+        <Records data={list} />
       </GameContainer>
       <SubContainer>
         <Empty />

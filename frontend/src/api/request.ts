@@ -97,3 +97,14 @@ export const axiosRecordGameResult = async (
     alert("게임 결과 저장 실패");
   }
 };
+
+const axiosGetHistoryURL = "/game/history/";
+export const axiosGetHistory = async (page: number) => {
+  try {
+    const result = await instance.get(axiosGetHistoryURL + `?page=${page}`);
+    console.log(result);
+    return result.data.records;
+  } catch (e) {
+    console.error(e);
+  }
+};
