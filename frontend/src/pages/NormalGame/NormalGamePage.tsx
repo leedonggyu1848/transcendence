@@ -14,6 +14,7 @@ import { axiosLeaveNormalGame } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
+import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
@@ -122,6 +123,7 @@ const NormalGamePage = () => {
         <h1>일반 게임</h1>
         <h2>{gameInfo.gameDto.title}</h2>
         {!start ? <WaitRoom /> : <GameBox />}
+        {/*<PongGame />*/}
       </GameContainer>
       <SubContainer>
         <Options>

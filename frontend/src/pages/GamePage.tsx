@@ -12,7 +12,7 @@ const GamePage = () => {
       </GameContainer>
       <SubContainer>
         <OpponentInfo />
-        <ChatBox />
+        {/*<ChatBox />*/}
       </SubContainer>
     </GamePageContainer>
   );

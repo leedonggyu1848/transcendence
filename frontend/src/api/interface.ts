@@ -7,7 +7,6 @@ export interface UserDto {
   normal_lose: number;
   rank_win: number;
   rank_lose: number;
-  join_game: GameDto;
 }
 
 export interface GameDto {
@@ -64,5 +63,13 @@ export interface ICurrentNormalGame {
 export interface IChatLog {
   sender: string;
   msg: string;
+  time: Date;
+}
+
+export interface IGameHistory {
+  type: string;
+  player1: string;
+  player2: string;
+  winner: string;
   time: Date;
 }

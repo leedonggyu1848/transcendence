@@ -1,7 +1,16 @@
 import styled from "@emotion/styled";
 import React, { useRef } from "react";
 import { useCookies } from "react-cookie";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+
+//const routes = ["/", "/main/lobby"];
+
+//function isValidPrevPage() {
+//  const location = useLocation();
+//  const { pathname } = location.state.prevLocation;
+//  const isValid = routes.some((route) => route === pathname);
+//  return isValid;
+//}
 
 const NotFoundPage = () => {
   const [token, setToken] = useCookies(["access_token"]);

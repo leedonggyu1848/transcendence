@@ -18,6 +18,7 @@ import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
 import { WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
+import HistoryPage from "./HistoryPage/HistoryPage";
 
 const MainPage = () => {
   const [token, setToken] = useCookies(["access_token"]);
@@ -39,6 +40,7 @@ const MainPage = () => {
           <Route path="/game" element={<GamePage />} />
           <Route path="/game/normal" element={<NormalGamePage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/history" element={<HistoryPage />} />
           <Route path="*" element={<Navigate to="/not_found" />} />
         </Routes>
         {rankWaitModalToggle && <RankWaitModal />}
