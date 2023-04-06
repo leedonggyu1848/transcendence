@@ -198,8 +198,10 @@ export class GameService {
 
   async getRecordById(id: number) {
     const record = await this.recordRepository.findById(id);
-    if (!record) return null;
-    return this.recordRepository.recordToRecordDto(record);
+    const winner = await this.userRepository.findByIntraId(record.winner);
+    const loser = await this.userRepository.findByIntraId(record.loser);
+    if (!record || !winner || !loser) return null;
+    return { record: record, winner: winner, loser: loser };
   }
 
   // code for test -> TODO: delete
