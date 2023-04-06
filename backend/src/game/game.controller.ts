@@ -147,7 +147,12 @@ export class GameController {
   @UseGuards(JwtGuard)
   async getHistory(@Res() res: Response, @Query('page') page: number) {
     this.logger.log(`Get history: ${page} page`);
-    const data = await this.gameService.getTotalHistory(page);
+    let data = await this.gameService.getTotalHistory(page);
+    // test code -> TODO: delete
+    if (data.records.length === 0) {
+      await this.gameService.addDummyHistory();
+      data = await this.gameService.getTotalHistory(page);
+    }
     res.status(HttpStatus.OK).send(data);
   }
 
