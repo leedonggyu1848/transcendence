@@ -15,6 +15,11 @@ import { UserDto } from 'src/dto/user.dto';
 interface userPayload {
   roomName: string;
   userInfo: UserDto;
+}
+
+interface userGamePayload {
+  roomName: string;
+  userInfo: UserDto;
   type: string;
 }
 
@@ -24,7 +29,13 @@ interface MessagePayload {
   message: string;
 }
 
-let createdRooms: string[] = [];
+interface ChatRoomPayload {
+  roomName: string;
+  joinUsers: UserDto[];
+}
+
+let gameRooms: string[] = [];
+let chatRooms: ChatRoomPayload[] = [];
 
 @WebSocketGateway({
   namespace: 'GameChat',
@@ -41,15 +52,15 @@ export class EventsGateway
 
   afterInit() {
     this.nsp.adapter.on('delete-room', (room) => {
-      const deletedRoom = createdRooms.find(
-        (createdRoom) => createdRoom === room,
-      );
-      if (!deletedRoom) return;
+      const deleteGameRoom = gameRooms.find((gameRoom) => gameRoom === room);
+      if (!deleteGameRoom) return;
+      this.nsp.emit('delete-room', deleteGameRoom);
+      gameRooms = gameRooms.filter((gameRoom) => gameRoom !== deleteGameRoom);
 
-      this.nsp.emit('delete-room', deletedRoom);
-      createdRooms = createdRooms.filter(
-        (createdRoom) => createdRoom !== deletedRoom,
-      );
+      const deleteChatRoom = chatRooms.find((chatRoom) => chatRoom === room);
+      if (!deleteChatRoom) return;
+      this.nsp.emit('delete-room', deleteChatRoom);
+      chatRooms = chatRooms.filter((chatRoom) => chatRoom !== deleteChatRoom);
     });
 
     this.logger.log('웹소켓 서버 초기화');
@@ -61,36 +72,6 @@ export class EventsGateway
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
     this.logger.log(`${socket.id} 소켓 연결 해제`);
-  }
-
-  @SubscribeMessage('create-room')
-  handleCreateRoom(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
-  ) {
-    const exists = createdRooms.find((createdRoom) => createdRoom === roomName);
-    if (exists)
-      return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
-    socket.join(roomName);
-    createdRooms.push(roomName);
-    this.logger.log(`room ${roomName} is created`);
-    this.nsp.emit('create-room', roomName);
-    return { success: true, payload: roomName };
-  }
-
-  @SubscribeMessage('join-room')
-  handleJoinRoom(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userInfo, type }: userPayload,
-  ) {
-    this.logger.log(`${userInfo.intra_id} join room ${roomName} as ${type}`);
-    socket.join(roomName);
-    socket.broadcast.to(roomName).emit('join-room', {
-      message: `${userInfo.intra_id}가 들어왔습니다.`,
-      userInfo: userInfo,
-      type: type,
-    });
-    return { success: true };
   }
 
   @SubscribeMessage('message')
@@ -105,17 +86,94 @@ export class EventsGateway
     return { username: socket.id, message };
   }
 
-  @SubscribeMessage('leave-room')
-  handleLeaveRoom(
+  @SubscribeMessage('create-game')
+  handleCreateGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userInfo, type }: userPayload,
+    @MessageBody() roomName: string,
   ) {
-    this.logger.log(`${userInfo.intra_id} leave room ${roomName} as ${type}`);
+    const exists = gameRooms.find((createdRoom) => createdRoom === roomName);
+    if (exists)
+      return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
+    socket.join(roomName);
+    gameRooms.push(roomName);
+    this.logger.log(`game ${roomName} is created`);
+    this.nsp.emit('create-room', roomName);
+    return { success: true, payload: roomName };
+  }
+
+  @SubscribeMessage('join-game')
+  handleJoinGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName, userInfo, type }: userGamePayload,
+  ) {
+    this.logger.log(`${userInfo.intra_id} join game ${roomName} as ${type}`);
+    socket.join(roomName);
+    socket.broadcast.to(roomName).emit('join-room', {
+      message: `${userInfo.intra_id}가 들어왔습니다.`,
+      userInfo: userInfo,
+      type: type,
+    });
+    return { success: true };
+  }
+
+  @SubscribeMessage('leave-game')
+  handleLeaveGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName, userInfo, type }: userGamePayload,
+  ) {
+    this.logger.log(`${userInfo.intra_id} leave game ${roomName} as ${type}`);
     socket.leave(roomName);
     socket.broadcast.to(roomName).emit('leave-room', {
       message: `${userInfo.intra_id}가 나갔습니다.`,
       userInfo: userInfo,
       type: type,
+    });
+    return { success: true };
+  }
+
+  @SubscribeMessage('create-chat')
+  handleCreateChat(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName, userInfo }: userPayload,
+  ) {
+    const exists = chatRooms.find(
+      (createdRoom) => createdRoom.roomName === roomName,
+    );
+    if (exists)
+      return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
+    socket.join(roomName);
+    chatRooms.push({ roomName: roomName, joinUsers: [userInfo] });
+    this.logger.log(`chat ${roomName} is created`);
+    this.nsp.emit('create-room', roomName);
+    return { success: true, payload: roomName };
+  }
+
+  @SubscribeMessage('join-chat')
+  handleJoinChat(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName, userInfo }: userPayload,
+  ) {
+    this.logger.log(`${userInfo.intra_id} join chat ${roomName}`);
+    socket.join(roomName);
+    const chat = chatRooms.find((chatRoom) => chatRoom.roomName === roomName);
+    chat.joinUsers.push(userInfo);
+    socket.broadcast.to(roomName).emit('join-room', {
+      message: `${userInfo.intra_id}가 들어왔습니다.`,
+      userInfo: userInfo,
+    });
+    return { success: true };
+  }
+
+  @SubscribeMessage('leave-chat')
+  handleLeaveChat(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName, userInfo }: userPayload,
+  ) {
+    this.logger.log(`${userInfo.intra_id} leave chat ${roomName}`);
+    socket.leave(roomName);
+    socket.broadcast.to(roomName).emit('leave-room', {
+      message: `${userInfo.intra_id}가 나갔습니다.`,
+      userInfo: userInfo,
     });
     return { success: true };
   }
@@ -158,5 +216,21 @@ export class EventsGateway
   ) {
     socket.broadcast.to(roomName).emit('normal-game-over', { winner });
     return { success: true };
+  }
+
+  @SubscribeMessage('chat-list')
+  handleChatList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`${socket.id} reqeust chat list`);
+    return chatRooms;
+  }
+
+  @SubscribeMessage('user-list')
+  handleUserList(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.logger.log(`${socket.id} request user list of chat ${roomName}`);
+    const chat = chatRooms.find((chatRoom) => chatRoom.roomName === roomName);
+    return chat.joinUsers;
   }
 }
