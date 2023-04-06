@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -22,6 +22,7 @@ const NormalGamePage = () => {
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const usersInfo = useRecoilValue(currentNormaGameUsersState);
   const [chatLogs, setChatLogs] = useState<IChatLog[]>([]);
+  const joinFlag = useRef(false);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
@@ -63,11 +64,14 @@ const NormalGamePage = () => {
     if (gameInfo.ownerDto.intra_id === myName) {
       socket.emit("create-room", gameInfo.gameDto.title);
     } else {
-      console.log(myInfo);
-      socket.emit("join-room", {
-        roomName: gameInfo.gameDto.title,
-        userInfo: myInfo,
-      });
+      if (!joinFlag.current) {
+        console.log(myInfo);
+        socket.emit("join-room", {
+          roomName: gameInfo.gameDto.title,
+          userInfo: myInfo,
+        });
+        joinFlag.current = true;
+      }
     }
     socket.on("join-room", ({ userInfo, message }) => {
       console.log(message, userInfo);
@@ -116,6 +120,11 @@ const NormalGamePage = () => {
         }
       }
     );
+    return () => {
+      socket.off("join-room");
+      socket.off("message");
+      socket.off("leave-room");
+    };
   }, [chatLogs]);
   return (
     <NormalGamePageContainer>
