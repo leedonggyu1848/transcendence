@@ -183,6 +183,7 @@ const NormalGamePage = () => {
             opponent={gameInfo.opponentDto?.intra_id || ""}
             type="normal"
             resetGame={setStart}
+            setCount={setCount}
           />
         )}
       </GameContainer>

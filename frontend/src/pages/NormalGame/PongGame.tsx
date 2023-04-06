@@ -17,6 +17,7 @@ const PongGame = ({
   opponent,
   type,
   resetGame,
+  setCount,
 }: {
   roomName: string;
   isOwner: boolean;
@@ -24,6 +25,7 @@ const PongGame = ({
   opponent: string;
   type: string;
   resetGame: React.Dispatch<React.SetStateAction<boolean>>;
+  setCount: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const socket = useContext(WebsocketContext);
@@ -91,26 +93,30 @@ const PongGame = ({
       // 윗 벽에 닿았을 때
       if (ball.y + ball.dy < ball.radius) {
         gameState = "win";
-        axiosRecordGameResult(owner, opponent, type === "normal" ? 0 : 1);
-        alert("win");
-        if (gameInfo.opponentDto) {
-          setGameInfo({
-            ...gameInfo,
-            ownerDto: {
-              ...gameInfo.ownerDto,
-              normal_win: gameInfo.ownerDto.normal_win + 1,
-            },
-            opponentDto: {
-              ...gameInfo.opponentDto,
-              normal_lose: gameInfo.opponentDto.normal_lose + 1,
-            },
-          });
-        }
-        socket.emit("normal-game-over", {
-          roomName,
-          winner: gameInfo.ownerDto.intra_id,
-        });
-        resetGame(true);
+        axiosRecordGameResult(owner, opponent, type === "normal" ? 0 : 1).then(
+          () => {
+            alert("win");
+            if (gameInfo.opponentDto) {
+              setGameInfo({
+                ...gameInfo,
+                ownerDto: {
+                  ...gameInfo.ownerDto,
+                  normal_win: gameInfo.ownerDto.normal_win + 1,
+                },
+                opponentDto: {
+                  ...gameInfo.opponentDto,
+                  normal_lose: gameInfo.opponentDto.normal_lose + 1,
+                },
+              });
+            }
+            socket.emit("normal-game-over", {
+              roomName,
+              winner: gameInfo.ownerDto.intra_id,
+            });
+            setCount(4);
+            resetGame(false);
+          }
+        );
       } else if (myPaddleCollision) {
         // 내 패들에 닿았을 때
         const relativeIntersectX = myPaddle.x + myPaddle.width / 2 - ball.x;
@@ -132,26 +138,30 @@ const PongGame = ({
       } else if (ball.y + ball.dy > canvasSize - ball.radius) {
         // 바닥에 닿았을 때
         gameState = "lose";
-        axiosRecordGameResult(opponent, owner, type === "normal" ? 0 : 1);
-        alert("lose");
-        if (gameInfo.opponentDto) {
-          setGameInfo({
-            ...gameInfo,
-            ownerDto: {
-              ...gameInfo.ownerDto,
-              normal_lose: gameInfo.ownerDto.normal_lose + 1,
-            },
-            opponentDto: {
-              ...gameInfo.opponentDto,
-              normal_win: gameInfo.opponentDto.normal_win + 1,
-            },
-          });
-          socket.emit("normal-game-over", {
-            roomName,
-            winner: gameInfo.opponentDto.intra_id,
-          });
-        }
-        resetGame(true);
+        axiosRecordGameResult(opponent, owner, type === "normal" ? 0 : 1).then(
+          () => {
+            alert("lose");
+            if (gameInfo.opponentDto) {
+              setGameInfo({
+                ...gameInfo,
+                ownerDto: {
+                  ...gameInfo.ownerDto,
+                  normal_lose: gameInfo.ownerDto.normal_lose + 1,
+                },
+                opponentDto: {
+                  ...gameInfo.opponentDto,
+                  normal_win: gameInfo.opponentDto.normal_win + 1,
+                },
+              });
+              socket.emit("normal-game-over", {
+                roomName,
+                winner: gameInfo.opponentDto.intra_id,
+              });
+              setCount(4);
+              resetGame(false);
+            }
+          }
+        );
       }
 
       // 좌우 벽에 닿았을 때
@@ -293,6 +303,8 @@ const PongGame = ({
             },
           });
         }
+        setCount(4);
+        resetGame(false);
       }
     });
 
@@ -313,6 +325,7 @@ const PongGame = ({
       canvas.current?.removeEventListener("mousemove", handleMouseMove);
       socket.off("move-ball");
       socket.off("mouse-move");
+      socket.off("normal-game-over");
     };
   }, []);
 

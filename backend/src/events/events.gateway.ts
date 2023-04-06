@@ -123,7 +123,7 @@ export class EventsGateway
   ) {
     this.logger.log(`${userInfo.intra_id} leave game ${roomName} as ${type}`);
     socket.leave(roomName);
-    socket.broadcast.to(roomName).emit('leave-room', {
+    socket.broadcast.to(roomName).emit('leave-game', {
       message: `${userInfo.intra_id}가 나갔습니다.`,
       userInfo: userInfo,
       type: type,
