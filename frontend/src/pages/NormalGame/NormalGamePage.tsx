@@ -67,7 +67,7 @@ const NormalGamePage = () => {
   const clickExit = async () => {
     try {
       await axiosLeaveNormalGame();
-      socket.emit("leave-room", {
+      socket.emit("leave-game", {
         roomName: gameInfo.gameDto.title,
         userInfo: myInfo,
       });
@@ -81,11 +81,11 @@ const NormalGamePage = () => {
 
   useEffect(() => {
     if (gameInfo.ownerDto.intra_id === myName) {
-      socket.emit("create-room", gameInfo.gameDto.title);
+      socket.emit("create-game", gameInfo.gameDto.title);
     } else {
       console.log(gameInfo);
       if (!firstJoin) {
-        socket.emit("join-room", {
+        socket.emit("join-game", {
           roomName: gameInfo.gameDto.title,
           userInfo: myInfo,
           type: normalJoinType,
@@ -93,7 +93,7 @@ const NormalGamePage = () => {
         setJoinSocketState(true);
       }
     }
-    socket.on("join-room", ({ userInfo, message, type }) => {
+    socket.on("join-game", ({ userInfo, message, type }) => {
       console.log(message, userInfo, type);
       setChatLogs([
         ...chatLogs,
@@ -127,7 +127,7 @@ const NormalGamePage = () => {
     });
 
     socket.on(
-      "leave-room",
+      "leave-game",
       ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
         if (userInfo.intra_id === gameInfo.ownerDto.intra_id) {
           navigate("/main/lobby");
@@ -162,9 +162,9 @@ const NormalGamePage = () => {
     });
 
     return () => {
-      socket.off("join-room");
+      socket.off("join-game");
       socket.off("message");
-      socket.off("leave-room");
+      socket.off("leave-game");
       socket.off("start-game");
       if (timer) clearInterval(timer);
     };
