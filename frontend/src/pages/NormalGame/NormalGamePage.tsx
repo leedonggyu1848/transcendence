@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -18,15 +18,18 @@ import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
+  const [startCount, setStartCount] = useState(false);
   const [start, setStart] = useState(false);
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const usersInfo = useRecoilValue(currentNormaGameUsersState);
   const [chatLogs, setChatLogs] = useState<IChatLog[]>([]);
+  const joinFlag = useRef(false);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
+  const [count, setCount] = useState(4);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e.target.value);
@@ -43,6 +46,15 @@ const NormalGamePage = () => {
       });
       setMsg("");
     }
+  };
+
+  const clickStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.currentTarget.classList.contains("notActive")) {
+      console.log("not owner!");
+      return;
+    }
+    setStartCount(() => true);
+    setCount((prev) => prev - 1);
   };
 
   const clickExit = async () => {
@@ -63,12 +75,25 @@ const NormalGamePage = () => {
     if (gameInfo.ownerDto.intra_id === myName) {
       socket.emit("create-room", gameInfo.gameDto.title);
     } else {
-      console.log(myInfo);
-      socket.emit("join-room", {
-        roomName: gameInfo.gameDto.title,
-        userInfo: myInfo,
-      });
+      if (!joinFlag.current) {
+        console.log(myInfo);
+        socket.emit("join-room", {
+          roomName: gameInfo.gameDto.title,
+          userInfo: myInfo,
+        });
+        joinFlag.current = true;
+      }
     }
+
+    let timer: NodeJS.Timeout | undefined;
+    if (count === 0) {
+      setStartCount(() => false);
+      setStart(() => true);
+    }
+    if (startCount) {
+      timer = setTimeout(() => setCount(count - 1), 1000);
+    }
+
     socket.on("join-room", ({ userInfo, message }) => {
       console.log(message, userInfo);
       setChatLogs([
@@ -116,23 +141,42 @@ const NormalGamePage = () => {
         }
       }
     );
-  }, [chatLogs]);
+    return () => {
+      socket.off("join-room");
+      socket.off("message");
+      socket.off("leave-room");
+      if (timer) clearInterval(timer);
+    };
+  }, [chatLogs, startCount, count]);
   return (
     <NormalGamePageContainer>
       <GameContainer>
         <h1>일반 게임</h1>
         <h2>{gameInfo.gameDto.title}</h2>
-        {!start ? <WaitRoom /> : <GameBox />}
-        {/*<PongGame />*/}
+        {!start && <WaitRoom count={count} />}
+        {start && <PongGame />}
       </GameContainer>
       <SubContainer>
         <Options>
-          <Button className="active">시작하기</Button>
+          {" "}
+          <Button
+            className={
+              myName === gameInfo.ownerDto.intra_id ? "active" : "notActive"
+            }
+            onClick={clickStart}
+          >
+            시작하기
+          </Button>
           <Button className="active" onClick={clickExit}>
             나가기
           </Button>
         </Options>
-        <CurrentUserInfo data={usersInfo} />
+        <CurrentUserInfo
+          data={usersInfo}
+          title={gameInfo.gameDto.title}
+          operator={false}
+          clickOperatorButton={() => {}}
+        />
         <ChatBox
           onSend={onSend}
           onChange={onChange}

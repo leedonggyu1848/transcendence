@@ -8,8 +8,6 @@ interface BallMove {
 }
 
 const PongGame: React.FC = () => {
-  const startButton = useRef<HTMLDivElement | null>(null);
-
   const socket = useContext(WebsocketContext);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const paddleWidth = 150;
@@ -19,8 +17,8 @@ const PongGame: React.FC = () => {
   const minAngle = 45;
   const speed = 5; // 공의 속도 조절
 
-  const MINE_COLOR = "#568eff";
-  const OTHER_COLOR = "#ff4c4c";
+  const MINE_COLOR = "#4375f4";
+  const OTHER_COLOR = "#9c4fff";
 
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
@@ -114,7 +112,7 @@ const PongGame: React.FC = () => {
       if (!ctx) return;
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
-      ctx.fillStyle = "black";
+      ctx.fillStyle = "white";
       ctx.fill();
       ctx.closePath();
     }
@@ -171,10 +169,10 @@ const PongGame: React.FC = () => {
           ctx.clearRect(
             myPaddle.x,
             canvasSize - paddleHeight - 15,
-            paddleWidth,
+            paddleWidth + 3,
             paddleHeight + 10
           );
-          ctx.clearRect(otherPaddle.x, 10, paddleWidth, paddleHeight + 2);
+          ctx.clearRect(otherPaddle.x, 10, paddleWidth + 3, paddleHeight + 2);
         }
         myPaddle.x = mouseX - myPaddle.width / 2;
         drawMyPaddle();
@@ -225,33 +223,25 @@ const PongGame: React.FC = () => {
 
     // 이 페이지에서만 사용할 시작 이벤트
 
-    const clickStart = () => {
-      gameLoop();
-    };
-
-    startButton.current?.addEventListener("click", clickStart);
+    gameLoop();
 
     return () => {
       canvas.current?.removeEventListener("mousemove", handleMouseMove);
-      startButton.current?.removeEventListener("click", clickStart);
     };
   }, []);
 
   return (
-    <div>
-      <canvas
-        style={{ background: "white" }}
-        ref={canvas}
-        width={canvasSize}
-        height={canvasSize}
-      />
-      <div>
+    <Container>
+      <Canvas ref={canvas} width={canvasSize} height={canvasSize} />
+      {/*<div>
         <Button ref={startButton}>시작</Button>
         <Button>종료</Button>
-      </div>
-    </div>
+      </div>*/}
+    </Container>
   );
 };
+
+const Canvas = styled.canvas``;
 
 const Button = styled.div`
   display: inline-block;
@@ -266,6 +256,17 @@ const Button = styled.div`
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
   margin: 40px;
   cursor: pointer;
+`;
+
+const Container = styled.div`
+  width: 530px;
+  height: 510px;
+  background: var(--sub-bg-color);
+  border-radius: 20px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default PongGame;
