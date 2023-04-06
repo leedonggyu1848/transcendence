@@ -4,7 +4,9 @@ import {
   IChatLog,
   ICurrentNormalGame,
   IGameUserInfo,
+  ISelectedGameRecord,
   JoinnedUserDto,
+  UserDto,
 } from "./interface";
 
 export const myInfoState = atom({
@@ -107,6 +109,21 @@ export const opponentInfoState = selector<IGameUserInfo | null>({
   },
 });
 
+export const isWatcherState = selector({
+  key: "isWatcherState",
+  get: ({ get }) => {
+    const myName = get(myNameState);
+    const gameInfo = get(currentNormalGameInfoState);
+    if (
+      gameInfo.opponentDto &&
+      gameInfo.opponentDto.intra_id !== myName &&
+      gameInfo.ownerDto.intra_id !== myName
+    )
+      return true;
+    return false;
+  },
+});
+
 export const selectedNormalGameTitleState = atom({
   key: "selectedNormalGameTitleState",
   default: "",
@@ -130,4 +147,37 @@ export const normalGameRenderingFlagState = atom({
 export const operatorModalToggleState = atom({
   key: "operatorModalToggleState",
   default: false,
+});
+
+export const selectedGameRecord = atom<ISelectedGameRecord>({
+  key: "selectedGameRecord",
+  default: {
+    record: {
+      gameType: -1,
+      id: -1,
+      loser: "",
+      winner: "",
+      time: "",
+    },
+    winner: {
+      user_id: -1,
+      intra_id: "",
+      profile: "",
+      introduce: "",
+      normal_win: -1,
+      normal_lose: -1,
+      rank_win: -1,
+      rank_lose: -1,
+    },
+    loser: {
+      user_id: -1,
+      intra_id: "",
+      profile: "",
+      introduce: "",
+      normal_win: -1,
+      normal_lose: -1,
+      rank_win: -1,
+      rank_lose: -1,
+    },
+  },
 });

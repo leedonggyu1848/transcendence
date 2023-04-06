@@ -67,9 +67,22 @@ export interface IChatLog {
 }
 
 export interface IGameHistory {
-  type: string;
-  player1: string;
-  player2: string;
+  id: number;
+  type: number;
+  loser: string;
   winner: string;
-  time: Date;
+  time: string;
+}
+
+interface IRecord {
+  gameType: number;
+  id: number;
+  loser: string;
+  winner: string;
+  time: string;
+}
+export interface ISelectedGameRecord {
+  record: IRecord;
+  winner: UserDto;
+  loser: UserDto;
 }

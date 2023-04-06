@@ -1,4 +1,7 @@
 import styled from "@emotion/styled";
+import { useSetRecoilState } from "recoil";
+import { selectedGameRecord } from "../../api/atom";
+import { axiosGetUserGameRecord } from "../../api/request";
 
 function getDateInfo(time: Date) {
   const m = time.getMonth() + 1;
@@ -8,8 +11,9 @@ function getDateInfo(time: Date) {
   }`;
 }
 
-function convertTimeInfo(time: Date) {
+function convertTimeInfo(timeStr: string) {
   const today = new Date();
+  const time = new Date(timeStr);
   const dateStr = getDateInfo(time);
   if (getDateInfo(today) !== dateStr) return dateStr;
   const h = time.getHours();
@@ -20,25 +24,31 @@ function convertTimeInfo(time: Date) {
 }
 
 const Record = ({
+  id,
   type,
-  player1,
-  player2,
   winner,
+  loser,
   time,
 }: {
-  type: string;
-  player1: string;
-  player2: string;
+  id: number;
+  type: number;
   winner: string;
-  time: Date;
+  loser: string;
+  time: string;
 }) => {
+  const setSelectedGameRecord = useSetRecoilState(selectedGameRecord);
+  const clickRecord = async () => {
+    const data = await axiosGetUserGameRecord(id);
+    console.log(data);
+    setSelectedGameRecord(data);
+  };
   return (
-    <RecordContainer>
-      <Type>{type === "rank" ? "랭크" : "일반"}</Type>
-      <Result>{player1 === winner ? "W" : "L"}</Result>
-      <PlayerName>{player1}</PlayerName>
-      <Result>{player2 === winner ? "W" : "L"}</Result>
-      <PlayerName>{player2}</PlayerName>
+    <RecordContainer onClick={clickRecord}>
+      <Type>{type ? "랭크" : "일반"}</Type>
+      <Result>W</Result>
+      <PlayerName>{winner}</PlayerName>
+      <Result>L</Result>
+      <PlayerName>{loser}</PlayerName>
       <Time>{convertTimeInfo(time)}</Time>
     </RecordContainer>
   );

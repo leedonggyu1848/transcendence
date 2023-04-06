@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useRecoilValue } from "recoil";
+import { selectedGameRecord } from "../../api/atom";
 import { UserDto } from "../../api/interface";
 import DetailProfile from "./DetailProfile";
 
@@ -10,26 +12,13 @@ function convertTime(time: Date) {
   }시 ${time.getMinutes()}분`;
 }
 
-const GameDetailInfo = ({
-  type,
-  time,
-  player1,
-  player2,
-  win,
-}: {
-  type: string;
-  time: Date;
-  player1: UserDto;
-  player2: UserDto;
-  win: string;
-}) => {
-  const winner = player1.intra_id === win ? player1 : player2;
-  const loser = player1.intra_id !== win ? player1 : player2;
+const GameDetailInfo = ({}: {}) => {
+  const { record, winner, loser } = useRecoilValue(selectedGameRecord);
   return (
     <GameDetailInfoContainer>
       <GameInfo>
-        <div>{type === "rank" ? "랭크" : "일반"}</div>
-        <div>{convertTime(time)}</div>
+        <div>{record?.gameType ? "랭크" : "일반"}</div>
+        <div>{convertTime(new Date(record ? record.time : ""))}</div>
       </GameInfo>
       <DetailProfile player={winner} type="W" />
       <DetailProfile player={loser} type="L" />

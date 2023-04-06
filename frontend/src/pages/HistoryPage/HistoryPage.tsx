@@ -52,28 +52,11 @@ const HistoryPage = () => {
       </GameContainer>
       <SubContainer>
         <Empty />
-        <GameDetailInfo {...data} />
+        <GameDetailInfo />
       </SubContainer>
     </HistoryPageContainer>
   );
 };
-
-function createDummyData() {
-  const result: IGameHistory[] = [];
-
-  for (let i = 0; i < 100; i++) {
-    const ran = Math.floor(Math.random() * 2);
-    const temp: IGameHistory = {
-      type: ran ? "rank" : "normal",
-      player1: ran ? "yooh" : "jpark2",
-      player2: !ran ? "yooh" : "jpark2",
-      winner: ran ? "yooh" : "jpark2",
-      time: new Date(),
-    };
-    result.push(temp);
-  }
-  return result;
-}
 
 const Empty = styled.div`
   width: 100%;

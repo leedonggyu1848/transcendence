@@ -1,31 +1,41 @@
 import styled from "@emotion/styled";
 import { UserDto } from "../../api/interface";
 
-const DetailProfile = ({ player, type }: { player: UserDto; type: string }) => {
+const DetailProfile = ({
+  player,
+  type,
+}: {
+  player: UserDto | null;
+  type: string;
+}) => {
   return (
-    <DetailProfileContainer>
-      <Container>
-        <Image src={player.profile} />
-        <Intra>
-          <span>{type}</span>
-          <span>{player.intra_id}</span>
-        </Intra>
-      </Container>
-      <Container>
-        <Text>
-          <div className="head">일반 게임</div>
-          <div>
-            {player.normal_win}승 {player.normal_lose}패
-          </div>
-          <div>승률 : {getWinRate(player.normal_win, player.normal_lose)}</div>
-          <div className="head">랭크 게임</div>
-          <div>
-            {player.rank_win}승 {player.rank_lose}패
-          </div>
-          <div>승률 : {getWinRate(player.rank_win, player.rank_lose)}</div>
-        </Text>
-      </Container>
-    </DetailProfileContainer>
+    player && (
+      <DetailProfileContainer>
+        <Container>
+          <Image src={player.profile} />
+          <Intra>
+            <span>{type}</span>
+            <span>{player.intra_id}</span>
+          </Intra>
+        </Container>
+        <Container>
+          <Text>
+            <div className="head">일반 게임</div>
+            <div>
+              {player.normal_win}승 {player.normal_lose}패
+            </div>
+            <div>
+              승률 : {getWinRate(player.normal_win, player.normal_lose)}
+            </div>
+            <div className="head">랭크 게임</div>
+            <div>
+              {player.rank_win}승 {player.rank_lose}패
+            </div>
+            <div>승률 : {getWinRate(player.rank_win, player.rank_lose)}</div>
+          </Text>
+        </Container>
+      </DetailProfileContainer>
+    )
   );
 };
 

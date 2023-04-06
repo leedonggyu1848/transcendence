@@ -2,13 +2,8 @@ import React, { useRef, useEffect, useContext } from "react";
 import styled from "@emotion/styled";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import { axiosRecordGameResult } from "../../api/request";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { currentNormalGameInfoState } from "../../api/atom";
-
-interface BallMove {
-  ballX: number;
-  ballY: number;
-}
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { currentNormalGameInfoState, isWatcherState } from "../../api/atom";
 
 const PongGame = ({
   roomName,
@@ -28,6 +23,9 @@ const PongGame = ({
   setCount: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
+  const isWatcher = useRecoilValue(isWatcherState);
+
+  console.log(isWatcher);
   const socket = useContext(WebsocketContext);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const paddleWidth = 150;
@@ -248,7 +246,6 @@ const PongGame = ({
     }
 
     socket.on("mouse-move", ({ x }) => {
-      console.log(x);
       if (ctx) {
         ctx.clearRect(
           myPaddle.x,
@@ -265,7 +262,6 @@ const PongGame = ({
 
     socket.on("move-ball", ({ xPos, yPos }) => {
       if (ctx) {
-        console.log(xPos, yPos);
         ctx.clearRect(0, 0, canvasSize, canvasSize);
         ball.x = xPos;
         ball.y = canvasSize - yPos;
@@ -331,12 +327,14 @@ const PongGame = ({
 
   return (
     <Container>
-      <Canvas ref={canvas} width={canvasSize} height={canvasSize} />
+      <Canvas ref={canvas} width={canvasSize} height={canvasSize} isWatcher />
     </Container>
   );
 };
 
-const Canvas = styled.canvas``;
+const Canvas = styled.canvas<{ isWatcher: boolean }>`
+  ${({ isWatcher }) => (isWatcher ? "transform : rotateY(90deg)" : "")}
+`;
 
 const Container = styled.div`
   width: 530px;

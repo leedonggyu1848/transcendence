@@ -108,3 +108,14 @@ export const axiosGetHistory = async (page: number) => {
     console.error(e);
   }
 };
+
+const axiosGetUserGameRecordURL = "/game/history/";
+export const axiosGetUserGameRecord = async (gameId: number) => {
+  try {
+    const result = await instance.get(axiosGetUserGameRecordURL + gameId);
+    console.log(result);
+    return result.data;
+  } catch (e) {
+    console.error(e);
+  }
+};
