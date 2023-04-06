@@ -7,6 +7,7 @@ import { UserDto } from 'src/dto/user.dto';
 import { IGameRepository } from './repository/game.interface.repository';
 import { IUserRepository } from '../user/repository/users.interface.repository';
 import { IRecordRepository } from './repository/record.interface.repository';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class GameService {
@@ -225,5 +226,19 @@ export class GameService {
       user2,
     );
     return await this.getLobbyInfo();
+  }
+
+  // code for test -> TODO: delete
+  async addDummyHistory() {
+    let res = [];
+    for (let i = 0; i < 50; i++) {
+      let type = randomInt(1, 2);
+      let score = randomInt(1, 10);
+      if (score >= 5)
+        res.push(await this.recordRepository.addRecord(type, 'jpark2', 'yooh'));
+      else
+        res.push(await this.recordRepository.addRecord(type, 'yooh', 'jpark2'));
+    }
+    await Promise.all(res);
   }
 }
