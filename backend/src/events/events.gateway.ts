@@ -108,7 +108,7 @@ export class EventsGateway
   ) {
     this.logger.log(`${userInfo.intra_id} join game ${roomName} as ${type}`);
     socket.join(roomName);
-    socket.broadcast.to(roomName).emit('join-room', {
+    socket.broadcast.to(roomName).emit('join-game', {
       message: `${userInfo.intra_id}가 들어왔습니다.`,
       userInfo: userInfo,
       type: type,
@@ -157,7 +157,7 @@ export class EventsGateway
     socket.join(roomName);
     const chat = chatRooms.find((chatRoom) => chatRoom.roomName === roomName);
     chat.joinUsers.push(userInfo);
-    socket.broadcast.to(roomName).emit('join-room', {
+    socket.broadcast.to(roomName).emit('join-game', {
       message: `${userInfo.intra_id}가 들어왔습니다.`,
       userInfo: userInfo,
     });
