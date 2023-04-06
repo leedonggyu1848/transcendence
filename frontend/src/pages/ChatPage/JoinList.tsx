@@ -5,7 +5,7 @@ const JoinList = ({ data }: { data: JoinListDto[] }) => {
   return (
     <JoinListContainer>
       {data.map(({ title, private_mode, newMessage }, idx) => (
-        <Room>
+        <Room key={idx}>
           {newMessage > 0 ? <NewMessage /> : <Empty />}
           <Private private_mode={private_mode} />
           <Title title={title}>

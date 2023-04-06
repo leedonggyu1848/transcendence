@@ -19,6 +19,7 @@ import {
   axiosJoinGame,
   axiosWatchGame,
 } from "../../api/request";
+import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import GameLobby from "./GameLobby";
 
@@ -32,6 +33,8 @@ const GameLobbyContainer = () => {
   const setSelectedNormalGameTitle = useSetRecoilState(
     selectedNormalGameTitleState
   );
+
+  useInitHook();
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const setCurrentNormalGameInfoState = useSetRecoilState(
     currentNormalGameInfoState

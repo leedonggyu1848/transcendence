@@ -4,10 +4,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/entity/user.entity';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 import { PhStrategy } from './ft/auth.strategy';
 import { JwtStrategy } from './jwt/jwt.strategy';
+import { UserRepository } from './repository/users.repository';
+
+const repo = {
+  provide: 'IUserRepository',
+  useClass: UserRepository,
+};
 
 @Module({
   imports: [
@@ -24,7 +30,7 @@ import { JwtStrategy } from './jwt/jwt.strategy';
       }),
     }),
   ],
-  controllers: [AuthController],
-  providers: [PhStrategy, JwtStrategy, ConfigService, AuthService],
+  controllers: [UserController],
+  providers: [PhStrategy, JwtStrategy, ConfigService, UserService, repo],
 })
-export class AuthModule {}
+export class UserModule {}

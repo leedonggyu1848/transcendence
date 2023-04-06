@@ -63,24 +63,6 @@ export class EventsGateway
     this.logger.log(`${socket.id} 소켓 연결 해제`);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userName, message }: MessagePayload,
-  ) {
-    this.logger.log(`${roomName} message => ${userName}: ${message}`);
-    socket.broadcast
-      .to(roomName)
-      .emit('message', { username: userName, message });
-
-    return { username: socket.id, message };
-  }
-
-  @SubscribeMessage('room-list')
-  handleRoomList() {
-    return createdRooms;
-  }
-
   @SubscribeMessage('create-room')
   handleCreateRoom(
     @ConnectedSocket() socket: Socket,
@@ -109,6 +91,18 @@ export class EventsGateway
       type: type,
     });
     return { success: true };
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName, userName, message }: MessagePayload,
+  ) {
+    this.logger.log(`${roomName} message => ${userName}: ${message}`);
+    socket.broadcast
+      .to(roomName)
+      .emit('message', { username: userName, message });
+    return { username: socket.id, message };
   }
 
   @SubscribeMessage('leave-room')

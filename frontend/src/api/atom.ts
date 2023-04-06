@@ -80,7 +80,6 @@ export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
   key: "currentNormaGameUsersState",
   get: ({ get }) => {
     const data = get(currentNormalGameInfoState);
-    console.log(data);
     const result = [];
     result.push({ type: "owner", intra_id: data.ownerDto.intra_id });
     if (data.opponentDto)
@@ -88,7 +87,6 @@ export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
     data.watchersDto.forEach((person) => {
       result.push({ type: "watcher", intra_id: person.intra_id });
     });
-    console.log(data, result);
     return result;
   },
 });
@@ -117,4 +115,19 @@ export const selectedNormalGameTitleState = atom({
 export const normalJoinTypeState = atom({
   key: "normalJoinTypeState",
   default: "",
+});
+
+export const joinSocketState = atom({
+  key: "joinSocketState",
+  default: false,
+});
+
+export const normalGameRenderingFlagState = atom({
+  key: "normalGameRenderingFlagState",
+  default: false,
+});
+
+export const operatorModalToggleState = atom({
+  key: "operatorModalToggleState",
+  default: false,
 });

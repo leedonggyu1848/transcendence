@@ -1,10 +1,13 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
+import useInitHook from "../api/useInitHook";
 
 const NoAuthPage = () => {
   const eyeX = useRef<HTMLDivElement>(null);
   const eyeY = useRef<HTMLDivElement>(null);
+
+  useInitHook();
 
   const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (!eyeX.current || !eyeY.current) return;
@@ -21,6 +24,7 @@ const NoAuthPage = () => {
     eyeX.current.style.transform = "rotate(" + rotationDegrees + "deg)";
     eyeY.current.style.transform = "rotate(" + rotationDegrees + "deg)";
   };
+
   return (
     <NoAuthPageContainer onMouseMove={onMouseMove}>
       <h1>No Authorization</h1>

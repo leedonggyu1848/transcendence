@@ -1,13 +1,20 @@
 import styled from "@emotion/styled";
-import { useRecoilValue } from "recoil";
-import { socketState } from "../../api/atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { operatorModalToggleState, socketState } from "../../api/atom";
 import { ChatListDto, JoinListDto, JoinnedUserDto } from "../../api/interface";
+import useInitHook from "../../api/useInitHook";
 import ChatBox from "../../components/Chat/ChatBox";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";
 import JoinList from "./JoinList";
 
 const ChatPage = () => {
+  const openOperatorModal = useSetRecoilState(operatorModalToggleState);
+  const clickOperatorButton = () => {
+    openOperatorModal(true);
+  };
+  useInitHook();
+
   return (
     <ChatPageContainer>
       <WapperContainer>
@@ -22,7 +29,10 @@ const ChatPage = () => {
         <HeaderContainer>
           <div>현재 참가 중인 방</div>
         </HeaderContainer>
-        <CurrentChat data={createDummyData()} />
+        <CurrentChat
+          data={createDummyData()}
+          clickOperatorButton={clickOperatorButton}
+        />
       </WapperContainer>
       <WapperContainer>
         <HeaderContainer>
@@ -40,12 +50,12 @@ function createDummyData() {
 
   console.log(socket);
 
-  result.push({ name: "yooh", type: "owner" });
-  result.push({ name: "jpark2", type: "opponent" });
+  result.push({ intra_id: "yooh", type: "owner" });
+  result.push({ intra_id: "jpark2", type: "opponent" });
 
   for (let i = 0; i < 50; i < i++) {
     let temp: JoinnedUserDto = {
-      name: "User " + (i + 1),
+      intra_id: "User " + (i + 1),
       type: "watcher",
     };
     result.push(temp);

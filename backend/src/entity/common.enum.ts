@@ -4,3 +4,8 @@ export enum JoinType {
   'PLAYER',
   'WATCHER',
 }
+
+export enum GameType {
+  'NORMAL',
+  'RANK',
+}

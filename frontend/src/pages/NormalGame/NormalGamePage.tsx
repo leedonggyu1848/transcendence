@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   currentNormaGameUsersState,
   currentNormalGameInfoState,
+  joinSocketState,
   myInfoState,
   myNameState,
   normalJoinTypeState,
@@ -14,20 +15,25 @@ import { axiosLeaveNormalGame } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
+import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
 
 const NormalGamePage = () => {
+  const [startCount, setStartCount] = useState(false);
   const [start, setStart] = useState(false);
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const usersInfo = useRecoilValue(currentNormaGameUsersState);
   const [chatLogs, setChatLogs] = useState<IChatLog[]>([]);
+  const joinFlag = useRef(false);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
-  const normalJoinType = useRecoilValue(normalJoinTypeState);
-  const [joinSocketState, setJoinSocketState] = useState(false);
+  const [normalJoinType, setNormalJoinType] =
+    useRecoilState(normalJoinTypeState);
+  const [firstJoin, setJoinSocketState] = useRecoilState(joinSocketState);
+  const [count, setCount] = useState(4);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
@@ -44,6 +50,19 @@ const NormalGamePage = () => {
     }
   };
 
+  const clickStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.currentTarget.classList.contains("notActive")) {
+      console.log("not owner!");
+      return;
+    }
+    if (!gameInfo.opponentDto) {
+      alert("No Opponent!");
+      return;
+    }
+    setStartCount(() => true);
+    setCount((prev) => prev - 1);
+  };
+
   const clickExit = async () => {
     try {
       await axiosLeaveNormalGame();
@@ -51,6 +70,7 @@ const NormalGamePage = () => {
         roomName: gameInfo.gameDto.title,
         userInfo: myInfo,
       });
+      setJoinSocketState(false);
       navigate("/main/lobby");
     } catch (e) {
       console.error(e);
@@ -63,7 +83,7 @@ const NormalGamePage = () => {
       socket.emit("create-room", gameInfo.gameDto.title);
     } else {
       console.log(gameInfo);
-      if (!joinSocketState) {
+      if (!firstJoin) {
         socket.emit("join-room", {
           roomName: gameInfo.gameDto.title,
           userInfo: myInfo,
@@ -87,6 +107,15 @@ const NormalGamePage = () => {
         });
       }
     });
+
+    let timer: NodeJS.Timeout | undefined;
+    if (count === 0) {
+      setStartCount(() => false);
+      setStart(() => true);
+    }
+    if (startCount) {
+      timer = setTimeout(() => setCount(count - 1), 1000);
+    }
 
     socket.on("message", ({ username, message }) => {
       console.log(username, message);
@@ -124,35 +153,43 @@ const NormalGamePage = () => {
         }
       }
     );
-
-    return () => {};
-
-    //async function leaveGame() {
-    //  try {
-    //    await axiosLeaveNormalGame();
-    //    socket.emit("leave-room", gameInfo.gameDto.title);
-    //    navigate("/main/lobby");
-    //  } catch (e) {
-    //    console.error(e);
-    //    alert(e);
-    //  }
-    //}
-  }, [chatLogs]);
+    return () => {
+      socket.off("join-room");
+      socket.off("message");
+      socket.off("leave-room");
+      //setJoinSocketState(false);
+      if (timer) clearInterval(timer);
+    };
+  }, [chatLogs, startCount, count]);
   return (
     <NormalGamePageContainer>
       <GameContainer>
         <h1>일반 게임</h1>
         <h2>{gameInfo.gameDto.title}</h2>
-        {!start ? <WaitRoom /> : <GameBox />}
+        {!start && <WaitRoom count={count} />}
+        {start && <PongGame />}
       </GameContainer>
       <SubContainer>
         <Options>
-          <Button className="active">시작하기</Button>
+          {" "}
+          <Button
+            className={
+              myName === gameInfo.ownerDto.intra_id ? "active" : "notActive"
+            }
+            onClick={clickStart}
+          >
+            시작하기
+          </Button>
           <Button className="active" onClick={clickExit}>
             나가기
           </Button>
         </Options>
-        <CurrentUserInfo data={usersInfo} />
+        <CurrentUserInfo
+          data={usersInfo}
+          title={gameInfo.gameDto.title}
+          operator={false}
+          clickOperatorButton={() => {}}
+        />
         <ChatBox
           onSend={onSend}
           onChange={onChange}

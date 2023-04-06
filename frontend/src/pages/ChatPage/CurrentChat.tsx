@@ -3,10 +3,21 @@ import { JoinnedUserDto } from "../../api/interface";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
 
-const CurrentChat = ({ data }: { data: JoinnedUserDto[] }) => {
+const CurrentChat = ({
+  data,
+  clickOperatorButton,
+}: {
+  data: JoinnedUserDto[];
+  clickOperatorButton: Function;
+}) => {
   return (
     <CurrentChatContainer>
-      <CurrentUserInfo data={data} />
+      <CurrentUserInfo
+        data={data}
+        title="수다떨사람 오세요~"
+        operator
+        clickOperatorButton={clickOperatorButton}
+      />
       <ChatBox height={340} data={[]} myName="" />
     </CurrentChatContainer>
   );
