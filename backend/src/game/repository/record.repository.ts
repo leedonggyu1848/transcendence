@@ -11,6 +11,7 @@ export class RecordRepository {
 
   recordToRecordDto(record: Record) {
     const recordDto: RecordDto = {
+      id: record.id,
       gameType: record.gameType,
       winner: record.winner,
       loser: record.loser,
@@ -32,14 +33,21 @@ export class RecordRepository {
     return await this.recordRepository.find();
   }
 
+  async findById(id: number) {
+    return await this.recordRepository.findOneBy({ id: id });
+  }
+
+  async findPage(page: number, pageSize: number) {
+    return await this.recordRepository.find({
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+  }
+
   async findByPlayer(player: string) {
     const rec1 = await this.recordRepository.findBy({ winner: player });
     const rec2 = await this.recordRepository.findBy({ loser: player });
     const records = rec1.concat(rec2);
     return records.sort((r1, r2) => r1.time.getTime() - r2.time.getTime());
-  }
-
-  async findByWinner(winner: string) {
-    return await this.recordRepository.findBy({ winner: winner });
   }
 }

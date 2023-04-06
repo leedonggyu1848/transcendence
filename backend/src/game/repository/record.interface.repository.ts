@@ -1,4 +1,3 @@
-import { RecordDto } from 'src/dto/record.dto';
 import { GameType } from 'src/entity/common.enum';
 import { Record } from 'src/entity/record.entity';
 
@@ -9,7 +8,9 @@ export interface IRecordRepository {
 
   findAll();
 
-  findByPlayer(player: string);
+  findById(id: number);
 
-  findByWinner(winner: string);
+  findPage(page: number, pageSize: number);
+
+  findByPlayer(player: string);
 }
