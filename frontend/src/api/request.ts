@@ -81,3 +81,19 @@ export const axiosLeaveNormalGame = async () => {
 
   console.log(response);
 };
+
+const axiosRecordGameResultURL = "/game/result";
+export const axiosRecordGameResult = async (
+  win: string,
+  lose: string,
+  type: number
+) => {
+  // type : normal = 0, rank = 1
+  try {
+    await instance.post(axiosRecordGameResultURL, { win, lose, type });
+    console.log("게임 결과 저장 완료");
+  } catch (e) {
+    console.error(e);
+    alert("게임 결과 저장 실패");
+  }
+};

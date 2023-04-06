@@ -61,6 +61,7 @@ const NormalGamePage = () => {
     }
     setStartCount(() => true);
     setCount((prev) => prev - 1);
+    socket.emit("start-game", { roomName: gameInfo.gameDto.title });
   };
 
   const clickExit = async () => {
@@ -153,11 +154,18 @@ const NormalGamePage = () => {
         }
       }
     );
+
+    socket.on("start-game", () => {
+      console.log("start Game received");
+      setStartCount(() => true);
+      setCount((prev) => prev - 1);
+    });
+
     return () => {
       socket.off("join-room");
       socket.off("message");
       socket.off("leave-room");
-      //setJoinSocketState(false);
+      socket.off("start-game");
       if (timer) clearInterval(timer);
     };
   }, [chatLogs, startCount, count]);
@@ -167,7 +175,16 @@ const NormalGamePage = () => {
         <h1>일반 게임</h1>
         <h2>{gameInfo.gameDto.title}</h2>
         {!start && <WaitRoom count={count} />}
-        {start && <PongGame />}
+        {start && (
+          <PongGame
+            roomName={gameInfo.gameDto.title}
+            isOwner={gameInfo.ownerDto.intra_id === myName}
+            owner={gameInfo.ownerDto.intra_id}
+            opponent={gameInfo.opponentDto?.intra_id || ""}
+            type="normal"
+            resetGame={setStart}
+          />
+        )}
       </GameContainer>
       <SubContainer>
         <Options>

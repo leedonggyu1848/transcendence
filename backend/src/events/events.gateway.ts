@@ -119,4 +119,44 @@ export class EventsGateway
     });
     return { success: true };
   }
+
+  @SubscribeMessage('start-game')
+  handleStartGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomName }: userPayload,
+  ) {
+    this.logger.log(`${roomName} Game Start`);
+    socket.broadcast.to(roomName).emit('start-game');
+    return { success: true };
+  }
+
+  @SubscribeMessage('move-ball')
+  handleMoveBall(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, x, y }: { roomName: string; x: number; y: number },
+  ) {
+    socket.broadcast.to(roomName).emit('move-ball', { xPos: x, yPos: y });
+    return { success: true };
+  }
+
+  @SubscribeMessage('mouse-move')
+  handleMouseMove(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, x }: { roomName: string; x: number },
+  ) {
+    socket.broadcast.to(roomName).emit('mouse-move', { x });
+    return { success: true };
+  }
+
+  @SubscribeMessage('normal-game-over')
+  handleNormalGameOver(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, winner }: { roomName: string; winner: string },
+  ) {
+    socket.broadcast.to(roomName).emit('normal-game-over', { winner });
+    return { success: true };
+  }
 }

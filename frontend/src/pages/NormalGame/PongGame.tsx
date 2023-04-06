@@ -1,13 +1,31 @@
 import React, { useRef, useEffect, useContext } from "react";
 import styled from "@emotion/styled";
 import { WebsocketContext } from "../../api/WebsocketContext";
+import { axiosRecordGameResult } from "../../api/request";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { currentNormalGameInfoState } from "../../api/atom";
 
 interface BallMove {
   ballX: number;
   ballY: number;
 }
 
-const PongGame: React.FC = () => {
+const PongGame = ({
+  roomName,
+  isOwner,
+  owner,
+  opponent,
+  type,
+  resetGame,
+}: {
+  roomName: string;
+  isOwner: boolean;
+  owner: string;
+  opponent: string;
+  type: string;
+  resetGame: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const socket = useContext(WebsocketContext);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const paddleWidth = 150;
@@ -73,7 +91,26 @@ const PongGame: React.FC = () => {
       // 윗 벽에 닿았을 때
       if (ball.y + ball.dy < ball.radius) {
         gameState = "win";
+        axiosRecordGameResult(owner, opponent, type === "normal" ? 0 : 1);
         alert("win");
+        if (gameInfo.opponentDto) {
+          setGameInfo({
+            ...gameInfo,
+            ownerDto: {
+              ...gameInfo.ownerDto,
+              normal_win: gameInfo.ownerDto.normal_win + 1,
+            },
+            opponentDto: {
+              ...gameInfo.opponentDto,
+              normal_lose: gameInfo.opponentDto.normal_lose + 1,
+            },
+          });
+        }
+        socket.emit("normal-game-over", {
+          roomName,
+          winner: gameInfo.ownerDto.intra_id,
+        });
+        resetGame(true);
       } else if (myPaddleCollision) {
         // 내 패들에 닿았을 때
         const relativeIntersectX = myPaddle.x + myPaddle.width / 2 - ball.x;
@@ -95,7 +132,26 @@ const PongGame: React.FC = () => {
       } else if (ball.y + ball.dy > canvasSize - ball.radius) {
         // 바닥에 닿았을 때
         gameState = "lose";
+        axiosRecordGameResult(opponent, owner, type === "normal" ? 0 : 1);
         alert("lose");
+        if (gameInfo.opponentDto) {
+          setGameInfo({
+            ...gameInfo,
+            ownerDto: {
+              ...gameInfo.ownerDto,
+              normal_lose: gameInfo.ownerDto.normal_lose + 1,
+            },
+            opponentDto: {
+              ...gameInfo.opponentDto,
+              normal_win: gameInfo.opponentDto.normal_win + 1,
+            },
+          });
+          socket.emit("normal-game-over", {
+            roomName,
+            winner: gameInfo.opponentDto.intra_id,
+          });
+        }
+        resetGame(true);
       }
 
       // 좌우 벽에 닿았을 때
@@ -157,7 +213,7 @@ const PongGame: React.FC = () => {
         updateBallPosition();
         reflectBall();
       }
-      socket.emit("move-ball", ball.x, ball.y);
+      socket.emit("move-ball", { roomName, x: ball.x, y: ball.y });
       requestAnimationFrame(gameLoop);
     }
 
@@ -177,12 +233,12 @@ const PongGame: React.FC = () => {
         myPaddle.x = mouseX - myPaddle.width / 2;
         drawMyPaddle();
         drawOtherPaddle();
-        socket.emit("mousemove", myPaddle.x);
+        socket.emit("mouse-move", { roomName, x: myPaddle.x });
       }
     }
 
-    socket.on("mousemove", (xPos: number) => {
-      console.log(xPos);
+    socket.on("mouse-move", ({ x }) => {
+      console.log(x);
       if (ctx) {
         ctx.clearRect(
           myPaddle.x,
@@ -192,12 +248,12 @@ const PongGame: React.FC = () => {
         );
         ctx.clearRect(otherPaddle.x, 10, paddleWidth, paddleHeight + 2);
       }
-      otherPaddle.x = xPos;
+      otherPaddle.x = x;
       drawOtherPaddle();
       drawMyPaddle();
     });
 
-    socket.on("move-ball", ([xPos, yPos]) => {
+    socket.on("move-ball", ({ xPos, yPos }) => {
       if (ctx) {
         console.log(xPos, yPos);
         ctx.clearRect(0, 0, canvasSize, canvasSize);
@@ -209,8 +265,38 @@ const PongGame: React.FC = () => {
       }
     });
 
+    socket.on("normal-game-over", ({ winner }) => {
+      alert(`${winner} 승리!`);
+      if (gameInfo.opponentDto) {
+        if (winner === gameInfo.ownerDto.intra_id) {
+          setGameInfo({
+            ...gameInfo,
+            ownerDto: {
+              ...gameInfo.ownerDto,
+              normal_win: gameInfo.ownerDto.normal_win + 1,
+            },
+            opponentDto: {
+              ...gameInfo.opponentDto,
+              normal_lose: gameInfo.opponentDto.normal_lose + 1,
+            },
+          });
+        } else {
+          setGameInfo({
+            ...gameInfo,
+            ownerDto: {
+              ...gameInfo.ownerDto,
+              normal_lose: gameInfo.ownerDto.normal_lose + 1,
+            },
+            opponentDto: {
+              ...gameInfo.opponentDto,
+              normal_win: gameInfo.opponentDto.normal_win + 1,
+            },
+          });
+        }
+      }
+    });
+
     canvas.current?.addEventListener("mousemove", handleMouseMove);
-    //gameLoop();
 
     function initGame() {
       if (!ctx) return;
@@ -221,42 +307,23 @@ const PongGame: React.FC = () => {
 
     initGame();
 
-    // 이 페이지에서만 사용할 시작 이벤트
-
-    gameLoop();
+    if (isOwner) gameLoop();
 
     return () => {
       canvas.current?.removeEventListener("mousemove", handleMouseMove);
+      socket.off("move-ball");
+      socket.off("mouse-move");
     };
   }, []);
 
   return (
     <Container>
       <Canvas ref={canvas} width={canvasSize} height={canvasSize} />
-      {/*<div>
-        <Button ref={startButton}>시작</Button>
-        <Button>종료</Button>
-      </div>*/}
     </Container>
   );
 };
 
 const Canvas = styled.canvas``;
-
-const Button = styled.div`
-  display: inline-block;
-  color: white;
-  border: 5px solid white;
-  width: 150px;
-  height: 40px;
-  border-radius: 20px;
-  line-height: 40px;
-  text-align: center;
-  font-size: 1.5rem;
-  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  margin: 40px;
-  cursor: pointer;
-`;
 
 const Container = styled.div`
   width: 530px;
