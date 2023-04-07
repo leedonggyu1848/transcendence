@@ -114,11 +114,6 @@ export const isWatcherState = selector({
   get: ({ get }) => {
     const myName = get(myNameState);
     const gameInfo = get(currentNormalGameInfoState);
-    console.log(
-      myName,
-      gameInfo.opponentDto?.intra_id,
-      gameInfo.ownerDto.intra_id
-    );
     if (
       gameInfo.opponentDto &&
       gameInfo.opponentDto.intra_id !== myName &&
@@ -151,7 +146,7 @@ export const normalGameRenderingFlagState = atom({
 
 export const operatorModalToggleState = atom({
   key: "operatorModalToggleState",
-  default: false,
+  default: true,
 });
 
 export const selectedGameRecord = atom<ISelectedGameRecord>({

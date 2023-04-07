@@ -101,6 +101,7 @@ const GameLobbyContainer = () => {
 
   const onCreateRoom = async (e: React.FormEvent<HTMLFormElement | null>) => {
     e.preventDefault();
+    if (!e.currentTarget) return;
 
     if (e.currentTarget.type.checked && !e.currentTarget.password.value) {
       setAlertInfo({
@@ -142,7 +143,6 @@ const GameLobbyContainer = () => {
       const myInfo = await axiosGetMyInfo();
       setMyInfo(myInfo);
       setGameList(gameList);
-      console.log(gameList);
     }
     getData();
   }, []);

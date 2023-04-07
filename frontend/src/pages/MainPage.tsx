@@ -11,6 +11,7 @@ import {
   alertModalState,
   joinGameModalToggleState,
   modalBackToggleState,
+  operatorModalToggleState,
   rankWaitModalToggleState,
   socketState,
 } from "../api/atom";
@@ -21,12 +22,14 @@ import { WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
+import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
   const rankWaitModalToggle = useRecoilValue(rankWaitModalToggleState);
   const joinGameModalToggle = useRecoilValue(joinGameModalToggleState);
   const alertModalToggle = useRecoilValue(alertModalState);
+  const operatorModalToggle = useRecoilValue(operatorModalToggleState);
 
   const navigate = useNavigate();
 
@@ -48,6 +51,7 @@ const MainPage = () => {
         {rankWaitModalToggle && <RankWaitModal />}
         {joinGameModalToggle.toggle && <JoinGameModal />}
         {alertModalToggle.toggle && <AlertModal />}
+        {operatorModalToggle && <OperatorModal />}
       </MainPageContainer>
     )
   );
