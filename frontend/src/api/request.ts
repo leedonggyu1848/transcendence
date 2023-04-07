@@ -2,15 +2,12 @@ import instance from "./instance";
 
 const axiosLoginURL = "/auth/login";
 export const axiosLogin = async () => {
-  const response = await instance.get(axiosLoginURL);
-
-  console.log(response);
+  await instance.get(axiosLoginURL);
 };
 
 const axiosGetGameListURL = "/game/lobby";
 export const axiosGetGameList = async () => {
   const { data } = await instance.get(axiosGetGameListURL);
-  console.log(data);
   return data;
 };
 
@@ -21,21 +18,14 @@ export const axiosCreateGame = async (
   private_mode: boolean,
   password: string
 ) => {
-  try {
-    const response = await instance.post(axiosCreateGameURL, {
-      title,
-      interrupt_mode,
-      private_mode,
-      password,
-    });
+  const response = await instance.post(axiosCreateGameURL, {
+    title,
+    interrupt_mode,
+    private_mode,
+    password,
+  });
 
-    console.log(response.data);
-
-    return response.data;
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  return response.data;
 };
 
 const axiosWatchGameURL = "/game/watch";
@@ -44,7 +34,6 @@ export const axiosWatchGame = async (title: string, password: string) => {
     title,
     password,
   });
-  console.log(response.data);
   return response.data;
 };
 
@@ -54,32 +43,25 @@ export const axiosJoinGame = async (title: string, password: string) => {
     title,
     password,
   });
-  console.log(response);
   return response.data;
 };
 
 const axiosPostFlushURL = "/game/flush";
 export const axiosPostFlush = async (title: string) => {
-  const response = await instance.post(axiosPostFlushURL, {
+  await instance.post(axiosPostFlushURL, {
     title,
   });
-
-  console.log(response);
 };
 
 const axiosGetMyInfoURL = "/game/userinfo/";
 export const axiosGetMyInfo = async () => {
   const response = await instance.get(axiosGetMyInfoURL);
-
-  console.log(response);
   return response.data;
 };
 
 const axiosLeaveNormalGameURL = "/game/leave";
 export const axiosLeaveNormalGame = async () => {
-  const response = await instance.get(axiosLeaveNormalGameURL);
-
-  console.log(response);
+  await instance.get(axiosLeaveNormalGameURL);
 };
 
 const axiosRecordGameResultURL = "/game/result";
@@ -89,33 +71,17 @@ export const axiosRecordGameResult = async (
   type: number
 ) => {
   // type : normal = 0, rank = 1
-  try {
-    await instance.post(axiosRecordGameResultURL, { win, lose, type });
-    console.log("게임 결과 저장 완료");
-  } catch (e) {
-    console.error(e);
-    alert("게임 결과 저장 실패");
-  }
+  await instance.post(axiosRecordGameResultURL, { win, lose, type });
 };
 
 const axiosGetHistoryURL = "/game/history/";
 export const axiosGetHistory = async (page: number) => {
-  try {
-    const result = await instance.get(axiosGetHistoryURL + `?page=${page}`);
-    console.log(result);
-    return result.data.records;
-  } catch (e) {
-    console.error(e);
-  }
+  const result = await instance.get(axiosGetHistoryURL + `?page=${page}`);
+  return result.data.records;
 };
 
 const axiosGetUserGameRecordURL = "/game/history/";
 export const axiosGetUserGameRecord = async (gameId: number) => {
-  try {
-    const result = await instance.get(axiosGetUserGameRecordURL + gameId);
-    console.log(result);
-    return result.data;
-  } catch (e) {
-    console.error(e);
-  }
+  const result = await instance.get(axiosGetUserGameRecordURL + gameId);
+  return result.data;
 };

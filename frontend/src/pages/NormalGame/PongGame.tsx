@@ -3,7 +3,12 @@ import styled from "@emotion/styled";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import { axiosRecordGameResult } from "../../api/request";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { currentNormalGameInfoState, isWatcherState } from "../../api/atom";
+import {
+  alertModalState,
+  currentNormalGameInfoState,
+  isWatcherState,
+  myNameState,
+} from "../../api/atom";
 
 const PongGame = ({
   roomName,
@@ -24,6 +29,8 @@ const PongGame = ({
 }) => {
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const isWatcher = useRecoilValue(isWatcherState);
+  const setAlertInfo = useSetRecoilState(alertModalState);
+  const myName = useRecoilValue(myNameState);
 
   console.log(isWatcher);
   const socket = useContext(WebsocketContext);
@@ -93,7 +100,12 @@ const PongGame = ({
         gameState = "win";
         axiosRecordGameResult(owner, opponent, type === "normal" ? 0 : 1).then(
           () => {
-            alert("win");
+            setAlertInfo({
+              type: "success",
+              header: "Victory!",
+              msg: `${opponent}님을 이겼습니다!`,
+              toggle: true,
+            });
             if (gameInfo.opponentDto) {
               setGameInfo({
                 ...gameInfo,
@@ -138,7 +150,12 @@ const PongGame = ({
         gameState = "lose";
         axiosRecordGameResult(opponent, owner, type === "normal" ? 0 : 1).then(
           () => {
-            alert("lose");
+            setAlertInfo({
+              type: "failure",
+              header: "Lose...",
+              msg: `${opponent}님에게 졌습니다...`,
+              toggle: true,
+            });
             if (gameInfo.opponentDto) {
               setGameInfo({
                 ...gameInfo,
@@ -272,7 +289,24 @@ const PongGame = ({
     });
 
     socket.on("normal-game-over", ({ winner }) => {
-      alert(`${winner} 승리!`);
+      if (myName === gameInfo.opponentDto?.intra_id) {
+        setAlertInfo({
+          type: winner === myName ? "success" : "bad",
+          header: winner === myName ? "Victory!" : "Lose...",
+          msg:
+            winner === myName
+              ? `${gameInfo.ownerDto.intra_id}님을 이겼습니다!`
+              : `${gameInfo.ownerDto.intra_id}님에게 졌습니다...!`,
+          toggle: true,
+        });
+      } else {
+        setAlertInfo({
+          type: "success",
+          header: "Victory!",
+          msg: `${winner}님이 이겼습니다!`,
+          toggle: true,
+        });
+      }
       if (gameInfo.opponentDto) {
         if (winner === gameInfo.ownerDto.intra_id) {
           setGameInfo({
@@ -327,13 +361,19 @@ const PongGame = ({
 
   return (
     <Container>
-      <Canvas ref={canvas} width={canvasSize} height={canvasSize} isWatcher />
+      <Canvas
+        ref={canvas}
+        width={canvasSize}
+        height={canvasSize}
+        isWatcher={isWatcher}
+      />
     </Container>
   );
 };
 
 const Canvas = styled.canvas<{ isWatcher: boolean }>`
-  ${({ isWatcher }) => (isWatcher ? "transform : rotateY(90deg)" : "")}
+  ${({ isWatcher }) =>
+    isWatcher ? "transform : rotate(90deg)" : "transform : rotate(0)"}
 `;
 
 const Container = styled.div`

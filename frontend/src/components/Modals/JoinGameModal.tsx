@@ -45,7 +45,7 @@ const JoinGameModal = () => {
     } catch (e: any) {
       console.log("hi");
       if (e.response.status === 400) {
-        setErrMsg("");
+        setErrMsg("비밀번호가 틀렸습니다");
         setPassword("");
         return;
       }
@@ -62,6 +62,7 @@ const JoinGameModal = () => {
           maxLength={20}
           type="password"
           placeholder="비밀번호"
+          value={password}
         />
         <ErrorMsg>{errMsg}</ErrorMsg>
         <Button onClick={clickJoin}>참여하기</Button>

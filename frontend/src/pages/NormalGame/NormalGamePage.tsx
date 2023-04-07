@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   currentNormaGameUsersState,
   currentNormalGameInfoState,
@@ -56,7 +56,6 @@ const NormalGamePage = () => {
       return;
     }
     if (!gameInfo.opponentDto) {
-      alert("No Opponent!");
       return;
     }
     setStartCount(() => true);

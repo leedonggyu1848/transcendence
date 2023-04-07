@@ -39,7 +39,6 @@ const Record = ({
   const setSelectedGameRecord = useSetRecoilState(selectedGameRecord);
   const clickRecord = async () => {
     const data = await axiosGetUserGameRecord(id);
-    console.log(data);
     setSelectedGameRecord(data);
   };
   return (

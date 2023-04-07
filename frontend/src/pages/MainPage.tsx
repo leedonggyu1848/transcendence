@@ -8,6 +8,7 @@ import { useContext, useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  alertModalState,
   joinGameModalToggleState,
   modalBackToggleState,
   rankWaitModalToggleState,
@@ -19,14 +20,15 @@ import NormalGamePage from "./NormalGame/NormalGamePage";
 import { WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
+import AlertModal from "../components/Modals/AlertModal";
 
 const MainPage = () => {
-  const [token, setToken] = useCookies(["access_token"]);
-  const modalBackToggle = useRecoilValue(modalBackToggleState);
+  const [token, _] = useCookies(["access_token"]);
   const rankWaitModalToggle = useRecoilValue(rankWaitModalToggleState);
   const joinGameModalToggle = useRecoilValue(joinGameModalToggleState);
+  const alertModalToggle = useRecoilValue(alertModalState);
+
   const navigate = useNavigate();
-  const socket = useContext(WebsocketContext);
 
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
@@ -45,6 +47,7 @@ const MainPage = () => {
         </Routes>
         {rankWaitModalToggle && <RankWaitModal />}
         {joinGameModalToggle.toggle && <JoinGameModal />}
+        {alertModalToggle.toggle && <AlertModal />}
       </MainPageContainer>
     )
   );

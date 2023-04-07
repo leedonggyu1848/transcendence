@@ -114,6 +114,11 @@ export const isWatcherState = selector({
   get: ({ get }) => {
     const myName = get(myNameState);
     const gameInfo = get(currentNormalGameInfoState);
+    console.log(
+      myName,
+      gameInfo.opponentDto?.intra_id,
+      gameInfo.ownerDto.intra_id
+    );
     if (
       gameInfo.opponentDto &&
       gameInfo.opponentDto.intra_id !== myName &&
@@ -179,5 +184,15 @@ export const selectedGameRecord = atom<ISelectedGameRecord>({
       rank_win: -1,
       rank_lose: -1,
     },
+  },
+});
+
+export const alertModalState = atom({
+  key: "alertModalState",
+  default: {
+    type: "success",
+    header: "게임 승리",
+    msg: "승리하셨습니다",
+    toggle: false,
   },
 });

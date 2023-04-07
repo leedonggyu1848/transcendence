@@ -2,11 +2,17 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { modalBackToggleState, rankWaitModalToggleState } from "../../api/atom";
+import ModalBackground from "../ModalBackground";
 
 const RankWaitModal = () => {
   const [timer, setTimer] = useState(0);
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
+  const setBackgroundModal = useSetRecoilState(modalBackToggleState);
+  const onCancel = () => {
+    setBackgroundModal(false);
+    setRankWaitModal(false);
+  };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -23,17 +29,20 @@ const RankWaitModal = () => {
   };
 
   return (
-    <RankWaitModalContainer>
-      <Count>
-        {timer}
-        <Circle />
-      </Count>
-
-      <Text>
-        <span>상대방을 기다리는 중입니다</span> <span className="dot-falling" />
-      </Text>
-      <Cancel onClick={onCloseModal}>취소하기</Cancel>
-    </RankWaitModalContainer>
+    <>
+      <ModalBackground onClick={onCancel} />
+      <RankWaitModalContainer>
+        <Count>
+          {timer}
+          <Circle />
+        </Count>
+        <Text>
+          <span>상대방을 기다리는 중입니다</span>{" "}
+          <span className="dot-falling" />
+        </Text>
+        <Cancel onClick={onCloseModal}>취소하기</Cancel>
+      </RankWaitModalContainer>
+    </>
   );
 };
 

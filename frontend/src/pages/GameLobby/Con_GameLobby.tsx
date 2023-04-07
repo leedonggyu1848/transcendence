@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  alertModalState,
   currentNormalGameInfoState,
   joinGameModalToggleState,
   modalBackToggleState,
@@ -33,6 +34,7 @@ const GameLobbyContainer = () => {
   const setSelectedNormalGameTitle = useSetRecoilState(
     selectedNormalGameTitleState
   );
+  const setAlertInfo = useSetRecoilState(alertModalState);
 
   useInitHook();
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
@@ -42,7 +44,6 @@ const GameLobbyContainer = () => {
   const [gameList, setGameList] = useState<GameDto[]>([]);
   const navigator = useNavigate();
   const socket = useContext(WebsocketContext);
-  console.log(socket);
 
   const clickRankGame = () => {
     setModalBack(true);
@@ -53,18 +54,22 @@ const GameLobbyContainer = () => {
     if (!private_mode) {
       try {
         const data = await axiosJoinGame(title, "");
-        console.log(data);
         setCurrentNormalGameInfoState({ ...data });
         setNormalJoinType("join");
         navigator("/main/game/normal");
       } catch (e) {
         console.error(e);
-        alert("게임 참가 실패!");
+        setAlertInfo({
+          type: "failure",
+          header: "게임 참가 실패",
+          msg: "게임 참가에 실패 했습니다...",
+          toggle: true,
+        });
       }
       return;
     }
     setBackgroundModal(true);
-    setJoinGameModal({ toggle: false, type: "join" });
+    setJoinGameModal({ toggle: true, type: "join" });
     setSelectedNormalGameTitle(title);
   };
 
@@ -80,20 +85,30 @@ const GameLobbyContainer = () => {
         navigator("/main/game/normal");
       } catch (e) {
         console.error(e);
-        alert("게임 참가 실패!");
+        setAlertInfo({
+          type: "failure",
+          header: "게임 참가 실패",
+          msg: "게임 참가에 실패 했습니다...",
+          toggle: true,
+        });
       }
       return;
     }
     setBackgroundModal(true);
-    setJoinGameModal({ toggle: false, type: "watch" });
+    setJoinGameModal({ toggle: true, type: "watch" });
     setSelectedNormalGameTitle(title);
   };
 
-  const onCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onCreateRoom = async (e: React.FormEvent<HTMLFormElement | null>) => {
     e.preventDefault();
 
     if (e.currentTarget.type.checked && !e.currentTarget.password.value) {
-      alert("비밀번호 입력해주세요");
+      setAlertInfo({
+        type: "failure",
+        header: "방 생성 실패",
+        msg: "비밀번호를 입력해주세요",
+        toggle: true,
+      });
       return;
     }
 
