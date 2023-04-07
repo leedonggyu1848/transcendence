@@ -99,3 +99,12 @@ export const axiosUpdateProfileImage = async (
 
   return response.data;
 };
+
+const axiosUpdateIntroduceURL = "/";
+export const axiosUpdateIntroduce = async (name: string, msg: string) => {
+  const response = await axios.post(axiosUpdateIntroduceURL, {
+    intra_id: name,
+    introduce: msg,
+  });
+  return response.data;
+};

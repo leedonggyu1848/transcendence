@@ -6,7 +6,7 @@ import {
   myInfoState,
   settingModalState,
 } from "../../api/atom";
-import { axiosUpdateProfileImage } from "../../api/request";
+import { axiosUpdateIntroduce, axiosUpdateProfileImage } from "../../api/request";
 import ModalBackground from "../ModalBackground";
 
 const SettingModal = () => {
@@ -21,6 +21,23 @@ const SettingModal = () => {
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.currentTarget.value);
   };
+
+  const handleEditIntroduce = async () => {
+    try{
+      const result = await axiosUpdateIntroduce(myInfo.intra_id, text);
+
+      console.log(result);
+      //myInfoState 수정 로직 필요
+    } catch (e) {
+      console.error(e);
+      setAlertModal({
+        type: "failure",
+        header: "자기 소개 변경 실패",
+        msg: "자기 소개 변경에 실패했습니다.",
+        toggle: true,
+      });
+    }
+  }
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
