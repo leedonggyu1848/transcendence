@@ -11,6 +11,7 @@ import {
   alertModalState,
   joinGameModalToggleState,
   modalBackToggleState,
+  myNameState,
   operatorModalToggleState,
   rankWaitModalToggleState,
   settingModalState,
@@ -19,7 +20,7 @@ import {
 import ModalBackground from "../components/ModalBackground";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
-import { WebsocketContext } from "../api/WebsocketContext";
+import { socket, WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
@@ -33,11 +34,13 @@ const MainPage = () => {
   const alertModalToggle = useRecoilValue(alertModalState);
   const operatorModalToggle = useRecoilValue(operatorModalToggleState);
   const settingModalToggle = useRecoilValue(settingModalState);
+  const myName = useRecoilValue(myNameState);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
+    socket.emit("connect", myName);
   }, []);
   return (
     token.access_token && (
