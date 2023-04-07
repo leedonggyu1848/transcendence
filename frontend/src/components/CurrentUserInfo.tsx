@@ -20,7 +20,7 @@ const CurrentUserInfo = ({
           {title.length > 13 ? "..." : ""}
         </Title>
         <InfoContainer>
-          {operator && <OperatorIcon />}
+          {operator && <OperatorIcon onClick={() => clickOperatorButton()} />}
           <UserIcon />
           {data.length}
         </InfoContainer>

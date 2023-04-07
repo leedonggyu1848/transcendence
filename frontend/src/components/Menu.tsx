@@ -1,7 +1,10 @@
 import styled from "@emotion/styled";
 import { NavLink } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { settingModalState } from "../api/atom";
 
 const Menu = () => {
+  const openSettingModal = useSetRecoilState(settingModalState);
   return (
     <MenuContainer>
       <Logo />
@@ -17,7 +20,7 @@ const Menu = () => {
             <History />
           </NavLink>
         </IconConatiner>
-        <Setting />
+        <Setting onClick={() => openSettingModal(true)} />
       </NavContainer>
     </MenuContainer>
   );

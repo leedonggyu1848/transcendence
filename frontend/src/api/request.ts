@@ -1,3 +1,4 @@
+import axios from "axios";
 import instance from "./instance";
 
 const axiosLoginURL = "/auth/login";
@@ -84,4 +85,17 @@ const axiosGetUserGameRecordURL = "/game/history/";
 export const axiosGetUserGameRecord = async (gameId: number) => {
   const result = await instance.get(axiosGetUserGameRecordURL + gameId);
   return result.data;
+};
+
+const axiosUpdateProfileImageURL = "/";
+export const axiosUpdateProfileImage = async (
+  name: string,
+  formData: FormData
+) => {
+  const response = await axios.post(axiosUpdateProfileImageURL, {
+    intra_id: name,
+    formData,
+  });
+
+  return response.data;
 };

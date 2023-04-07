@@ -146,7 +146,7 @@ export const normalGameRenderingFlagState = atom({
 
 export const operatorModalToggleState = atom({
   key: "operatorModalToggleState",
-  default: true,
+  default: false,
 });
 
 export const selectedGameRecord = atom<ISelectedGameRecord>({
@@ -190,4 +190,9 @@ export const alertModalState = atom({
     msg: "승리하셨습니다",
     toggle: false,
   },
+});
+
+export const settingModalState = atom({
+  key: "settingModalState",
+  default: false,
 });
