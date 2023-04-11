@@ -40,7 +40,7 @@ const MainPage = () => {
 
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
-    socket.emit("connect", myName);
+    socket.emit("first-connection", myName);
   }, []);
   return (
     token.access_token && (
