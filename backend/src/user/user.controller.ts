@@ -54,6 +54,7 @@ export class UserController {
     res.status(HttpStatus.NO_CONTENT).send();
   }
 
+  // multer 라는 middleware를 이용해서 이미지 파일 업로드
   @Post('/user/profile/:id')
   @UseInterceptors(FileInterceptor('image'))
   async uploadFile(
@@ -61,8 +62,6 @@ export class UserController {
     @UploadedFile() image: Express.Multer.File,
     @Res() res: Response,
   ) {
-    console.log(image);
-    console.log(intra_id);
     const imageName = intra_id;
     const imagePath = './uploads/' + imageName + '.png';
     fs.writeFile(imagePath, image.buffer, function (err) {

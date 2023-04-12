@@ -25,7 +25,7 @@ import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
-import SettingModal from "../components/Modals/SettingModal";
+import SettingModal from "../components/Modals/SettingModal/SettingModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
