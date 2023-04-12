@@ -15,7 +15,12 @@ const LoginPage = () => {
       <h1>PH18 PONG</h1>
       {loading ? (
         <LoginButton onClick={() => {}}>
-          <span className="loader" />
+          <div className="lds-ellipsis">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
         </LoginButton>
       ) : (
         <LoginButton onClick={clickLogin}>Log In</LoginButton>
@@ -38,50 +43,59 @@ const LoginButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  & > .loader {
-    width: 108px !important;
-    height: 16px !important;
-    background: radial-gradient(
-        circle 8px at 8px center,
-        #fff 100%,
-        transparent 0
-      ),
-      radial-gradient(circle 8px at 8px center, #fff 100%, transparent 0);
-    background-size: 16px 16px;
-    background-repeat: no-repeat;
+  & .lds-ellipsis {
+    display: inline-block;
     position: relative;
-    animation: ballX 1s linear infinite;
+    width: 80px;
+    height: 80px;
   }
-  & > .loader:before {
-    content: "";
+  & .lds-ellipsis div {
     position: absolute;
-    width: 16px;
-    height: 16px;
+    top: 33px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
     background: #fff;
-    inset: 0;
-    margin: auto;
-    animation: moveX 1s cubic-bezier(0.5, 300, 0.5, -300) infinite;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
   }
-  @keyframes ballX {
-    0%,
-    25%,
-    50%,
-    75%,
+  & .lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(3) {
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(4) {
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
+  }
+  @keyframes lds-ellipsis1 {
+    0% {
+      transform: scale(0);
+    }
     100% {
-      background-position: 25% 0, 75% 0;
-    }
-    40% {
-      background-position: 25% 0, 85% 0;
-    }
-    90% {
-      background-position: 15% 0, 75% 0;
+      transform: scale(1);
     }
   }
-  @keyframes moveX {
+  @keyframes lds-ellipsis3 {
+    0% {
+      transform: scale(1);
+    }
     100% {
-      transform: translate(0.15px);
+      transform: scale(0);
+    }
+  }
+  @keyframes lds-ellipsis2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(24px, 0);
     }
   }
 `;
