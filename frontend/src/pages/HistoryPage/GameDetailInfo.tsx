@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
 import { selectedGameRecord } from "../../api/atom";
-import { UserDto } from "../../api/interface";
 import DetailProfile from "./DetailProfile";
 
 function convertTime(time: Date) {

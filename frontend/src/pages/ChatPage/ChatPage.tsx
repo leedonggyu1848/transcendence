@@ -3,7 +3,6 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { operatorModalToggleState, socketState } from "../../api/atom";
 import { ChatListDto, JoinListDto, JoinnedUserDto } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
-import ChatBox from "../../components/Chat/ChatBox";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";
 import JoinList from "./JoinList";

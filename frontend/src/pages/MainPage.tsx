@@ -4,28 +4,27 @@ import Menu from "../components/Menu";
 import GamePage from "./GamePage";
 import ChatPage from "./ChatPage/ChatPage";
 import { useCookies } from "react-cookie";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   joinGameModalToggleState,
-  modalBackToggleState,
+  myInfoState,
   myNameState,
   operatorModalToggleState,
   rankWaitModalToggleState,
   settingModalState,
-  socketState,
 } from "../api/atom";
-import ModalBackground from "../components/ModalBackground";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
-import { socket, WebsocketContext } from "../api/WebsocketContext";
+import { socket } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
+import { axiosGetMyInfo } from "../api/request";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -34,13 +33,19 @@ const MainPage = () => {
   const alertModalToggle = useRecoilValue(alertModalState);
   const operatorModalToggle = useRecoilValue(operatorModalToggleState);
   const settingModalToggle = useRecoilValue(settingModalState);
-  const myName = useRecoilValue(myNameState);
+  const setMyInfo = useSetRecoilState(myInfoState);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
-    socket.emit("first-connection", myName);
+    getMyInfo();
+
+    async function getMyInfo() {
+      const response = await axiosGetMyInfo();
+      setMyInfo({ ...response });
+      socket.emit("first-connection", response.intra_id);
+    }
   }, []);
   return (
     token.access_token && (

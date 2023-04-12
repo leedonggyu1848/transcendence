@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import ChatBox from "../components/Chat/ChatBox";
 import OpponentInfo from "../components/OpponentInfo";
 
 const GamePage = () => {

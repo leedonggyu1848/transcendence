@@ -9,7 +9,7 @@ import {
   UserDto,
 } from "./interface";
 
-export const myInfoState = atom({
+export const myInfoState = atom<UserDto>({
   key: "myInfoState",
   default: {
     user_id: 15,
@@ -20,7 +20,6 @@ export const myInfoState = atom({
     normal_lose: 500,
     rank_win: 17,
     rank_lose: 2,
-    join_game: null,
   },
 });
 

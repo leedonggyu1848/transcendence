@@ -1,5 +1,6 @@
 import axios from "axios";
 import instance from "./instance";
+import { UserDto } from "./interface";
 
 const axiosLoginURL = "/auth/login";
 export const axiosLogin = async () => {
@@ -55,7 +56,7 @@ export const axiosPostFlush = async (title: string) => {
 };
 
 const axiosGetMyInfoURL = "/game/userinfo/";
-export const axiosGetMyInfo = async () => {
+export const axiosGetMyInfo = async (): Promise<UserDto> => {
   const response = await instance.get(axiosGetMyInfoURL);
   return response.data;
 };

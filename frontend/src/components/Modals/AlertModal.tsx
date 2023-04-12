@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { alertModalState, modalBackToggleState } from "../../api/atom";
 
 const AlertModal = () => {

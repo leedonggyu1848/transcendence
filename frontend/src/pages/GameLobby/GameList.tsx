@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import React from "react";
 import { GameDto } from "../../api/interface";
 import RoomInfo from "./RoomInfo";
 
