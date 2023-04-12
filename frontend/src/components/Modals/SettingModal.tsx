@@ -1,12 +1,16 @@
 import styled from "@emotion/styled";
 import React, { useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
+  getMyProfileInfoState,
   myInfoState,
   settingModalState,
 } from "../../api/atom";
-import { axiosUpdateIntroduce, axiosUpdateProfileImage } from "../../api/request";
+import {
+  axiosUpdateIntroduce,
+  axiosUpdateProfileImage,
+} from "../../api/request";
 import ModalBackground from "../ModalBackground";
 
 const SettingModal = () => {
@@ -23,10 +27,11 @@ const SettingModal = () => {
   };
 
   const handleEditIntroduce = async () => {
-    try{
+    try {
       const result = await axiosUpdateIntroduce(myInfo.intra_id, text);
-
       console.log(result);
+      setMyInfo({ ...result });
+
       //myInfoState 수정 로직 필요
     } catch (e) {
       console.error(e);
@@ -37,7 +42,7 @@ const SettingModal = () => {
         toggle: true,
       });
     }
-  }
+  };
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -52,6 +57,7 @@ const SettingModal = () => {
           myInfo.intra_id,
           formData
         );
+        setMyInfo({ ...response });
         console.log(response);
         // 응답으로 myInfo  업데이트 해야함
       } catch (e) {
@@ -75,6 +81,10 @@ const SettingModal = () => {
   };
   const clickEdit = () => {
     toggleEdit(!editMode);
+    if (editMode) {
+      handleEditIntroduce();
+      setText("");
+    }
   };
 
   const [editMode, toggleEdit] = useState(false);
@@ -171,7 +181,9 @@ const Profile = styled.div<{ image: string }>`
   width: 150px;
   height: 150px;
   background: ${({ image }) =>
-    image ? `url(${image})` : 'url("/src/assets/defaultProfile.png")'};
+    image
+      ? `url('http://localhost:3000/${image}?v=${new Date().getTime()}')`
+      : 'url("/src/assets/defaultProfile.png")'};
   background-size: 100% 100%;
   border-radius: 10px;
 `;
@@ -186,6 +198,8 @@ const TextDiv = styled.div`
   font-size: 1.25rem;
   padding: 15px;
   overflow-y: auto;
+  word-break: break-all;
+
   &::-webkit-scrollbar {
     border-radius: 10px;
     width: 10px;

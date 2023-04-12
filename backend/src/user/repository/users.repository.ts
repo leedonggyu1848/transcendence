@@ -95,4 +95,15 @@ export class UserRepository {
   async updateRankLose(id: number, lose: number) {
     await this.userRepository.update(id, { rank_lose: lose + 1 });
   }
+
+  async updateProfileImage(intra_id: string, filename: string) {
+    await this.userRepository.update(
+      { intra_id: intra_id },
+      { profile: filename },
+    );
+  }
+
+  async updateUserIntroduce(intra_id: string, introduce: string) {
+    await this.userRepository.update({ intra_id }, { introduce });
+  }
 }

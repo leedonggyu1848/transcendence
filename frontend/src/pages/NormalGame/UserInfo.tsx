@@ -91,7 +91,9 @@ const Profile = styled.div<{ profile: string }>`
   height: 140px;
   border-radius: 10px;
   background-image: ${({ profile }) =>
-    profile ? `url(${profile})` : 'url("/src/assets/defaultProfile.png")'};
+    profile
+      ? `url('http://localhost:3000/${profile}?v=${new Date().getTime()}')`
+      : 'url("/src/assets/defaultProfile.png")'};
   background-size: 100% 100%;
   margin-left: 10px;
 `;

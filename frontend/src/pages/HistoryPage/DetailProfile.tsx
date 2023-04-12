@@ -73,9 +73,11 @@ const Text = styled.div`
 `;
 const Image = styled.div<{ src: string }>`
   background-image: ${({ src }) =>
-    src ? `url(${src})` : 'url("/src/assets/defaultProfile.png")'};
+    src
+      ? `url('http://localhost:3000/${src}?v=${new Date().getTime()}')`
+      : 'url("/src/assets/defaultProfile.png")'};
   width: 100%;
-  padding-bottom: 100%;
+  padding-bottom: 100%; 
   background-size: 100% 100%;
   border-radius: 10px;
 `;

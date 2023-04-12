@@ -26,4 +26,8 @@ export interface IUserRepository {
   updateRankWin(id: number, win: number);
 
   updateRankLose(id: number, lose: number);
+
+  updateProfileImage(intra_id: string, filename: string);
+
+  updateUserIntroduce(intra_id: string, filename: string);
 }

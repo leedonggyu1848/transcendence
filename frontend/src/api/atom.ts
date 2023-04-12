@@ -196,3 +196,11 @@ export const settingModalState = atom({
   key: "settingModalState",
   default: false,
 });
+
+export const getMyProfileInfoState = selector({
+  key: "getMyProfileInfoState",
+  get: ({ get }) => {
+    const myInfo = get(myInfoState);
+    return myInfo.profile;
+  },
+});
