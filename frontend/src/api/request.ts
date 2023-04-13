@@ -99,7 +99,7 @@ export const axiosUpdateProfileImage = async (
     },
   };
   const response = await instance.post(
-    axiosUpdateProfileImageURL + name,
+    axiosUpdateProfileImageURL,
     formData,
     config
   );

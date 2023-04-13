@@ -56,6 +56,7 @@ export class UserController {
 
   // multer 라는 middleware를 이용해서 이미지 파일 업로드
   @Post('/user/profile')
+  @UseGuards(JwtGuard)
   @UseInterceptors(FileInterceptor('image'))
   async updateProfile(
     @Res() res: Response,
@@ -64,20 +65,23 @@ export class UserController {
   ) {
     this.logger.log(`Profile upadate: ${user.intra_id}`);
     const data = await this.authService.updateProfileImage(user, image);
-    if (data.success) {
+    if (!data.success) {
       this.logger.log(data.data);
       throw new InternalServerErrorException('데이터 저장 실패');
     }
     const result = await this.authService.findUser(user.intra_id);
+    console.log(result);
     res.status(HttpStatus.OK).send(result);
   }
 
   @Post('/user/introduce')
+  @UseGuards(JwtGuard)
   async updateIntroduce(
     @Res() res: Response,
     @UserDeco() user: UserSessionDto,
     @Body('introduce') introduce: string,
   ) {
+    this.logger.log(`Introduce update: ${user.intra_id}`);
     await this.authService.updateUserIntroduce(user, introduce);
     const result = await this.authService.findUser(user.intra_id);
     if (result.introduce != introduce)
