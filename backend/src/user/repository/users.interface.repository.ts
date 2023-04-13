@@ -29,5 +29,5 @@ export interface IUserRepository {
 
   updateProfileImage(id: number, filename: string);
 
-  updateUserIntroduce(id: number, filename: string);
+  updateUserIntroduce(id: number, introduce: string);
 }
