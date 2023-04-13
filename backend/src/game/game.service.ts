@@ -196,6 +196,7 @@ export class GameService {
     const record = await this.recordRepository.findById(id);
     const winner = await this.userRepository.findByIntraId(record.winner);
     const loser = await this.userRepository.findByIntraId(record.loser);
+    console.log(record, winner, loser);
     if (!record || !winner || !loser) return null;
     return { record: record, winner: winner, loser: loser };
   }
@@ -231,12 +232,12 @@ export class GameService {
   async addDummyHistory() {
     let res = [];
     for (let i = 0; i < 50; i++) {
-      let type = randomInt(1, 2);
-      let score = randomInt(1, 10);
+      let type = randomInt(0, 2);
+      let score = randomInt(1, 11);
       if (score >= 5)
-        res.push(await this.recordRepository.addRecord(type, 'jpark2', 'yooh'));
+        res.push(await this.recordRepository.addRecord(type, 'tmp1', 'tmp2'));
       else
-        res.push(await this.recordRepository.addRecord(type, 'yooh', 'jpark2'));
+        res.push(await this.recordRepository.addRecord(type, 'tmp2', 'tmp1'));
     }
     await Promise.all(res);
   }
