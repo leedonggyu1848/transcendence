@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { JoinType } from './common.enum';
+import { Friend } from './friend.entity';
 import { Game } from './game.entity';
 
 @Entity()
@@ -45,15 +46,18 @@ export class Users {
   @NotEquals(null)
   rank_lose: number;
 
-  @ManyToOne(() => Game, (game) => game.players, { cascade: true })
+  @ManyToOne(() => Game, (game) => game.players)
   @JoinColumn({ name: 'play_game_id' })
   play_game: Game;
 
-  @ManyToOne(() => Game, (game) => game.watchers, { cascade: true })
+  @ManyToOne(() => Game, (game) => game.watchers)
   @JoinColumn({ name: 'watch_game_id' })
   watch_game: Game;
 
   @Column({ type: 'enum', name: 'join_type', enum: JoinType })
   @NotEquals(null)
   join_type: JoinType;
+
+  @OneToMany(() => Friend, (friend) => friend.user, { cascade: true })
+  friends: Friend[];
 }

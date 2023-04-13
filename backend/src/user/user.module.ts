@@ -10,7 +10,7 @@ import { PhStrategy } from './ft/auth.strategy';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { UserRepository } from './repository/users.repository';
 
-const repo = {
+const userRepo = {
   provide: 'IUserRepository',
   useClass: UserRepository,
 };
@@ -31,6 +31,6 @@ const repo = {
     }),
   ],
   controllers: [UserController],
-  providers: [PhStrategy, JwtStrategy, ConfigService, UserService, repo],
+  providers: [PhStrategy, JwtStrategy, ConfigService, UserService, userRepo],
 })
 export class UserModule {}

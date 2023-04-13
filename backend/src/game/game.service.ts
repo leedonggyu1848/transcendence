@@ -38,12 +38,8 @@ export class GameService {
   }
 
   async createGame(gameDto: GameDto, user: Users) {
-    if (user.join_type !== JoinType.NONE) {
-      return {
-        success: false,
-        data: '이미 다른 방에 참여 중입니다.',
-      };
-    }
+    if (user.join_type !== JoinType.NONE)
+      return { success: false, data: '이미 다른 방에 참여 중입니다.' };
     const found = await this.gameRepository.findByTitle(gameDto.title);
     if (found)
       return { success: false, data: '같은 이름의 방이 이미 존재합니다.' };

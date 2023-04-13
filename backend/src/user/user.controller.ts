@@ -54,7 +54,6 @@ export class UserController {
     res.status(HttpStatus.NO_CONTENT).send();
   }
 
-  // multer 라는 middleware를 이용해서 이미지 파일 업로드
   @Post('/user/profile')
   @UseGuards(JwtGuard)
   @UseInterceptors(FileInterceptor('image'))
