@@ -26,8 +26,8 @@ export class UserService {
   }
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
-    const imagePath = './uploads/' + user.intra_id + '.png';
     const found = await this.findUser(user.intra_id);
+    const imagePath = './uploads/' + user.intra_id + '.png';
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) return { success: false, data: err };
     });

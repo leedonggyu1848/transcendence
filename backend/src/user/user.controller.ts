@@ -65,11 +65,12 @@ export class UserController {
   ) {
     this.logger.log(`Profile upadate: ${user.intra_id}`);
     const data = await this.authService.updateProfileImage(user, image);
-    if (data.success) {
+    if (!data.success) {
       this.logger.log(data.data);
       throw new InternalServerErrorException('데이터 저장 실패');
     }
     const result = await this.authService.findUser(user.intra_id);
+    console.log(result);
     res.status(HttpStatus.OK).send(result);
   }
 
@@ -80,6 +81,7 @@ export class UserController {
     @UserDeco() user: UserSessionDto,
     @Body('introduce') introduce: string,
   ) {
+    this.logger.log(`Introduce update: ${user.intra_id}`);
     await this.authService.updateUserIntroduce(user, introduce);
     const result = await this.authService.findUser(user.intra_id);
     if (result.introduce != introduce)
