@@ -16,9 +16,7 @@ const SettingTextArea = () => {
 
   const handleEditIntroduce = async () => {
     try {
-      console.log(text);
       const result = await axiosUpdateIntroduce(text);
-      console.log(result);
       setMyInfo({ ...result });
 
       //myInfoState 수정 로직 필요

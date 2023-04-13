@@ -9,7 +9,6 @@ const AlertModal = () => {
     setBackgroundModal(false);
     setAlertState({ ...alertInfo, toggle: false });
   };
-  console.log(alertInfo.type);
   return (
     <>
       <ModalBackground onClick={onClickBackground} />

@@ -52,7 +52,6 @@ const NormalGamePage = () => {
 
   const clickStart = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.currentTarget.classList.contains("notActive")) {
-      console.log("not owner!");
       return;
     }
     if (!gameInfo.opponentDto) {
@@ -82,7 +81,6 @@ const NormalGamePage = () => {
     if (gameInfo.ownerDto.intra_id === myName) {
       socket.emit("create-game", gameInfo.gameDto.title);
     } else {
-      console.log(gameInfo);
       if (!firstJoin) {
         socket.emit("join-game", {
           roomName: gameInfo.gameDto.title,
@@ -93,7 +91,6 @@ const NormalGamePage = () => {
       }
     }
     socket.on("join-game", ({ userInfo, message, type }) => {
-      console.log(message, userInfo, type);
       setChatLogs([
         ...chatLogs,
         { sender: "admin", msg: message, time: new Date() },
@@ -118,7 +115,6 @@ const NormalGamePage = () => {
     }
 
     socket.on("message", ({ username, message }) => {
-      console.log(username, message);
       setChatLogs([
         ...chatLogs,
         { sender: username, msg: message, time: new Date() },
@@ -155,7 +151,6 @@ const NormalGamePage = () => {
     );
 
     socket.on("start-game", () => {
-      console.log("start Game received");
       setStartCount(() => true);
       setCount((prev) => prev - 1);
     });

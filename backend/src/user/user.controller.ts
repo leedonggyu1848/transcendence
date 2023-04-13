@@ -79,7 +79,6 @@ export class UserController {
     @UserDeco() user: UserSessionDto,
     @Body('introduce') introduce: string,
   ) {
-    console.log(introduce);
     this.logger.log(`Introduce update: ${user.intra_id}`);
     await this.authService.updateUserIntroduce(user, introduce);
     const result = await this.authService.findUser(user.intra_id);

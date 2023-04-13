@@ -32,7 +32,6 @@ const PongGame = ({
   const setAlertInfo = useSetRecoilState(alertModalState);
   const myName = useRecoilValue(myNameState);
 
-  console.log(isWatcher);
   const socket = useContext(WebsocketContext);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const paddleWidth = 150;

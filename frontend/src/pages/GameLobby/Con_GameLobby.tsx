@@ -77,7 +77,6 @@ const GameLobbyContainer = () => {
     if (!private_mode) {
       try {
         const data = await axiosWatchGame(title, "");
-        console.log(data);
         setCurrentNormalGameInfoState({
           ...data,
         });

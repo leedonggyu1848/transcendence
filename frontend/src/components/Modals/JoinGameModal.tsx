@@ -43,7 +43,6 @@ const JoinGameModal = () => {
       setJoinModal({ toggle: false, type: "" });
       setNormalJoinType(joinModal.type === "join" ? "join" : "watch");
     } catch (e: any) {
-      console.log("hi");
       if (e.response.status === 400) {
         setErrMsg("비밀번호가 틀렸습니다");
         setPassword("");

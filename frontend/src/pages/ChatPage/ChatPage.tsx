@@ -47,8 +47,6 @@ function createDummyData() {
   const result: JoinnedUserDto[] = [];
   const socket = useRecoilValue(socketState);
 
-  console.log(socket);
-
   result.push({ intra_id: "yooh", type: "owner" });
   result.push({ intra_id: "jpark2", type: "opponent" });
 
