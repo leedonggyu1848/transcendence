@@ -55,7 +55,7 @@ export class UserController {
   }
 
   // multer 라는 middleware를 이용해서 이미지 파일 업로드
-  @Post('/user/profile/:id')
+  @Post('/user/profile')
   @UseInterceptors(FileInterceptor('image'))
   async updateProfile(
     @Res() res: Response,
