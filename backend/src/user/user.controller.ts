@@ -69,9 +69,7 @@ export class UserController {
       this.logger.log(data.data);
       throw new InternalServerErrorException('데이터 저장 실패');
     }
-    const result = await this.authService.findUser(user.intra_id);
-    console.log(result);
-    res.status(HttpStatus.OK).send(result);
+    res.status(HttpStatus.OK).send(data.data);
   }
 
   @Post('/user/introduce')
@@ -84,8 +82,6 @@ export class UserController {
     this.logger.log(`Introduce update: ${user.intra_id}`);
     await this.authService.updateUserIntroduce(user, introduce);
     const result = await this.authService.findUser(user.intra_id);
-    if (result.introduce != introduce)
-      throw new InternalServerErrorException('데이터 저장 실패');
     res.status(HttpStatus.OK).send(result);
   }
 }

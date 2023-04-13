@@ -26,17 +26,19 @@ export class UserService {
   }
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
-    const found = await this.findUser(user.intra_id);
+    let found = await this.findUser(user.intra_id);
     const imagePath = './uploads/' + user.intra_id + '.png';
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) return { success: false, data: err };
     });
-    await this.userRepository.updateProfileImage(found.id, imagePath);
-    return { success: true, data: null };
+    const findPath = user.intra_id + '.png';
+    await this.userRepository.updateProfileImage(found.id, findPath);
+    found = await this.findUser(user.intra_id);
+    return { success: true, data: found };
   }
 
-  async updateUserIntroduce(user: UserSessionDto, detail: string) {
-    const found = await this.findUser(user.intra_id);
-    await this.userRepository.updateUserIntroduce(found.id, detail);
+  async updateUserIntroduce(user: UserSessionDto, introduce: string) {
+    let found = await this.findUser(user.intra_id);
+    await this.userRepository.updateUserIntroduce(found.id, introduce);
   }
 }
