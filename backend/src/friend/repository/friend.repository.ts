@@ -10,10 +10,11 @@ export class FriendRepository {
     private friendRepository: Repository<Friend>,
   ) {}
 
-  userToFriendDto(user: Users) {
+  userToFriendDto(user: Users, time: Date) {
     const friendDto: FriendDto = {
       intra_id: user.intra_id,
       profile: user.profile,
+      time: time,
     };
     return friendDto;
   }
@@ -23,6 +24,7 @@ export class FriendRepository {
       user: user,
       friendname: friendname,
       accept: false,
+      time: new Date(Date.now()),
     });
   }
 
@@ -32,6 +34,7 @@ export class FriendRepository {
       user: user,
       friendname: friendname,
       accept: true,
+      time: new Date(Date.now()),
     });
   }
 

@@ -196,7 +196,6 @@ export class GameService {
     const record = await this.recordRepository.findById(id);
     const winner = await this.userRepository.findByIntraId(record.winner);
     const loser = await this.userRepository.findByIntraId(record.loser);
-    console.log(record, winner, loser);
     if (!record || !winner || !loser) return null;
     return { record: record, winner: winner, loser: loser };
   }
@@ -230,14 +229,16 @@ export class GameService {
 
   // code for test -> TODO: delete
   async addDummyHistory() {
+    const user1 = await this.userRepository.createUser(123132, 'dum1');
+    const user2 = await this.userRepository.createUser(123133, 'dum2');
     let res = [];
     for (let i = 0; i < 50; i++) {
       let type = randomInt(0, 2);
       let score = randomInt(1, 11);
       if (score >= 5)
-        res.push(await this.recordRepository.addRecord(type, 'tmp1', 'tmp2'));
+        res.push(await this.recordRepository.addRecord(type, 'dum1', 'dum2'));
       else
-        res.push(await this.recordRepository.addRecord(type, 'tmp2', 'tmp1'));
+        res.push(await this.recordRepository.addRecord(type, 'dum2', 'dum1'));
     }
     await Promise.all(res);
   }

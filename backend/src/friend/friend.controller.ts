@@ -60,12 +60,11 @@ export class FriendController {
   async getFriendList(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Friend list request: ${user.intra_id}`);
     const found_user = await this.authService.findUser(user.intra_id);
-    let data: any = await this.friendService.getFriendList(found_user);
+    let data = await this.friendService.getFriendList(found_user);
     // testcode -> TODO: delete
-    if (data.length === 0) {
+    if (!data) {
       await this.friendService.addDummyFriends(found_user);
       data = await this.friendService.getFriendList(found_user);
-      console.log(data);
     }
     res.status(HttpStatus.OK).send(data);
   }

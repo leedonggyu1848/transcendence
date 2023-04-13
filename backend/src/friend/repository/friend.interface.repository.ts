@@ -1,7 +1,7 @@
 import { Users } from 'src/entity/user.entity';
 
 export interface IFriendRepository {
-  userToFriendDto(user: Users);
+  userToFriendDto(user: Users, time: Date);
 
   addFriend(user: Users, friendname: string);
 

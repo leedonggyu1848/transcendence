@@ -24,4 +24,8 @@ export class Friend {
   @Column()
   @NotEquals(null)
   accept: boolean;
+
+  @Column()
+  @NotEquals(null)
+  time: Date;
 }
