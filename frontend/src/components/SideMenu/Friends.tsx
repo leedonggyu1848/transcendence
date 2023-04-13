@@ -1,7 +1,15 @@
 import styled from "@emotion/styled";
+import { useEffect } from "react";
+import { axiosGetFriendsList } from "../../api/request";
 
 const Friends = ({ w }: { w: number }) => {
-  console.log(w);
+  useEffect(() => {
+    async function getFriendsList() {
+      const response = await axiosGetFriendsList();
+    }
+
+    getFriendsList();
+  }, []);
   return (
     <FriendsContainer w={w}>
       <Background />

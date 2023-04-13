@@ -109,3 +109,10 @@ export const axiosUpdateIntroduce = async (introduce: string) => {
   const response = await instance.post(axiosUpdateIntroduceURL, { introduce });
   return response.data;
 };
+
+const axiosGetFriendsListURL = "/friend/friendList";
+export const axiosGetFriendsList = async () => {
+  const response = await instance(axiosGetFriendsListURL);
+
+  console.log(response);
+};
