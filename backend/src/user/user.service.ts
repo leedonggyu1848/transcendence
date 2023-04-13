@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { stringify } from 'querystring';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { IUserRepository } from './repository/users.interface.repository';
+import * as fs from 'fs';
 
 @Injectable()
 export class UserService {
@@ -11,25 +11,32 @@ export class UserService {
   ) {}
 
   async findUser(intra_id: string) {
+    return this.userRepository.findByIntraId(intra_id);
+  }
+
+  async findUserWithGame(intra_id: string) {
     return this.userRepository.findByIntraIdWithJoin(intra_id);
   }
 
   async addUserFromSession(user: UserSessionDto) {
-    const found = await this.findUser(user.intra_id);
+    const found = await this.findUserWithGame(user.intra_id);
     if (!found) {
       await this.userRepository.createUser(user.user_id, user.intra_id);
     }
   }
 
-  async updateProfileImage(intra_id: string, filename: string) {
-    await this.userRepository.updateProfileImage(intra_id, filename);
+  async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
+    const imagePath = './uploads/' + user.intra_id + '.png';
+    const found = await this.findUser(user.intra_id);
+    fs.writeFile(imagePath, image.buffer, function (err) {
+      if (err) return { success: false, data: err };
+    });
+    await this.userRepository.updateProfileImage(found.id, imagePath);
+    return { success: true, data: null };
   }
 
-  async findUserInfo(intra_id: string) {
-    return this.userRepository.findByIntraId(intra_id);
-  }
-
-  async updateUserIntroduce(intra_id: string, detail: string) {
-    await this.userRepository.updateUserIntroduce(intra_id, detail);
+  async updateUserIntroduce(user: UserSessionDto, detail: string) {
+    const found = await this.findUser(user.intra_id);
+    await this.userRepository.updateUserIntroduce(found.id, detail);
   }
 }

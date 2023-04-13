@@ -21,7 +21,6 @@ export class RecordRepository {
   }
 
   async addRecord(gameType: GameType, winner: string, loser: string) {
-    console.log(gameType, winner, loser);
     await this.recordRepository.save({
       gameType: gameType,
       winner: winner,

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Bind,
   Body,
   Controller,
@@ -22,7 +23,6 @@ import { UserService } from './user.service';
 import { PhGuard } from './ft/guard/auth.guard';
 import JwtGuard from './jwt/guard/jwtauth.guard';
 import { JwtSignGuard } from './jwt/guard/jwtsign.guard';
-import * as fs from 'fs';
 
 @Controller('/api/auth')
 export class UserController {
@@ -57,33 +57,31 @@ export class UserController {
   // multer 라는 middleware를 이용해서 이미지 파일 업로드
   @Post('/user/profile/:id')
   @UseInterceptors(FileInterceptor('image'))
-  async uploadFile(
-    @Param('id') intra_id: string,
-    @UploadedFile() image: Express.Multer.File,
+  async updateProfile(
     @Res() res: Response,
+    @UserDeco() user: UserSessionDto,
+    @UploadedFile() image: Express.Multer.File,
   ) {
-    const imageName = intra_id;
-    const imagePath = './uploads/' + imageName + '.png';
-    fs.writeFile(imagePath, image.buffer, function (err) {
-      if (err) {
-        console.error(err);
-        throw new Error('Failed to save image to disk');
-      }
-      console.log(`Image ${imageName} saved successfully to ${imagePath}`);
-    });
-    await this.authService.updateProfileImage(intra_id, intra_id + '.png');
-    const data = await this.authService.findUserInfo(intra_id);
-    res.status(HttpStatus.OK).send(data);
+    this.logger.log(`Profile upadate: ${user.intra_id}`);
+    const data = await this.authService.updateProfileImage(user, image);
+    if (data.success) {
+      this.logger.log(data.data);
+      throw new InternalServerErrorException('데이터 저장 실패');
+    }
+    const result = await this.authService.findUser(user.intra_id);
+    res.status(HttpStatus.OK).send(result);
   }
 
   @Post('/user/introduce')
   async updateIntroduce(
     @Res() res: Response,
-    @Body('intra_id') intra_id: string,
+    @UserDeco() user: UserSessionDto,
     @Body('introduce') introduce: string,
   ) {
-    await this.authService.updateUserIntroduce(intra_id, introduce);
-    const data = await this.authService.findUserInfo(intra_id);
-    res.status(HttpStatus.OK).send(data);
+    await this.authService.updateUserIntroduce(user, introduce);
+    const result = await this.authService.findUser(user.intra_id);
+    if (result.introduce != introduce)
+      throw new InternalServerErrorException('데이터 저장 실패');
+    res.status(HttpStatus.OK).send(result);
   }
 }
