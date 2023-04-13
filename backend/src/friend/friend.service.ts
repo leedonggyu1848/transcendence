@@ -36,7 +36,7 @@ export class FriendService {
 
   async getFriendList(user: Users) {
     const friends = await this.friendRepository.findFriends(user);
-    const result = friends.map(async (friend) => {
+    const result = friends.map(async (friend: any) => {
       await this.userRepository.findByIntraId(friend.friendname);
     });
     await Promise.all(result);
