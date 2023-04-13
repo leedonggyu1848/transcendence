@@ -64,6 +64,7 @@ export class UserController {
   ) {
     const imageName = intra_id;
     const imagePath = './uploads/' + imageName + '.png';
+    console.log(imageName, image);
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) {
         console.error(err);
