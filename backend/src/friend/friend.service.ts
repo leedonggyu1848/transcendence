@@ -42,4 +42,12 @@ export class FriendService {
     await Promise.all(result);
     return result;
   }
+
+  async getFriendRequestList(user: Users) {
+    const send = await this.friendRepository.findFriendRequests(user);
+    const receive = await this.friendRepository.findFriendRequested(
+      user.intra_id,
+    );
+    return { send: send, receive: receive };
+  }
 }

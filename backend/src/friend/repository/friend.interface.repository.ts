@@ -5,11 +5,19 @@ export interface IFriendRepository {
 
   findAll(user: Users);
 
+  findAllWithJoin(user: Users);
+
   findFriends(user: Users);
+
+  findFriendsWithJoin(user: Users);
 
   findFriendRequests(user: Users);
 
+  findFriendRequestsWithJoin(user: Users);
+
   findFriendRequested(username: string);
+
+  findFriendRequestedWithJoin(username: string);
 
   updateAccept(id: number, accept: boolean);
 }

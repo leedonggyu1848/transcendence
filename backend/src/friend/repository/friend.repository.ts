@@ -20,11 +20,23 @@ export class FriendRepository {
   async findAll(user: Users) {
     return await this.friendRepository.find({
       where: { user: user },
+    });
+  }
+
+  async findAllWithJoin(user: Users) {
+    return await this.friendRepository.find({
+      where: { user: user },
       relations: ['user'],
     });
   }
 
   async findFriends(user: Users) {
+    return await this.friendRepository.find({
+      where: { user: user, accept: true },
+    });
+  }
+
+  async findFriendsWithJoin(user: Users) {
     return await this.friendRepository.find({
       where: { user: user, accept: true },
       relations: ['user'],
@@ -34,11 +46,23 @@ export class FriendRepository {
   async findFriendRequests(user: Users) {
     return await this.friendRepository.find({
       where: { user: user, accept: false },
+    });
+  }
+
+  async findFriendRequestsWithJoin(user: Users) {
+    return await this.friendRepository.find({
+      where: { user: user, accept: false },
       relations: ['user'],
     });
   }
 
   async findFriendRequested(username: string) {
+    return await this.friendRepository.find({
+      where: { friendname: username },
+    });
+  }
+
+  async findFriendRequestedWithJoin(username: string) {
     return await this.friendRepository.find({
       where: { friendname: username },
       relations: ['user'],

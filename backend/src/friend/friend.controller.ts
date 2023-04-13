@@ -24,9 +24,9 @@ export class FriendController {
     private friendService: FriendService,
   ) {}
 
-  @Post('/request')
+  @Post('/send-request')
   @UseGuards(JwtGuard)
-  async friendRequest(
+  async sendFriendRequest(
     @Res() res: Response,
     @UserDeco() user: UserSessionDto,
     @Body('friendname') friendname: string,
@@ -40,7 +40,7 @@ export class FriendController {
     res.status(HttpStatus.OK).send();
   }
 
-  @Post('/acceptFriend')
+  @Post('/accept-request')
   @UseGuards(JwtGuard)
   async acceptFriend(
     @Res() res: Response,
@@ -52,13 +52,27 @@ export class FriendController {
     const friend = await this.authService.findUser(friendname);
     if (!friend) throw new BadRequestException('없는 유저입니다.');
     this.friendService.acceptFriend(found_user, friend);
+    res.status(HttpStatus.OK).send();
   }
 
-  @Get('/friendList')
+  @Get('/list')
   @UseGuards(JwtGuard)
-  async friendList(@Res() res: Response, @UserDeco() user: UserSessionDto) {
+  async getFriendList(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Friend list request: ${user.intra_id}`);
     const found_user = await this.authService.findUser(user.intra_id);
-    return this.friendService.getFriendList(found_user);
+    const data = this.friendService.getFriendList(found_user);
+    res.status(HttpStatus.OK).send(data);
+  }
+
+  @Get('/request-list')
+  @UseGuards(JwtGuard)
+  async getFriendRequestList(
+    @Res() res: Response,
+    @UserDeco() user: UserSessionDto,
+  ) {
+    this.logger.log(`Get friend request list: ${user.intra_id}`);
+    const found_user = await this.authService.findUser(user.intra_id);
+    const data = await this.friendService.getFriendRequestList(found_user);
+    res.status(HttpStatus.OK).send(data);
   }
 }
