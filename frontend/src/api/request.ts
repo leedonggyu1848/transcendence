@@ -114,5 +114,5 @@ const axiosGetFriendsListURL = "/friend/list";
 export const axiosGetFriendsList = async () => {
   const response = await instance.get(axiosGetFriendsListURL);
 
-  console.log(response);
+  return response.data;
 };

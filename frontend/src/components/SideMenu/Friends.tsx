@@ -1,11 +1,14 @@
 import styled from "@emotion/styled";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { IFriendDto } from "../../api/interface";
 import { axiosGetFriendsList } from "../../api/request";
 
 const Friends = ({ w }: { w: number }) => {
+  const [friendsList, setFriendsList] = useState<IFriendDto[]>([]);
   useEffect(() => {
     async function getFriendsList() {
       const response = await axiosGetFriendsList();
+      setFriendsList([...response]);
     }
 
     getFriendsList();
@@ -15,19 +18,99 @@ const Friends = ({ w }: { w: number }) => {
       <Background />
       <Contents>
         <Header>Friends</Header>
-        <NoFriends>
-          <CryingIcon />
-          <div>
-            등록된 친구가
-            <br />
-            없습니다.
-          </div>
-        </NoFriends>
-        {/*<FriendsList></FriendsList>*/}
+        {friendsList.length > 0 ? (
+          <FriendsList>
+            {friendsList.map((friend, idx) => (
+              <FriendInfo key={idx}>
+                <Profile src={friend.profile} />
+                <div className="name">{friend.intra_id}</div>
+                <div className="buttonContainer">
+                  <Message />
+                  <Game />
+                  <Delete />
+                </div>
+              </FriendInfo>
+            ))}
+          </FriendsList>
+        ) : (
+          <NoFriends>
+            <CryingIcon />
+            <div>
+              등록된 친구가
+              <br />
+              없습니다.
+            </div>
+          </NoFriends>
+        )}
       </Contents>
     </FriendsContainer>
   );
 };
+
+const Message = styled.div`
+  width: 15px;
+  height: 15px;
+  background: url("/src/assets/messageIcon.png");
+  background-size: 100% 100%;
+  cursor: pointer;
+`;
+const Delete = styled.div`
+  width: 15px;
+  height: 15px;
+  background: url("/src/assets/deleteIcon.png");
+  background-size: 100% 100%;
+  cursor: pointer;
+`;
+const Game = styled.div`
+  width: 15px;
+  height: 15px;
+  background: url("/src/assets/PongIcon.png");
+  background-size: 100% 100%;
+  cursor: pointer;
+`;
+
+const Profile = styled.div<{ src: string }>`
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  background: red;
+  background-size: 100% 100%;
+  background-image: url("${({ src }) =>
+    src
+      ? `http://localhost:3000/${src}?v=${new Date().getTime()}`
+      : `/src/assets/defaultProfile.png`}");
+`;
+
+const FriendInfo = styled.div`
+  width: 100%;
+  height: 50px;
+  background: var(--dark-bg-color);
+  margin: 5px 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+  & > div {
+    margin: 0 10px;
+  }
+
+  & > .buttonContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  & > .buttonContainer > div {
+    margin-left: 10px;
+    border-radius: 5px;
+    padding: 5px 5px;
+    cursor: pointer;
+  }
+
+  & > .name {
+    width: 70px;
+  }
+`;
 
 function createDummyData() {
   let result = [];
@@ -69,7 +152,6 @@ const FriendsList = styled.div`
   width: 90%;
   height: 80%;
   border-radius: 10px;
-  background: black;
   overflow-y: auto;
   &::-webkit-scrollbar {
     border-radius: 10px;
