@@ -15,10 +15,7 @@ const SettingProfile = () => {
       try {
         const formData = new FormData();
         formData.append("image", file);
-        const response = await axiosUpdateProfileImage(
-          myInfo.intra_id,
-          formData
-        );
+        const response = await axiosUpdateProfileImage(formData);
         setMyInfo({ ...response });
         console.log(response);
         // 응답으로 myInfo  업데이트 해야함
