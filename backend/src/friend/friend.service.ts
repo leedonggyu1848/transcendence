@@ -36,8 +36,9 @@ export class FriendService {
 
   async getFriendList(user: Users) {
     const friends = await this.friendRepository.findFriends(user);
-    const result = friends.map(async (friend: any) => {
-      return await this.userRepository.findByIntraId(friend.friendname);
+    const result = friends.map(async (friend) => {
+      const data = await this.userRepository.findByIntraId(friend.friendname);
+      return this.friendRepository.userToFriendDto(data);
     });
     return await Promise.all(result);
   }
@@ -47,15 +48,41 @@ export class FriendService {
     const receive = await this.friendRepository.findFriendRequested(
       user.intra_id,
     );
-    return { send: send, receive: receive };
+    const sendDto = send.map(async (friend) => {
+      return this.friendRepository.userToFriendDto(friend);
+    });
+    const receiveDto = receive.map(async (friend) => {
+      return this.friendRepository.userToFriendDto(friend);
+    });
+
+    return {
+      send: await Promise.all(sendDto),
+      receive: await Promise.all(receiveDto),
+    };
   }
 
+  // testcode -> TODO: delete
   async addDummyFriends(user: Users) {
     await this.userRepository.createUser(1122, 'tmp1');
     await this.userRepository.createUser(1123, 'tmp2');
     await this.userRepository.createUser(1124, 'tmp3');
+    await this.userRepository.createUser(1125, 'tmp4');
+    await this.userRepository.createUser(1126, 'tmp5');
+    await this.userRepository.createUser(1127, 'tmp6');
+    await this.userRepository.createUser(1128, 'tmp7');
+    await this.userRepository.createUser(1129, 'tmp8');
+    await this.userRepository.createUser(1130, 'tmp9');
     await this.friendRepository.addDummyFriend(user, 'tmp1');
     await this.friendRepository.addDummyFriend(user, 'tmp2');
     await this.friendRepository.addDummyFriend(user, 'tmp3');
+    await this.friendRepository.addFriend(user, 'tmp4');
+    await this.friendRepository.addFriend(user, 'tmp5');
+    await this.friendRepository.addFriend(user, 'tmp6');
+    const user1 = this.userRepository.findByIntraId('tmp7');
+    const user2 = this.userRepository.findByIntraId('tmp8');
+    const user3 = this.userRepository.findByIntraId('tmp9');
+    await this.friendRepository.addFriend(user1, user.intra_id);
+    await this.friendRepository.addFriend(user2, user.intra_id);
+    await this.friendRepository.addFriend(user3, user.intra_id);
   }
 }

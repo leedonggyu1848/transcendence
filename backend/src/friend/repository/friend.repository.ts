@@ -1,4 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
+import { FriendDto } from 'src/dto/friend.dto';
 import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -9,6 +10,14 @@ export class FriendRepository {
     private friendRepository: Repository<Friend>,
   ) {}
 
+  userToFriendDto(user: Users) {
+    const friendDto: FriendDto = {
+      intra_id: user.intra_id,
+      profile: user.profile,
+    };
+    return friendDto;
+  }
+
   async addFriend(user: Users, friendname: string) {
     await this.friendRepository.save({
       user: user,
@@ -17,6 +26,7 @@ export class FriendRepository {
     });
   }
 
+  // testcode -> TODO: delete
   async addDummyFriend(user: Users, friendname: string) {
     await this.friendRepository.save({
       user: user,
