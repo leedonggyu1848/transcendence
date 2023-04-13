@@ -17,6 +17,14 @@ export class FriendRepository {
     });
   }
 
+  async addDummyFriend(user: Users, friendname: string) {
+    await this.friendRepository.save({
+      user: user,
+      friendname: friendname,
+      accept: true,
+    });
+  }
+
   async findAll(user: Users) {
     return await this.friendRepository.find({
       where: { user: user },

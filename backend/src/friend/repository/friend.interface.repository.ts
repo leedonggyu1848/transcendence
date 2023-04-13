@@ -3,6 +3,8 @@ import { Users } from 'src/entity/user.entity';
 export interface IFriendRepository {
   addFriend(user: Users, friendname: string);
 
+  addDummyFriend(user: Users, friendname: string);
+
   findAll(user: Users);
 
   findAllWithJoin(user: Users);

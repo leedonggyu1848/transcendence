@@ -37,9 +37,6 @@ export class FriendController {
     if (!friend) throw new BadRequestException('없는 유저입니다.');
     let data = await this.friendService.requestFriend(found_user, friend);
     if (!data.success) throw new BadRequestException(data.data);
-    // testcode -> TODO: delete
-    if (data.data.length === 0) this.friendService.addDummyFriends(found_user);
-    data = await this.friendService.requestFriend(found_user, friend);
     res.status(HttpStatus.OK).send();
   }
 
@@ -63,7 +60,13 @@ export class FriendController {
   async getFriendList(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Friend list request: ${user.intra_id}`);
     const found_user = await this.authService.findUser(user.intra_id);
-    const data = this.friendService.getFriendList(found_user);
+    let data: any = await this.friendService.getFriendList(found_user);
+    // testcode -> TODO: delete
+    if (data.length === 0) {
+      await this.friendService.addDummyFriends(found_user);
+      data = await this.friendService.getFriendList(found_user);
+      console.log(data);
+    }
     res.status(HttpStatus.OK).send(data);
   }
 
