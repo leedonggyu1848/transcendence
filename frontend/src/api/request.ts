@@ -89,17 +89,14 @@ export const axiosGetUserGameRecord = async (gameId: number) => {
 };
 
 const axiosUpdateProfileImageURL = "/auth/user/profile/";
-export const axiosUpdateProfileImage = async (
-  name: string,
-  formData: FormData
-) => {
+export const axiosUpdateProfileImage = async (formData: FormData) => {
   const config = {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   };
   const response = await instance.post(
-    axiosUpdateProfileImageURL + name,
+    axiosUpdateProfileImageURL,
     formData,
     config
   );
@@ -108,10 +105,7 @@ export const axiosUpdateProfileImage = async (
 };
 
 const axiosUpdateIntroduceURL = "/auth/user/introduce";
-export const axiosUpdateIntroduce = async (name: string, msg: string) => {
-  const response = await instance.post(axiosUpdateIntroduceURL, {
-    intra_id: name,
-    introduce: msg,
-  });
+export const axiosUpdateIntroduce = async (msg: string) => {
+  const response = await instance.post(axiosUpdateIntroduceURL, msg);
   return response.data;
 };

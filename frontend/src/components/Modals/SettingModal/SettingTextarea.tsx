@@ -16,7 +16,7 @@ const SettingTextArea = () => {
 
   const handleEditIntroduce = async () => {
     try {
-      const result = await axiosUpdateIntroduce(myInfo.intra_id, text);
+      const result = await axiosUpdateIntroduce(text);
       console.log(result);
       setMyInfo({ ...result });
 
