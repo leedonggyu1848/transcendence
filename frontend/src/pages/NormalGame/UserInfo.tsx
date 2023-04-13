@@ -62,6 +62,7 @@ const Introduce = styled.div`
   height: 65%;
   margin-top: 20px;
   border-radius: 10px;
+  word-break: break-all;
   overflow-y: auto;
   &::-webkit-scrollbar {
     border-radius: 5px;

@@ -11,7 +11,6 @@ import {
   alertModalState,
   joinGameModalToggleState,
   myInfoState,
-  myNameState,
   operatorModalToggleState,
   rankWaitModalToggleState,
   settingModalState,

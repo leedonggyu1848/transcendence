@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { GameDto } from "../../api/interface";
+import SideMenu from "../../components/SideMenu/SideMenu";
 import CreateForm from "./CreateForm";
 import GameList from "./GameList";
 
@@ -26,7 +27,7 @@ const GameLobby = ({
         <GameList data={data} clickJoin={clickJoin} clickWatch={clickWatch} />
       </LeftContainer>
       <RightContainer>
-        <div />
+        <SideMenu w={300} />
         <Container>
           <Rank onClick={clickRankGame}>RANK</Rank>
           <CreateForm myName={myName} onCreateRoom={onCreateRoom} />
