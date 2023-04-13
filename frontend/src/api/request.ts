@@ -105,7 +105,7 @@ export const axiosUpdateProfileImage = async (formData: FormData) => {
 };
 
 const axiosUpdateIntroduceURL = "/auth/user/introduce";
-export const axiosUpdateIntroduce = async (msg: string) => {
-  const response = await instance.post(axiosUpdateIntroduceURL, msg);
+export const axiosUpdateIntroduce = async (introduce: string) => {
+  const response = await instance.post(axiosUpdateIntroduceURL, { introduce });
   return response.data;
 };
