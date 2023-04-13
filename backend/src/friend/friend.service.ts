@@ -36,7 +36,7 @@ export class FriendService {
 
   async getFriendList(user: Users) {
     const friends = await this.friendRepository.findFriends(user);
-    const result = friends.forEach(async (friend) => {
+    const result = friends.map(async (friend) => {
       await this.userRepository.findByIntraId(friend.friendname);
     });
     await Promise.all(result);
@@ -49,5 +49,14 @@ export class FriendService {
       user.intra_id,
     );
     return { send: send, receive: receive };
+  }
+
+  async addDummyFriends(user: Users) {
+    await this.userRepository.createUser(1122, 'tmp1');
+    await this.userRepository.createUser(1123, 'tmp2');
+    await this.userRepository.createUser(1124, 'tmp3');
+    await this.friendRepository.addFriend(user, 'tmp1');
+    await this.friendRepository.addFriend(user, 'tmp2');
+    await this.friendRepository.addFriend(user, 'tmp3');
   }
 }

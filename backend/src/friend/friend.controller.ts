@@ -35,8 +35,11 @@ export class FriendController {
     const found_user = await this.authService.findUser(user.intra_id);
     const friend = await this.authService.findUser(friendname);
     if (!friend) throw new BadRequestException('없는 유저입니다.');
-    const data = await this.friendService.requestFriend(found_user, friend);
+    let data = await this.friendService.requestFriend(found_user, friend);
     if (!data.success) throw new BadRequestException(data.data);
+    // testcode -> TODO: delete
+    if (data.data.length === 0) this.friendService.addDummyFriends(found_user);
+    data = await this.friendService.requestFriend(found_user, friend);
     res.status(HttpStatus.OK).send();
   }
 
