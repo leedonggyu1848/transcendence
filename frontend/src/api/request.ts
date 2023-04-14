@@ -116,3 +116,10 @@ export const axiosGetFriendsList = async () => {
 
   return response.data;
 };
+
+const axiosGetFriendRequestListURL = "/friend/request-list";
+export const axiosGetFriendRequestList = async () => {
+  const response = await instance.get(axiosGetFriendRequestListURL);
+
+  return response.data;
+};

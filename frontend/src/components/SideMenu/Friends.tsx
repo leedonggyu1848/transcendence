@@ -2,13 +2,16 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { IFriendDto } from "../../api/interface";
 import { axiosGetFriendsList } from "../../api/request";
+import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {
+  const [loading, setLoading] = useState(true);
   const [friendsList, setFriendsList] = useState<IFriendDto[]>([]);
   useEffect(() => {
     async function getFriendsList() {
       const response = await axiosGetFriendsList();
       setFriendsList([...response]);
+      setLoading(false);
     }
 
     getFriendsList();
@@ -18,7 +21,11 @@ const Friends = ({ w }: { w: number }) => {
       <Background />
       <Contents>
         <Header>Friends</Header>
-        {friendsList.length > 0 ? (
+        {loading ? (
+          <div className="LoadingContainer">
+            <Loading />
+          </div>
+        ) : friendsList.length > 0 ? (
           <FriendsList>
             {friendsList.map((friend, idx) => (
               <FriendInfo key={idx}>
@@ -73,12 +80,11 @@ const Profile = styled.div<{ src: string }>`
   width: 35px;
   height: 35px;
   border-radius: 10px;
-  background: red;
   background-size: 100% 100%;
-  background-image: url("${({ src }) =>
+  background-image: ${({ src }) =>
     src
-      ? `http://localhost:3000/${src}?v=${new Date().getTime()}`
-      : `/src/assets/defaultProfile.png`}");
+      ? `url('http://localhost:3000/${src}/?v=${new Date().getTime()}')`
+      : "url(/src/assets/defaultProfile.png)"};
 `;
 
 const FriendInfo = styled.div`
@@ -178,6 +184,14 @@ const Contents = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  & .LoadingContainer {
+    width: 90%;
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 `;
 
 const Header = styled.div`

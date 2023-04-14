@@ -1,5 +1,30 @@
 import styled from "@emotion/styled";
 
+function convertDate(date: Date) {
+  const now = new Date();
+
+  let diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diff < 60) {
+    return diff + "초 전";
+  }
+
+  diff = Math.floor(diff / 60);
+
+  if (diff < 60) {
+    return diff + "분 전";
+  }
+
+  diff = Math.floor(diff / 60);
+
+  if (diff < 24) {
+    return diff + "시간 전";
+  }
+
+  diff = Math.floor(diff / 24);
+  return diff + "일 전";
+}
+
 const Alarm = ({ w }: { w: number }) => {
   const data = createDummyData();
   return (
@@ -29,7 +54,7 @@ const Alarm = ({ w }: { w: number }) => {
                 </Container>
                 <Container className="time">
                   <div />
-                  <div>{time.toString().slice(0, 5)}</div>
+                  <div>{convertDate(time)}</div>
                 </Container>
               </FriendRequest>
             ))}
@@ -59,6 +84,7 @@ function createDummyData() {
   for (let i = 0; i < 100; i++) {
     const ranType = Math.floor(Math.random() * 2);
     const randomLength = Math.floor(Math.random() * 3) + 6;
+    const randomTime = Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 15);
     let name = "";
     for (let j = 0; j < randomLength; j++) {
       name += str[Math.floor(Math.random() * 26)];
@@ -66,7 +92,7 @@ function createDummyData() {
     result.push({
       intra_id: name,
       type: ranType ? "recv" : "send",
-      time: new Date(),
+      time: new Date(new Date().getTime() - randomTime),
     });
   }
   return result;
