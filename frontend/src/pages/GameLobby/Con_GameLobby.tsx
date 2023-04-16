@@ -98,11 +98,19 @@ const GameLobbyContainer = () => {
     setSelectedNormalGameTitle(title);
   };
 
-  const onCreateRoom = async (e: React.FormEvent<HTMLFormElement | null>) => {
+  const onCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!e.currentTarget) return;
+    const formElement = e.target as HTMLFormElement;
+    if (!formElement) return;
 
-    if (e.currentTarget.type.checked && !e.currentTarget.password.value) {
+    const modeInput = formElement.querySelector<HTMLInputElement>("#mode");
+    const typeInput = formElement.querySelector<HTMLInputElement>("#type");
+    const nameInput = formElement.querySelector<HTMLInputElement>("#roomName");
+    const passwordInput =
+      formElement.querySelector<HTMLInputElement>("#password");
+
+    if (!(modeInput && typeInput && nameInput && passwordInput)) return;
+    if (typeInput.checked && !passwordInput.value) {
       setAlertInfo({
         type: "failure",
         header: "방 생성 실패",
@@ -114,10 +122,10 @@ const GameLobbyContainer = () => {
 
     try {
       const data = await axiosCreateGame(
-        e.currentTarget.roomName.value || `${myName}의 일반 게임`,
-        e.currentTarget.mode.checked,
-        e.currentTarget.type.checked,
-        e.currentTarget.password.value
+        nameInput.value || `${myName}의 일반 게임`,
+        modeInput.checked,
+        typeInput.checked,
+        passwordInput.value
       );
       setCurrentNormalGameInfoState({
         gameDto: data.gameDto,
@@ -130,10 +138,11 @@ const GameLobbyContainer = () => {
       alert("게임생성실패");
       console.error(e);
     }
-    e.currentTarget.mode.checked = false;
-    e.currentTarget.type.checked = false;
-    e.currentTarget.roomName.value = "";
-    e.currentTarget.password.value = "";
+
+    nameInput.value = "";
+    modeInput.checked = false;
+    typeInput.checked = false;
+    passwordInput.value = "";
   };
 
   useEffect(() => {

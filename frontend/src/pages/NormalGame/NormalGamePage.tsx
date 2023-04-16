@@ -59,7 +59,7 @@ const NormalGamePage = () => {
     }
     setStartCount(() => true);
     setCount((prev) => prev - 1);
-    socket.emit("start-game", { roomName: gameInfo.gameDto.title });
+    socket.emit("start-game", gameInfo.gameDto.title);
   };
 
   const clickExit = async () => {

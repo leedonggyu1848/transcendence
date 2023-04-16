@@ -29,15 +29,15 @@ function convertDate(date: Date) {
 }
 
 const Alarm = ({ w }: { w: number }) => {
-  const data = createDummyData();
-  //const [data, setData] = useState<IFriendRequest[]>([]);
+  //const data = createDummyData();
+  const [data, setData] = useState<IFriendRequest[]>([]);
 
   useEffect(() => {
     getRequestList();
 
     async function getRequestList() {
       const result = await axiosGetFriendRequestList();
-      //setData([...dat])
+      setData([...result]);
       console.log(result);
     }
   }, []);
@@ -46,16 +46,16 @@ const Alarm = ({ w }: { w: number }) => {
       <Background />
       <Contents>
         <Header>Alarms</Header>
-        {data.length ? (
+        {data.length > 0 ? (
           <AlarmList>
-            {data.map(({ intra_id, type, time }, idx) => (
+            {data.map(({ intra_id, profile, time, type }, idx) => (
               <FriendRequest key={idx}>
                 <Container>
                   <div>
-                    <Icon type={type} />
+                    <Icon type={type ? "recv" : "send"} />
                     <Name>{intra_id}</Name>
                   </div>
-                  {type === "recv" ? (
+                  {!type ? (
                     <div>
                       <Button className="margin">수락</Button>
                       <Button>거절</Button>
@@ -68,7 +68,7 @@ const Alarm = ({ w }: { w: number }) => {
                 </Container>
                 <Container className="time">
                   <div />
-                  <div>{convertDate(time)}</div>
+                  <div>{convertDate(new Date(time))}</div>
                 </Container>
               </FriendRequest>
             ))}
@@ -89,28 +89,6 @@ const Alarm = ({ w }: { w: number }) => {
     </AlarmContainer>
   );
 };
-
-function createDummyData() {
-  let result = [];
-
-  const str = "abcdefghijklmnopqrstuvwxyz";
-
-  for (let i = 0; i < 100; i++) {
-    const ranType = Math.floor(Math.random() * 2);
-    const randomLength = Math.floor(Math.random() * 3) + 6;
-    const randomTime = Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 15);
-    let name = "";
-    for (let j = 0; j < randomLength; j++) {
-      name += str[Math.floor(Math.random() * 26)];
-    }
-    result.push({
-      intra_id: name,
-      type: ranType ? "recv" : "send",
-      time: new Date(new Date().getTime() - randomTime),
-    });
-  }
-  return result;
-}
 
 const Icon = styled.div<{ type: string }>`
   width: 12px;
@@ -148,13 +126,13 @@ const Container = styled.div`
 `;
 
 const FriendRequest = styled.div`
-  width: 90%;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-direction: column;
   border-radius: 10px;
-  margin: 5px 10px 15px 10px;
+  margin-bottom: 10px;
 `;
 
 const Text = styled.div``;
