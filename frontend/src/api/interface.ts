@@ -61,7 +61,7 @@ export interface ICurrentNormalGame {
 }
 
 export interface IChatLog {
-  sender: string;
+  name: string;
   msg: string;
   time: Date;
 }
@@ -93,6 +93,8 @@ export interface IFriendDto {
 }
 
 export interface IFriendRequest {
-  send: IFriendDto;
-  receive: IFriendDto;
+  intra_id: string;
+  profile: string;
+  time: string;
+  type: number;
 }
