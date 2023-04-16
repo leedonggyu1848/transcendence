@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
+import { useContext } from "react";
 import { useSetRecoilState } from "recoil";
 import { operatorModalToggleState } from "../../../api/atom";
+import { WebsocketContext } from "../../../api/WebsocketContext";
 import ModalBackground from "../../ModalBackground";
 import Main from "./Main";
 import Sub from "./Sub";
@@ -10,6 +12,7 @@ const OperatorModal = () => {
   const onClickBackground = () => {
     setOperatorModalToggle(false);
   };
+
   return (
     <>
       <ModalBackground onClick={onClickBackground} />

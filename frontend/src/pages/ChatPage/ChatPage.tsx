@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useContext, useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   createChatModalToggleState,
@@ -7,18 +8,34 @@ import {
 } from "../../api/atom";
 import { ChatListDto, JoinListDto, JoinnedUserDto } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
+import { WebsocketContext } from "../../api/WebsocketContext";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";
 import JoinList from "./JoinList";
 
 const ChatPage = () => {
+  const socket = useContext(WebsocketContext);
   const openOperatorModal = useSetRecoilState(operatorModalToggleState);
   const openCreateChatModal = useSetRecoilState(createChatModalToggleState);
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
+
   useInitHook();
+
+  useEffect(() => {
+    socket.emit("chat-list");
+    socket.emit('')
+
+    socket.on("chat-list", (list: any) => {
+      console.log;
+    });
+
+    return () => {
+      socket.off('chat-list');
+    }
+  }, []);
 
   return (
     <ChatPageContainer>

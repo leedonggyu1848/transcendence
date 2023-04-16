@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useContext } from "react";
+import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const userList = [
   "jpark2",
@@ -18,6 +20,19 @@ const userList = [
 ];
 
 const Main = () => {
+  const socket = useContext(WebsocketContext);
+
+  const handleKickUser = (target : string) => {
+
+  }
+  
+  const handleBanUser = (target : string) => {
+
+  }
+
+  const handleGiveOperator = (target : string) => {
+    
+  }
   return (
     <MainContainer>
       <HeaderContainer>
