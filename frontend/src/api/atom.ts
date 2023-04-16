@@ -3,6 +3,7 @@ import { Socket } from "socket.io-client";
 import {
   IChatLog,
   ICurrentNormalGame,
+  IFriendRequest,
   IGameUserInfo,
   ISelectedGameRecord,
   JoinnedUserDto,
@@ -21,6 +22,11 @@ export const myInfoState = atom<UserDto>({
     rank_win: 17,
     rank_lose: 2,
   },
+});
+
+export const friendRequestListState = atom<IFriendRequest[]>({
+  key: "friendRequestListState",
+  default: [],
 });
 
 export const myIntroduceState = selector<string>({

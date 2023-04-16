@@ -9,6 +9,7 @@ import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
+  friendRequestListState,
   joinGameModalToggleState,
   myInfoState,
   operatorModalToggleState,
@@ -23,7 +24,7 @@ import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
-import { axiosGetMyInfo } from "../api/request";
+import { axiosGetFriendRequestList, axiosGetMyInfo } from "../api/request";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -32,6 +33,7 @@ const MainPage = () => {
   const alertModalToggle = useRecoilValue(alertModalState);
   const operatorModalToggle = useRecoilValue(operatorModalToggleState);
   const settingModalToggle = useRecoilValue(settingModalState);
+  const setFriendRequestList = useSetRecoilState(friendRequestListState);
   const setMyInfo = useSetRecoilState(myInfoState);
 
   const navigate = useNavigate();
@@ -41,9 +43,12 @@ const MainPage = () => {
     getMyInfo();
 
     async function getMyInfo() {
-      const response = await axiosGetMyInfo();
-      setMyInfo({ ...response });
-      socket.emit("first-connection", response.intra_id);
+      const myInfo = await axiosGetMyInfo();
+      const friendRequestList = await axiosGetFriendRequestList();
+      setMyInfo({ ...myInfo });
+      setFriendRequestList([...friendRequestList]);
+
+      socket.emit("first-connection", myInfo.intra_id);
     }
   }, []);
   return (
