@@ -15,7 +15,6 @@ export class UserRepository {
     if (!user) return null;
     const userDto: UserDto = {
       user_id: user.user_id,
-      socket_id: user.socket_id,
       intra_id: user.intra_id,
       profile: user.profile,
       introduce: user.introduce,

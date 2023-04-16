@@ -1,6 +1,5 @@
 export class UserDto {
   user_id: number;
-  socket_id: string;
   intra_id: string;
   profile: string;
   introduce: string;

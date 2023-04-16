@@ -98,7 +98,7 @@ export class EventsGateway
     const user = await this.userRepository.findBySocketId(socket.id);
     this.logger.log(`${user.intra_id} join game ${roomName} as ${type}`);
     socket.join(roomName);
-    this.nsp.to(roomName).emit('join-game', {
+    socket.broadcast.to(roomName).emit('join-game', {
       message: `${user.intra_id}가 들어왔습니다.`,
       userInfo: this.userRepository.userToUserDto(user),
       type: type,
