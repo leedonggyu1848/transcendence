@@ -63,6 +63,7 @@ export class GameRepository {
   async updateCountById(id: number, count: number) {
     await this.gameRepository.update(id, { count: count });
   }
+
   async deleteById(id: number) {
     await this.gameRepository.delete({ id: id });
   }

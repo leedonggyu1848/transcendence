@@ -44,7 +44,7 @@ export class GameService {
     if (found)
       return { success: false, data: '같은 이름의 방이 이미 존재합니다.' };
     const game = await this.gameRepository.createByGameDto(gameDto, 1);
-    await this.userRepository.updateOwnGameById(user.id, game);
+    await this.userRepository.updateOwnGame(user.id, game);
     return {
       success: true,
       data: { gameDto, user, opponent: null, watchers: null },
@@ -62,7 +62,7 @@ export class GameService {
       return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
 
     await this.gameRepository.updateCountById(game.id, game.count + 1);
-    await this.userRepository.updatePlayGameById(user.id, game);
+    await this.userRepository.updatePlayGame(user.id, game);
     if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
     const owner = game.players.find(
       (player) => player.join_type === JoinType.OWNER,
@@ -93,7 +93,7 @@ export class GameService {
     if (user.play_game || user.watch_game)
       return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
 
-    await this.userRepository.updateWatchGameById(user.id, game);
+    await this.userRepository.updateWatchGame(user.id, game);
     if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
     const owner = game.players.find(
       (player) => player.join_type === JoinType.OWNER,
@@ -144,13 +144,13 @@ export class GameService {
     const result: Array<any> = [];
     if (game.players) {
       const list = game.players.map(async (player) => {
-        await this.userRepository.updateGameNoneById(player.id);
+        await this.userRepository.updateGameNone(player.id);
       });
       result.push(...list);
     }
     if (game.watchers) {
       const list = game.watchers.map(async (watcher) => {
-        await this.userRepository.updateGameNoneById(watcher.id);
+        await this.userRepository.updateGameNone(watcher.id);
       });
       result.push(...list);
     }
@@ -171,10 +171,10 @@ export class GameService {
     if (user.join_type === JoinType.OWNER) {
       await this.flushGame(game.title);
     } else if (user.join_type === JoinType.PLAYER) {
-      await this.userRepository.updateGameNoneById(user.id);
+      await this.userRepository.updateGameNone(user.id);
       await this.gameRepository.updateCountById(game.id, game.count - 1);
     } else if (user.join_type === JoinType.WATCHER) {
-      await this.userRepository.updateGameNoneById(user.id);
+      await this.userRepository.updateGameNone(user.id);
     } else {
       return { success: false, data: '데이터 저장 오류' };
     }

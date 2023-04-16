@@ -21,6 +21,9 @@ export class Users {
   user_id: number;
 
   @Column()
+  socket_id: string;
+
+  @Column()
   @NotEquals(null)
   intra_id: string;
 

@@ -10,13 +10,19 @@ export interface IUserRepository {
 
   findByIntraIdWithJoin(intra_id: string);
 
-  updateOwnGameById(id: number, game: Game);
+  findBySocketId(socket_id: string);
 
-  updatePlayGameById(id: number, game: Game);
+  findBySocketIdWithJoin(socket_id: string);
 
-  updateWatchGameById(id: number, game: Game);
+  updateSocketId(id: number, socket_id: string);
 
-  updateGameNoneById(id: number);
+  updateOwnGame(id: number, game: Game);
+
+  updatePlayGame(id: number, game: Game);
+
+  updateWatchGame(id: number, game: Game);
+
+  updateGameNone(id: number);
 
   updateNormalWin(id: number, win: number);
 

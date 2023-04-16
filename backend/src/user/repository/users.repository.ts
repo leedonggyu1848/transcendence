@@ -15,6 +15,7 @@ export class UserRepository {
     if (!user) return null;
     const userDto: UserDto = {
       user_id: user.user_id,
+      socket_id: user.socket_id,
       intra_id: user.intra_id,
       profile: user.profile,
       introduce: user.introduce,
@@ -30,6 +31,7 @@ export class UserRepository {
     await this.userRepository.save({
       user_id: user_id,
       intra_id: intra_id,
+      socket_id: '',
       profile: '',
       introduce: '',
       normal_win: 0,
@@ -51,28 +53,45 @@ export class UserRepository {
     });
   }
 
-  async updateOwnGameById(id: number, game: Game) {
+  async findBySocketId(socket_id: string) {
+    return await this.userRepository.findOneBy({ socket_id: socket_id });
+  }
+
+  async findBySocketIdWithJoin(socket_id: string) {
+    return await this.userRepository.findOne({
+      where: { socket_id: socket_id },
+      relations: ['play_game', 'watch_game'],
+    });
+  }
+
+  async updateSocketId(id: number, socket_id: string) {
+    await this.userRepository.update(id, {
+      socket_id: socket_id,
+    });
+  }
+
+  async updateOwnGame(id: number, game: Game) {
     await this.userRepository.update(id, {
       play_game: game,
       join_type: JoinType.OWNER,
     });
   }
 
-  async updatePlayGameById(id: number, game: Game) {
+  async updatePlayGame(id: number, game: Game) {
     await this.userRepository.update(id, {
       play_game: game,
       join_type: JoinType.PLAYER,
     });
   }
 
-  async updateWatchGameById(id: number, game: Game) {
+  async updateWatchGame(id: number, game: Game) {
     await this.userRepository.update(id, {
       watch_game: game,
       join_type: JoinType.WATCHER,
     });
   }
 
-  async updateGameNoneById(id: number) {
+  async updateGameNone(id: number) {
     await this.userRepository.update(id, {
       play_game: null,
       watch_game: null,

@@ -58,10 +58,10 @@ export class FriendService {
       return await this.friendRepository.userToFriendDto(data, friend.time);
     });
 
-    return {
-      send: await Promise.all(sendDto),
-      receive: await Promise.all(receiveDto),
-    };
+    return [
+      ...(await Promise.all(sendDto)),
+      ...(await Promise.all(receiveDto)),
+    ];
   }
 
   // testcode -> TODO: delete
