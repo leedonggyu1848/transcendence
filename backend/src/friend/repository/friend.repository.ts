@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { FriendDto } from 'src/dto/friend.dto';
+import { friendReqType } from 'src/entity/common.enum';
 import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -10,11 +11,12 @@ export class FriendRepository {
     private friendRepository: Repository<Friend>,
   ) {}
 
-  userToFriendDto(user: Users, time: Date) {
+  userToFriendDto(user: Users, time: Date, type: friendReqType) {
     const friendDto: FriendDto = {
       intra_id: user.intra_id,
       profile: user.profile,
       time: time,
+      type: type,
     };
     return friendDto;
   }

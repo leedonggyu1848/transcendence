@@ -1,7 +1,8 @@
+import { friendReqType } from 'src/entity/common.enum';
 import { Users } from 'src/entity/user.entity';
 
 export interface IFriendRepository {
-  userToFriendDto(user: Users, time: Date);
+  userToFriendDto(user: Users, time: Date, type: friendReqType);
 
   addFriend(user: Users, friendname: string);
 

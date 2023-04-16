@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { friendReqType } from 'src/entity/common.enum';
 import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
@@ -39,7 +40,11 @@ export class FriendService {
     if (friends.length === 0) return null;
     const result = friends.map(async (friend) => {
       const data = await this.userRepository.findByIntraId(friend.friendname);
-      return this.friendRepository.userToFriendDto(data, friend.time);
+      return this.friendRepository.userToFriendDto(
+        data,
+        friend.time,
+        friendReqType.ACCEPT,
+      );
     });
     return await Promise.all(result);
   }
@@ -51,17 +56,27 @@ export class FriendService {
     );
     const sendDto = send.map(async (friend) => {
       const data = await this.userRepository.findByIntraId(friend.intra_id);
-      return await this.friendRepository.userToFriendDto(data, friend.time);
+      return await this.friendRepository.userToFriendDto(
+        data,
+        friend.time,
+        friendReqType.SEND,
+      );
     });
     const receiveDto = receive.map(async (friend) => {
       const data = await this.userRepository.findByIntraId(friend.intra_id);
-      return await this.friendRepository.userToFriendDto(data, friend.time);
+      return await this.friendRepository.userToFriendDto(
+        data,
+        friend.time,
+        friendReqType.RECEIVE,
+      );
     });
 
-    return [
+    const result = [
       ...(await Promise.all(sendDto)),
       ...(await Promise.all(receiveDto)),
     ];
+    console.log(result);
+    return result;
   }
 
   // testcode -> TODO: delete

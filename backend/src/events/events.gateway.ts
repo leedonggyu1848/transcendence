@@ -55,7 +55,7 @@ export class EventsGateway
     this.logger.log(`${socket.id} 소켓 연결 해제`);
   }
 
-  @SubscribeMessage('connect')
+  @SubscribeMessage('first-connection')
   async handleSocketConnect(
     @ConnectedSocket() socket: Socket,
     @MessageBody() intra_id: string,
