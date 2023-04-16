@@ -36,7 +36,6 @@ export class UserService {
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) return { success: false, data: err };
     });
-    //'./uploads/' + user.intra_id + timeVal.toString() + '.png';
     const findPath = user.intra_id + timeVal.toString() + '.png';
     await this.userRepository.updateProfileImage(found.id, findPath);
     found = await this.findUser(user.intra_id);
