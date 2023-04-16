@@ -1,6 +1,7 @@
 import { NotEquals } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ChatUser } from './chatuser.entity';
+import { ChatType } from './common.enum';
 
 @Entity()
 export class Chat {
@@ -13,7 +14,15 @@ export class Chat {
 
   @Column()
   @NotEquals(null)
+  type: ChatType;
+
+  @Column()
+  @NotEquals(null)
   password: string;
+
+  @Column()
+  @NotEquals(null)
+  operator: string;
 
   @Column()
   @NotEquals(null)
@@ -21,4 +30,8 @@ export class Chat {
 
   @OneToMany(() => ChatUser, (user) => user, { cascade: true })
   users: ChatUser[];
+
+  @Column()
+  @NotEquals(null)
+  banUsers: string[];
 }

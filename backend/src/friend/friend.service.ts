@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { friendReqType } from 'src/entity/common.enum';
+import { FriendReqType } from 'src/entity/common.enum';
 import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
@@ -22,7 +22,7 @@ export class FriendService {
       return this.friendRepository.userToFriendDto(
         data,
         friend.time,
-        friendReqType.ACCEPT,
+        FriendReqType.ACCEPT,
       );
     });
     return await Promise.all(result);
@@ -38,14 +38,14 @@ export class FriendService {
       return await this.friendRepository.userToFriendDto(
         data,
         friend.time,
-        friendReqType.SEND,
+        FriendReqType.SEND,
       );
     });
     const receiveDto = receive.map(async (friend) => {
       return await this.friendRepository.userToFriendDto(
         friend.user,
         friend.time,
-        friendReqType.RECEIVE,
+        FriendReqType.RECEIVE,
       );
     });
     const result = [

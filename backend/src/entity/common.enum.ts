@@ -10,8 +10,14 @@ export enum GameType {
   'RANK',
 }
 
-export enum friendReqType {
+export enum FriendReqType {
   'SEND',
   'RECEIVE',
   'ACCEPT',
+}
+
+export enum ChatType {
+  'PUBLIC',
+  'PRIVATE',
+  'PASSWORD',
 }
