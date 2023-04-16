@@ -40,8 +40,9 @@ const DetailProfile = ({
 };
 
 function getWinRate(win: number, lose: number) {
+  if (win + lose === 0) return "-";
   const result = (win / (win + lose)) * 100;
-  return result.toFixed(1);
+  return result.toFixed(1) + "%";
 }
 
 const Container = styled.div`
@@ -59,7 +60,7 @@ const Container = styled.div`
 const Text = styled.div`
   width: 80%;
   & > div {
-    padding-left: 10px;
+    padding-left: 5px;
   }
   & > .head {
     padding-left: 0;
@@ -77,7 +78,7 @@ const Image = styled.div<{ src: string }>`
       ? `url('http://localhost:3000/${src}?v=${new Date().getTime()}')`
       : 'url("/src/assets/defaultProfile.png")'};
   width: 100%;
-  padding-bottom: 100%; 
+  padding-bottom: 100%;
   background-size: 100% 100%;
   border-radius: 10px;
 `;

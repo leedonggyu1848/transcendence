@@ -27,11 +27,16 @@ export class UserService {
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
     let found = await this.findUser(user.intra_id);
-    const imagePath = './uploads/' + user.intra_id + '.png';
+    if (found.profile) {
+      fs.unlinkSync('./uploads/' + found.profile);
+    }
+    const timeVal = new Date().getTime();
+    const imagePath =
+      './uploads/' + user.intra_id + timeVal.toString() + '.png';
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) return { success: false, data: err };
     });
-    const findPath = user.intra_id + '.png';
+    const findPath = user.intra_id + timeVal.toString() + '.png';
     await this.userRepository.updateProfileImage(found.id, findPath);
     found = await this.findUser(user.intra_id);
     return { success: true, data: found };

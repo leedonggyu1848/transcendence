@@ -8,6 +8,11 @@ const SideMenu = ({ w }:{ w: number}) => {
     friends: false,
     alarm: false,
   });
+
+  const clickLogout = () => {
+    
+  }
+
   return (
     <SideMenuContainer >
       <FriendsIcon

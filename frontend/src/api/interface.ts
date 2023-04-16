@@ -88,14 +88,11 @@ export interface ISelectedGameRecord {
 }
 
 export interface IFriendDto {
-  id: number;
   intra_id: string;
-  introduce: string;
-  join_type: number;
-  normal_lose: number;
-  normal_win: number;
   profile: string;
-  rank_lose: number;
-  rank_win: number;
-  user_id: number;
+}
+
+export interface IFriendRequest {
+  send: IFriendDto;
+  receive: IFriendDto;
 }

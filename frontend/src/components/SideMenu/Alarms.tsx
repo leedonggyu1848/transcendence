@@ -1,4 +1,7 @@
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
+import { IFriendRequest } from "../../api/interface";
+import { axiosGetFriendRequestList } from "../../api/request";
 
 function convertDate(date: Date) {
   const now = new Date();
@@ -27,6 +30,17 @@ function convertDate(date: Date) {
 
 const Alarm = ({ w }: { w: number }) => {
   const data = createDummyData();
+  //const [data, setData] = useState<IFriendRequest[]>([]);
+
+  useEffect(() => {
+    getRequestList();
+
+    async function getRequestList() {
+      const result = await axiosGetFriendRequestList();
+      //setData([...dat])
+      console.log(result);
+    }
+  }, []);
   return (
     <AlarmContainer w={w}>
       <Background />

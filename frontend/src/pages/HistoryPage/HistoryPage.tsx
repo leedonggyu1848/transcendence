@@ -5,6 +5,7 @@ import { selectedGameRecord } from "../../api/atom";
 import { IGameHistory } from "../../api/interface";
 import { axiosGetHistory } from "../../api/request";
 import useInitHook from "../../api/useInitHook";
+import SideMenu from "../../components/SideMenu/SideMenu";
 import GameDetailInfo from "./GameDetailInfo";
 import Records from "./Records";
 
@@ -58,17 +59,12 @@ const HistoryPage = () => {
         <Records data={list} />
       </GameContainer>
       <SubContainer>
-        <Empty />
+        <SideMenu w={300} />
         <GameDetailInfo />
       </SubContainer>
     </HistoryPageContainer>
   );
 };
-
-const Empty = styled.div`
-  width: 100%;
-  height: 100px;
-`;
 
 const HistoryPageContainer = styled.div`
   height: 95%;
