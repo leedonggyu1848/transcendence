@@ -1,3 +1,4 @@
+import { Chat } from 'src/entity/chat.entity';
 import { Game } from 'src/entity/game.entity';
 import { Users } from 'src/entity/user.entity';
 

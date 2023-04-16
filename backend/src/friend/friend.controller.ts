@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Logger,
+  NotFoundException,
   Post,
   Res,
   UseGuards,
@@ -23,43 +24,6 @@ export class FriendController {
     private authService: UserService,
     private friendService: FriendService,
   ) {}
-
-  @Post('/send-request')
-  @UseGuards(JwtGuard)
-  async sendFriendRequest(
-    @Res() res: Response,
-    @UserDeco() user: UserSessionDto,
-    @Body('friendname') friendname: string,
-  ) {
-    this.logger.log(`Friend request: ${user.intra_id} to ${friendname}`);
-    const found_user = await this.authService.findUser(user.intra_id);
-    const friend = await this.authService.findUser(friendname);
-    if (!friend) {
-      this.logger.log('Bad request: 없는 유저입니다.');
-      throw new BadRequestException('없는 유저입니다.');
-    }
-    let data = await this.friendService.requestFriend(found_user, friend);
-    if (!data.success) {
-      this.logger.log(`Bad request: ${data.data}`);
-      throw new BadRequestException(data.data);
-    }
-    res.status(HttpStatus.OK).send();
-  }
-
-  @Post('/accept-request')
-  @UseGuards(JwtGuard)
-  async acceptFriend(
-    @Res() res: Response,
-    @UserDeco() user: UserSessionDto,
-    @Body('friendname') friendname: string,
-  ) {
-    this.logger.log(`Friend accept: ${user.intra_id} to ${friendname}`);
-    const found_user = await this.authService.findUser(user.intra_id);
-    const friend = await this.authService.findUser(friendname);
-    if (!friend) throw new BadRequestException('없는 유저입니다.');
-    this.friendService.acceptFriend(found_user, friend);
-    res.status(HttpStatus.OK).send();
-  }
 
   @Get('/list')
   @UseGuards(JwtGuard)

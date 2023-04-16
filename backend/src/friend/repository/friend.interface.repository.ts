@@ -1,8 +1,8 @@
-import { friendReqType } from 'src/entity/common.enum';
+import { FriendReqType } from 'src/entity/common.enum';
 import { Users } from 'src/entity/user.entity';
 
 export interface IFriendRepository {
-  userToFriendDto(user: Users, time: Date, type: friendReqType);
+  userToFriendDto(user: Users, time: Date, type: FriendReqType);
 
   addFriend(user: Users, friendname: string);
 
@@ -26,4 +26,6 @@ export interface IFriendRepository {
   findFriendRequestedWithJoin(username: string);
 
   updateAccept(id: number, accept: boolean);
+
+  deleteRequest(id: number);
 }

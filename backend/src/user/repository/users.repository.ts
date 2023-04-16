@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from 'src/dto/user.dto';
+import { ChatUser } from 'src/entity/chatuser.entity';
 import { JoinType } from 'src/entity/common.enum';
 import { Game } from 'src/entity/game.entity';
 import { Users } from 'src/entity/user.entity';

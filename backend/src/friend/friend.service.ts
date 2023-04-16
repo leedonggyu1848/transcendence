@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { friendReqType } from 'src/entity/common.enum';
+import { FriendReqType } from 'src/entity/common.enum';
 import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
@@ -14,37 +14,6 @@ export class FriendService {
     private friendRepository: IFriendRepository,
   ) {}
 
-  private requestCheck(reqs, findName) {
-    if (!reqs) return false;
-    const tmp = reqs.filter((req) => req.friendname === findName);
-    if (tmp.length !== 0) return true;
-    return false;
-  }
-
-  async requestFriend(user: Users, friend: Users) {
-    const user_req = await this.friendRepository.findAllWithJoin(user);
-    const friend_req = await this.friendRepository.findAllWithJoin(friend);
-    if (
-      this.requestCheck(user_req, friend.intra_id) ||
-      this.requestCheck(friend_req, user.intra_id)
-    )
-      return { success: false, data: '이미 친구 신청을 보냈습니다.' };
-    await this.friendRepository.addFriend(user, friend.intra_id);
-    return { success: true, data: null };
-  }
-
-  async acceptFriend(user: Users, friend: Users) {
-    const requests = await this.friendRepository.findFriendRequests(user);
-    const req = requests.find((name) => name.friendname === friend.intra_id);
-    if (!req)
-      return {
-        success: false,
-        data: '친구 신청이 없거나 이미 처리되었습니다.',
-      };
-    await this.friendRepository.updateAccept(req.id, true);
-    return { success: true, data: null };
-  }
-
   async getFriendList(user: Users) {
     const friends = await this.friendRepository.findFriends(user);
     if (friends.length === 0) return null;
@@ -53,7 +22,7 @@ export class FriendService {
       return this.friendRepository.userToFriendDto(
         data,
         friend.time,
-        friendReqType.ACCEPT,
+        FriendReqType.ACCEPT,
       );
     });
     return await Promise.all(result);
@@ -69,14 +38,14 @@ export class FriendService {
       return await this.friendRepository.userToFriendDto(
         data,
         friend.time,
-        friendReqType.SEND,
+        FriendReqType.SEND,
       );
     });
     const receiveDto = receive.map(async (friend) => {
       return await this.friendRepository.userToFriendDto(
         friend.user,
         friend.time,
-        friendReqType.RECEIVE,
+        FriendReqType.RECEIVE,
       );
     });
     const result = [
