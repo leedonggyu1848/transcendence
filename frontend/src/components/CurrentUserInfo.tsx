@@ -1,5 +1,10 @@
 import styled from "@emotion/styled";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { alertModalState, myNameState } from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
+import { axiosSendFriendRequest } from "../api/request";
 
 const CurrentUserInfo = ({
   data,
@@ -12,6 +17,44 @@ const CurrentUserInfo = ({
   operator: boolean;
   clickOperatorButton: Function;
 }) => {
+  const [toggle, setToggle] = useState(false);
+  const [block, setBlock] = useState(false);
+  const [target, setTarget] = useState("");
+  const location = useLocation();
+  const myName = useRecoilValue(myNameState);
+  const setAlertInfo = useSetRecoilState(alertModalState);
+
+  const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    const name = e.currentTarget.textContent as string;
+    //if (myName === name) return;
+    setBlock(true);
+    setTimeout(() => setToggle(true), 0);
+    setTarget(name);
+  };
+
+  const clickFriendRequest = async (friendname: string) => {
+    try {
+      await axiosSendFriendRequest(friendname);
+    } catch (e) {
+      console.error(e);
+      setAlertInfo({
+        type: "failure",
+        header: "친구 요청 실패",
+        msg: "",
+        toggle: true,
+      });
+    }
+  };
+
+  const clickDirectMessage = () => {
+    console.log(location);
+  };
+
+  const closePersonalMenu = () => {
+    setTarget("");
+    setToggle(false);
+    setTimeout(() => setBlock(false), 800);
+  };
   return (
     <CurrentUserInfoContainer>
       <HeaderContainer>
@@ -27,14 +70,74 @@ const CurrentUserInfo = ({
       </HeaderContainer>
       <UserNameContainer>
         {data.map(({ intra_id, type }, idx) => (
-          <UserName key={idx} className={type}>
+          <UserName key={idx} className={type} onClick={openPersonalMenu}>
             {intra_id}
           </UserName>
         ))}
       </UserNameContainer>
+      {block && (
+        <PersonalMenu toggle={toggle}>
+          <TargetName>{target}</TargetName>
+          <div>
+            <MessageIcon onClick={clickDirectMessage} />
+            <FriendIcon onClick={() => clickFriendRequest(target)} />
+            <ExitIcon onClick={closePersonalMenu} />
+          </div>
+        </PersonalMenu>
+      )}
     </CurrentUserInfoContainer>
   );
 };
+
+const ExitIcon = styled.div`
+  width: 25px;
+  height: 25px;
+  background-image: url("/src/assets/exitButton.png");
+  background-size: 100% 100%;
+  margin-right: 10px;
+`;
+
+const MessageIcon = styled.div`
+  width: 25px;
+  height: 25px;
+  background-image: url("/src/assets/messageIcon.png");
+  background-size: 100% 100%;
+  margin-right: 10px;
+`;
+
+const FriendIcon = styled.div`
+  width: 25px;
+  height: 22px;
+  background-image: url("/src/assets/friendsIcon.png");
+  background-size: 100% 100%;
+  margin-right: 10px;
+`;
+
+const TargetName = styled.div`
+  margin-left: 15px;
+`;
+
+const PersonalMenu = styled.div<{ toggle: boolean }>`
+  position: absolute;
+  left: 0;
+  top: 110%;
+  width: 100%;
+  height: 70px;
+  background: var(--dark-bg-color);
+  z-index: 1;
+  border-radius: 10px;
+  transition: 1s;
+  transform: translateY(${({ toggle }) => (toggle ? "0" : "-100%")});
+  opacity: ${({ toggle }) => (toggle ? 1 : 0)};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & > div:last-of-type {
+    display: flex;
+    align-items: center;
+  }
+`;
 
 const OperatorIcon = styled.div`
   background-image: url("/src/assets/adminIcon.png");
@@ -117,6 +220,7 @@ const CurrentUserInfoContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  position: relative;
 `;
 
 export default CurrentUserInfo;

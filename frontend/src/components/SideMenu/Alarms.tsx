@@ -1,7 +1,12 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { alertModalState, friendRequestListState } from "../../api/atom";
 import { IFriendRequest } from "../../api/interface";
-import { axiosGetFriendRequestList } from "../../api/request";
+import {
+  axiosAcceptFriendRequest,
+  axiosGetFriendRequestList,
+} from "../../api/request";
 
 function convertDate(date: Date) {
   const now = new Date();
@@ -31,24 +36,32 @@ function convertDate(date: Date) {
 const Alarm = ({ w }: { w: number }) => {
   //const data = createDummyData();
   const [data, setData] = useState<IFriendRequest[]>([]);
+  const friendRequestList = useRecoilValue(friendRequestListState);
+  const setAlertInfo = useSetRecoilState(alertModalState);
 
-  useEffect(() => {
-    getRequestList();
-
-    async function getRequestList() {
-      const result = await axiosGetFriendRequestList();
-      setData([...result]);
-      console.log(result);
+  const acceptRequest = async (intra_id: string) => {
+    try {
+      await axiosAcceptFriendRequest(intra_id);
+      console.log("hello");
+    } catch (e) {
+      console.error(e);
+      setAlertInfo({
+        type: "failure",
+        header: "게임 참가 실패",
+        msg: "게임 참가에 실패 했습니다...",
+        toggle: true,
+      });
     }
-  }, []);
+  };
+
   return (
     <AlarmContainer w={w}>
       <Background />
       <Contents>
         <Header>Alarms</Header>
-        {data.length > 0 ? (
+        {friendRequestList.length > 0 ? (
           <AlarmList>
-            {data.map(({ intra_id, profile, time, type }, idx) => (
+            {friendRequestList.map(({ intra_id, time, type }, idx) => (
               <FriendRequest key={idx}>
                 <Container>
                   <div>
@@ -57,7 +70,12 @@ const Alarm = ({ w }: { w: number }) => {
                   </div>
                   {!type ? (
                     <div>
-                      <Button className="margin">수락</Button>
+                      <Button
+                        className="margin"
+                        onClick={() => acceptRequest(intra_id)}
+                      >
+                        수락
+                      </Button>
                       <Button>거절</Button>
                     </div>
                   ) : (

@@ -123,3 +123,13 @@ export const axiosGetFriendRequestList = async () => {
 
   return response.data;
 };
+
+const axiosAcceptFriendRequestURL = "/friend/accept-request";
+export const axiosAcceptFriendRequest = async (friendname: string) => {
+  await instance.post(axiosAcceptFriendRequestURL, { friendname });
+};
+
+const axiosSendFriendRequestURL = "/friend/send-request";
+export const axiosSendFriendRequest = async (friendname: string) => {
+  await instance.post(axiosSendFriendRequestURL, { friendname });
+};

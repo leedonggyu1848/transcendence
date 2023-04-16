@@ -1,32 +1,51 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
+import { useRecoilValue } from "recoil";
+import { friendRequestListState } from "../../api/atom";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
 
-const SideMenu = ({ w }:{ w: number}) => {
+const SideMenu = ({ w }: { w: number }) => {
   const [toggles, setToggles] = useState({
     friends: false,
     alarm: false,
   });
 
-  const clickLogout = () => {
-    
-  }
+  const friendRequestList = useRecoilValue(friendRequestListState);
+
+  const clickLogout = () => {};
 
   return (
-    <SideMenuContainer >
+    <SideMenuContainer>
       <FriendsIcon
         onClick={() => setToggles({ alarm: false, friends: !toggles.friends })}
       />
       <AlarmIcon
         onClick={() => setToggles({ friends: false, alarm: !toggles.alarm })}
-      />
+      >
+        {friendRequestList.length > 0 && (
+          <NewRequest>{friendRequestList.length}</NewRequest>
+        )}
+      </AlarmIcon>
       <LogoutIcon />
-      {toggles.friends && <Friends w={w}/>}
-      {toggles.alarm && <Alarms w={w}/>}
+      {toggles.friends && <Friends w={w} />}
+      {toggles.alarm && <Alarms w={w} />}
     </SideMenuContainer>
   );
 };
+
+const NewRequest = styled.div`
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  background: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  border-radius: 5px;
+  height: 20px;
+`;
 
 const FriendsIcon = styled.div`
   width: 35px;
@@ -45,6 +64,7 @@ const AlarmIcon = styled.div`
   background-size: 100% 100%;
   cursor: pointer;
   margin-right: 25px;
+  position: relative;
 `;
 
 const LogoutIcon = styled.div`
