@@ -68,7 +68,7 @@ const Alarm = ({ w }: { w: number }) => {
                     <Icon type={type ? "recv" : "send"} />
                     <Name>{intra_id}</Name>
                   </div>
-                  {!type ? (
+                  {type ? (
                     <div>
                       <Button
                         className="margin"

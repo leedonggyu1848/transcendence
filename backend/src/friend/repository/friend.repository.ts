@@ -68,13 +68,13 @@ export class FriendRepository {
 
   async findFriendRequests(user: Users) {
     return await this.friendRepository.find({
-      where: { user: user, accept: false },
+      where: { friendname: user.intra_id, accept: false },
     });
   }
 
   async findFriendRequestsWithJoin(user: Users) {
     return await this.friendRepository.find({
-      where: { user: user, accept: false },
+      where: { friendname: user.intra_id, accept: false },
       relations: ['user'],
     });
   }

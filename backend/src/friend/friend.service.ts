@@ -14,10 +14,20 @@ export class FriendService {
     private friendRepository: IFriendRepository,
   ) {}
 
+  private requestCheck(reqs, findName) {
+    if (!reqs) return false;
+    const tmp = reqs.filter((req) => req.friendname === findName);
+    if (tmp.length !== 0) return true;
+    return false;
+  }
+
   async requestFriend(user: Users, friend: Users) {
-    const user_req = await this.friendRepository.findAll(user);
-    const friend_req = await this.friendRepository.findAll(friend);
-    if (user_req || friend_req)
+    const user_req = await this.friendRepository.findAllWithJoin(user);
+    const friend_req = await this.friendRepository.findAllWithJoin(friend);
+    if (
+      this.requestCheck(user_req, friend.intra_id) ||
+      this.requestCheck(friend_req, user.intra_id)
+    )
       return { success: false, data: '이미 친구 신청을 보냈습니다.' };
     await this.friendRepository.addFriend(user, friend.intra_id);
     return { success: true, data: null };
@@ -51,7 +61,7 @@ export class FriendService {
 
   async getFriendRequestList(user: Users) {
     const send = await this.friendRepository.findFriendRequests(user);
-    const receive = await this.friendRepository.findFriendRequested(
+    const receive = await this.friendRepository.findFriendRequestedWithJoin(
       user.intra_id,
     );
     const sendDto = send.map(async (friend) => {
@@ -63,18 +73,17 @@ export class FriendService {
       );
     });
     const receiveDto = receive.map(async (friend) => {
-      const data = await this.userRepository.findByIntraId(friend.intra_id);
       return await this.friendRepository.userToFriendDto(
-        data,
+        friend.user,
         friend.time,
         friendReqType.RECEIVE,
       );
     });
-
     const result = [
       ...(await Promise.all(sendDto)),
       ...(await Promise.all(receiveDto)),
     ];
+    console.log(result);
     return result;
   }
 

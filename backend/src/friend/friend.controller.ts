@@ -34,9 +34,15 @@ export class FriendController {
     this.logger.log(`Friend request: ${user.intra_id} to ${friendname}`);
     const found_user = await this.authService.findUser(user.intra_id);
     const friend = await this.authService.findUser(friendname);
-    if (!friend) throw new BadRequestException('없는 유저입니다.');
+    if (!friend) {
+      this.logger.log('Bad request: 없는 유저입니다.');
+      throw new BadRequestException('없는 유저입니다.');
+    }
     let data = await this.friendService.requestFriend(found_user, friend);
-    if (!data.success) throw new BadRequestException(data.data);
+    if (!data.success) {
+      this.logger.log(`Bad request: ${data.data}`);
+      throw new BadRequestException(data.data);
+    }
     res.status(HttpStatus.OK).send();
   }
 
