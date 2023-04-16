@@ -42,26 +42,26 @@ export class FriendRepository {
 
   async findAll(user: Users) {
     return await this.friendRepository.find({
-      where: { user: user },
+      where: { user: { id: user.id } },
     });
   }
 
   async findAllWithJoin(user: Users) {
     return await this.friendRepository.find({
-      where: { user: user },
+      where: { user: { id: user.id } },
       relations: ['user'],
     });
   }
 
   async findFriends(user: Users) {
     return await this.friendRepository.find({
-      where: { user: user, accept: true },
+      where: { user: { id: user.id }, accept: true },
     });
   }
 
   async findFriendsWithJoin(user: Users) {
     return await this.friendRepository.find({
-      where: { user: user, accept: true },
+      where: { user: { id: user.id }, accept: true },
       relations: ['user'],
     });
   }

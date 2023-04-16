@@ -48,14 +48,14 @@ export class GameRepository {
 
   async findByPlayerWithJoin(player: Users) {
     return await this.gameRepository.findOne({
-      where: { players: player },
+      where: { players: { id: player.id } },
       relations: ['players', 'watchers'],
     });
   }
 
   async findByWatcherWithJoin(watcher: Users) {
     return await this.gameRepository.findOne({
-      where: { watchers: watcher },
+      where: { watchers: { id: watcher.id } },
       relations: ['players', 'watchers'],
     });
   }
