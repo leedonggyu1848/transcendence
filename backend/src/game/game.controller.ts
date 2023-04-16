@@ -127,6 +127,7 @@ export class GameController {
     const winner = await this.userService.findUserWithGame(win);
     const loser = await this.userService.findUserWithGame(lose);
     if (!winner || !loser) throw new BadRequestException('잘못된 요청입니다.');
+    this.logger.log(`Save game result: ${winner.intra_id} / ${loser.intra_id}`);
     const data = await this.gameService.saveGameResult(winner, loser, type);
     if (!data.success) throw new BadRequestException(data.data);
     res.status(HttpStatus.OK).send();
