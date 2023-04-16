@@ -84,7 +84,7 @@ export class EventsGateway
   ) {
     if (this.nsp.adapter.rooms.has(roomName))
       return { success: false, payload: `${roomName} 방이 이미 존재합니다.` };
-    this.nsp.adapter.rooms.set(roomName, new Set());
+    socket.join(roomName);
     this.logger.log(`game ${roomName} is created`);
     this.nsp.emit('create-room', roomName);
     return { success: true, payload: roomName };

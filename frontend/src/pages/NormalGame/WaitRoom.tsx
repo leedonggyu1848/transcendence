@@ -1,16 +1,19 @@
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
-import { myInfoState, opponentInfoState } from "../../api/atom";
+import {
+  currentNormalGameInfoState,
+  myInfoState,
+  opponentInfoState,
+} from "../../api/atom";
 import UserInfo from "./UserInfo";
 
 const WaitRoom = ({ count }: { count: number }) => {
-  const myInfo = useRecoilValue(myInfoState);
-  const opponentInfo = useRecoilValue(opponentInfoState);
+  const gameInfo = useRecoilValue(currentNormalGameInfoState);
 
   return (
     <WaitRoomContainer>
-      {opponentInfo ? (
-        <UserInfo {...opponentInfo} />
+      {gameInfo.opponentDto ? (
+        <UserInfo {...gameInfo.opponentDto} />
       ) : (
         <NoUser>
           <span>상대방을 기다리는 중입니다</span>
@@ -18,7 +21,7 @@ const WaitRoom = ({ count }: { count: number }) => {
         </NoUser>
       )}
       <OptionContainer>{count === 4 ? "VS" : count}</OptionContainer>
-      <UserInfo {...myInfo} />
+      <UserInfo {...gameInfo.ownerDto} />
     </WaitRoomContainer>
   );
 };
