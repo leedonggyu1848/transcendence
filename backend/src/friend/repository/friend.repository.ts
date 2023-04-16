@@ -95,4 +95,8 @@ export class FriendRepository {
   async updateAccept(id: number, accept: boolean) {
     await this.friendRepository.update(id, { accept: accept });
   }
+
+  async deleteRequest(id: number) {
+    await this.friendRepository.delete(id);
+  }
 }

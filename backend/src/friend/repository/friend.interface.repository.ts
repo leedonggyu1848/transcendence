@@ -26,4 +26,6 @@ export interface IFriendRepository {
   findFriendRequestedWithJoin(username: string);
 
   updateAccept(id: number, accept: boolean);
+
+  deleteRequest(id: number);
 }

@@ -10,6 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/users.interface.repository';
 import {
   ChatRoomPayload,
@@ -32,6 +33,8 @@ export class EventsGateway
   constructor(
     @Inject('IUserRepository')
     private userRepository: IUserRepository,
+    @Inject('IFriendRepository')
+    private friendRepository: IFriendRepository,
   ) {}
 
   @WebSocketServer() nsp: Namespace;
@@ -120,6 +123,65 @@ export class EventsGateway
       type: type,
     });
     return { success: true };
+  }
+
+  private requestCheck(reqs, findName) {
+    if (!reqs) return false;
+    const tmp = reqs.filter((req) => req.friendname === findName);
+    if (tmp.length !== 0) return true;
+    return false;
+  }
+
+  @SubscribeMessage('send-friend')
+  async handleFriendRequest(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() friendName: string,
+  ) {
+    const user = await this.userRepository.findBySocketId(socket.id);
+    this.logger.log(`Friend request: ${user.intra_id} to ${friendName}`);
+    const friend = await this.userRepository.findByIntraId(friendName);
+    if (!friend) {
+      this.logger.log(`Bad request: 없는 유저입니다.`);
+      socket.emit('friend-fail', '없는 유저입니다.');
+      return;
+    }
+    const user_reqs = await this.friendRepository.findAllWithJoin(user);
+    const friend_reqs = await this.friendRepository.findAllWithJoin(friend);
+    if (
+      this.requestCheck(user_reqs, friendName) ||
+      this.requestCheck(friend_reqs, user.intra_id)
+    ) {
+      this.logger.log('Bad request: 이미 친구 신청을 보냈습니다.');
+      socket.emit('friend-fail', '이미 친구 신청을 보냈습니다.');
+      return;
+    }
+    await this.friendRepository.addFriend(user, friendName);
+    socket.emit('friend-success', '친구 요청을 보냈습니다.');
+  }
+
+  @SubscribeMessage('response-friend')
+  async handleAcceptFriend(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { friendName, type }: { friendName: string; type: boolean },
+  ) {
+    const user = await this.userRepository.findBySocketId(socket.id);
+    this.logger.log(`Friend accept: ${user.intra_id} to ${friendName}`);
+    const friend = await this.userRepository.findByIntraId(friendName);
+    if (!friend) {
+      this.logger.log(`Bad request: 없는 유저입니다.`);
+      socket.emit('friend-fail', '없는 유저입니다.');
+      return;
+    }
+    const reqs = await this.friendRepository.findFriendRequests(user);
+    const data = reqs.find((req) => req.friendname === friend.intra_id);
+    if (!data) {
+      this.logger.log(`Bad request: 친구 신청이 없거나 이미 처리되었습니다.`);
+      socket.emit('friend-fail', '친구 신청이 없거나 이미 처리되었습니다.');
+      return;
+    }
+    if (type) await this.friendRepository.updateAccept(data.id, true);
+    else await this.friendRepository.deleteRequest(data.id);
+    socket.emit('friend-fail', '친구 신청이 처리되었습니다.');
   }
 
   @SubscribeMessage('create-chat')
