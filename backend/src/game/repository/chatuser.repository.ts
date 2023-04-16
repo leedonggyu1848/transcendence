@@ -18,34 +18,37 @@ export class ChatUserRepository {
   }
 
   async findByChat(chat: Chat) {
-    return await this.chatUserRepository.findBy({ chat: chat });
+    return await this.chatUserRepository.findBy({ chat: { id: chat.id } });
   }
 
   async findByChatWithJoin(chat: Chat) {
     return await this.chatUserRepository.find({
-      where: { chat: chat },
+      where: { chat: { id: chat.id } },
       relations: ['chat', 'user'],
     });
   }
 
   async findByUser(user: Users) {
-    return await this.chatUserRepository.findBy({ user: user });
+    return await this.chatUserRepository.findBy({ user: { id: user.id } });
   }
 
   async findByUserWithJoin(user: Users) {
     return await this.chatUserRepository.find({
-      where: { user: user },
+      where: { user: { id: user.id } },
       relations: ['chat', 'user'],
     });
   }
 
   async findByBoth(chat: Chat, user: Users) {
-    return await this.chatUserRepository.findBy({ chat: chat, user: user });
+    return await this.chatUserRepository.findBy({
+      chat: { id: chat.id },
+      user: { id: user.id },
+    });
   }
 
   async findByBothWithJoin(chat: Chat, user: Users) {
     return await this.chatUserRepository.find({
-      where: { chat: chat, user: user },
+      where: { chat: { id: chat.id }, user: { id: user.id } },
       relations: ['chat', 'user'],
     });
   }

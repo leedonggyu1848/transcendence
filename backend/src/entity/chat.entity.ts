@@ -31,7 +31,6 @@ export class Chat {
   @OneToMany(() => ChatUser, (user) => user, { cascade: true })
   users: ChatUser[];
 
-  @Column()
-  @NotEquals(null)
-  banUsers: string[];
+  // @Column()
+  // banUsers: string[];
 }

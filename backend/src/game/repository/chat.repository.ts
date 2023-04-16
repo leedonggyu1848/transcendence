@@ -17,7 +17,7 @@ export class ChatRepository {
       password: chatDto.password,
       operator: chatDto.operator,
       count: chatDto.count,
-      banUsers: [],
+      // banUsers: [],
     });
     await this.chatRepository.save(chat);
     return chat;
