@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { alertModalState, myNameState } from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
 import { axiosSendFriendRequest } from "../api/request";
+import { WebsocketContext } from "../api/WebsocketContext";
 
 const CurrentUserInfo = ({
   data,
@@ -23,6 +24,7 @@ const CurrentUserInfo = ({
   const location = useLocation();
   const myName = useRecoilValue(myNameState);
   const setAlertInfo = useSetRecoilState(alertModalState);
+  const socket = useContext(WebsocketContext);
 
   const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     const name = e.currentTarget.textContent as string;
@@ -32,18 +34,8 @@ const CurrentUserInfo = ({
     setTarget(name);
   };
 
-  const clickFriendRequest = async (friendname: string) => {
-    try {
-      await axiosSendFriendRequest(friendname);
-    } catch (e) {
-      console.error(e);
-      setAlertInfo({
-        type: "failure",
-        header: "친구 요청 실패",
-        msg: "",
-        toggle: true,
-      });
-    }
+  const clickFriendRequest = (friendname: string) => {
+    socket.emit("send-friend-request", friendname);
   };
 
   const clickDirectMessage = () => {

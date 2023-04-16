@@ -1,6 +1,10 @@
 import styled from "@emotion/styled";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { operatorModalToggleState, socketState } from "../../api/atom";
+import {
+  createChatModalToggleState,
+  operatorModalToggleState,
+  socketState,
+} from "../../api/atom";
 import { ChatListDto, JoinListDto, JoinnedUserDto } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
 import SideMenu from "../../components/SideMenu/SideMenu";
@@ -10,6 +14,7 @@ import JoinList from "./JoinList";
 
 const ChatPage = () => {
   const openOperatorModal = useSetRecoilState(operatorModalToggleState);
+  const openCreateChatModal = useSetRecoilState(createChatModalToggleState);
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
@@ -21,7 +26,7 @@ const ChatPage = () => {
         <h1>Chatting</h1>
         <HeaderContainer>
           <div>전체 채팅 방 목록</div>
-          <AddButton />
+          <AddButton onClick={() => openCreateChatModal(true)} />
         </HeaderContainer>
         <ChatList data={createDummyChatList()}></ChatList>
       </WapperContainer>
@@ -35,7 +40,7 @@ const ChatPage = () => {
         />
       </WapperContainer>
       <WapperContainer>
-        <SideMenu w={285}/>
+        <SideMenu w={285} />
         <HeaderContainer>
           <div>참여 중인 방 목록</div>
         </HeaderContainer>

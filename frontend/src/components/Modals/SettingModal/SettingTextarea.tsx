@@ -11,7 +11,6 @@ import { axiosUpdateIntroduce } from "../../../api/request";
 const SettingTextArea = () => {
   const [editMode, toggleEdit] = useState(false);
   const [text, setText] = useState("");
-  //const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const [myIntroduce, setMyIntroduce] = useRecoilState(myIntroduceState);
   const setAlertModal = useSetRecoilState(alertModalState);
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -22,11 +21,8 @@ const SettingTextArea = () => {
   const handleEditIntroduce = async () => {
     if (!text) return;
     try {
-      const result = await axiosUpdateIntroduce(text);
+      await axiosUpdateIntroduce(text);
       setMyIntroduce(text);
-
-      //console.log(myInfo);
-
       //myInfoState 수정 로직 필요
     } catch (e) {
       console.error(e);

@@ -4,11 +4,12 @@ import Menu from "../components/Menu";
 import GamePage from "./GamePage";
 import ChatPage from "./ChatPage/ChatPage";
 import { useCookies } from "react-cookie";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
+  createChatModalToggleState,
   friendRequestListState,
   joinGameModalToggleState,
   myInfoState,
@@ -18,13 +19,14 @@ import {
 } from "../api/atom";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
-import { socket } from "../api/WebsocketContext";
+import { socket, WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
 import { axiosGetFriendRequestList, axiosGetMyInfo } from "../api/request";
+import CreateChatModal from "../components/Modals/CreateChatModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -33,8 +35,10 @@ const MainPage = () => {
   const alertModalToggle = useRecoilValue(alertModalState);
   const operatorModalToggle = useRecoilValue(operatorModalToggleState);
   const settingModalToggle = useRecoilValue(settingModalState);
+  const createChatModalToggle = useRecoilValue(createChatModalToggleState);
   const setFriendRequestList = useSetRecoilState(friendRequestListState);
   const setMyInfo = useSetRecoilState(myInfoState);
+  const socket = useContext(WebsocketContext);
 
   const navigate = useNavigate();
 
@@ -50,6 +54,7 @@ const MainPage = () => {
 
       socket.emit("first-connection", myInfo.intra_id);
     }
+    //socket.on("receive-friend-request", (sender: string) => {});
   }, []);
   return (
     token.access_token && (
@@ -68,6 +73,7 @@ const MainPage = () => {
         {alertModalToggle.toggle && <AlertModal />}
         {operatorModalToggle && <OperatorModal />}
         {settingModalToggle && <SettingModal />}
+        {createChatModalToggle && <CreateChatModal />}
       </MainPageContainer>
     )
   );

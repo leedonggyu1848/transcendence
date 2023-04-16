@@ -218,3 +218,8 @@ export const getMyProfileInfoState = selector({
     return myInfo.profile;
   },
 });
+
+export const createChatModalToggleState = atom({
+  key: "createChatModalToggleState",
+  default: false,
+});
