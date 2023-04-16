@@ -1,13 +1,18 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { alertModalState, myInfoState } from "../../../api/atom";
+import {
+  alertModalState,
+  myInfoState,
+  myIntroduceState,
+} from "../../../api/atom";
 import { axiosUpdateIntroduce } from "../../../api/request";
 
 const SettingTextArea = () => {
   const [editMode, toggleEdit] = useState(false);
   const [text, setText] = useState("");
-  const [myInfo, setMyInfo] = useRecoilState(myInfoState);
+  //const [myInfo, setMyInfo] = useRecoilState(myInfoState);
+  const [myIntroduce, setMyIntroduce] = useRecoilState(myIntroduceState);
   const setAlertModal = useSetRecoilState(alertModalState);
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.currentTarget.value);
@@ -15,9 +20,12 @@ const SettingTextArea = () => {
   const msg = "안녕하세요 잘부탁드립니다";
 
   const handleEditIntroduce = async () => {
+    if (!text) return;
     try {
       const result = await axiosUpdateIntroduce(text);
-      setMyInfo({ ...result });
+      setMyIntroduce(text);
+
+      //console.log(myInfo);
 
       //myInfoState 수정 로직 필요
     } catch (e) {
@@ -47,12 +55,12 @@ const SettingTextArea = () => {
       </Header>
       {editMode ? (
         <TextArea
-          placeholder={myInfo.introduce || msg}
+          placeholder={myIntroduce || msg}
           value={text}
           onChange={onChange}
         />
       ) : (
-        <TextDiv>{myInfo.introduce || msg}</TextDiv>
+        <TextDiv>{myIntroduce || msg}</TextDiv>
       )}
     </>
   );

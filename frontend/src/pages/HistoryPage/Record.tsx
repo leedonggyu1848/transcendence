@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { selectedGameRecord } from "../../api/atom";
 import { axiosGetUserGameRecord } from "../../api/request";
 
@@ -36,9 +36,11 @@ const Record = ({
   loser: string;
   time: string;
 }) => {
-  const setSelectedGameRecord = useSetRecoilState(selectedGameRecord);
+  const [selectedGameRcord, setSelectedGameRecord] =
+    useRecoilState(selectedGameRecord);
   const clickRecord = async () => {
     const data = await axiosGetUserGameRecord(id);
+    if (selectedGameRcord.record.id === data.record.id) return;
     setSelectedGameRecord(data);
   };
   return (

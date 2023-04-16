@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { alertModalState, myInfoState } from "../../../api/atom";
 import { axiosUpdateProfileImage } from "../../../api/request";
@@ -6,6 +7,9 @@ import { axiosUpdateProfileImage } from "../../../api/request";
 const SettingProfile = () => {
   const setAlertModal = useSetRecoilState(alertModalState);
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
+  const [profileImage, setProfileImage] = useState("");
+
+  console.log(myInfo);
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -37,6 +41,7 @@ const SettingProfile = () => {
       });
     }
   };
+
   return (
     <ProfileContainer>
       <Profile image={myInfo.profile} />
@@ -62,12 +67,11 @@ const ProfileContainer = styled.div`
 const Profile = styled.div<{ image: string }>`
   width: 150px;
   height: 150px;
-  background: ${({ image }) =>
-    image
-      ? `url('http://localhost:3000/${image}?v=${new Date().getTime()}')`
-      : 'url("/src/assets/defaultProfile.png")'};
-  background-size: 100% 100%;
+  background-size: cover;
+  background-position: center;
   border-radius: 10px;
+  background-size: 100% 100%;
+  background-image: ${({ image }) => `url(http://localhost:3000/${image})`};
 `;
 
 const ModifyButton = styled.label`

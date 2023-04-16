@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, DefaultValue, selector } from "recoil";
 import { Socket } from "socket.io-client";
 import {
   IChatLog,
@@ -21,6 +21,15 @@ export const myInfoState = atom<UserDto>({
     rank_win: 17,
     rank_lose: 2,
   },
+});
+
+export const myIntroduceState = selector<string>({
+  key: "myIntroduceState",
+  get: ({ get }) => get(myInfoState).introduce,
+  set: ({ get, set }, text) =>
+    text instanceof DefaultValue
+      ? set(myInfoState, { ...get(myInfoState) })
+      : set(myInfoState, { ...get(myInfoState), introduce: text }),
 });
 
 export const myNameState = selector({
