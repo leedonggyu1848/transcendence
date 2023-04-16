@@ -61,7 +61,7 @@ export interface ICurrentNormalGame {
 }
 
 export interface IChatLog {
-  name: string;
+  sender: string;
   msg: string;
   time: Date;
 }
