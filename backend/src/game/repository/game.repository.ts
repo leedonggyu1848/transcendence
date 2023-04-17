@@ -3,8 +3,9 @@ import { GameDto } from 'src/dto/game.dto';
 import { Game } from 'src/entity/game.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import { IGameRepository } from './game.interface.repository';
 
-export class GameRepository {
+export class GameRepository implements IGameRepository {
   constructor(
     @InjectRepository(Game) private gameRepository: Repository<Game>,
   ) {}

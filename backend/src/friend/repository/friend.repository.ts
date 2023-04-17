@@ -4,8 +4,9 @@ import { FriendReqType } from 'src/entity/common.enum';
 import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import { IFriendRepository } from './friend.interface.repository';
 
-export class FriendRepository {
+export class FriendRepository implements IFriendRepository {
   constructor(
     @InjectRepository(Friend)
     private friendRepository: Repository<Friend>,

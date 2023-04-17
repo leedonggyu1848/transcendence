@@ -52,7 +52,6 @@ export class FriendService {
       ...(await Promise.all(sendDto)),
       ...(await Promise.all(receiveDto)),
     ];
-    console.log(result);
     return result;
   }
 

@@ -1,11 +1,11 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatDto } from 'src/dto/chat.dto';
 import { Chat } from 'src/entity/chat.entity';
-import { ChatUser } from 'src/entity/chatuser.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import { IChatRepository } from './chat.interface.repository';
 
-export class ChatRepository {
+export class ChatRepository implements IChatRepository {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
   ) {}
@@ -34,7 +34,7 @@ export class ChatRepository {
   async findByTitleWithJoin(title: string) {
     return await this.chatRepository.findOne({
       where: { title: title },
-      relations: ['users'],
+      relations: ['users', 'ban'],
     });
   }
 

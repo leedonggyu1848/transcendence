@@ -3,8 +3,9 @@ import { RecordDto } from 'src/dto/record.dto';
 import { GameType } from 'src/entity/common.enum';
 import { Record } from 'src/entity/record.entity';
 import { Repository } from 'typeorm';
+import { IRecordRepository } from './record.interface.repository';
 
-export class RecordRepository {
+export class RecordRepository implements IRecordRepository {
   constructor(
     @InjectRepository(Record) private recordRepository: Repository<Record>,
   ) {}
