@@ -2,7 +2,7 @@ import { ChatDto } from 'src/dto/chat.dto';
 import { Users } from 'src/entity/user.entity';
 
 export interface IChatRepository {
-  createByChatDto(chatDto: ChatDto, user: Users);
+  createByChatDto(chatDto: ChatDto);
   findAll();
   findByTitle(title: string);
   findByTitleWithJoin(title: string);

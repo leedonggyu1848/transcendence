@@ -202,16 +202,13 @@ export class EventsGateway
       socket.emit('chat-fail', `${roomName} 방이 이미 존재합니다.`);
       return;
     }
-    const chat = await this.chatRepository.createByChatDto(
-      {
-        title: roomName,
-        type: type,
-        password: password,
-        operator: user.intra_id,
-        count: 1,
-      },
-      user,
-    );
+    const chat = await this.chatRepository.createByChatDto({
+      title: roomName,
+      type: type,
+      password: password,
+      operator: user.intra_id,
+      count: 1,
+    });
     await this.chatUserRepository.addChatUser(chat, user);
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
@@ -231,7 +228,7 @@ export class EventsGateway
       socket.emit('chat-fail', `비밀번호가 맞지 않습니다.`);
       return;
     }
-    const ban = chat.banUsers.find(
+    const ban = chat.banUsers.filter(
       (banUser) => banUser.username === user.intra_id,
     );
     if (ban.length !== 0) {
