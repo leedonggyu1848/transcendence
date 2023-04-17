@@ -29,15 +29,26 @@ const ChatPage = () => {
   };
   const currentChat = useRecoilValue(currentChatState);
   const [chatList, setChatList] = useState<IChatRoom[]>([]);
+  const [joinnedChatList, setJoinnedChatList] = useState<IChatRoom[]>([]);
 
   useInitHook();
 
+  const joinChatRoom = (roomName: string, type: number) => {
+    if (joinnedChatList.some((chat) => chat.title === roomName)) {
+      //current chat setting
+      return;
+    }
+    if (type === 2) {
+      // password type 대응
+    }
+    console.log("hi", roomName, type);
+
+    socket.emit("join-chat", roomName);
+  };
+
   useEffect(() => {
     socket.emit("all-chat");
-
-    socket.on("chat-list", (list: any) => {
-      console.log(list);
-    });
+    socket.emit("chat-list");
 
     socket.on("chat-fail", (msg) => {
       console.log(msg);
@@ -53,10 +64,20 @@ const ChatPage = () => {
       ]);
     });
 
+    socket.on("chat-list", (list: any) => {
+      console.log(list);
+    });
+
+    socket.on("join-chat", (message: string, userInfo: any) => {
+      console.log(message, userInfo);
+    });
+
     return () => {
       socket.off("chat-list");
       socket.off("create-chat");
       socket.off("all-chat");
+      socket.off("chat-list");
+      socket.off("join-chat");
     };
   }, []);
 
@@ -68,7 +89,7 @@ const ChatPage = () => {
           <div>전체 채팅 방 목록</div>
           <AddButton onClick={() => openCreateChatModal(true)} />
         </HeaderContainer>
-        <ChatList data={chatList}></ChatList>
+        <ChatList joinChatRoom={joinChatRoom} data={chatList}></ChatList>
       </WapperContainer>
       {currentChat && (
         <WapperContainer>

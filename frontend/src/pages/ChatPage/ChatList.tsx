@@ -1,11 +1,17 @@
 import styled from "@emotion/styled";
 import { IChatRoom } from "../../api/interface";
 
-const ChatList = ({ data }: { data: IChatRoom[] }) => {
+const ChatList = ({
+  joinChatRoom,
+  data,
+}: {
+  joinChatRoom: Function;
+  data: IChatRoom[];
+}) => {
   return (
     <ChatListContainer>
       {data.map(({ title, type, count }, idx) => (
-        <Chat key={idx}>
+        <Chat key={idx} onClick={() => joinChatRoom(title, type)}>
           <Title title={title}>
             {title.slice(0, 10)}
             {title.length > 10 ? "..." : ""}

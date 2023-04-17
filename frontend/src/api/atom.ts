@@ -229,3 +229,8 @@ export const currentChatState = atom<IChatRoom | null>({
   key: "currentChatState",
   default: null,
 });
+
+export const joinnedChatState = atom<IChatRoom[]>({
+  key: "joinnedChatState",
+  default: [],
+});
