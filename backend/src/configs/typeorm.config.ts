@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Ban } from 'src/entity/ban.entity';
 import { Chat } from 'src/entity/chat.entity';
 import { ChatUser } from 'src/entity/chatuser.entity';
 import { Friend } from 'src/entity/friend.entity';
@@ -13,6 +14,6 @@ export const typeORMConfig: TypeOrmModuleOptions = {
   username: 'postgres',
   password: 'qwe123',
   database: 'transcendence',
-  entities: [Users, Game, Record, Friend, Chat, ChatUser],
+  entities: [Users, Game, Record, Friend, Chat, ChatUser, Ban],
   synchronize: true,
 };

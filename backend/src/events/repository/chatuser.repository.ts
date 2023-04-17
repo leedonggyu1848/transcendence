@@ -3,8 +3,9 @@ import { Chat } from 'src/entity/chat.entity';
 import { ChatUser } from 'src/entity/chatuser.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import { IChatUserRepository } from './chatuser.interface.repository';
 
-export class ChatUserRepository {
+export class ChatUserRepository implements IChatUserRepository {
   constructor(
     @InjectRepository(ChatUser)
     private chatUserRepository: Repository<ChatUser>,

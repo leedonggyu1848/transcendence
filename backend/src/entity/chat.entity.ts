@@ -1,5 +1,6 @@
 import { NotEquals } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Ban } from './ban.entity';
 import { ChatUser } from './chatuser.entity';
 import { ChatType } from './common.enum';
 
@@ -28,9 +29,9 @@ export class Chat {
   @NotEquals(null)
   count: number;
 
-  @OneToMany(() => ChatUser, (user) => user, { cascade: true })
+  @OneToMany(() => ChatUser, (user) => user.user, { cascade: true })
   users: ChatUser[];
 
-  // @Column()
-  // banUsers: string[];
+  @OneToMany(() => Ban, (ban) => ban.channel, { cascade: true })
+  banUsers: Ban[];
 }

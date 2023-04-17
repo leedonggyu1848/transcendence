@@ -4,8 +4,9 @@ import { JoinType } from 'src/entity/common.enum';
 import { Game } from 'src/entity/game.entity';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import { IUserRepository } from './users.interface.repository';
 
-export class UserRepository {
+export class UserRepository implements IUserRepository {
   constructor(
     @InjectRepository(Users)
     private userRepository: Repository<Users>,
