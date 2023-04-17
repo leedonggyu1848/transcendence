@@ -12,7 +12,6 @@ export class ChatRepository implements IChatRepository {
 
   async createByChatDto(chatDto: ChatDto) {
     const chat = this.chatRepository.create({ ...chatDto });
-    console.log(chat);
     await this.chatRepository.save(chat);
     return chat;
   }

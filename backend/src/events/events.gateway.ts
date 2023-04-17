@@ -228,6 +228,12 @@ export class EventsGateway
       socket.emit('chat-fail', `비밀번호가 맞지 않습니다.`);
       return;
     }
+    const joined = chat.users.filter((usr) => usr.intra_id === user.intra_id);
+    if (joined.length !== 0) {
+      this.logger.log(`${roomName}에 이미 참가 중 입니다.`);
+      socket.emit('chat-fail', `${roomName}에 이미 참가 중 입니다.`);
+      return;
+    }
     const ban = chat.banUsers.filter(
       (banUser) => banUser.username === user.intra_id,
     );
