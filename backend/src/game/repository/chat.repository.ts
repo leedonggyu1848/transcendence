@@ -37,4 +37,12 @@ export class ChatRepository {
       relations: ['users'],
     });
   }
+
+  async updateOperator(chatId: number, operator: string) {
+    await this.chatRepository.update(chatId, { operator: operator });
+  }
+
+  async updateCount(chatId: number, count: number) {
+    await this.chatRepository.update(chatId, { count: count });
+  }
 }
