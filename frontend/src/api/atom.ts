@@ -2,6 +2,7 @@ import { atom, DefaultValue, selector } from "recoil";
 import { Socket } from "socket.io-client";
 import {
   IChatLog,
+  IChatRoom,
   ICurrentNormalGame,
   IFriendRequest,
   IGameUserInfo,
@@ -222,4 +223,9 @@ export const getMyProfileInfoState = selector({
 export const createChatModalToggleState = atom({
   key: "createChatModalToggleState",
   default: false,
+});
+
+export const currentChatState = atom<IChatRoom | null>({
+  key: "currentChatState",
+  default: null,
 });

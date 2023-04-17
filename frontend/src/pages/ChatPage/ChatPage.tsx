@@ -1,12 +1,18 @@
 import styled from "@emotion/styled";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   createChatModalToggleState,
+  currentChatState,
   operatorModalToggleState,
   socketState,
 } from "../../api/atom";
-import { ChatListDto, JoinListDto, JoinnedUserDto } from "../../api/interface";
+import {
+  ChatListDto,
+  IChatRoom,
+  JoinListDto,
+  JoinnedUserDto,
+} from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import SideMenu from "../../components/SideMenu/SideMenu";
@@ -21,20 +27,28 @@ const ChatPage = () => {
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
+  const currentChat = useRecoilValue(currentChatState);
+  const [chatList, setChatList] = useState<IChatRoom[]>([]);
 
   useInitHook();
 
   useEffect(() => {
     socket.emit("chat-list");
-    socket.emit('')
 
     socket.on("chat-list", (list: any) => {
-      console.log;
+      console.log(list);
     });
 
+    socket.on("chat-fail", (msg) => {
+      console.log(msg);
+    });
+
+    socket.on("create-room", (roomName: string) => console.log(roomName));
+
     return () => {
-      socket.off('chat-list');
-    }
+      socket.off("chat-list");
+      socket.off("create-chat");
+    };
   }, []);
 
   return (
@@ -45,17 +59,25 @@ const ChatPage = () => {
           <div>전체 채팅 방 목록</div>
           <AddButton onClick={() => openCreateChatModal(true)} />
         </HeaderContainer>
-        <ChatList data={createDummyChatList()}></ChatList>
+        <ChatList data={chatList}></ChatList>
       </WapperContainer>
-      <WapperContainer>
-        <HeaderContainer>
-          <div>현재 참가 중인 방</div>
-        </HeaderContainer>
-        <CurrentChat
-          data={createDummyData()}
-          clickOperatorButton={clickOperatorButton}
-        />
-      </WapperContainer>
+      {currentChat && (
+        <WapperContainer>
+          <HeaderContainer>
+            <div>현재 참가 중인 방</div>
+          </HeaderContainer>
+          <CurrentChat
+            data={createDummyData()}
+            clickOperatorButton={clickOperatorButton}
+          />
+        </WapperContainer>
+      )}
+      {!currentChat && (
+        <WapperContainer>
+          <HeaderContainer></HeaderContainer>
+          <NotInChatRoom>채팅방을 선택해주세요</NotInChatRoom>
+        </WapperContainer>
+      )}
       <WapperContainer>
         <SideMenu w={285} />
         <HeaderContainer>
@@ -116,6 +138,18 @@ function createDummyJoinList() {
   }
   return result;
 }
+
+const NotInChatRoom = styled.div`
+  width: 100%;
+  height: 510px;
+  background: var(--sub-bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.25rem;
+  border-radius: 10px;
+`;
 
 const AddButton = styled.div`
   cursor: pointer;

@@ -1,19 +1,23 @@
 import styled from "@emotion/styled";
-import { ChatListDto } from "../../api/interface";
+import { IChatRoom } from "../../api/interface";
 
-const ChatList = ({ data }: { data: ChatListDto[] }) => {
+const ChatList = ({ data }: { data: IChatRoom[] }) => {
   return (
     <ChatListContainer>
-      {data.map(({ title, private_mode, cur }, idx) => (
+      {data.map(({ title, type, count }, idx) => (
         <Chat key={idx}>
           <Title title={title}>
             {title.slice(0, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
-          <Private private_mode={private_mode} />
+          <Private
+            private_mode={
+              type === 0 ? "public" : type === 1 ? "private" : "password"
+            }
+          />
           <Current>
             <PersonIcon />
-            <div>{cur}</div>
+            <div>{count}</div>
           </Current>
         </Chat>
       ))}
@@ -23,11 +27,11 @@ const ChatList = ({ data }: { data: ChatListDto[] }) => {
 
 const Title = styled.div``;
 
-const Private = styled.div<{ private_mode: boolean }>`
+const Private = styled.div<{ private_mode: string }>`
   width: 15px;
   height: 18px;
   background-image: ${({ private_mode }) =>
-    private_mode ? 'url("/src/assets/lockIcon.png")' : "none"};
+    private_mode === "password" ? 'url("/src/assets/lockIcon.png")' : "none"};
   background-size: 100% 100%;
 `;
 

@@ -34,7 +34,10 @@ const CreateChatModal = () => {
   };
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    socket.emit("create-chat", { ...info, roomName: "#" + info.roomName });
+    socket.emit("create-chat", {
+      ...info,
+      roomName: "#" + (info.roomName || `${myName}님의 채팅방`),
+    });
     closeModal();
   };
   return (

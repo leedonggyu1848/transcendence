@@ -98,3 +98,12 @@ export interface IFriendRequest {
   time: string;
   type: number;
 }
+
+export interface IChatRoom {
+  id: number;
+  title: string;
+  type: number;
+  password: string;
+  operator: string;
+  count: number;
+}
