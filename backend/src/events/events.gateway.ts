@@ -307,7 +307,6 @@ export class EventsGateway
     const chatsDto = user.chats.map((chat) => {
       return this.chatRepository.chatToChatDto(chat.chat);
     });
-    console.log(chatsDto);
     this.logger.log(`Chat list request: ${user.intra_id}`);
     socket.emit('chat-list', { chats: chatsDto });
   }
