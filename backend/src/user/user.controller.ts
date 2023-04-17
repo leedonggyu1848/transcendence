@@ -80,7 +80,7 @@ export class UserController {
   ) {
     this.logger.log(`Introduce update: ${user.intra_id}`);
     await this.authService.updateUserIntroduce(user, introduce);
-    const result = await this.authService.findUser(user.intra_id);
+    const result = await this.authService.findUserByIntraId(user.intra_id);
     res.status(HttpStatus.OK).send(result);
   }
 }

@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FriendReqType } from 'src/entity/common.enum';
-import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/users.interface.repository';

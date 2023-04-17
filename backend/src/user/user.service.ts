@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import * as fs from 'fs';
 import { IUserRepository } from './repository/users.interface.repository';
+import { Users } from 'src/entity/user.entity';
+import { UserDto } from 'src/dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -10,8 +12,27 @@ export class UserService {
     private userRepository: IUserRepository,
   ) {}
 
-  async findUser(intra_id: string) {
+  userToUserDto(user: Users) {
+    if (!user) return null;
+    const userDto: UserDto = {
+      user_id: user.user_id,
+      intra_id: user.intra_id,
+      profile: user.profile,
+      introduce: user.introduce,
+      normal_win: user.normal_win,
+      normal_lose: user.normal_lose,
+      rank_win: user.rank_win,
+      rank_lose: user.rank_lose,
+    };
+    return userDto;
+  }
+
+  async findUserByIntraId(intra_id: string) {
     return this.userRepository.findByIntraId(intra_id);
+  }
+
+  async findUserBySocketId(socket_id: string) {
+    return this.userRepository.findBySocketId(socket_id);
   }
 
   async findUserWithGame(intra_id: string) {
@@ -26,7 +47,7 @@ export class UserService {
   }
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
-    let found = await this.findUser(user.intra_id);
+    let found = await this.findUserByIntraId(user.intra_id);
     if (found.profile) {
       fs.unlinkSync('./uploads/' + found.profile);
     }
@@ -38,12 +59,12 @@ export class UserService {
     });
     const findPath = user.intra_id + timeVal.toString() + '.png';
     await this.userRepository.updateProfileImage(found.id, findPath);
-    found = await this.findUser(user.intra_id);
+    found = await this.findUserByIntraId(user.intra_id);
     return { success: true, data: found };
   }
 
   async updateUserIntroduce(user: UserSessionDto, introduce: string) {
-    let found = await this.findUser(user.intra_id);
+    let found = await this.findUserByIntraId(user.intra_id);
     await this.userRepository.updateUserIntroduce(found.id, introduce);
   }
 }
