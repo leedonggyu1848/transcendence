@@ -259,6 +259,16 @@ export class EventsGateway
     });
   }
 
+  @SubscribeMessage('all-chat')
+  async handleAllChatList(@ConnectedSocket() socket: Socket) {
+    const user = await this.userRepository.findBySocketIdWithJoinChat(
+      socket.id,
+    );
+    const chats = await this.chatRepository.findAll();
+    this.logger.log(`${user.intra_id} reqeust all of chat list`);
+    socket.emit('all-chat', { chats: chats });
+  }
+
   @SubscribeMessage('chat-list')
   async handleChatList(@ConnectedSocket() socket: Socket) {
     const user = await this.userRepository.findBySocketIdWithJoinChat(
@@ -285,14 +295,26 @@ export class EventsGateway
     @MessageBody() { roomName, userName },
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
-    const kicked = await this.userRepository.findByIntraIdWithJoinChat(
-      userName,
-    );
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    if (chat.operator !== user.intra_id) {
+      this.logger.log(`fail: ${roomName}의 방장이 아닙니다.`);
+      socket.emit('chat-fail', `${roomName}의 방장이 아닙니다.`);
+      return;
+    }
+    const data = chat.users.filter((usr) => usr.intra_id === userName);
+    if (data.length === 0) {
+      this.logger.log(`fail: ${roomName}에 ${userName}가 없습니다.`);
+      socket.emit('chat-fail', `${roomName}에 ${userName}가 없습니다.`);
+      return;
+    }
+    const kicked = await this.userRepository.findByIntraId(userName);
+    const chatuser = await this.chatUserRepository.findByBoth(chat, kicked);
+    await this.chatUserRepository.deleteChatUser(chatuser.id);
+    await this.chatRepository.updateCount(chat.id, chat.count - 1);
     this.logger.log(`${user.intra_id} kick ${userName} from ${roomName}`);
-    const kicked_user = await this.userRepository.findByIntraId(userName);
-    const room = await this.nsp.in(roomName).fetchSockets();
-    if (room.some((socket) => socket.id === kicked_user.socket_id)) {
-      this.nsp.in(roomName).emit('kicked-user', { userName });
+    const rooms = await this.nsp.in(roomName).fetchSockets();
+    if (rooms.some((socket) => socket.id === kicked.socket_id)) {
+      this.nsp.in(roomName).emit('kick-user', { userName });
       await this.nsp.sockets.get(userName)?.leave(roomName);
     }
   }
