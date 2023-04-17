@@ -260,15 +260,23 @@ export class EventsGateway
     @MessageBody() roomName: string,
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitle(roomName);
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0) {
       this.logger.log(`fail: 참여 중인 방이나 ${roomName} 방이 없습니다.`);
       socket.emit('chat-fail', `참여 중인 방이나 ${roomName} 방이 없습니다.`);
       return;
     }
-    this.chatUserRepository.deleteChatUser(chatUser.id);
-    this.chatRepository.updateCount(chat.id, chat.count - 1);
+    await this.chatUserRepository.deleteChatUser(chatUser.id);
+    if (chat.count > 1) {
+      await this.chatRepository.updateCount(chat.id, chat.count - 1);
+      if (chat.operator === user.intra_id) {
+        await this.chatRepository.updateOperator(
+          chat.id,
+          chat.users[0].intra_id,
+        );
+      }
+    } else await this.chatRepository.deleteChat(chat.id);
     socket.leave(roomName);
     this.logger.log(`${user.intra_id}가 ${roomName}에서 나갔습니다.`);
     this.nsp.emit('leave-chat', {
