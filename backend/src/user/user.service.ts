@@ -15,7 +15,7 @@ export class UserService {
   }
 
   async findUserWithGame(intra_id: string) {
-    return this.userRepository.findByIntraIdWithJoin(intra_id);
+    return this.userRepository.findByIntraIdWithJoinGame(intra_id);
   }
 
   async addUserFromSession(user: UserSessionDto) {

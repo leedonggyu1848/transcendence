@@ -9,11 +9,15 @@ export interface IUserRepository {
 
   findByIntraId(intra_id: string);
 
-  findByIntraIdWithJoin(intra_id: string);
+  findByIntraIdWithJoinGame(intra_id: string);
+
+  findByIntraIdWithJoinChat(intra_id: string);
 
   findBySocketId(socket_id: string);
 
-  findBySocketIdWithJoin(socket_id: string);
+  findBySocketIdWithJoinGame(socket_id: string);
+
+  findBySocketIdWithJoinChat(socket_id: string);
 
   updateSocketId(id: number, socket_id: string);
 

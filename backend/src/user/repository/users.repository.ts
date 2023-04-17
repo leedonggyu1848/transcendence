@@ -45,10 +45,17 @@ export class UserRepository {
     return await this.userRepository.findOneBy({ intra_id: intra_id });
   }
 
-  async findByIntraIdWithJoin(intra_id: string) {
+  async findByIntraIdWithJoinGame(intra_id: string) {
     return await this.userRepository.findOne({
       where: { intra_id: intra_id },
       relations: ['play_game', 'watch_game'],
+    });
+  }
+
+  async findByIntraIdWithJoinChat(intra_id: string) {
+    return await this.userRepository.findOne({
+      where: { intra_id: intra_id },
+      relations: ['chats'],
     });
   }
 
@@ -56,10 +63,17 @@ export class UserRepository {
     return await this.userRepository.findOneBy({ socket_id: socket_id });
   }
 
-  async findBySocketIdWithJoin(socket_id: string) {
+  async findBySocketIdWithJoinGame(socket_id: string) {
     return await this.userRepository.findOne({
       where: { socket_id: socket_id },
       relations: ['play_game', 'watch_game'],
+    });
+  }
+
+  async findBySocketIdWithJoinChat(socket_id: string) {
+    return await this.userRepository.findOne({
+      where: { socket_id: socket_id },
+      relations: ['chats'],
     });
   }
 

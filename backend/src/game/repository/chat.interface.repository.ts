@@ -9,4 +9,8 @@ export interface IChatRepository {
   findByTitle(title: string);
 
   findByTitleWithJoin(title: string);
+
+  updateOperator(chatId: number, operator: string);
+
+  updateCount(chatId: number, count: number);
 }

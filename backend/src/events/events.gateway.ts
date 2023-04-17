@@ -84,12 +84,12 @@ export class EventsGateway
     @MessageBody() roomName: string,
   ) {
     if (this.nsp.adapter.rooms.has(roomName)) {
-      this.logger.log(`Bad request: game ${roomName} 방이 이미 존재합니다.`);
+      this.logger.log(`fail: game ${roomName} 방이 이미 존재합니다.`);
       return;
     }
     this.logger.log(`Game ${roomName} is created`);
     socket.join(roomName);
-    this.nsp.emit('create-room', roomName);
+    this.nsp.emit('create-game', roomName);
   }
 
   @SubscribeMessage('join-game')
@@ -138,7 +138,7 @@ export class EventsGateway
     this.logger.log(`Friend request: ${user.intra_id} to ${friendName}`);
     const friend = await this.userRepository.findByIntraId(friendName);
     if (!friend) {
-      this.logger.log(`Bad request: 없는 유저입니다.`);
+      this.logger.log(`fail: 없는 유저입니다.`);
       socket.emit('friend-fail', '없는 유저입니다.');
       return;
     }
@@ -148,7 +148,7 @@ export class EventsGateway
       this.requestCheck(user_reqs, friendName) ||
       this.requestCheck(friend_reqs, user.intra_id)
     ) {
-      this.logger.log('Bad request: 이미 친구 신청을 보냈습니다.');
+      this.logger.log('fail: 이미 친구 신청을 보냈습니다.');
       socket.emit('friend-fail', '이미 친구 신청을 보냈습니다.');
       return;
     }
@@ -165,14 +165,14 @@ export class EventsGateway
     this.logger.log(`Friend accept: ${user.intra_id} to ${friendName}`);
     const friend = await this.userRepository.findByIntraId(friendName);
     if (!friend) {
-      this.logger.log(`Bad request: 없는 유저입니다.`);
+      this.logger.log(`fail: 없는 유저입니다.`);
       socket.emit('friend-fail', '없는 유저입니다.');
       return;
     }
     const reqs = await this.friendRepository.findFriendRequests(user);
     const data = reqs.find((req) => req.friendname === friend.intra_id);
     if (!data) {
-      this.logger.log(`Bad request: 친구 신청이 없거나 이미 처리되었습니다.`);
+      this.logger.log(`fail: 친구 신청이 없거나 이미 처리되었습니다.`);
       socket.emit('friend-fail', '친구 신청이 없거나 이미 처리되었습니다.');
       return;
     }
@@ -194,7 +194,8 @@ export class EventsGateway
     const user = await this.userRepository.findBySocketId(socket.id);
     const exist = await this.chatRepository.findByTitle(roomName);
     if (exist) {
-      this.logger.log(`Bad request: chat ${roomName} 방이 이미 존재합니다.`);
+      this.logger.log(`fail: chat ${roomName} 방이 이미 존재합니다.`);
+      socket.emit('chat-fail', `${roomName} 방이 이미 존재합니다.`);
       return;
     }
     const chat = await this.chatRepository.createByChatDto(
@@ -210,7 +211,7 @@ export class EventsGateway
     await this.chatUserRepository.addChatUser(chat, user);
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
-    this.nsp.emit('create-room', roomName);
+    this.nsp.emit('create-chat', roomName);
   }
 
   @SubscribeMessage('join-chat')
@@ -220,12 +221,13 @@ export class EventsGateway
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitle(roomName);
-    const isBanned = chat.banUsers.find((ban) => ban === user.intra_id);
-    if (isBanned) {
-      this.logger.log(`${user.intra_id} is banned on ${roomName}`);
-      return;
-    }
+    // const isBanned = chat.banUsers.find((ban) => ban === user.intra_id);
+    // if (isBanned) {
+    //   this.logger.log(`${user.intra_id} is banned on ${roomName}`);
+    //   return;
+    // }
     this.chatUserRepository.addChatUser(chat, user);
+    this.chatRepository.updateCount(chat.id, chat.count + 1);
     socket.join(roomName);
     this.logger.log(`${user.intra_id} join chat ${roomName}`);
     socket.broadcast.to(roomName).emit('join-chat', {
@@ -242,7 +244,13 @@ export class EventsGateway
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitle(roomName);
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
+    if (chatUser.length === 0) {
+      this.logger.log(`fail: 참여 중인 방이나 ${roomName} 방이 없습니다.`);
+      socket.emit('chat-fail', `참여 중인 방이나 ${roomName} 방이 없습니다.`);
+      return;
+    }
     this.chatUserRepository.deleteChatUser(chatUser.id);
+    this.chatRepository.updateCount(chat.id, chat.count - 1);
     socket.leave(roomName);
     this.logger.log(`${user.intra_id} leave chat ${roomName}`);
     socket.broadcast.to(roomName).emit('leave-chat', {
@@ -251,13 +259,36 @@ export class EventsGateway
     });
   }
 
+  @SubscribeMessage('chat-list')
+  async handleChatList(@ConnectedSocket() socket: Socket) {
+    const user = await this.userRepository.findBySocketIdWithJoinChat(
+      socket.id,
+    );
+    this.logger.log(`${user.intra_id} reqeust chat list`);
+    socket.emit('chat-list', { chats: user.chats });
+  }
+
+  @SubscribeMessage('user-list')
+  async handleUserList(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    const user = await this.userRepository.findBySocketId(socket.id);
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    this.logger.log(`${user.intra_id} request user list of chat ${roomName}`);
+    socket.emit('user-list', { users: chat.users });
+  }
+
   @SubscribeMessage('kick-user')
   async handleKickUser(
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, userName },
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
-    this.logger.log(`${user.intra_id} is kicked from ${roomName}`);
+    const kicked = await this.userRepository.findByIntraIdWithJoinChat(
+      userName,
+    );
+    this.logger.log(`${user.intra_id} kick ${userName} from ${roomName}`);
     const kicked_user = await this.userRepository.findByIntraId(userName);
     const room = await this.nsp.in(roomName).fetchSockets();
     if (room.some((socket) => socket.id === kicked_user.socket_id)) {
@@ -266,45 +297,39 @@ export class EventsGateway
     }
   }
 
+  @SubscribeMessage('change-oper')
+  async handleChangeOper(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, operator }: { roomName: string; operator: string },
+  ) {
+    const user = await this.userRepository.findBySocketId(socket.id);
+    this.logger.log(`Change operator of ${roomName} as ${user.intra_id}`);
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    if (chat.operator !== user.intra_id) {
+      this.logger.log(`fail: ${roomName}의 방장이 아닙니다.`);
+      socket.emit('chat-fail', `${roomName}의 방장이 아닙니다.`);
+      return;
+    }
+    const data = chat.users.filter((usr) => usr.intra_id === operator);
+    if (data.length === 0) {
+      this.logger.log(`fail: ${roomName}에 ${operator}가 없습니다.`);
+      socket.emit('chat-fail', `${roomName}에 ${operator}가 없습니다.`);
+      return;
+    }
+    await this.chatRepository.updateOperator(chat.id, operator);
+    socket.broadcast.to(roomName).emit('change-oper', {
+      message: `${roomName}의 방장이 ${user.intra_id}으로 바뀌었습니다.`,
+      userInfo: this.userRepository.userToUserDto(user),
+    });
+  }
+
   // @SubscribeMessage('ban-user')
   // handleBanUser(
   //   @MessageBody() { roomName, userInfo }: string,
   // ) {
   // const user = await this.userRepository.findBySocketId(socket.id);
   //   this.logger.log(`${userInfo.intra_id} is banned on ${roomName}`);
-  // }
-
-  // @SubscribeMessage('change-oper')
-  // async handleChangeOper(
-  //   @ConnectedSocket() socket: Socket,
-  //   @MessageBody() roomName: string,
-  // ) {
-  //   const user = await this.userRepository.findBySocketId(socket.id);
-  //   this.logger.log(`Change operator of ${roomName} as ${user.intra_id}`);
-  //   const chat = chatRooms.find((room) => room.roomName === roomName);
-  //   chat.joinUsers.push(chat.operator);
-  //   chat.joinUsers = chat.joinUsers.filter((user) => user !== user);
-  //   chat.operator = user;
-  //   socket.broadcast.to(roomName).emit('change-oper', {
-  //     message: `${roomName}의 방장이 ${user.intra_id}으로 바뀌었습니다.`,
-  //     userInfo: this.userRepository.userToUserDto(user),
-  //   });
-  // }
-
-  // @SubscribeMessage('chat-list')
-  // handleChatList(@ConnectedSocket() socket: Socket) {
-  //   this.logger.log(`${socket.id} reqeust chat list`);
-  //   return chatRooms;
-  // }
-
-  // @SubscribeMessage('user-list')
-  // handleUserList(
-  //   @ConnectedSocket() socket: Socket,
-  //   @MessageBody() roomName: string,
-  // ) {
-  //   this.logger.log(`${socket.id} request user list of chat ${roomName}`);
-  //   const chat = chatRooms.find((chatRoom) => chatRoom.roomName === roomName);
-  //   return chat.joinUsers;
   // }
 
   // @SubscribeMessage('ban-list')
