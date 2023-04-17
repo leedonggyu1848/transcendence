@@ -8,6 +8,7 @@ import { Users } from 'src/entity/user.entity';
 import { FriendRepository } from 'src/friend/repository/friend.repository';
 import { UserRepository } from 'src/user/repository/users.repository';
 import { EventsGateway } from './events.gateway';
+import { EventsService } from './events.service';
 import { BanRepository } from './repository/ban.repository';
 import { ChatRepository } from './repository/chat.repository';
 import { ChatUserRepository } from './repository/chatuser.repository';

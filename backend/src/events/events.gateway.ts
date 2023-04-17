@@ -304,8 +304,9 @@ export class EventsGateway
       socket.id,
     );
     const chatsDto = user.chats.map((chat) => {
-      return this.chatRepository.chatToChatDto(chat);
+      return this.chatRepository.chatToChatDto(chat.chat);
     });
+    console.log(chatsDto);
     this.logger.log(`Chat list request: ${user.intra_id}`);
     socket.emit('chat-list', { chats: chatsDto });
   }
@@ -317,6 +318,7 @@ export class EventsGateway
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    console.log(chat.user);
     const usersDto = chat.users.map((usr) => {
       return this.userRepository.userToUserDto(usr);
     });

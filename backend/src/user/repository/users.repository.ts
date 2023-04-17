@@ -56,7 +56,7 @@ export class UserRepository implements IUserRepository {
   async findByIntraIdWithJoinChat(intra_id: string) {
     return await this.userRepository.findOne({
       where: { intra_id: intra_id },
-      relations: ['chats'],
+      relations: ['chats', 'chats.chat', 'chats.user'],
     });
   }
 
@@ -74,7 +74,7 @@ export class UserRepository implements IUserRepository {
   async findBySocketIdWithJoinChat(socket_id: string) {
     return await this.userRepository.findOne({
       where: { socket_id: socket_id },
-      relations: ['chats'],
+      relations: ['chats', 'chats.chat', 'chats.user'],
     });
   }
 
