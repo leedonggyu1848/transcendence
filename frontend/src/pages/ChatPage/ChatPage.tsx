@@ -1,9 +1,12 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  allChatFlagState,
+  chatListState,
   createChatModalToggleState,
   currentChatState,
+  joinnedChatFlagState,
   operatorModalToggleState,
   socketState,
 } from "../../api/atom";
@@ -12,6 +15,7 @@ import {
   IChatRoom,
   JoinListDto,
   JoinnedUserDto,
+  UserDto,
 } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
@@ -24,11 +28,14 @@ const ChatPage = () => {
   const socket = useContext(WebsocketContext);
   const openOperatorModal = useSetRecoilState(operatorModalToggleState);
   const openCreateChatModal = useSetRecoilState(createChatModalToggleState);
+  const [allChatFlag, setAllChatFlag] = useRecoilState(allChatFlagState);
+  const [joinnedChatFlag, setJoinnedChatFlag] =
+    useRecoilState(joinnedChatFlagState);
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
   const currentChat = useRecoilValue(currentChatState);
-  const [chatList, setChatList] = useState<IChatRoom[]>([]);
+  const [chatList, setChatList] = useRecoilState(chatListState);
   const [joinnedChatList, setJoinnedChatList] = useState<IChatRoom[]>([]);
 
   useInitHook();
@@ -47,30 +54,61 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-    socket.emit("all-chat");
-    socket.emit("chat-list");
+    if (!allChatFlag) {
+      socket.emit("all-chat");
+    }
 
-    socket.on("chat-fail", (msg) => {
-      console.log(msg);
-    });
+    if (!joinnedChatFlag) {
+      socket.emit("chat-list");
+    }
+    //socket.emit("chat-list");
 
-    socket.on("create-chat", (roomName: string) => console.log(roomName));
+    socket.on(
+      "create-chat",
+      ({
+        roomName,
+        type,
+        operator,
+      }: {
+        roomName: string;
+        type: number;
+        operator: string;
+      }) => {
+        console.log("listen creaet-chat", chatList);
+        if (type !== 1) {
+          setChatList([
+            ...chatList,
+            {
+              title: roomName,
+              type,
+              operator,
+              count: 1,
+            },
+          ]);
+        }
+      }
+    );
 
     socket.on("all-chat", ({ chats }: { chats: IChatRoom[] }) => {
-      setChatList([
-        ...chats
-          .filter((chat) => chat.type !== 1)
-          .map((chat) => ({ ...chat, title: chat.title.slice(1) })),
-      ]);
+      setChatList(chats.filter((chat) => chat.type !== 1));
+      setAllChatFlag(true);
     });
 
-    socket.on("chat-list", (list: any) => {
-      console.log(list);
+    socket.on("chat-list", ({ chats }: { chats: any }) => {
+      console.log(chats);
     });
 
-    socket.on("join-chat", (message: string, userInfo: any) => {
-      console.log(message, userInfo);
-    });
+    socket.on(
+      "join-chat",
+      ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
+        if (chatList.some((chat) => chat.title === message)) {
+          console.log("이미 참여한 방입니다", userInfo);
+        } else {
+          console.log("새로운 방 참여");
+          console.log(message, userInfo);
+        }
+      }
+    );
 
     return () => {
       socket.off("chat-list");
@@ -78,8 +116,9 @@ const ChatPage = () => {
       socket.off("all-chat");
       socket.off("chat-list");
       socket.off("join-chat");
+      socket.off("chat-list");
     };
-  }, []);
+  }, [chatList]);
 
   return (
     <ChatPageContainer>
@@ -97,7 +136,8 @@ const ChatPage = () => {
             <div>현재 참가 중인 방</div>
           </HeaderContainer>
           <CurrentChat
-            data={createDummyData()}
+            roomName={currentChat.title}
+            data={[]}
             clickOperatorButton={clickOperatorButton}
           />
         </WapperContainer>
@@ -118,23 +158,6 @@ const ChatPage = () => {
     </ChatPageContainer>
   );
 };
-
-function createDummyData() {
-  const result: JoinnedUserDto[] = [];
-  const socket = useRecoilValue(socketState);
-
-  result.push({ intra_id: "yooh", type: "owner" });
-  result.push({ intra_id: "jpark2", type: "opponent" });
-
-  for (let i = 0; i < 50; i < i++) {
-    let temp: JoinnedUserDto = {
-      intra_id: "User " + (i + 1),
-      type: "watcher",
-    };
-    result.push(temp);
-  }
-  return result;
-}
 
 function createDummyChatList() {
   const result: ChatListDto[] = [];

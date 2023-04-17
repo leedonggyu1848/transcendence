@@ -234,3 +234,18 @@ export const joinnedChatState = atom<IChatRoom[]>({
   key: "joinnedChatState",
   default: [],
 });
+
+export const chatListState = atom<IChatRoom[]>({
+  key: "chatListState",
+  default: [],
+});
+
+export const allChatFlagState = atom({
+  key: "allChatFlagState",
+  default: false,
+});
+
+export const joinnedChatFlagState = atom({
+  key: "joinnedChatFlagState",
+  default: false,
+});

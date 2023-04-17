@@ -1,12 +1,21 @@
 import styled from "@emotion/styled";
-import React, { useContext, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { createChatModalToggleState, myNameState } from "../../api/atom";
+import React, { useContext, useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  alertModalState,
+  chatListState,
+  createChatModalToggleState,
+  currentChatState,
+  myNameState,
+} from "../../api/atom";
 import { WebsocketContext } from "../../api/WebsocketContext";
 
 const CreateChatModal = () => {
   const socket = useContext(WebsocketContext);
   const myName = useRecoilValue(myNameState);
+  const setAlertInfo = useSetRecoilState(alertModalState);
+  const setCurrentChat = useSetRecoilState(currentChatState);
+  const [chatList, setChatList] = useRecoilState(chatListState);
   const setCreateChatModalToggle = useSetRecoilState(
     createChatModalToggleState
   );
@@ -38,8 +47,49 @@ const CreateChatModal = () => {
       ...info,
       roomName: "#" + (info.roomName || `${myName}님의 채팅방`),
     });
-    closeModal();
   };
+
+  useEffect(() => {
+    socket.on(
+      "create-success",
+      ({
+        roomName,
+        type,
+        operator,
+      }: {
+        roomName: string;
+        type: number;
+        operator: string;
+      }) => {
+        console.log("방생성 성공");
+        const temp = {
+          title: roomName,
+          type,
+          operator,
+          count: 1,
+        };
+        setCurrentChat(temp);
+        setChatList([...chatList, temp]);
+        closeModal();
+      }
+    );
+
+    socket.on("chat-fail", (msg: string) => {
+      console.log(msg);
+      closeModal();
+      setAlertInfo({
+        type: "failure",
+        header: "챗 생성 실패",
+        msg,
+        toggle: true,
+      });
+    });
+
+    return () => {
+      socket.off("create-success");
+      socket.off("chat-fail");
+    };
+  }, []);
   return (
     <>
       <ModalBackground onClick={closeModal} />

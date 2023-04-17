@@ -100,10 +100,8 @@ export interface IFriendRequest {
 }
 
 export interface IChatRoom {
-  id: number;
   title: string;
   type: number;
-  password: string;
   operator: string;
   count: number;
 }
