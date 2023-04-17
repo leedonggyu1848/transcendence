@@ -202,13 +202,15 @@ export class EventsGateway
       socket.emit('chat-fail', `${roomName} 방이 이미 존재합니다.`);
       return;
     }
-    const chat = await this.chatRepository.createByChatDto({
-      title: roomName,
-      type: type,
-      password: password,
-      operator: user.intra_id,
-      count: 1,
-    });
+    const chat = await this.chatRepository.createByChatDto(
+      {
+        title: roomName,
+        type: type,
+        operator: user.intra_id,
+        count: 1,
+      },
+      password,
+    );
     await this.chatUserRepository.addChatUser(chat, user);
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
@@ -259,15 +261,23 @@ export class EventsGateway
     @MessageBody() roomName: string,
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitle(roomName);
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0) {
       this.logger.log(`fail: 참여 중인 방이나 ${roomName} 방이 없습니다.`);
       socket.emit('chat-fail', `참여 중인 방이나 ${roomName} 방이 없습니다.`);
       return;
     }
-    this.chatUserRepository.deleteChatUser(chatUser.id);
-    this.chatRepository.updateCount(chat.id, chat.count - 1);
+    await this.chatUserRepository.deleteChatUser(chatUser.id);
+    if (chat.count > 1) {
+      await this.chatRepository.updateCount(chat.id, chat.count - 1);
+      if (chat.operator === user.intra_id) {
+        await this.chatRepository.updateOperator(
+          chat.id,
+          chat.users[0].intra_id,
+        );
+      }
+    } else await this.chatRepository.deleteChat(chat.id);
     socket.leave(roomName);
     this.logger.log(`${user.intra_id}가 ${roomName}에서 나갔습니다.`);
     this.nsp.emit('leave-chat', {
@@ -282,8 +292,11 @@ export class EventsGateway
       socket.id,
     );
     const chats = await this.chatRepository.findAll();
+    const chatsDto = chats.map((chat) => {
+      return this.chatRepository.chatToChatDto(chat);
+    });
     this.logger.log(`All chat request: ${user.intra_id}`);
-    socket.emit('all-chat', { chats: chats });
+    socket.emit('all-chat', { chats: chatsDto });
   }
 
   @SubscribeMessage('chat-list')
@@ -291,8 +304,11 @@ export class EventsGateway
     const user = await this.userRepository.findBySocketIdWithJoinChat(
       socket.id,
     );
+    const chatsDto = user.chats.map((chat) => {
+      return this.chatRepository.chatToChatDto(chat);
+    });
     this.logger.log(`Chat list request: ${user.intra_id}`);
-    socket.emit('chat-list', { chats: user.chats });
+    socket.emit('chat-list', { chats: chatsDto });
   }
 
   @SubscribeMessage('user-list')
@@ -302,8 +318,11 @@ export class EventsGateway
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    const usersDto = chat.users.map((usr) => {
+      return this.userRepository.userToUserDto(usr);
+    });
     this.logger.log(`Users of ${roomName} request: ${user.intra_id}`);
-    socket.emit('user-list', { users: chat.users });
+    socket.emit('user-list', { users: usersDto });
   }
 
   @SubscribeMessage('kick-user')
@@ -386,7 +405,7 @@ export class EventsGateway
     }
     await this.banRepository.addBanUser(chat, userInfo.intra_id);
     this.logger.log(`Ban: ${userInfo.intra_id} on ${roomName}`);
-    socket.emit('chat-success', `${userInfo.intra_id} is banned`);
+    socket.emit('ban-user', `${userInfo.intra_id} is banned`);
   }
 
   @SubscribeMessage('ban-cancel')
@@ -412,7 +431,7 @@ export class EventsGateway
     }
     await this.banRepository.deleteBanUser(ban.id);
     this.logger.log(`Ban cancle: ${userInfo.intra_id} on ${roomName}`);
-    socket.emit('chat-success', `${userInfo.intra_id}는 밴 취소되었습니다.`);
+    socket.emit('ban-cancle', `${userInfo.intra_id}는 밴 취소되었습니다.`);
   }
 
   @SubscribeMessage('ban-list')
@@ -428,7 +447,7 @@ export class EventsGateway
       return;
     }
     this.logger.log(`Ban list of ${roomName} request: ${user.intra_id}`);
-    socket.emit('chat-success', { users: chat.users });
+    socket.emit('ban-list', { users: chat.users });
   }
 
   @SubscribeMessage('start-game')
