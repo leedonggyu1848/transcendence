@@ -71,7 +71,10 @@ const Profile = styled.div<{ image: string }>`
   background-position: center;
   border-radius: 10px;
   background-size: 100% 100%;
-  background-image: ${({ image }) => `url(http://localhost:3000/${image})`};
+  background-image: ${({ image }) =>
+    image
+      ? `url(http://localhost:3000/${image})`
+      : "url(/src/assets/defaultProfile.png)"};
 `;
 
 const ModifyButton = styled.label`

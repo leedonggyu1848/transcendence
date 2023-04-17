@@ -45,8 +45,12 @@ const ChatPage = () => {
 
     socket.on("create-chat", (roomName: string) => console.log(roomName));
 
-    socket.on("all-chat", (res: any) => {
-      console.log(res);
+    socket.on("all-chat", ({ chats }: { chats: IChatRoom[] }) => {
+      setChatList([
+        ...chats
+          .filter((chat) => chat.type !== 1)
+          .map((chat) => ({ ...chat, title: chat.title.slice(1) })),
+      ]);
     });
 
     return () => {
