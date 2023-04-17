@@ -33,7 +33,7 @@ const ChatPage = () => {
   useInitHook();
 
   useEffect(() => {
-    socket.emit("chat-list");
+    socket.emit("all-chat");
 
     socket.on("chat-list", (list: any) => {
       console.log(list);
@@ -43,11 +43,16 @@ const ChatPage = () => {
       console.log(msg);
     });
 
-    socket.on("create-room", (roomName: string) => console.log(roomName));
+    socket.on("create-chat", (roomName: string) => console.log(roomName));
+
+    socket.on("all-chat", (res: any) => {
+      console.log(res);
+    });
 
     return () => {
       socket.off("chat-list");
       socket.off("create-chat");
+      socket.off("all-chat");
     };
   }, []);
 

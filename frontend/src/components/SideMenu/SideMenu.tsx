@@ -45,6 +45,7 @@ const NewRequest = styled.div`
   width: 20px;
   border-radius: 5px;
   height: 20px;
+  color: white;
 `;
 
 const FriendsIcon = styled.div`
