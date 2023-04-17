@@ -212,7 +212,7 @@ export class EventsGateway
     await this.chatUserRepository.addChatUser(chat, user);
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
-    this.nsp.emit('create-chat', roomName);
+    this.nsp.emit('create-chat', { roomName, type });
   }
 
   @SubscribeMessage('join-chat')
@@ -385,7 +385,7 @@ export class EventsGateway
     }
     await this.banRepository.addBanUser(chat, userInfo.intra_id);
     this.logger.log(`Ban: ${userInfo.intra_id} on ${roomName}`);
-    socket.emit('chat-success', `${userInfo.intra_id} is banned`);
+    socket.emit('ban-user', `${userInfo.intra_id} is banned`);
   }
 
   @SubscribeMessage('ban-cancle')
@@ -411,7 +411,7 @@ export class EventsGateway
     }
     await this.banRepository.deleteBanUser(ban.id);
     this.logger.log(`Ban cancle: ${userInfo.intra_id} on ${roomName}`);
-    socket.emit('chat-success', `${userInfo.intra_id}는 밴 취소되었습니다.`);
+    socket.emit('ban-cancle', `${userInfo.intra_id}는 밴 취소되었습니다.`);
   }
 
   @SubscribeMessage('ban-list')
@@ -427,7 +427,7 @@ export class EventsGateway
       return;
     }
     this.logger.log(`Ban list of ${roomName} request: ${user.intra_id}`);
-    socket.emit('chat-success', { users: chat.users });
+    socket.emit('ban-list', { users: chat.users });
   }
 
   @SubscribeMessage('start-game')
