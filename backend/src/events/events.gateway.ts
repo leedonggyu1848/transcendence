@@ -212,7 +212,8 @@ export class EventsGateway
     await this.chatUserRepository.addChatUser(chat, user);
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
-    this.nsp.emit('create-chat', roomName);
+    this.nsp.emit('create-chat', { roomName, type, operator: user.intra_id });
+    socket.emit('create-success', { roomName, type, operator: user.intra_id });
   }
 
   @SubscribeMessage('join-chat')
@@ -388,7 +389,7 @@ export class EventsGateway
     socket.emit('chat-success', `${userInfo.intra_id} is banned`);
   }
 
-  @SubscribeMessage('ban-cancle')
+  @SubscribeMessage('ban-cancel')
   async handleCancleUserBan(
     @ConnectedSocket() socket: Socket,
     @MessageBody()

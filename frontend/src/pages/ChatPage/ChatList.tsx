@@ -13,7 +13,7 @@ const ChatList = ({
       {data.map(({ title, type, count }, idx) => (
         <Chat key={idx} onClick={() => joinChatRoom(title, type)}>
           <Title title={title}>
-            {title.slice(0, 10)}
+            {title.slice(1, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
           <Private
