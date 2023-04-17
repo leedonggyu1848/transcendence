@@ -202,13 +202,15 @@ export class EventsGateway
       socket.emit('chat-fail', `${roomName} 방이 이미 존재합니다.`);
       return;
     }
-    const chat = await this.chatRepository.createByChatDto({
-      title: roomName,
-      type: type,
-      password: password,
-      operator: user.intra_id,
-      count: 1,
-    });
+    const chat = await this.chatRepository.createByChatDto(
+      {
+        title: roomName,
+        type: type,
+        operator: user.intra_id,
+        count: 1,
+      },
+      password,
+    );
     await this.chatUserRepository.addChatUser(chat, user);
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
@@ -281,8 +283,11 @@ export class EventsGateway
       socket.id,
     );
     const chats = await this.chatRepository.findAll();
+    const chatsDto = chats.map((chat) => {
+      return this.chatRepository.chatToChatDto(chat);
+    });
     this.logger.log(`All chat request: ${user.intra_id}`);
-    socket.emit('all-chat', { chats: chats });
+    socket.emit('all-chat', { chats: chatsDto });
   }
 
   @SubscribeMessage('chat-list')
@@ -290,8 +295,11 @@ export class EventsGateway
     const user = await this.userRepository.findBySocketIdWithJoinChat(
       socket.id,
     );
+    const chatsDto = user.chats.map((chat) => {
+      return this.chatRepository.chatToChatDto(chat);
+    });
     this.logger.log(`Chat list request: ${user.intra_id}`);
-    socket.emit('chat-list', { chats: user.chats });
+    socket.emit('chat-list', { chats: chatsDto });
   }
 
   @SubscribeMessage('user-list')
@@ -301,8 +309,11 @@ export class EventsGateway
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    const usersDto = chat.users.map((usr) => {
+      return this.userRepository.userToUserDto(usr);
+    });
     this.logger.log(`Users of ${roomName} request: ${user.intra_id}`);
-    socket.emit('user-list', { users: chat.users });
+    socket.emit('user-list', { users: usersDto });
   }
 
   @SubscribeMessage('kick-user')

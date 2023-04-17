@@ -1,7 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatDto } from 'src/dto/chat.dto';
 import { Chat } from 'src/entity/chat.entity';
-import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { IChatRepository } from './chat.interface.repository';
 
@@ -10,8 +9,18 @@ export class ChatRepository implements IChatRepository {
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
   ) {}
 
-  async createByChatDto(chatDto: ChatDto) {
-    const chat = this.chatRepository.create({ ...chatDto });
+  chatToChatDto(chat: Chat) {
+    const chatDto: ChatDto = {
+      title: chat.title,
+      type: chat.type,
+      operator: chat.operator,
+      count: chat.count,
+    };
+    return chatDto;
+  }
+
+  async createByChatDto(chatDto: ChatDto, password: string) {
+    const chat = this.chatRepository.create({ ...chatDto, password: password });
     await this.chatRepository.save(chat);
     return chat;
   }
