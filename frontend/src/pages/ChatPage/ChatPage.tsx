@@ -7,14 +7,13 @@ import {
   createChatModalToggleState,
   currentChatState,
   joinnedChatFlagState,
+  joinnedChatState,
   operatorModalToggleState,
-  socketState,
 } from "../../api/atom";
 import {
   ChatListDto,
   IChatRoom,
   JoinListDto,
-  JoinnedUserDto,
   UserDto,
 } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
@@ -34,23 +33,35 @@ const ChatPage = () => {
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
-  const currentChat = useRecoilValue(currentChatState);
+  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [chatList, setChatList] = useRecoilState(chatListState);
-  const [joinnedChatList, setJoinnedChatList] = useState<IChatRoom[]>([]);
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
 
   useInitHook();
 
-  const joinChatRoom = (roomName: string, type: number) => {
+  const joinChatRoom = (
+    roomName: string,
+    type: number,
+    operator: string,
+    count: number
+  ) => {
+    console.log(roomName, joinnedChatList);
     if (joinnedChatList.some((chat) => chat.title === roomName)) {
       //current chat setting
+      setCurrentChat({
+        title: roomName,
+        type,
+        operator,
+        count: count + 1,
+      });
+      socket.emit("join-chat", roomName);
       return;
     }
     if (type === 2) {
       // password type 대응
     }
     console.log("hi", roomName, type);
-
-    socket.emit("join-chat", roomName);
   };
 
   useEffect(() => {
@@ -61,7 +72,6 @@ const ChatPage = () => {
     if (!joinnedChatFlag) {
       socket.emit("chat-list");
     }
-    //socket.emit("chat-list");
 
     socket.on(
       "create-chat",
@@ -94,18 +104,21 @@ const ChatPage = () => {
       setAllChatFlag(true);
     });
 
-    socket.on("chat-list", ({ chats }: { chats: any }) => {
+    socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
       console.log(chats);
+      setJoinnedChatList([...chats]);
+      setJoinnedChatFlag(true);
     });
 
     socket.on(
       "join-chat",
-      ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
-        if (chatList.some((chat) => chat.title === message)) {
+      ({ roomName, userInfo }: { roomName: string; userInfo: UserDto }) => {
+        console.log(roomName, userInfo);
+        if (joinnedChatList.some((chat) => chat.title === roomName)) {
           console.log("이미 참여한 방입니다", userInfo);
         } else {
           console.log("새로운 방 참여");
-          console.log(message, userInfo);
+          console.log(roomName, userInfo);
         }
       }
     );
@@ -118,7 +131,7 @@ const ChatPage = () => {
       socket.off("join-chat");
       socket.off("chat-list");
     };
-  }, [chatList]);
+  }, [chatList, joinnedChatList]);
 
   return (
     <ChatPageContainer>
@@ -153,7 +166,7 @@ const ChatPage = () => {
         <HeaderContainer>
           <div>참여 중인 방 목록</div>
         </HeaderContainer>
-        <JoinList data={createDummyJoinList()} />
+        <JoinList data={joinnedChatList} />
       </WapperContainer>
     </ChatPageContainer>
   );

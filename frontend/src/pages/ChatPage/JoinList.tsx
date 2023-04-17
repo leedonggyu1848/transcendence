@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
-import { JoinListDto } from "../../api/interface";
+import { IChatRoom, JoinListDto } from "../../api/interface";
 
-const JoinList = ({ data }: { data: JoinListDto[] }) => {
+const JoinList = ({ data }: { data: IChatRoom[] }) => {
   return (
     <JoinListContainer>
-      {data.map(({ title, private_mode, newMessage }, idx) => (
+      {data.map(({ title, type }, idx) => (
         <Room key={idx}>
-          {newMessage > 0 ? <NewMessage /> : <Empty />}
-          <Private private_mode={private_mode} />
+          {true ? <NewMessage /> : <Empty />}
+          <Private private_mode={type} />
           <Title title={title}>
             {title.slice(0, 10)}
             {title.length > 10 ? "..." : ""}
@@ -41,11 +41,15 @@ const LeaveButton = styled.div`
   cursor: pointer;
 `;
 
-const Private = styled.div<{ private_mode: boolean }>`
+const Private = styled.div<{ private_mode: number }>`
   width: 15px;
-  height: 18px;
+  height: 15px;
   background-image: ${({ private_mode }) =>
-    private_mode ? 'url("/src/assets/lockIcon.png")' : "none"};
+    private_mode === 2
+      ? 'url("/src/assets/lockIcon.png")'
+      : private_mode === 1
+      ? 'url("/src/assets/privateIcon.png")'
+      : "none"};
   background-size: 100% 100%;
 `;
 

@@ -250,7 +250,7 @@ export class EventsGateway
     socket.join(roomName);
     this.logger.log(`${user.intra_id} join chat ${roomName}`);
     this.nsp.emit('join-chat', {
-      message: `${user.intra_id}가 들어왔습니다.`,
+      roomName,
       userInfo: this.userRepository.userToUserDto(user),
     });
   }
@@ -318,7 +318,6 @@ export class EventsGateway
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    console.log(chat.user);
     const usersDto = chat.users.map((usr) => {
       return this.userRepository.userToUserDto(usr);
     });

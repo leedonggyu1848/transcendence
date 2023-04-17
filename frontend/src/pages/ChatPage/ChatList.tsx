@@ -10,8 +10,11 @@ const ChatList = ({
 }) => {
   return (
     <ChatListContainer>
-      {data.map(({ title, type, count }, idx) => (
-        <Chat key={idx} onClick={() => joinChatRoom(title, type)}>
+      {data.map(({ title, type, operator, count }, idx) => (
+        <Chat
+          key={idx}
+          onClick={() => joinChatRoom(title, type, operator, count)}
+        >
           <Title title={title}>
             {title.slice(1, 10)}
             {title.length > 10 ? "..." : ""}
