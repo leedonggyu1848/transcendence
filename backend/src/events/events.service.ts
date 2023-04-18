@@ -251,8 +251,8 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${user.intra_id}의 방장이 아닙니다.` };
-    const ban = chat.banUsers.find((ban) => ban.username === user.intra_id);
-    if (ban.length !== 0)
+    const isBan = chat.banUsers.filter((ban) => ban.username === user.intra_id);
+    if (isBan.length !== 0)
       return { success: false, msg: `${banUser}는 이미 밴 되어있습니다.` };
     await this.banRepository.addBanUser(chat, banUser);
     return { success: true, msg: `${banUser}가 밴 되었습니다.` };
