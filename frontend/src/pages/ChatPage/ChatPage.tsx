@@ -253,6 +253,8 @@ const ChatPage = () => {
       socket.off("chat-success");
       socket.off("leave-chat");
       socket.off("chat-fail");
+      socket.off("leave-chat-success");
+      socket.off("join-chat-success");
       setAllChatFlag(true);
       setJoinnedChatFlag(true);
 
