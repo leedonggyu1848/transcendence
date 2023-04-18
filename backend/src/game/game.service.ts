@@ -8,6 +8,7 @@ import { IGameRepository } from './repository/game.interface.repository';
 import { IUserRepository } from '../user/repository/users.interface.repository';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { randomInt } from 'crypto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class GameService {
@@ -18,11 +19,12 @@ export class GameService {
     private userRepository: IUserRepository,
     @Inject('IRecordRepository')
     private recordRepository: IRecordRepository,
+    private userService: UserService,
   ) {}
 
   async getUserInfo(intra_id: string) {
     const found_user = await this.userRepository.findByIntraId(intra_id);
-    return this.userRepository.userToUserDto(found_user);
+    return this.userService.userToUserDto(found_user);
   }
 
   async getLobbyInfo() {
@@ -73,12 +75,12 @@ export class GameService {
         (user) => user.join_type === JoinType.WATCHER,
       );
       watchersDto = watchers.map((element) =>
-        this.userRepository.userToUserDto(element),
+        this.userService.userToUserDto(element),
       );
     } else watchersDto = null;
     const gameDto: GameDto = this.gameRepository.gameToGameDto(game);
-    const ownerDto: UserDto = this.userRepository.userToUserDto(owner);
-    const opponentDto: UserDto = this.userRepository.userToUserDto(user);
+    const ownerDto: UserDto = this.userService.userToUserDto(owner);
+    const opponentDto: UserDto = this.userService.userToUserDto(user);
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
@@ -104,13 +106,13 @@ export class GameService {
     let watchersDto: UserDto[];
     if (game.watchers) {
       watchersDto = game.watchers.map((watcher) =>
-        this.userRepository.userToUserDto(watcher),
+        this.userService.userToUserDto(watcher),
       );
     } else watchersDto = null;
-    watchersDto.push(this.userRepository.userToUserDto(user));
+    watchersDto.push(this.userService.userToUserDto(user));
     const gameDto: GameDto = this.gameRepository.gameToGameDto(game);
-    const ownerDto: UserDto = this.userRepository.userToUserDto(owner);
-    const opponentDto: UserDto = this.userRepository.userToUserDto(player);
+    const ownerDto: UserDto = this.userService.userToUserDto(owner);
+    const opponentDto: UserDto = this.userService.userToUserDto(player);
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },

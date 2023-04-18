@@ -36,7 +36,7 @@ export class ChatRepository implements IChatRepository {
   async findByTitleWithJoin(title: string) {
     return await this.chatRepository.findOne({
       where: { title: title },
-      relations: ['users', 'users.user', 'users.chat', 'banUsers'],
+      relations: ['users', 'users.user', 'banUsers'],
     });
   }
 

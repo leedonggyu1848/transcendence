@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -12,11 +12,7 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { UserDto } from 'src/dto/user.dto';
 import { ChatType } from 'src/entity/common.enum';
-import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
-import { IUserRepository } from 'src/user/repository/users.interface.repository';
-import { IBanRepository } from './repository/ban.interface.repository';
-import { IChatRepository } from './repository/chat.interface.repository';
-import { IChatUserRepository } from './repository/chatuser.interface.repository';
+import { EventsService } from './events.service';
 
 @WebSocketGateway({
   namespace: 'GameChat',
@@ -28,18 +24,7 @@ export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private logger = new Logger(EventsGateway.name);
-  constructor(
-    @Inject('IUserRepository')
-    private userRepository: IUserRepository,
-    @Inject('IFriendRepository')
-    private friendRepository: IFriendRepository,
-    @Inject('IChatRepository')
-    private chatRepository: IChatRepository,
-    @Inject('IChatUserRepository')
-    private chatUserRepository: IChatUserRepository,
-    @Inject('IBanRepository')
-    private banRepository: IBanRepository,
-  ) {}
+  constructor(private eventsService: EventsService) {}
 
   @WebSocketServer() nsp: Namespace;
 
@@ -61,8 +46,7 @@ export class EventsGateway
     @MessageBody() intra_id: string,
   ) {
     this.logger.log(`connect ${socket.id} to ${intra_id}`);
-    const user = await this.userRepository.findByIntraId(intra_id);
-    await this.userRepository.updateSocketId(user.id, socket.id);
+    this.eventsService.registUser(intra_id, socket.id);
   }
 
   @SubscribeMessage('message')
@@ -76,24 +60,21 @@ export class EventsGateway
     }: { roomName: string; userName: string; message: string },
   ) {
     this.logger.log(`${roomName} message => ${userName}: ${message}`);
-    socket.broadcast
-      .to(roomName)
-      .emit('message', { username: userName, message });
-    return { username: socket.id, message };
+    socket.broadcast.to(roomName).emit('message', { userName, message });
   }
 
   @SubscribeMessage('create-game')
-  handleCreateGame(
+  async handleCreateGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
     if (this.nsp.adapter.rooms.has(roomName)) {
-      this.logger.log(`fail: game ${roomName} 방이 이미 존재합니다.`);
+      this.logger.log(`fail: ${roomName} 방이 이미 존재합니다.`);
       return;
     }
-    this.logger.log(`Game ${roomName} is created`);
     socket.join(roomName);
     this.nsp.emit('create-game', roomName);
+    this.logger.log(`${roomName} 생성 완료`);
   }
 
   @SubscribeMessage('join-game')
@@ -101,14 +82,14 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, type }: { roomName: string; type: string },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    this.logger.log(`${user.intra_id} join game ${roomName} as ${type}`);
+    const user = await this.eventsService.getUserDtoFromSocketId(socket.id);
     socket.join(roomName);
     socket.broadcast.to(roomName).emit('join-game', {
       message: `${user.intra_id}가 들어왔습니다.`,
-      userInfo: this.userRepository.userToUserDto(user),
+      userInfo: user,
       type: type,
     });
+    this.logger.log(`${user.intra_id}가 ${roomName}에 참가했습니다.`);
   }
 
   @SubscribeMessage('leave-game')
@@ -116,21 +97,14 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, type }: { roomName: string; type: string },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
+    const user = await this.eventsService.getUserDtoFromSocketId(socket.id);
     this.logger.log(`${user.intra_id} leave game ${roomName} as ${type}`);
     socket.leave(roomName);
     socket.broadcast.to(roomName).emit('leave-game', {
       message: `${user.intra_id}가 나갔습니다.`,
-      userInfo: this.userRepository.userToUserDto(user),
+      userInfo: user,
       type: type,
     });
-  }
-
-  private requestCheck(reqs, findName) {
-    if (!reqs) return false;
-    const tmp = reqs.filter((req) => req.friendname === findName);
-    if (tmp.length !== 0) return true;
-    return false;
   }
 
   @SubscribeMessage('send-friend')
@@ -138,26 +112,12 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    this.logger.log(`Friend request: ${user.intra_id} to ${friendName}`);
-    const friend = await this.userRepository.findByIntraId(friendName);
-    if (!friend) {
-      this.logger.log(`fail: 없는 유저입니다.`);
-      socket.emit('friend-fail', '없는 유저입니다.');
-      return;
-    }
-    const user_reqs = await this.friendRepository.findAllWithJoin(user);
-    const friend_reqs = await this.friendRepository.findAllWithJoin(friend);
-    if (
-      this.requestCheck(user_reqs, friendName) ||
-      this.requestCheck(friend_reqs, user.intra_id)
-    ) {
-      this.logger.log('fail: 이미 친구 신청을 보냈습니다.');
-      socket.emit('friend-fail', '이미 친구 신청을 보냈습니다.');
-      return;
-    }
-    await this.friendRepository.addFriend(user, friendName);
-    socket.emit('friend-success', '친구 요청을 보냈습니다.');
+    const result = await this.eventsService.friendRequest(
+      socket.id,
+      friendName,
+    );
+    const api = result.success ? 'friend-success' : 'friend-fail';
+    socket.emit(api, result.msg);
   }
 
   @SubscribeMessage('response-friend')
@@ -165,24 +125,13 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { friendName, type }: { friendName: string; type: boolean },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    this.logger.log(`Friend accept: ${user.intra_id} to ${friendName}`);
-    const friend = await this.userRepository.findByIntraId(friendName);
-    if (!friend) {
-      this.logger.log(`fail: 없는 유저입니다.`);
-      socket.emit('friend-fail', '없는 유저입니다.');
-      return;
-    }
-    const reqs = await this.friendRepository.findFriendRequests(user);
-    const data = reqs.find((req) => req.friendname === friend.intra_id);
-    if (!data) {
-      this.logger.log(`fail: 친구 신청이 없거나 이미 처리되었습니다.`);
-      socket.emit('friend-fail', '친구 신청이 없거나 이미 처리되었습니다.');
-      return;
-    }
-    if (type) await this.friendRepository.updateAccept(data.id, true);
-    else await this.friendRepository.deleteRequest(data.id);
-    socket.emit('friend-fail', '친구 신청이 처리되었습니다.');
+    const result = await this.eventsService.friendResponse(
+      socket.id,
+      friendName,
+      type,
+    );
+    const api = result.success ? 'friend-success' : 'friend-fail';
+    socket.emit(api, result.msg);
   }
 
   @SubscribeMessage('create-chat')
@@ -195,33 +144,20 @@ export class EventsGateway
       password,
     }: { roomName: string; type: ChatType; password: string },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const exist = await this.chatRepository.findByTitle(roomName);
-    if (exist) {
-      this.logger.log(`fail: chat ${roomName} 방이 이미 존재합니다.`);
-      socket.emit('chat-fail', `${roomName} 방이 이미 존재합니다.`);
-      return;
-    }
-    const chat = await this.chatRepository.createByChatDto(
-      {
-        title: roomName,
-        type: type,
-        operator: user.intra_id,
-        count: 1,
-      },
-      password,
-    );
-    await this.chatUserRepository.addChatUser(chat, user);
-
-    socket.join(roomName);
-    this.logger.log(`chat ${roomName} is created`);
-    this.nsp.emit('create-chat', { roomName, type, operator: user.intra_id });
-    socket.emit('create-success', {
+    const result = await this.eventsService.creatChat(
+      socket.id,
       roomName,
       type,
-      operator: user.intra_id,
-      userInfo: user,
-    });
+      password,
+    );
+    if (result.success) {
+      socket.join(roomName);
+      this.nsp.emit('create-chat', { roomName, type, operator: result.data });
+      socket.emit('create-success', { roomName, type, operator: result.data });
+    } else {
+      socket.emit('chat-fail', result.msg);
+    }
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('join-chat')
@@ -235,46 +171,22 @@ export class EventsGateway
       operator,
     }: { roomName: string; password: string; type: number; operator: string },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.type === ChatType.PASSWORD && chat.password !== password) {
-      this.logger.log(`${password} 비밀번호가 맞지 않습니다.`);
-      socket.emit('chat-fail', `비밀번호가 맞지 않습니다.`);
-      return;
-    }
-    const joined = chat.users.filter((usr) => usr.intra_id === user.intra_id);
-    if (joined.length !== 0) {
-      this.logger.log(`${roomName}에 이미 참가 중 입니다.`);
-      socket.emit('chat-fail', `${roomName}에 이미 참가 중 입니다.`);
-      return;
-    }
-    const ban = chat.banUsers.filter(
-      (banUser) => banUser.username === user.intra_id,
+    const result = await this.eventsService.joinChat(
+      socket.id,
+      roomName,
+      password,
     );
-    if (ban.length !== 0) {
-      this.logger.log(`${user.intra_id}는 ${roomName}에 밴 되어있습니다.`);
-      socket.emit('chat-fail', `${roomName}에 접속할 수 없습니다.`);
-      return;
+    if (result.success) {
+      socket.join(roomName);
+      socket.broadcast.emit('join-chat', {
+        message: result.data,
+        userInfo: result.data,
+      });
+      socket.emit('chat-success', result.data);
+    } else {
+      socket.emit('chat-fail', result.msg);
     }
-    await this.chatUserRepository.addChatUser(chat, user);
-    await this.chatRepository.updateCount(chat.id, chat.count + 1);
-    console.log(chat);
-    const usersDto = chat.users.map((usr) => {
-      return this.userRepository.userToUserDto(usr);
-    });
-    socket.join(roomName);
-    console.log(usersDto);
-    this.logger.log(`${user.intra_id} join chat ${roomName}`);
-    socket.emit('join-success', {
-      roomName,
-      type,
-      users: usersDto,
-      operator,
-    });
-    socket.broadcast.emit('join-chat', {
-      roomName,
-      userInfo: this.userRepository.userToUserDto(user),
-    });
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('leave-chat')
@@ -282,55 +194,31 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    const chatUser = await this.chatUserRepository.findByBoth(chat, user);
-    if (chatUser.length === 0) {
-      this.logger.log(`fail: 참여 중인 방이나 ${roomName} 방이 없습니다.`);
-      socket.emit('chat-fail', `참여 중인 방이나 ${roomName} 방이 없습니다.`);
-      return;
+    const result = await this.eventsService.leaveChat(socket.id, roomName);
+    if (result.success) {
+      socket.leave(roomName);
+      this.nsp.emit('leave-chat', {
+        message: result.msg,
+        userInfo: result.data,
+      });
+    } else {
+      socket.emit('chat-fail', result.msg);
     }
-    await this.chatUserRepository.deleteChatUser(chatUser.id);
-    if (chat.count > 1) {
-      await this.chatRepository.updateCount(chat.id, chat.count - 1);
-      if (chat.operator === user.intra_id) {
-        await this.chatRepository.updateOperator(
-          chat.id,
-          chat.users[0].intra_id,
-        );
-      }
-    } else await this.chatRepository.deleteChat(chat.id);
-    socket.leave(roomName);
-    this.logger.log(`${user.intra_id}가 ${roomName}에서 나갔습니다.`);
-    this.nsp.emit('leave-chat', {
-      message: `${user.intra_id}가 나갔습니다.`,
-      userInfo: this.userRepository.userToUserDto(user),
-    });
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('all-chat')
   async handleAllChatList(@ConnectedSocket() socket: Socket) {
-    const user = await this.userRepository.findBySocketIdWithJoinChat(
-      socket.id,
-    );
-    const chats = await this.chatRepository.findAll();
-    const chatsDto = chats.map((chat) => {
-      return this.chatRepository.chatToChatDto(chat);
-    });
-    this.logger.log(`All chat request: ${user.intra_id}`);
-    socket.emit('all-chat', { chats: chatsDto });
+    const data = await this.eventsService.getAllChatList(socket.id);
+    this.logger.log(`All chat request: ${data.user}`);
+    socket.emit('all-chat', { chats: data.chats });
   }
 
   @SubscribeMessage('chat-list')
   async handleChatList(@ConnectedSocket() socket: Socket) {
-    const user = await this.userRepository.findBySocketIdWithJoinChat(
-      socket.id,
-    );
-    const chatsDto = user.chats.map((chat) => {
-      return this.chatRepository.chatToChatDto(chat.chat);
-    });
-    this.logger.log(`Chat list request: ${user.intra_id}`);
-    socket.emit('chat-list', { chats: chatsDto });
+    const data = await this.eventsService.getChatList(socket.id);
+    this.logger.log(`Chat list request: ${data.user}`);
+    socket.emit('chat-list', { chats: data.chats });
   }
 
   @SubscribeMessage('user-list')
@@ -338,13 +226,9 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    const usersDto = chat.users.map((usr) => {
-      return this.userRepository.userToUserDto(usr);
-    });
-    this.logger.log(`Users of ${roomName} request: ${user.intra_id}`);
-    socket.emit('user-list', { users: usersDto });
+    const data = await this.eventsService.getUserList(socket.id, roomName);
+    this.logger.log(`Users of ${roomName} request: ${data.user}`);
+    socket.emit('user-list', { users: data.users });
   }
 
   @SubscribeMessage('kick-user')
@@ -352,29 +236,21 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, userName },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.operator !== user.intra_id) {
-      this.logger.log(`fail: ${roomName}의 방장이 아닙니다.`);
-      socket.emit('chat-fail', `${roomName}의 방장이 아닙니다.`);
-      return;
+    const result = await this.eventsService.kickUser(
+      socket.id,
+      roomName,
+      userName,
+    );
+    if (result.success) {
+      const rooms = await this.nsp.in(roomName).fetchSockets();
+      if (rooms.some((socket) => socket.id === result.data)) {
+        this.nsp.in(roomName).emit('kick-user', { userName });
+        await this.nsp.sockets.get(userName)?.leave(roomName);
+      }
+    } else {
+      socket.emit('chat-fail', result.msg);
     }
-    const data = chat.users.filter((usr) => usr.intra_id === userName);
-    if (data.length === 0) {
-      this.logger.log(`fail: ${roomName}에 ${userName}가 없습니다.`);
-      socket.emit('chat-fail', `${roomName}에 ${userName}가 없습니다.`);
-      return;
-    }
-    const kicked = await this.userRepository.findByIntraId(userName);
-    const chatuser = await this.chatUserRepository.findByBoth(chat, kicked);
-    await this.chatUserRepository.deleteChatUser(chatuser.id);
-    await this.chatRepository.updateCount(chat.id, chat.count - 1);
-    this.logger.log(`${user.intra_id} kick ${userName} from ${roomName}`);
-    const rooms = await this.nsp.in(roomName).fetchSockets();
-    if (rooms.some((socket) => socket.id === kicked.socket_id)) {
-      this.nsp.in(roomName).emit('kick-user', { userName });
-      await this.nsp.sockets.get(userName)?.leave(roomName);
-    }
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('change-oper')
@@ -383,25 +259,20 @@ export class EventsGateway
     @MessageBody()
     { roomName, operator }: { roomName: string; operator: string },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    this.logger.log(`Change operator of ${roomName} as ${user.intra_id}`);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.operator !== user.intra_id) {
-      this.logger.log(`fail: ${roomName}의 방장이 아닙니다.`);
-      socket.emit('chat-fail', `${roomName}의 방장이 아닙니다.`);
-      return;
+    const result = await this.eventsService.changeOperator(
+      socket.id,
+      roomName,
+      operator,
+    );
+    if (result.success) {
+      socket.broadcast.to(roomName).emit('change-oper', {
+        message: result.msg,
+        userInfo: result.data,
+      });
+    } else {
+      socket.emit('chat-fail', result.msg);
     }
-    const data = chat.users.filter((usr) => usr.intra_id === operator);
-    if (data.length === 0) {
-      this.logger.log(`fail: ${roomName}에 ${operator}가 없습니다.`);
-      socket.emit('chat-fail', `${roomName}에 ${operator}가 없습니다.`);
-      return;
-    }
-    await this.chatRepository.updateOperator(chat.id, operator);
-    socket.broadcast.to(roomName).emit('change-oper', {
-      message: `${roomName}의 방장이 ${user.intra_id}으로 바뀌었습니다.`,
-      userInfo: this.userRepository.userToUserDto(user),
-    });
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('ban-user')
@@ -410,24 +281,15 @@ export class EventsGateway
     @MessageBody()
     { roomName, userInfo }: { roomName: string; userInfo: UserDto },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.operator !== user.intra_id) {
-      this.logger.log(`fail: ${user.intra_id}의 방장이 아닙니다.`);
-      socket.emit('chat-fail', `${user.intra_id}의 방장이 아닙니다.`);
-      return;
-    }
-    const ban = chat.banUsers.find(
-      (banUser) => banUser.username === user.intra_id,
+    const result = await this.eventsService.banUser(
+      socket.id,
+      roomName,
+      userInfo.intra_id,
     );
-    if (ban.length !== 0) {
-      this.logger.log(`fail: ${userInfo.intra_id}는 이미 밴 되어있습니다.`);
-      socket.emit('chat-fail', `${userInfo.intra_id}는 이미 밴 되어있습니다.`);
-      return;
+    if (result.success) {
+      socket.emit('ban-user', `${userInfo.intra_id} is banned`);
     }
-    await this.banRepository.addBanUser(chat, userInfo.intra_id);
-    this.logger.log(`Ban: ${userInfo.intra_id} on ${roomName}`);
-    socket.emit('ban-user', `${userInfo.intra_id} is banned`);
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('ban-cancel')
@@ -436,24 +298,14 @@ export class EventsGateway
     @MessageBody()
     { roomName, userInfo }: { roomName: string; userInfo: UserDto },
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.operator !== user.intra_id) {
-      this.logger.log(`fail: ${user.intra_id}의 방장이 아닙니다.`);
-      socket.emit('chat-fail', `${user.intra_id}의 방장이 아닙니다.`);
-      return;
-    }
-    const ban = chat.banUsers.find(
-      (banUser) => banUser.username === user.intra_id,
+    const result = await this.eventsService.cancleBan(
+      socket.id,
+      roomName,
+      userInfo.intra_id,
     );
-    if (ban.length === 0) {
-      this.logger.log(`fail: ${user.intra_id}는 밴 되어있지 않습니다.`);
-      socket.emit('chat-fail', `${user.intra_id}는 밴 되어있지 않습니다.`);
-      return;
-    }
-    await this.banRepository.deleteBanUser(ban.id);
-    this.logger.log(`Ban cancle: ${userInfo.intra_id} on ${roomName}`);
-    socket.emit('ban-cancle', `${userInfo.intra_id}는 밴 취소되었습니다.`);
+    if (result.success) socket.emit('ban-cancle', result.msg);
+    else socket.emit('chat-fail', result.msg);
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('ban-list')
@@ -461,15 +313,10 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
-    const user = await this.userRepository.findBySocketId(socket.id);
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.operator !== user.intra_id) {
-      this.logger.log(`fail: ${roomName}의 방장이 아닙니다.`);
-      socket.emit('chat-fail', `${roomName}의 방장이 아닙니다.`);
-      return;
-    }
-    this.logger.log(`Ban list of ${roomName} request: ${user.intra_id}`);
-    socket.emit('ban-list', { users: chat.users });
+    const result = await this.eventsService.getBanList(socket.id, roomName);
+    if (result.success) socket.emit('ban-list', result.data);
+    else socket.emit('chat-fail', result.msg);
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('start-game')
@@ -479,7 +326,6 @@ export class EventsGateway
   ) {
     this.logger.log(`${roomName} Game Start`);
     socket.broadcast.to(roomName).emit('start-game');
-    return { success: true };
   }
 
   @SubscribeMessage('move-ball')
@@ -489,7 +335,6 @@ export class EventsGateway
     { roomName, x, y }: { roomName: string; x: number; y: number },
   ) {
     socket.broadcast.to(roomName).emit('move-ball', { xPos: x, yPos: y });
-    return { success: true };
   }
 
   @SubscribeMessage('mouse-move')
@@ -499,7 +344,6 @@ export class EventsGateway
     { roomName, x }: { roomName: string; x: number },
   ) {
     socket.broadcast.to(roomName).emit('mouse-move', { x });
-    return { success: true };
   }
 
   @SubscribeMessage('normal-game-over')
@@ -509,6 +353,5 @@ export class EventsGateway
     { roomName, winner }: { roomName: string; winner: string },
   ) {
     socket.broadcast.to(roomName).emit('normal-game-over', { winner });
-    return { success: true };
   }
 }

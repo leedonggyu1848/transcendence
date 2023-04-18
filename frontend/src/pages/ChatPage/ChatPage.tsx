@@ -50,6 +50,7 @@ const ChatPage = () => {
   const LeaveChatRoom = (roomName: string) => {
     console.log("leave room ", roomName);
   };
+  console.log(currentChatUserList);
 
   const joinChatRoom = (
     roomName: string,
@@ -57,7 +58,7 @@ const ChatPage = () => {
     operator: string,
     count: number
   ) => {
-    console.log(roomName, joinnedChatList);
+    console.log(roomName, currentChatUserList, joinnedChatList);
     if (joinnedChatList.some((chat) => chat.title === roomName)) {
       //current chat setting
       setCurrentChat({

@@ -29,7 +29,7 @@ export class Chat {
   @NotEquals(null)
   count: number;
 
-  @OneToMany(() => ChatUser, (user) => user.user, { cascade: true })
+  @OneToMany(() => ChatUser, (user) => user.chat, { cascade: true })
   users: ChatUser[];
 
   @OneToMany(() => Ban, (ban) => ban.channel, { cascade: true })

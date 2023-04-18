@@ -29,7 +29,7 @@ export class FriendController {
   @UseGuards(JwtGuard)
   async getFriendList(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Friend list request: ${user.intra_id}`);
-    const found_user = await this.authService.findUser(user.intra_id);
+    const found_user = await this.authService.findUserByIntraId(user.intra_id);
     let data = await this.friendService.getFriendList(found_user);
     // testcode -> TODO: delete
     if (!data) {
@@ -46,7 +46,7 @@ export class FriendController {
     @UserDeco() user: UserSessionDto,
   ) {
     this.logger.log(`Get friend request list: ${user.intra_id}`);
-    const found_user = await this.authService.findUser(user.intra_id);
+    const found_user = await this.authService.findUserByIntraId(user.intra_id);
     const data = await this.friendService.getFriendRequestList(found_user);
     res.status(HttpStatus.OK).send(data);
   }

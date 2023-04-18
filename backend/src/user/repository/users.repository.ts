@@ -1,5 +1,4 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserDto } from 'src/dto/user.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { Game } from 'src/entity/game.entity';
 import { Users } from 'src/entity/user.entity';
@@ -11,21 +10,6 @@ export class UserRepository implements IUserRepository {
     @InjectRepository(Users)
     private userRepository: Repository<Users>,
   ) {}
-
-  userToUserDto(user: Users) {
-    if (!user) return null;
-    const userDto: UserDto = {
-      user_id: user.user_id,
-      intra_id: user.intra_id,
-      profile: user.profile,
-      introduce: user.introduce,
-      normal_win: user.normal_win,
-      normal_lose: user.normal_lose,
-      rank_win: user.rank_win,
-      rank_lose: user.rank_lose,
-    };
-    return userDto;
-  }
 
   async createUser(user_id: number, intra_id: string) {
     await this.userRepository.save({
@@ -56,7 +40,7 @@ export class UserRepository implements IUserRepository {
   async findByIntraIdWithJoinChat(intra_id: string) {
     return await this.userRepository.findOne({
       where: { intra_id: intra_id },
-      relations: ['chats', 'chats.chat', 'chats.user'],
+      relations: ['chats', 'chats.chat'],
     });
   }
 
