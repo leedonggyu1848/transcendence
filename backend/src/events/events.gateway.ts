@@ -144,7 +144,9 @@ export class EventsGateway
     );
     if (result.success) {
       socket.emit('response-friend', { friendName, type });
-      socket.to(result.data).emit('friend-result', { friendName, type });
+      this.nsp.sockets
+        .get(result.data)
+        .emit('friend-result', { friendName, type });
     } else {
       socket.emit('friend-fail', result.msg);
     }
@@ -284,7 +286,7 @@ export class EventsGateway
     );
     if (result.success) {
       socket.emit('mute-user', { roomName: roomName, username: userName });
-      socket.to(result.data).emit('chat-muted', roomName);
+      this.nsp.sockets.get(result.data).emit('chat-muted', roomName);
     }
   }
 
@@ -325,12 +327,32 @@ export class EventsGateway
   async handleBanUser(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, user }: { roomName: string; user: string },
+    { roomName, userName }: { roomName: string; userName: string },
   ) {
-    const result = await this.eventsService.banUser(socket.id, roomName, user);
-    if (result.success) socket.emit('ban-user', result.msg);
-    else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
+    const banResult = await this.eventsService.banUser(
+      socket.id,
+      roomName,
+      userName,
+    );
+    if (banResult.success) socket.emit('ban-user', banResult.msg);
+    else socket.emit('chat-fail', banResult.msg);
+    this.logger.log(banResult.msg);
+
+    const kickResult = await this.eventsService.kickUser(
+      socket.id,
+      roomName,
+      userName,
+    );
+    if (kickResult.success) {
+      const room = await this.nsp.in(roomName).fetchSockets();
+      if (room.some((socket) => socket.id === kickResult.data)) {
+        this.nsp.in(roomName).emit('kick-user', userName);
+        await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
+      }
+    } else {
+      socket.emit('chat-fail', kickResult.msg);
+    }
+    this.logger.log(kickResult.msg);
   }
 
   @SubscribeMessage('ban-cancel')
