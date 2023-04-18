@@ -264,7 +264,7 @@ export class EventsGateway
     if (result.success) {
       const room = await this.nsp.in(roomName).fetchSockets();
       if (room.some((socket) => socket.id === result.data)) {
-        this.nsp.in(roomName).emit('kick-user', userName);
+        this.nsp.in(roomName).emit('kick-user', { roomName, userName });
         await this.nsp.sockets.get(result.data)?.leave(roomName);
       }
     } else {
@@ -334,25 +334,25 @@ export class EventsGateway
       roomName,
       userName,
     );
-    if (banResult.success) socket.emit('ban-user', banResult.msg);
-    else socket.emit('chat-fail', banResult.msg);
-    this.logger.log(banResult.msg);
-
-    const kickResult = await this.eventsService.kickUser(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (kickResult.success) {
-      const room = await this.nsp.in(roomName).fetchSockets();
-      if (room.some((socket) => socket.id === kickResult.data)) {
-        this.nsp.in(roomName).emit('kick-user', userName);
-        await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
+    let message = banResult.msg;
+    if (banResult.success) {
+      const kickResult = await this.eventsService.kickUser(
+        socket.id,
+        roomName,
+        userName,
+      );
+      if (kickResult.success) {
+        const room = await this.nsp.in(roomName).fetchSockets();
+        if (room.some((socket) => socket.id === kickResult.data)) {
+          this.nsp.in(roomName).emit('ban-user', { roomName, userName });
+          await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
+        }
+      } else {
+        socket.emit('chat-fail', kickResult.msg);
+        message = kickResult.msg;
       }
-    } else {
-      socket.emit('chat-fail', kickResult.msg);
-    }
-    this.logger.log(kickResult.msg);
+    } else socket.emit('chat-fail', banResult.msg);
+    this.logger.log(message);
   }
 
   @SubscribeMessage('ban-cancel')
