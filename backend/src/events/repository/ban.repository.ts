@@ -16,7 +16,7 @@ export class BanRepository implements IBanRepository {
     return data;
   }
 
-  async deleteBanUser(id: number) {
-    await this.banRepository.delete(id);
+  async deleteBanUser(banUser: Ban) {
+    await this.banRepository.remove(banUser);
   }
 }

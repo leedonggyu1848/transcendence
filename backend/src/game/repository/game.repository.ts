@@ -65,7 +65,7 @@ export class GameRepository implements IGameRepository {
     await this.gameRepository.update(id, { count: count });
   }
 
-  async deleteById(id: number) {
-    await this.gameRepository.delete({ id: id });
+  async deleteById(game: Game) {
+    await this.gameRepository.remove(game);
   }
 }

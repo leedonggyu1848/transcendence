@@ -1,6 +1,13 @@
 import { NotEquals } from 'class-validator';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Users } from './user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Entity()
 export class Game {
@@ -22,6 +29,12 @@ export class Game {
   @Column()
   @NotEquals(null)
   password: string;
+
+  @BeforeInsert()
+  async setPassword(password: string) {
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(password || this.password, salt);
+  }
 
   @Column()
   @NotEquals(null)

@@ -97,7 +97,7 @@ export class FriendRepository implements IFriendRepository {
     await this.friendRepository.update(id, { accept: accept });
   }
 
-  async deleteRequest(id: number) {
-    await this.friendRepository.delete(id);
+  async deleteRequest(friend: Friend) {
+    await this.friendRepository.remove(friend);
   }
 }

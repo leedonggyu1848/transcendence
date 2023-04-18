@@ -166,9 +166,7 @@ export class EventsGateway
     @MessageBody()
     {
       roomName,
-      type,
       password,
-      operator,
     }: { roomName: string; password: string; type: number; operator: string },
   ) {
     const result = await this.eventsService.joinChat(
@@ -199,12 +197,12 @@ export class EventsGateway
     console.log(result);
     if (result.success) {
       socket.leave(roomName);
-      console.log('good');
-      this.nsp.emit('leave-chat', {
+      socket.broadcast.emit('leave-chat', {
         message: result.msg,
         username: result.data,
-        roomName,
+        roomName: roomName,
       });
+      socket.emit('chat-success', roomName);
     } else {
       socket.emit('chat-fail', result.msg);
     }
@@ -248,7 +246,7 @@ export class EventsGateway
     if (result.success) {
       const room = await this.nsp.in(roomName).fetchSockets();
       if (room.some((socket) => socket.id === result.data)) {
-        this.nsp.in(roomName).emit('kick-user', { userName });
+        this.nsp.in(roomName).emit('kick-user', userName);
         await this.nsp.sockets.get(result.data)?.leave(roomName);
       }
     } else {
@@ -268,14 +266,9 @@ export class EventsGateway
       roomName,
       operator,
     );
-    if (result.success) {
-      socket.broadcast.to(roomName).emit('change-oper', {
-        message: result.msg,
-        userInfo: result.data,
-      });
-    } else {
-      socket.emit('chat-fail', result.msg);
-    }
+    if (result.success)
+      socket.broadcast.to(roomName).emit('change-oper', result.msg);
+    else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }
 
@@ -283,31 +276,26 @@ export class EventsGateway
   async handleBanUser(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, userInfo }: { roomName: string; userInfo: UserDto },
+    { roomName, user }: { roomName: string; user: string },
   ) {
-    const result = await this.eventsService.banUser(
-      socket.id,
-      roomName,
-      userInfo.intra_id,
-    );
-    if (result.success) {
-      socket.emit('ban-user', `${userInfo.intra_id} is banned`);
-    }
+    const result = await this.eventsService.banUser(socket.id, roomName, user);
+    if (result.success) socket.emit('ban-user', result.msg);
+    else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }
 
   @SubscribeMessage('ban-cancel')
-  async handleCancleUserBan(
+  async handleCancelUserBan(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, userInfo }: { roomName: string; userInfo: UserDto },
   ) {
-    const result = await this.eventsService.cancleBan(
+    const result = await this.eventsService.cancelBan(
       socket.id,
       roomName,
       userInfo.intra_id,
     );
-    if (result.success) socket.emit('ban-cancle', result.msg);
+    if (result.success) socket.emit('ban-cancel', result.msg);
     else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }

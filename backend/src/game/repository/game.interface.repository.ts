@@ -11,5 +11,5 @@ export interface IGameRepository {
   findByPlayerWithJoin(player: Users);
   findByWatcherWithJoin(watcher: Users);
   updateCountById(id: number, count: number);
-  deleteById(id: number);
+  deleteById(game: Game);
 }

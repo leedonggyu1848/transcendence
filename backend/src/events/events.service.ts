@@ -6,6 +6,7 @@ import { UserService } from 'src/user/user.service';
 import { IBanRepository } from './repository/ban.interface.repository';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class EventsService {
@@ -60,13 +61,13 @@ export class EventsService {
     const friend = await this.userService.findUserByIntraId(friendName);
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
     const requests = await this.friendRepository.findFriendRequests(user);
-    const myRequests = requests.find(
+    const myRequest = requests.find(
       (request) => request.friendName === friend.intra_id,
     );
-    if (!myRequests)
+    if (!myRequest)
       return { success: false, msg: '친구 신청이 없거나 이미 처리되었습니다.' };
-    if (type) await this.friendRepository.updateAccept(myRequests.id, true);
-    else await this.friendRepository.deleteRequest(myRequests.id);
+    if (type) await this.friendRepository.updateAccept(myRequest.id, true);
+    else await this.friendRepository.deleteRequest(myRequest);
     return { success: true, msg: '친구 신청이 처리되었습니다.' };
   }
 
@@ -100,7 +101,10 @@ export class EventsService {
   async joinChat(socketId: string, roomName: string, password: string) {
     const user = await this.userService.findUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.type === ChatType.PASSWORD && chat.password !== password)
+    if (
+      chat.type === ChatType.PASSWORD &&
+      !(await bcrypt.compare(password, chat.password))
+    )
       return { success: false, msg: `비밀번호가 맞지 않습니다.` };
     const joined = chat.users.filter((usr) => usr.intra_id === user.intra_id);
     if (joined.length !== 0)
@@ -209,7 +213,6 @@ export class EventsService {
     return {
       success: true,
       msg: `${roomName}의 방장이 ${user.intra_id}으로 바뀌었습니다.`,
-      data: this.userService.userToUserDto(user),
     };
   }
 
@@ -225,7 +228,7 @@ export class EventsService {
     return { success: true, msg: `${banUser} is banned` };
   }
 
-  async cancleBan(socketId: string, roomName: string, banUser: string) {
+  async cancelBan(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.findUserBySocketId(socketId);
     const userId = user.intra_id;
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -234,7 +237,7 @@ export class EventsService {
     const ban = chat.banUsers.find((ban) => ban.username === userId);
     if (ban.length === 0)
       return { success: false, msg: `${userId}는 밴 되어있지 않습니다.` };
-    await this.banRepository.deleteBanUser(ban.id);
+    await this.banRepository.deleteBanUser(ban);
     return { success: true, msg: `${banUser}의 밴이 취소되었습니다.` };
   }
 
@@ -243,10 +246,13 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
+    const users = chat.users.map((usr) => {
+      return usr.intra_id;
+    });
     return {
       success: true,
       msg: `${roomName} 밴 유저 리스트 요청 완료`,
-      data: chat.users,
+      data: users,
     };
   }
 }

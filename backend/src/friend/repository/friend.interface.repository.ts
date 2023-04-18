@@ -1,4 +1,5 @@
 import { FriendReqType } from 'src/entity/common.enum';
+import { Friend } from 'src/entity/friend.entity';
 import { Users } from 'src/entity/user.entity';
 
 export interface IFriendRepository {
@@ -15,5 +16,5 @@ export interface IFriendRepository {
   findFriendRequested(username: string);
   findFriendRequestedWithJoin(username: string);
   updateAccept(id: number, accept: boolean);
-  deleteRequest(id: number);
+  deleteRequest(friend: Friend);
 }
