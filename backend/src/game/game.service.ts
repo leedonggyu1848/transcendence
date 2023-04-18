@@ -157,7 +157,7 @@ export class GameService {
       result.push(...list);
     }
     await Promise.all(result).then(() => {
-      this.gameRepository.deleteById(game.id);
+      this.gameRepository.deleteById(game);
     });
   }
 

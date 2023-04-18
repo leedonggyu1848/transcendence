@@ -60,13 +60,13 @@ export class EventsService {
     const friend = await this.userService.findUserByIntraId(friendName);
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
     const requests = await this.friendRepository.findFriendRequests(user);
-    const myRequests = requests.find(
+    const myRequest = requests.find(
       (request) => request.friendName === friend.intra_id,
     );
-    if (!myRequests)
+    if (!myRequest)
       return { success: false, msg: '친구 신청이 없거나 이미 처리되었습니다.' };
-    if (type) await this.friendRepository.updateAccept(myRequests.id, true);
-    else await this.friendRepository.deleteRequest(myRequests.id);
+    if (type) await this.friendRepository.updateAccept(myRequest.id, true);
+    else await this.friendRepository.deleteRequest(myRequest);
     return { success: true, msg: '친구 신청이 처리되었습니다.' };
   }
 
@@ -234,7 +234,7 @@ export class EventsService {
     const ban = chat.banUsers.find((ban) => ban.username === userId);
     if (ban.length === 0)
       return { success: false, msg: `${userId}는 밴 되어있지 않습니다.` };
-    await this.banRepository.deleteBanUser(ban.id);
+    await this.banRepository.deleteBanUser(ban);
     return { success: true, msg: `${banUser}의 밴이 취소되었습니다.` };
   }
 
