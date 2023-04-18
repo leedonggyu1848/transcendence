@@ -11,6 +11,7 @@ import {
   alertModalState,
   createChatModalToggleState,
   friendRequestListState,
+  joinChatToggleState,
   joinGameModalToggleState,
   myInfoState,
   operatorModalToggleState,
@@ -27,6 +28,7 @@ import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
 import { axiosGetFriendRequestList, axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
+import JoinChatModal from "../components/Modals/JoinChatModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -37,6 +39,7 @@ const MainPage = () => {
   const settingModalToggle = useRecoilValue(settingModalState);
   const createChatModalToggle = useRecoilValue(createChatModalToggleState);
   const setFriendRequestList = useSetRecoilState(friendRequestListState);
+  const joinChatToggle = useRecoilValue(joinChatToggleState);
   const setMyInfo = useSetRecoilState(myInfoState);
   const socket = useContext(WebsocketContext);
 
@@ -74,6 +77,7 @@ const MainPage = () => {
         {operatorModalToggle && <OperatorModal />}
         {settingModalToggle && <SettingModal />}
         {createChatModalToggle && <CreateChatModal />}
+        {joinChatToggle.toggle && <JoinChatModal />}
       </MainPageContainer>
     )
   );

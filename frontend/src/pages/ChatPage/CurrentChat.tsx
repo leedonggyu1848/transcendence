@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { currentChatLogsState, myNameState } from "../../api/atom";
+import { chatDBState, myNameState } from "../../api/atom";
 import { IChatLog, JoinnedUserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -22,29 +22,38 @@ const CurrentChat = ({
 }) => {
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
-  const [chatLogs, setChatLogs] = useRecoilState(currentChatLogsState);
+  const [chatDB, setChatDB] = useRecoilState(chatDBState);
 
   useEffect(() => {
     socket.on("message", ({ userName, message }) => {
       console.log(userName, message);
-      setChatLogs([
-        ...chatLogs,
-        { sender: userName, msg: message, time: new Date() },
-      ]);
+      setChatDB({
+        ...chatDB,
+        [roomName]: [
+          ...chatDB[roomName],
+          { sender: userName, msg: message, time: new Date() },
+        ],
+      });
     });
 
     return () => {
       socket.off("message");
       socket.off("user-list");
     };
-  }, [chatLogs]);
+  }, [chatDB]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
   const onSend = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && msg) {
-      setChatLogs([...chatLogs, { sender: myName, msg, time: new Date() }]);
+      setChatDB({
+        ...chatDB,
+        [roomName]: [
+          ...chatDB[roomName],
+          { sender: myName, msg, time: new Date() },
+        ],
+      });
       socket.emit("message", {
         roomName,
         userName: myName,
@@ -64,7 +73,7 @@ const CurrentChat = ({
       />
       <ChatBox
         height={340}
-        data={chatLogs}
+        data={chatDB[roomName]}
         myName={myName}
         onChange={onChange}
         onSend={onSend}

@@ -1,7 +1,13 @@
 import styled from "@emotion/styled";
 import { IChatRoom, JoinListDto } from "../../api/interface";
 
-const JoinList = ({ data }: { data: IChatRoom[] }) => {
+const JoinList = ({
+  data,
+  handleLeave,
+}: {
+  data: IChatRoom[];
+  handleLeave: Function;
+}) => {
   return (
     <JoinListContainer>
       {data.map(({ title, type }, idx) => (
@@ -12,7 +18,9 @@ const JoinList = ({ data }: { data: IChatRoom[] }) => {
             {title.slice(1, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
-          <LeaveButton>나가기</LeaveButton>
+          <LeaveButton onClick={() => handleLeave(title)}>
+            나가기
+          </LeaveButton>
         </Room>
       ))}
     </JoinListContainer>

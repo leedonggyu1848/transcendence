@@ -181,6 +181,7 @@ export class EventsGateway
       socket.broadcast.emit('join-chat', {
         message: result.msg,
         username: result.joinuser,
+        roomName,
       });
       socket.emit('chat-success', result.data);
     } else {
@@ -202,6 +203,7 @@ export class EventsGateway
       this.nsp.emit('leave-chat', {
         message: result.msg,
         username: result.data,
+        roomName,
       });
     } else {
       socket.emit('chat-fail', result.msg);

@@ -1,6 +1,7 @@
 import { atom, DefaultValue, selector } from "recoil";
 import { Socket } from "socket.io-client";
 import {
+  IChatDB,
   IChatLog,
   IChatRoom,
   ICurrentNormalGame,
@@ -255,7 +256,12 @@ export const joinnedChatFlagState = atom({
   default: false,
 });
 
-export const currentChatLogsState = atom<IChatLog[]>({
-  key: "currentChatLogsState",
-  default: [],
+export const chatDBState = atom<IChatDB>({
+  key: "chatDBState",
+  default: {},
+});
+
+export const joinChatToggleState = atom({
+  key: "joinChatToggleState",
+  default: { roomName: "", toggle: false },
 });

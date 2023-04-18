@@ -16,12 +16,12 @@ const ChatList = ({
             {title.slice(1, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
-          <Private
-            private_mode={
-              type === 0 ? "public" : type === 1 ? "private" : "password"
-            }
-          />
           <Current>
+            <Private
+              private_mode={
+                type === 0 ? "public" : type === 1 ? "private" : "password"
+              }
+            />
             <PersonIcon />
             <div>{count}</div>
             <Button onClick={() => joinChatRoom(title, type, operator, count)}>
@@ -46,6 +46,7 @@ const Button = styled.div`
     color: white;
     border: 1px solid white;
   }
+  margin-left: 10px;
 `;
 
 const Title = styled.div``;
@@ -61,7 +62,7 @@ const Private = styled.div<{ private_mode: string }>`
 const Current = styled.div`
   display: flex;
   align-items: center;
-  width: 100px;
+  width: 120px;
   justify-content: space-between;
 `;
 
@@ -71,6 +72,7 @@ const PersonIcon = styled.div`
   width: 15px;
   height: 15px;
   margin-right: 10px;
+  margin-left: 10px;
 `;
 
 const Chat = styled.div`

@@ -3,13 +3,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
+  chatDBState,
   chatListState,
   createChatModalToggleState,
   currentChatState,
   currentChatUserListState,
   myNameState,
 } from "../../api/atom";
-import { UserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 
 const CreateChatModal = () => {
@@ -17,6 +17,7 @@ const CreateChatModal = () => {
   const myName = useRecoilValue(myNameState);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const setCurrentChat = useSetRecoilState(currentChatState);
+  const [chatDB, setChatDB] = useRecoilState(chatDBState);
   const [chatList, setChatList] = useRecoilState(chatListState);
   const setCreateChatModalToggle = useSetRecoilState(
     createChatModalToggleState
@@ -78,6 +79,7 @@ const CreateChatModal = () => {
         setChatList([...chatList, temp]);
         socket.emit("chat-list");
         setCurrentChatUserList([operator]);
+        setChatDB({ ...chatDB, [roomName]: [] });
         closeModal();
       }
     );

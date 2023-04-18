@@ -66,6 +66,10 @@ export interface IChatLog {
   time: Date;
 }
 
+export interface IChatDB {
+  [key: string]: IChatLog[];
+}
+
 export interface IGameHistory {
   id: number;
   type: number;

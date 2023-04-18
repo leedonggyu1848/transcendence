@@ -4,10 +4,12 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   allChatFlagState,
+  chatDBState,
   chatListState,
   createChatModalToggleState,
   currentChatState,
   currentChatUserListState,
+  joinChatToggleState,
   joinnedChatFlagState,
   joinnedChatState,
   myNameState,
@@ -46,14 +48,21 @@ const ChatPage = () => {
     useRecoilState(joinnedChatState);
   const myName = useRecoilValue(myNameState);
   const setAlertInfo = useSetRecoilState(alertModalState);
+  const [chatDB, setChatDB] = useRecoilState(chatDBState);
+  const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
 
   useInitHook();
 
   const LeaveChatRoom = (roomName: string) => {
-    console.log("leave room ", roomName);
     socket.emit("leave-chat", roomName);
+    setJoinnedChatList(
+      joinnedChatList.filter((chat) => chat.title !== roomName)
+    );
+    const temp = { ...chatDB };
+    delete temp[roomName];
+    setChatDB({ ...temp });
+    if (currentChat && currentChat.title === roomName) setCurrentChat(null);
   };
-  console.log(currentChatUserList);
 
   const joinChatRoom = (
     roomName: string,
@@ -61,7 +70,6 @@ const ChatPage = () => {
     operator: string,
     count: number
   ) => {
-    console.log(roomName, currentChatUserList, joinnedChatList);
     if (joinnedChatList.some((chat) => chat.title === roomName)) {
       //current chat setting
       setCurrentChat({
@@ -74,10 +82,10 @@ const ChatPage = () => {
     }
     if (type === 2) {
       // password type 대응
+      setJoinChatToggle({ roomName, toggle: true });
     } else {
       socket.emit("join-chat", { roomName, password: "" });
     }
-    console.log("hi", roomName, type);
   };
 
   useEffect(() => {
@@ -102,7 +110,6 @@ const ChatPage = () => {
         type: number;
         operator: string;
       }) => {
-        console.log("listen creaet-chat", chatList);
         if (type !== 1) {
           setChatList([
             ...chatList,
@@ -122,14 +129,29 @@ const ChatPage = () => {
     });
 
     socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
-      console.log(chats);
       setJoinnedChatList([...chats]);
     });
 
     socket.on(
       "join-chat",
-      ({ message, username }: { message: string; username: string }) => {
-        console.log(message);
+      ({
+        message,
+        username,
+        roomName,
+      }: {
+        message: string;
+        username: string;
+        roomName: string;
+      }) => {
+        const temp = message.split(" ");
+        const msg = temp[0] + " " + temp[2];
+        setChatDB({
+          ...chatDB,
+          [roomName]: [
+            ...chatDB[roomName],
+            { sender: "admin", msg, time: new Date() },
+          ],
+        });
         setCurrentChatUserList([...currentChatUserList, username]);
       }
     );
@@ -147,21 +169,42 @@ const ChatPage = () => {
         operator: string;
         users: string[];
       }) => {
-        console.log("in join-success", users);
-        setCurrentChat({
+        const temp: IChatRoom = {
           title: roomName,
           type,
           operator,
-          count: users.length,
-        });
+          count: users.length + 1,
+        };
+        setCurrentChat(temp);
+        setChatDB({ ...chatDB, [roomName]: [] });
         setCurrentChatUserList([...users, myName]);
+        setJoinnedChatList([...joinnedChatList, temp]);
       }
     );
 
     socket.on(
       "leave-chat",
-      ({ message, username }: { message: string; username: string }) => {
-        console.log(message);
+      ({
+        message,
+        username,
+        roomName,
+      }: {
+        message: string;
+        username: string;
+        roomName: string;
+      }) => {
+        const temp = message.split(" ");
+        const msg = temp[0] + " " + temp[2];
+        console.log(chatDB);
+        if (chatDB[roomName]) {
+          setChatDB({
+            ...chatDB,
+            [roomName]: [
+              ...chatDB[roomName],
+              { sender: "admin", msg, time: new Date() },
+            ],
+          });
+        }
         setCurrentChatUserList(
           currentChatUserList.filter((name) => name !== username)
         );
@@ -171,7 +214,7 @@ const ChatPage = () => {
     socket.on("chat-fail", (message: string) => {
       setAlertInfo({
         type: "failure",
-        header: "방 나가기 실패",
+        header: "",
         msg: message,
         toggle: true,
       });
@@ -236,7 +279,7 @@ const ChatPage = () => {
         <HeaderContainer>
           <div>참여 중인 방 목록</div>
         </HeaderContainer>
-        <JoinList data={joinnedChatList} />
+        <JoinList data={joinnedChatList} handleLeave={LeaveChatRoom} />
       </WapperContainer>
     </ChatPageContainer>
   );
