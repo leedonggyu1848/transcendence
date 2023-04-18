@@ -7,6 +7,7 @@ export interface IChatRepository {
   findAll();
   findByTitle(title: string);
   findByTitleWithJoin(title: string);
+  updatePassword(chat: Chat, password: string);
   updateOperator(chatId: number, operator: string);
   updateCount(chatId: number, count: number);
   deleteChat(chat: Chat);

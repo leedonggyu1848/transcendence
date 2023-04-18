@@ -108,7 +108,7 @@ export class EventsGateway
     });
   }
 
-  @SubscribeMessage('send-friend')
+  @SubscribeMessage('request-friend')
   async handleFriendRequest(
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
@@ -117,8 +117,19 @@ export class EventsGateway
       socket.id,
       friendName,
     );
-    const api = result.success ? 'friend-success' : 'friend-fail';
-    socket.emit(api, result.msg);
+    if (result.success) {
+      const user = result.data.user;
+      const friend = result.data.friend;
+      socket.emit('request-friend', {
+        username: friendName,
+        profile: friend.profile,
+      });
+      socket
+        .to(friend.socket_id)
+        .emit('new-friend', { username: user.intra_id, profile: user.profile });
+    } else {
+      socket.emit('friend-fail', result.msg);
+    }
   }
 
   @SubscribeMessage('response-friend')
@@ -131,7 +142,7 @@ export class EventsGateway
       friendName,
       type,
     );
-    const api = result.success ? 'friend-success' : 'friend-fail';
+    const api = result.success ? 'response-friend' : 'friend-fail';
     socket.emit(api, result.msg);
   }
 
@@ -256,8 +267,41 @@ export class EventsGateway
     this.logger.log(result.msg);
   }
 
-  @SubscribeMessage('change-oper')
-  async handleChangeOper(
+  @SubscribeMessage('mute-user')
+  async handleMute(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, userName }: { roomName: string; userName: string },
+  ) {
+    const result = await this.eventsService.muteUser(
+      socket.id,
+      roomName,
+      userName,
+    );
+    if (result.success) {
+      socket.emit('mute-user', { roomName: roomName, username: userName });
+      socket.to(result.data).emit('chat-muted', roomName);
+    }
+  }
+
+  @SubscribeMessage('chat-password')
+  async handleChatChangePassword(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, password }: { roomName: string; password: string },
+  ) {
+    const result = await this.eventsService.changePassword(
+      socket.id,
+      roomName,
+      password,
+    );
+    if (result.success) socket.emit('chat-password', result.msg);
+    else socket.emit('chat-fail', result.msg);
+    this.logger.log(result.msg);
+  }
+
+  @SubscribeMessage('chat-operator')
+  async handleChatChangeOperator(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, operator }: { roomName: string; operator: string },
@@ -268,7 +312,7 @@ export class EventsGateway
       operator,
     );
     if (result.success)
-      socket.broadcast.to(roomName).emit('change-oper', result.msg);
+      socket.broadcast.to(roomName).emit('chat-operator', result.msg);
     else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }
