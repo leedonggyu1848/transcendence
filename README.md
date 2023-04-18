@@ -1,6 +1,6 @@
 # PH18 - Transcendence
 
-### Frontend : heejikim, yooh
+### Frontend : yooh
 
 #### React + TS
 
