@@ -55,7 +55,7 @@ export class EventsService {
     )
       return { success: false, msg: '이미 친구 신청을 보냈습니다.' };
     await this.friendRepository.addFriend(user, friendName);
-    return { success: true, msg: '친구 요청을 보냈습니다.' };
+    return { success: true, data: { user, friend } };
   }
 
   async friendResponse(socketId: string, friendName: string, type: boolean) {
@@ -203,6 +203,22 @@ export class EventsService {
     };
   }
 
+  async muteUser(socketId: string, roomName: string, userName: string) {
+    const user = await this.userService.findUserBySocketId(socketId);
+    const muted = await this.userService.findUserByIntraId(userName);
+    if (!muted) return { success: false, msg: `${userName} 유저가 없습니다.` };
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    if (chat.operator !== user.intra_id)
+      return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
+    const data = chat.users.filter((usr) => usr.intra_id === userName);
+    if (data.length === 0)
+      return { success: false, msg: `${roomName}에 ${userName}가 없습니다.` };
+    return {
+      success: true,
+      data: muted.socket_id,
+    };
+  }
+
   async changePassword(socketId: string, roomName: string, password: string) {
     const user = await this.userService.findUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -226,7 +242,7 @@ export class EventsService {
     await this.chatRepository.updateOperator(chat.id, operator);
     return {
       success: true,
-      msg: `${roomName}의 방장이 ${user.intra_id}으로 바뀌었습니다.`,
+      msg: `${roomName}의 방장이 ${operator}으로 바뀌었습니다.`,
     };
   }
 

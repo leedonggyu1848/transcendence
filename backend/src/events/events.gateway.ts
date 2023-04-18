@@ -108,7 +108,7 @@ export class EventsGateway
     });
   }
 
-  @SubscribeMessage('send-friend')
+  @SubscribeMessage('request-friend')
   async handleFriendRequest(
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
@@ -117,8 +117,19 @@ export class EventsGateway
       socket.id,
       friendName,
     );
-    const api = result.success ? 'friend-success' : 'friend-fail';
-    socket.emit(api, result.msg);
+    if (result.success) {
+      const user = result.data.user;
+      const friend = result.data.friend;
+      socket.emit('request-friend', {
+        username: friendName,
+        profile: friend.profile,
+      });
+      socket
+        .to(friend.socket_id)
+        .emit('new-friend', { username: user.intra_id, profile: user.profile });
+    } else {
+      socket.emit('friend-fail', result.msg);
+    }
   }
 
   @SubscribeMessage('response-friend')
@@ -131,7 +142,7 @@ export class EventsGateway
       friendName,
       type,
     );
-    const api = result.success ? 'friend-success' : 'friend-fail';
+    const api = result.success ? 'response-friend' : 'friend-fail';
     socket.emit(api, result.msg);
   }
 
@@ -254,6 +265,23 @@ export class EventsGateway
       socket.emit('chat-fail', result.msg);
     }
     this.logger.log(result.msg);
+  }
+
+  @SubscribeMessage('mute-user')
+  async handleMute(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, userName }: { roomName: string; userName: string },
+  ) {
+    const result = await this.eventsService.muteUser(
+      socket.id,
+      roomName,
+      userName,
+    );
+    if (result.success) {
+      socket.emit('mute-user', { roomName: roomName, username: userName });
+      socket.to(result.data).emit('chat-muted', roomName);
+    }
   }
 
   @SubscribeMessage('chat-password')
