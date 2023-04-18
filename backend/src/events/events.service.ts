@@ -209,7 +209,6 @@ export class EventsService {
     return {
       success: true,
       msg: `${roomName}의 방장이 ${user.intra_id}으로 바뀌었습니다.`,
-      data: this.userService.userToUserDto(user),
     };
   }
 
@@ -225,7 +224,7 @@ export class EventsService {
     return { success: true, msg: `${banUser} is banned` };
   }
 
-  async cancleBan(socketId: string, roomName: string, banUser: string) {
+  async cancelBan(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.findUserBySocketId(socketId);
     const userId = user.intra_id;
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -243,10 +242,13 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
+    const users = chat.users.map((usr) => {
+      return usr.intra_id;
+    });
     return {
       success: true,
       msg: `${roomName} 밴 유저 리스트 요청 완료`,
-      data: chat.users,
+      data: users,
     };
   }
 }
