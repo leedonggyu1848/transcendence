@@ -84,6 +84,7 @@ const ChatPage = () => {
       // password type 대응
       setJoinChatToggle({ roomName, toggle: true });
     } else {
+      console.log("send join-chat");
       socket.emit("join-chat", { roomName, password: "" });
     }
   };
@@ -143,21 +144,25 @@ const ChatPage = () => {
         username: string;
         roomName: string;
       }) => {
-        const temp = message.split(" ");
-        const msg = temp[0] + " " + temp[2];
-        setChatDB({
-          ...chatDB,
-          [roomName]: [
-            ...chatDB[roomName],
-            { sender: "admin", msg, time: new Date() },
-          ],
-        });
+        console.log("join-chat-success");
+        setChatList(
+          chatList.map((chat) => ({ ...chat, count: chat.count + 1 }))
+        );
+        if (chatDB[roomName]) {
+          setChatDB({
+            ...chatDB,
+            [roomName]: [
+              ...chatDB[roomName],
+              { sender: "admin", msg: message, time: new Date() },
+            ],
+          });
+        }
         setCurrentChatUserList([...currentChatUserList, username]);
       }
     );
 
     socket.on(
-      "chat-success",
+      "join-chat-success",
       ({
         roomName,
         type,
@@ -175,12 +180,28 @@ const ChatPage = () => {
           operator,
           count: users.length + 1,
         };
+        console.log("join-chat-success", roomName);
         setCurrentChat(temp);
         setChatDB({ ...chatDB, [roomName]: [] });
         setCurrentChatUserList([...users, myName]);
         setJoinnedChatList([...joinnedChatList, temp]);
+        setChatList(
+          chatList.map((chat) => ({ ...chat, count: chat.count + 1 }))
+        );
       }
     );
+
+    socket.on("leave-chat-success", (roomName: string) => {
+      console.log("leave-chat-success");
+      setChatList(
+        chatList
+          .map((chat) => ({
+            ...chat,
+            count: chat.title === roomName ? chat.count - 1 : chat.count,
+          }))
+          .filter((chat) => chat.count !== 0)
+      );
+    });
 
     socket.on(
       "leave-chat",
@@ -193,15 +214,19 @@ const ChatPage = () => {
         username: string;
         roomName: string;
       }) => {
-        const temp = message.split(" ");
-        const msg = temp[0] + " " + temp[2];
         console.log(chatDB);
+        console.log("leave-chat");
+        setChatList(
+          chatList
+            .map((chat) => ({ ...chat, count: chat.count - 1 }))
+            .filter((chat) => chat.count !== 0)
+        );
         if (chatDB[roomName]) {
           setChatDB({
             ...chatDB,
             [roomName]: [
               ...chatDB[roomName],
-              { sender: "admin", msg, time: new Date() },
+              { sender: "admin", msg: message, time: new Date() },
             ],
           });
         }
