@@ -173,10 +173,11 @@ export class EventsGateway
     );
     if (result.success) {
       socket.join(roomName);
-      this.nsp.emit('join-chat', {
+      socket.broadcast.emit('join-chat', {
         message: result.data,
         userInfo: result.data,
       });
+      socket.emit('chat-success', result.data);
     } else {
       socket.emit('chat-fail', result.msg);
     }

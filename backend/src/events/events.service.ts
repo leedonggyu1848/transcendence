@@ -164,7 +164,7 @@ export class EventsService {
     const user = await this.userService.findUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     const usersDto = chat.users.map((usr) => {
-      return this.userService.userToUserDto(usr);
+      return this.userService.userToUserDto(usr.user);
     });
     return { user: user.intra_id, users: usersDto };
   }
