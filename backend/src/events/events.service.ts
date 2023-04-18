@@ -70,7 +70,7 @@ export class EventsService {
       return { success: false, msg: '친구 신청이 없거나 이미 처리되었습니다.' };
     if (type) await this.friendRepository.updateAccept(myRequest.id, true);
     else await this.friendRepository.deleteRequest(myRequest);
-    return { success: true, msg: '친구 신청이 처리되었습니다.' };
+    return { success: true, data: friend.socket_id };
   }
 
   async creatChat(
