@@ -47,6 +47,7 @@ export class EventsGateway
   ) {
     this.logger.log(`connect ${socket.id} to ${intra_id}`);
     this.eventsService.registUser(intra_id, socket.id);
+    socket.broadcast.emit('connect-user', `${intra_id}가 접속했습니다.`);
   }
 
   @SubscribeMessage('message')
@@ -311,12 +312,19 @@ export class EventsGateway
   }
 
   @SubscribeMessage('start-game')
-  handleStartGame(
+  async handleStartGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
     this.logger.log(`${roomName} Game Start`);
     socket.broadcast.to(roomName).emit('start-game');
+    const result = await this.eventsService.gameAlert(
+      roomName,
+      '가 게임 중입니다.',
+    );
+    result.forEach((data) => {
+      socket.broadcast.emit('user-ingame', data);
+    });
   }
 
   @SubscribeMessage('move-ball')
@@ -338,11 +346,18 @@ export class EventsGateway
   }
 
   @SubscribeMessage('normal-game-over')
-  handleNormalGameOver(
+  async handleNormalGameOver(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, winner }: { roomName: string; winner: string },
   ) {
     socket.broadcast.to(roomName).emit('normal-game-over', { winner });
+    const result = await this.eventsService.gameAlert(
+      roomName,
+      '의 게임이 끝났습니다.',
+    );
+    result.forEach((data) => {
+      socket.broadcast.emit('user-ingame', data);
+    });
   }
 }

@@ -7,6 +7,7 @@ import { IBanRepository } from './repository/ban.interface.repository';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
 import * as bcrypt from 'bcrypt';
+import { GameService } from 'src/game/game.service';
 
 @Injectable()
 export class EventsService {
@@ -22,6 +23,7 @@ export class EventsService {
     @Inject('IBanRepository')
     private banRepository: IBanRepository,
     private userService: UserService,
+    private gameService: GameService,
   ) {}
 
   async registUser(intra_id: string, socket_id: string) {
@@ -120,7 +122,7 @@ export class EventsService {
     });
     return {
       success: true,
-      msg: `${user.intra_id}가 ${roomName}에 들어왔습니다.`,
+      msg: `${user.intra_id}가 들어왔습니다.`,
       joinuser: user.intra_id,
       data: {
         roomName: roomName,
@@ -150,7 +152,7 @@ export class EventsService {
     }
     return {
       success: true,
-      msg: `${user.intra_id}가 ${roomName}에서 나갔습니다.`,
+      msg: `${user.intra_id}가 나갔습니다.`,
       data: user.intra_id,
     };
   }
@@ -254,5 +256,16 @@ export class EventsService {
       msg: `${roomName} 밴 유저 리스트 요청 완료`,
       data: users,
     };
+  }
+
+  async gameAlert(roomName: string, message: string) {
+    const players = await this.gameService.getGamePlayers(roomName);
+    const data = players.map((player) => {
+      return {
+        username: player.intra_id,
+        message: `${player.intra_id}` + message,
+      };
+    });
+    return data;
   }
 }

@@ -40,6 +40,14 @@ export class GameService {
     return games;
   }
 
+  async getGamePlayers(title: string) {
+    const game = await this.gameRepository.findByTitleWithJoin(title);
+    const players = game.players.map((player) => {
+      return this.userService.userToUserDto(player);
+    });
+    return players;
+  }
+
   async createGame(gameDto: GameDto, user: Users) {
     if (user.join_type !== JoinType.NONE)
       return { success: false, data: '이미 다른 방에 참여 중입니다.' };
@@ -54,7 +62,7 @@ export class GameService {
     };
   }
 
-  async serviceJoinGame(title: string, password: string, user: Users) {
+  async joinGame(title: string, password: string, user: Users) {
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
@@ -88,7 +96,7 @@ export class GameService {
     };
   }
 
-  async serviceWatchGame(title: string, password: string, user: Users) {
+  async watchGame(title: string, password: string, user: Users) {
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
