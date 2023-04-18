@@ -189,12 +189,12 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
-    const data = chat.users.filter((usr) => usr.intra_id === userName);
+    const data = chat.users.filter((usr) => usr.user.intra_id === userName);
     if (data.length === 0)
       return { success: false, msg: `${roomName}에 ${userName}가 없습니다.` };
     const kicked = await this.userService.findUserByIntraId(userName);
     const chatuser = await this.chatUserRepository.findByBoth(chat, kicked);
-    await this.chatUserRepository.deleteChatUser(chatuser.id);
+    await this.chatUserRepository.deleteChatUser(chatuser);
     await this.chatRepository.updateCount(chat.id, chat.count - 1);
     return {
       success: true,
@@ -255,7 +255,7 @@ export class EventsService {
     if (ban.length !== 0)
       return { success: false, msg: `${banUser}는 이미 밴 되어있습니다.` };
     await this.banRepository.addBanUser(chat, banUser);
-    return { success: true, msg: `${banUser} is banned` };
+    return { success: true, msg: `${banUser}가 밴 되었습니다.` };
   }
 
   async cancelBan(socketId: string, roomName: string, banUser: string) {
