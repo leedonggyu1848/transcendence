@@ -212,17 +212,28 @@ export class EventsGateway
       password,
     );
     await this.chatUserRepository.addChatUser(chat, user);
+
     socket.join(roomName);
     this.logger.log(`chat ${roomName} is created`);
     this.nsp.emit('create-chat', { roomName, type, operator: user.intra_id });
-    socket.emit('create-success', { roomName, type, operator: user.intra_id });
+    socket.emit('create-success', {
+      roomName,
+      type,
+      operator: user.intra_id,
+      userInfo: user,
+    });
   }
 
   @SubscribeMessage('join-chat')
   async handleJoinChat(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, password }: { roomName: string; password: string },
+    {
+      roomName,
+      type,
+      password,
+      operator,
+    }: { roomName: string; password: string; type: number; operator: string },
   ) {
     const user = await this.userRepository.findBySocketId(socket.id);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -245,11 +256,22 @@ export class EventsGateway
       socket.emit('chat-fail', `${roomName}에 접속할 수 없습니다.`);
       return;
     }
-    this.chatUserRepository.addChatUser(chat, user);
-    this.chatRepository.updateCount(chat.id, chat.count + 1);
+    await this.chatUserRepository.addChatUser(chat, user);
+    await this.chatRepository.updateCount(chat.id, chat.count + 1);
+    console.log(chat);
+    const usersDto = chat.users.map((usr) => {
+      return this.userRepository.userToUserDto(usr);
+    });
     socket.join(roomName);
+    console.log(usersDto);
     this.logger.log(`${user.intra_id} join chat ${roomName}`);
-    this.nsp.emit('join-chat', {
+    socket.emit('join-success', {
+      roomName,
+      type,
+      users: usersDto,
+      operator,
+    });
+    socket.broadcast.emit('join-chat', {
       roomName,
       userInfo: this.userRepository.userToUserDto(user),
     });

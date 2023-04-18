@@ -230,6 +230,11 @@ export const currentChatState = atom<IChatRoom | null>({
   default: null,
 });
 
+export const currentChatUserListState = atom<UserDto[]>({
+  key: "currentChatUserListState",
+  default: [],
+});
+
 export const joinnedChatState = atom<IChatRoom[]>({
   key: "joinnedChatState",
   default: [],
@@ -248,4 +253,9 @@ export const allChatFlagState = atom({
 export const joinnedChatFlagState = atom({
   key: "joinnedChatFlagState",
   default: false,
+});
+
+export const currentChatLogsState = atom<IChatLog[]>({
+  key: "currentChatLogsState",
+  default: [],
 });

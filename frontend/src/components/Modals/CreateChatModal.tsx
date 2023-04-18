@@ -6,8 +6,10 @@ import {
   chatListState,
   createChatModalToggleState,
   currentChatState,
+  currentChatUserListState,
   myNameState,
 } from "../../api/atom";
+import { UserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 
 const CreateChatModal = () => {
@@ -28,6 +30,8 @@ const CreateChatModal = () => {
     type: 0,
     password: "",
   });
+  const setCurrentChatUserList = useSetRecoilState(currentChatUserListState);
+
   const onChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "password") {
       setToggle(false);
@@ -41,6 +45,7 @@ const CreateChatModal = () => {
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInfo({ ...info, [e.target.name]: e.target.value });
   };
+  
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     socket.emit("create-chat", {
@@ -56,10 +61,12 @@ const CreateChatModal = () => {
         roomName,
         type,
         operator,
+        userInfo,
       }: {
         roomName: string;
         type: number;
         operator: string;
+        userInfo: UserDto;
       }) => {
         console.log("방생성 성공");
         const temp = {
@@ -70,6 +77,8 @@ const CreateChatModal = () => {
         };
         setCurrentChat(temp);
         setChatList([...chatList, temp]);
+        socket.emit("chat-list");
+        setCurrentChatUserList([userInfo]);
         closeModal();
       }
     );

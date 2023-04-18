@@ -6,8 +6,10 @@ import {
   chatListState,
   createChatModalToggleState,
   currentChatState,
+  currentChatUserListState,
   joinnedChatFlagState,
   joinnedChatState,
+  myNameState,
   operatorModalToggleState,
 } from "../../api/atom";
 import {
@@ -18,6 +20,7 @@ import {
 } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
+import CurrentUserInfo from "../../components/CurrentUserInfo";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";
@@ -35,10 +38,18 @@ const ChatPage = () => {
   };
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [chatList, setChatList] = useRecoilState(chatListState);
+  const [currentChatUserList, setCurrentChatUserList] = useRecoilState(
+    currentChatUserListState
+  );
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
+  const myName = useRecoilValue(myNameState);
 
   useInitHook();
+
+  const LeaveChatRoom = (roomName: string) => {
+    console.log("leave room ", roomName);
+  };
 
   const joinChatRoom = (
     roomName: string,
@@ -55,11 +66,12 @@ const ChatPage = () => {
         operator,
         count: count + 1,
       });
-      socket.emit("join-chat", roomName);
       return;
     }
     if (type === 2) {
       // password type 대응
+    } else {
+      socket.emit("join-chat", { roomName, type, operator, password: "" });
     }
     console.log("hi", roomName, type);
   };
@@ -67,10 +79,12 @@ const ChatPage = () => {
   useEffect(() => {
     if (!allChatFlag) {
       socket.emit("all-chat");
+      setAllChatFlag(true);
     }
 
     if (!joinnedChatFlag) {
       socket.emit("chat-list");
+      setJoinnedChatFlag(true);
     }
 
     socket.on(
@@ -101,25 +115,42 @@ const ChatPage = () => {
 
     socket.on("all-chat", ({ chats }: { chats: IChatRoom[] }) => {
       setChatList(chats.filter((chat) => chat.type !== 1));
-      setAllChatFlag(true);
     });
 
     socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
       console.log(chats);
       setJoinnedChatList([...chats]);
-      setJoinnedChatFlag(true);
     });
 
     socket.on(
       "join-chat",
       ({ roomName, userInfo }: { roomName: string; userInfo: UserDto }) => {
+        console.log("새로운 방 참여");
         console.log(roomName, userInfo);
-        if (joinnedChatList.some((chat) => chat.title === roomName)) {
-          console.log("이미 참여한 방입니다", userInfo);
-        } else {
-          console.log("새로운 방 참여");
-          console.log(roomName, userInfo);
-        }
+      }
+    );
+
+    socket.on(
+      "join-success",
+      ({
+        roomName,
+        type,
+        operator,
+        users,
+      }: {
+        roomName: string;
+        type: number;
+        operator: string;
+        users: UserDto[];
+      }) => {
+        console.log("in join-success", users);
+        setCurrentChat({
+          title: roomName,
+          type,
+          operator,
+          count: users.length,
+        });
+        setCurrentChatUserList(users.slice());
       }
     );
 
@@ -127,11 +158,15 @@ const ChatPage = () => {
       socket.off("chat-list");
       socket.off("create-chat");
       socket.off("all-chat");
-      socket.off("chat-list");
       socket.off("join-chat");
-      socket.off("chat-list");
+      setAllChatFlag(true);
+      setJoinnedChatFlag(true);
+
+      // 얘네는 다른 페이지로 갔을 때 초기화 하는 로직으로 해야할 듯
+      //setCurrentChat(null);
+      //setCurrentChatUserList([]);
     };
-  }, [chatList, joinnedChatList]);
+  }, [chatList, joinnedChatList, currentChat, currentChatUserList]);
 
   return (
     <ChatPageContainer>
@@ -147,10 +182,19 @@ const ChatPage = () => {
         <WapperContainer>
           <HeaderContainer>
             <div>현재 참가 중인 방</div>
+            <Leave onClick={() => LeaveChatRoom(currentChat.title)}>
+              나가기
+            </Leave>
           </HeaderContainer>
           <CurrentChat
             roomName={currentChat.title}
-            data={[]}
+            operator={currentChat.operator === myName}
+            myName={myName}
+            data={UserDtoToJoinnedUserDto(
+              currentChatUserList,
+              myName,
+              currentChat.operator
+            )}
             clickOperatorButton={clickOperatorButton}
           />
         </WapperContainer>
@@ -172,39 +216,30 @@ const ChatPage = () => {
   );
 };
 
-function createDummyChatList() {
-  const result: ChatListDto[] = [];
-
-  for (let i = 0; i < 100; i++) {
-    const ran = Math.floor(Math.random() * 2);
-    const cur = Math.floor(Math.random() * 100);
-    result.push({
-      title:
-        "안녕하세요 잘부탁드립니다. 열심히하겠습니다. 충성 충성 충성" + (i + 1),
-      private_mode: ran ? true : false,
-      cur,
-    });
-  }
-
-  return result;
+function UserDtoToJoinnedUserDto(
+  data: UserDto[],
+  myName: string,
+  operator: string
+) {
+  return data.map(({ intra_id }) => ({
+    intra_id,
+    type:
+      intra_id === operator
+        ? "owner"
+        : intra_id === myName
+        ? "opponent"
+        : "watcher",
+  }));
 }
 
-function createDummyJoinList() {
-  const result: JoinListDto[] = [];
-  for (let i = 0; i < 100; i++) {
-    const ran = Math.floor(Math.random() * 2);
-    const newMessage = Math.floor(Math.random() * 2);
-    result.push({
-      title:
-        "톰과 제리의 환상적인 콜라보레이션 보고싶은 분들은 이 방으로 들어오세요 시간이 없습니다~!" +
-        (i + 1),
-      private_mode: ran ? true : false,
-      newMessage,
-    });
-  }
-  return result;
-}
-
+const Leave = styled.div`
+  font-size: 1rem !important;
+  background: white;
+  color: var(--dark-bg-color) !important;
+  border-radius: 5px;
+  padding: 3px 7px;
+  cursor: pointer;
+`;
 const NotInChatRoom = styled.div`
   width: 100%;
   height: 510px;

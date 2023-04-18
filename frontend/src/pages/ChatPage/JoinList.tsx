@@ -8,8 +8,8 @@ const JoinList = ({ data }: { data: IChatRoom[] }) => {
         <Room key={idx}>
           {true ? <NewMessage /> : <Empty />}
           <Private private_mode={type} />
-          <Title title={title}>
-            {title.slice(0, 10)}
+          <Title title={title.slice(1)}>
+            {title.slice(1, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
           <LeaveButton>나가기</LeaveButton>
