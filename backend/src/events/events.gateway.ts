@@ -180,7 +180,7 @@ export class EventsGateway
         message: result.msg,
         username: result.joinuser,
       });
-      socket.emit('chat-success', result.data);
+      socket.emit('join-chat-success', result.data);
     } else {
       socket.emit('chat-fail', result.msg);
     }
@@ -201,7 +201,7 @@ export class EventsGateway
         username: result.data,
         roomName: roomName,
       });
-      socket.emit('chat-success', roomName);
+      socket.emit('leave-chat-success', roomName);
     } else {
       socket.emit('chat-fail', result.msg);
     }
