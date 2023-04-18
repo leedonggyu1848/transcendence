@@ -142,8 +142,12 @@ export class EventsGateway
       friendName,
       type,
     );
-    const api = result.success ? 'response-friend' : 'friend-fail';
-    socket.emit(api, result.msg);
+    if (result.success) {
+      socket.emit('response-friend', { friendName, type });
+      socket.to(result.data).emit('friend-result', { friendName, type });
+    } else {
+      socket.emit('friend-fail', result.msg);
+    }
   }
 
   @SubscribeMessage('create-chat')
