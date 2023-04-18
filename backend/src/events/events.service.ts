@@ -112,13 +112,18 @@ export class EventsService {
       return { success: false, msg: `${roomName}에 밴 되어있습니다.` };
     await this.chatUserRepository.addChatUser(chat, user);
     await this.chatRepository.updateCount(chat.id, chat.count + 1);
+    const usernames = chat.users.map((usr) => {
+      if (usr.user) return usr.user.intra_id;
+      return '';
+    });
     return {
       success: true,
       msg: `${user.intra_id}가 ${roomName}에 들어왔습니다.`,
+      joinuser: user.intra_id,
       data: {
-        userInfo: this.userService.userToUserDto(user),
         operator: chat.operator,
         type: chat.type,
+        users: usernames,
       },
     };
   }

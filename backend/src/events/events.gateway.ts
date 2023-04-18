@@ -180,7 +180,7 @@ export class EventsGateway
       socket.join(roomName);
       socket.broadcast.emit('join-chat', {
         message: result.msg,
-        userInfo: result.data.userInfo,
+        username: result.joinuser,
       });
       socket.emit('chat-success', result.data);
     } else {
