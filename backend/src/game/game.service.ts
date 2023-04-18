@@ -169,7 +169,6 @@ export class GameService {
       if (!game)
         return { success: false, data: '해당 방이 존재하지 않습니다.' };
     }
-
     if (user.join_type === JoinType.OWNER) {
       await this.flushGame(game.title);
     } else if (user.join_type === JoinType.PLAYER) {

@@ -1,7 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { string } from 'joi';
-import { Namespace, Socket } from 'socket.io';
-import { UserDto } from 'src/dto/user.dto';
 import { ChatType } from 'src/entity/common.enum';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/users.interface.repository';
@@ -136,8 +133,8 @@ export class EventsService {
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0)
       return { success: false, msg: `참여 중인 방이 없습니다.` };
-    await this.chatUserRepository.deleteChatUser(chatUser.id);
-    if (chat.count <= 1) await this.chatRepository.deleteChat(chat.id);
+    await this.chatUserRepository.deleteChatUser(chatUser);
+    if (chat.count <= 1) await this.chatRepository.deleteChat(chat);
     else {
       await this.chatRepository.updateCount(chat.id, chat.count - 1);
       if (chat.operator === user.intra_id) {
@@ -165,6 +162,7 @@ export class EventsService {
 
   async getChatList(socketId: string) {
     const user = await this.userRepository.findBySocketIdWithJoinChat(socketId);
+    if (user.chats.length === 0) return { user: user.intra_id, chats: [] };
     const chatsDto = user.chats.map((chat) => {
       return this.chatRepository.chatToChatDto(chat.chat);
     });

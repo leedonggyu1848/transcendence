@@ -2,23 +2,26 @@ import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  alertModalState,
   allChatFlagState,
   chatListState,
   createChatModalToggleState,
   currentChatState,
+  currentChatUserListState,
   joinnedChatFlagState,
+  joinnedChatState,
+  myNameState,
   operatorModalToggleState,
-  socketState,
 } from "../../api/atom";
 import {
   ChatListDto,
   IChatRoom,
   JoinListDto,
-  JoinnedUserDto,
   UserDto,
 } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
+import CurrentUserInfo from "../../components/CurrentUserInfo";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";
@@ -34,34 +37,59 @@ const ChatPage = () => {
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
-  const currentChat = useRecoilValue(currentChatState);
+  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [chatList, setChatList] = useRecoilState(chatListState);
-  const [joinnedChatList, setJoinnedChatList] = useState<IChatRoom[]>([]);
+  const [currentChatUserList, setCurrentChatUserList] = useRecoilState(
+    currentChatUserListState
+  );
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
+  const myName = useRecoilValue(myNameState);
+  const setAlertInfo = useSetRecoilState(alertModalState);
 
   useInitHook();
 
-  const joinChatRoom = (roomName: string, type: number) => {
+  const LeaveChatRoom = (roomName: string) => {
+    console.log("leave room ", roomName);
+    socket.emit("leave-chat", roomName);
+  };
+  console.log(currentChatUserList);
+
+  const joinChatRoom = (
+    roomName: string,
+    type: number,
+    operator: string,
+    count: number
+  ) => {
+    console.log(roomName, currentChatUserList, joinnedChatList);
     if (joinnedChatList.some((chat) => chat.title === roomName)) {
       //current chat setting
+      setCurrentChat({
+        title: roomName,
+        type,
+        operator,
+        count: count + 1,
+      });
       return;
     }
     if (type === 2) {
       // password type 대응
+    } else {
+      socket.emit("join-chat", { roomName, password: "" });
     }
     console.log("hi", roomName, type);
-
-    socket.emit("join-chat", roomName);
   };
 
   useEffect(() => {
     if (!allChatFlag) {
       socket.emit("all-chat");
+      setAllChatFlag(true);
     }
 
     if (!joinnedChatFlag) {
       socket.emit("chat-list");
+      setJoinnedChatFlag(true);
     }
-    //socket.emit("chat-list");
 
     socket.on(
       "create-chat",
@@ -91,34 +119,80 @@ const ChatPage = () => {
 
     socket.on("all-chat", ({ chats }: { chats: IChatRoom[] }) => {
       setChatList(chats.filter((chat) => chat.type !== 1));
-      setAllChatFlag(true);
     });
 
-    socket.on("chat-list", ({ chats }: { chats: any }) => {
+    socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
       console.log(chats);
+      setJoinnedChatList([...chats]);
     });
 
     socket.on(
       "join-chat",
-      ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
-        if (chatList.some((chat) => chat.title === message)) {
-          console.log("이미 참여한 방입니다", userInfo);
-        } else {
-          console.log("새로운 방 참여");
-          console.log(message, userInfo);
-        }
+      ({ message, username }: { message: string; username: string }) => {
+        console.log(message);
+        setCurrentChatUserList([...currentChatUserList, username]);
       }
     );
+
+    socket.on(
+      "chat-success",
+      ({
+        roomName,
+        type,
+        operator,
+        users,
+      }: {
+        roomName: string;
+        type: number;
+        operator: string;
+        users: string[];
+      }) => {
+        console.log("in join-success", users);
+        setCurrentChat({
+          title: roomName,
+          type,
+          operator,
+          count: users.length,
+        });
+        setCurrentChatUserList([...users, myName]);
+      }
+    );
+
+    socket.on(
+      "leave-chat",
+      ({ message, username }: { message: string; username: string }) => {
+        console.log(message);
+        setCurrentChatUserList(
+          currentChatUserList.filter((name) => name !== username)
+        );
+      }
+    );
+
+    socket.on("chat-fail", (message: string) => {
+      setAlertInfo({
+        type: "failure",
+        header: "방 나가기 실패",
+        msg: message,
+        toggle: true,
+      });
+    });
 
     return () => {
       socket.off("chat-list");
       socket.off("create-chat");
       socket.off("all-chat");
-      socket.off("chat-list");
       socket.off("join-chat");
-      socket.off("chat-list");
+      socket.off("chat-success");
+      socket.off("leave-chat");
+      socket.off("chat-fail");
+      setAllChatFlag(true);
+      setJoinnedChatFlag(true);
+
+      // 얘네는 다른 페이지로 갔을 때 초기화 하는 로직으로 해야할 듯
+      //setCurrentChat(null);
+      //setCurrentChatUserList([]);
     };
-  }, [chatList]);
+  }, [chatList, joinnedChatList, currentChat, currentChatUserList]);
 
   return (
     <ChatPageContainer>
@@ -134,10 +208,19 @@ const ChatPage = () => {
         <WapperContainer>
           <HeaderContainer>
             <div>현재 참가 중인 방</div>
+            <Leave onClick={() => LeaveChatRoom(currentChat.title)}>
+              나가기
+            </Leave>
           </HeaderContainer>
           <CurrentChat
             roomName={currentChat.title}
-            data={[]}
+            operator={currentChat.operator === myName}
+            myName={myName}
+            data={UserDtoToJoinnedUserDto(
+              currentChatUserList,
+              myName,
+              currentChat.operator
+            )}
             clickOperatorButton={clickOperatorButton}
           />
         </WapperContainer>
@@ -153,45 +236,32 @@ const ChatPage = () => {
         <HeaderContainer>
           <div>참여 중인 방 목록</div>
         </HeaderContainer>
-        <JoinList data={createDummyJoinList()} />
+        <JoinList data={joinnedChatList} />
       </WapperContainer>
     </ChatPageContainer>
   );
 };
 
-function createDummyChatList() {
-  const result: ChatListDto[] = [];
-
-  for (let i = 0; i < 100; i++) {
-    const ran = Math.floor(Math.random() * 2);
-    const cur = Math.floor(Math.random() * 100);
-    result.push({
-      title:
-        "안녕하세요 잘부탁드립니다. 열심히하겠습니다. 충성 충성 충성" + (i + 1),
-      private_mode: ran ? true : false,
-      cur,
-    });
-  }
-
-  return result;
+function UserDtoToJoinnedUserDto(
+  data: string[],
+  myName: string,
+  operator: string
+) {
+  return data.map((name) => ({
+    intra_id: name,
+    type:
+      name === operator ? "owner" : name === myName ? "opponent" : "watcher",
+  }));
 }
 
-function createDummyJoinList() {
-  const result: JoinListDto[] = [];
-  for (let i = 0; i < 100; i++) {
-    const ran = Math.floor(Math.random() * 2);
-    const newMessage = Math.floor(Math.random() * 2);
-    result.push({
-      title:
-        "톰과 제리의 환상적인 콜라보레이션 보고싶은 분들은 이 방으로 들어오세요 시간이 없습니다~!" +
-        (i + 1),
-      private_mode: ran ? true : false,
-      newMessage,
-    });
-  }
-  return result;
-}
-
+const Leave = styled.div`
+  font-size: 1rem !important;
+  background: white;
+  color: var(--dark-bg-color) !important;
+  border-radius: 5px;
+  padding: 3px 7px;
+  cursor: pointer;
+`;
 const NotInChatRoom = styled.div`
   width: 100%;
   height: 510px;

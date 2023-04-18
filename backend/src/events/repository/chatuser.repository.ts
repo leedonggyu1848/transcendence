@@ -41,20 +41,20 @@ export class ChatUserRepository implements IChatUserRepository {
   }
 
   async findByBoth(chat: Chat, user: Users) {
-    return await this.chatUserRepository.findBy({
+    return await this.chatUserRepository.findOneBy({
       chat: { id: chat.id },
       user: { id: user.id },
     });
   }
 
   async findByBothWithJoin(chat: Chat, user: Users) {
-    return await this.chatUserRepository.find({
+    return await this.chatUserRepository.findOne({
       where: { chat: { id: chat.id }, user: { id: user.id } },
       relations: ['chat', 'user'],
     });
   }
 
-  async deleteChatUser(id: number) {
-    await this.chatUserRepository.delete(id);
+  async deleteChatUser(chatUser: ChatUser) {
+    await this.chatUserRepository.remove(chatUser);
   }
 }

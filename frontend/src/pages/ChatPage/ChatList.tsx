@@ -10,9 +10,9 @@ const ChatList = ({
 }) => {
   return (
     <ChatListContainer>
-      {data.map(({ title, type, count }, idx) => (
-        <Chat key={idx} onClick={() => joinChatRoom(title, type)}>
-          <Title title={title}>
+      {data.map(({ title, type, operator, count }, idx) => (
+        <Chat key={idx}>
+          <Title title={title.slice(1)}>
             {title.slice(1, 10)}
             {title.length > 10 ? "..." : ""}
           </Title>
@@ -24,12 +24,29 @@ const ChatList = ({
           <Current>
             <PersonIcon />
             <div>{count}</div>
+            <Button onClick={() => joinChatRoom(title, type, operator, count)}>
+              입장
+            </Button>
           </Current>
         </Chat>
       ))}
     </ChatListContainer>
   );
 };
+
+const Button = styled.div`
+  background: white;
+  color: var(--dark-bg-color);
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  &:hover {
+    background: var(--main-bg-color);
+    color: white;
+    border: 1px solid white;
+  }
+`;
 
 const Title = styled.div``;
 
@@ -44,7 +61,7 @@ const Private = styled.div<{ private_mode: string }>`
 const Current = styled.div`
   display: flex;
   align-items: center;
-  width: 45px;
+  width: 100px;
   justify-content: space-between;
 `;
 
@@ -61,7 +78,7 @@ const Chat = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 85%;
-  height: 50px;
+  height: 35px;
   background: var(--main-bg-color);
   color: white;
   border-radius: 10px;

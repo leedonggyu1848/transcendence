@@ -48,7 +48,7 @@ export class ChatRepository implements IChatRepository {
     await this.chatRepository.update(chatId, { count: count });
   }
 
-  async deleteChat(id: number) {
-    await this.chatRepository.delete(id);
+  async deleteChat(chat: Chat) {
+    await this.chatRepository.delete(chat);
   }
 }

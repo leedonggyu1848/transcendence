@@ -1,5 +1,6 @@
 import { ChatDto } from 'src/dto/chat.dto';
 import { Chat } from 'src/entity/chat.entity';
+import { ChatUser } from 'src/entity/chatuser.entity';
 import { Users } from 'src/entity/user.entity';
 
 export interface IChatUserRepository {
@@ -10,5 +11,5 @@ export interface IChatUserRepository {
   findByUserWithJoin(user: Users);
   findByBoth(chat: Chat, user: Users);
   findByBothWithJoin(chat: Chat, user: Users);
-  deleteChatUser(id: number);
+  deleteChatUser(chatUser: ChatUser);
 }

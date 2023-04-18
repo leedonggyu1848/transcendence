@@ -164,7 +164,12 @@ export class EventsGateway
   async handleJoinChat(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, password }: { roomName: string; password: string },
+    {
+      roomName,
+      type,
+      password,
+      operator,
+    }: { roomName: string; password: string; type: number; operator: string },
   ) {
     const result = await this.eventsService.joinChat(
       socket.id,
@@ -190,8 +195,10 @@ export class EventsGateway
     @MessageBody() roomName: string,
   ) {
     const result = await this.eventsService.leaveChat(socket.id, roomName);
+    console.log(result);
     if (result.success) {
       socket.leave(roomName);
+      console.log('good');
       this.nsp.emit('leave-chat', {
         message: result.msg,
         username: result.data,
