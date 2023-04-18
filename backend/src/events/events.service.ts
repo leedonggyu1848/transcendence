@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { string } from 'joi';
 import { Namespace, Socket } from 'socket.io';
 import { UserDto } from 'src/dto/user.dto';
 import { ChatType } from 'src/entity/common.enum';
@@ -121,6 +122,7 @@ export class EventsService {
       msg: `${user.intra_id}가 ${roomName}에 들어왔습니다.`,
       joinuser: user.intra_id,
       data: {
+        roomName: roomName,
         operator: chat.operator,
         type: chat.type,
         users: usernames,
@@ -148,7 +150,7 @@ export class EventsService {
     return {
       success: true,
       msg: `${user.intra_id}가 ${roomName}에서 나갔습니다.`,
-      data: this.userService.userToUserDto(user),
+      data: user.intra_id,
     };
   }
 

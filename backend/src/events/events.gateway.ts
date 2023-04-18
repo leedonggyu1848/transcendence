@@ -194,7 +194,7 @@ export class EventsGateway
       socket.leave(roomName);
       this.nsp.emit('leave-chat', {
         message: result.msg,
-        userInfo: result.data,
+        username: result.data,
       });
     } else {
       socket.emit('chat-fail', result.msg);
@@ -237,10 +237,10 @@ export class EventsGateway
       userName,
     );
     if (result.success) {
-      const rooms = await this.nsp.in(roomName).fetchSockets();
-      if (rooms.some((socket) => socket.id === result.data)) {
+      const room = await this.nsp.in(roomName).fetchSockets();
+      if (room.some((socket) => socket.id === result.data)) {
         this.nsp.in(roomName).emit('kick-user', { userName });
-        await this.nsp.sockets.get(userName)?.leave(roomName);
+        await this.nsp.sockets.get(result.data)?.leave(roomName);
       }
     } else {
       socket.emit('chat-fail', result.msg);
