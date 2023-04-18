@@ -146,7 +146,7 @@ export class EventsService {
       if (chat.operator === user.intra_id) {
         await this.chatRepository.updateOperator(
           chat.id,
-          chat.users[0].intra_id,
+          chat.users[0].user.intra_id,
         );
       }
     }
