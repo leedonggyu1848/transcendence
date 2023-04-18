@@ -4,6 +4,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   allChatFlagState,
+  banUserListState,
   chatDBState,
   chatListState,
   createChatModalToggleState,
@@ -44,8 +45,10 @@ const ChatPage = () => {
   const setAlertInfo = useSetRecoilState(alertModalState);
   const [chatDB, setChatDB] = useRecoilState(chatDBState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
+  const [banUserList, setBanUserList] = useRecoilState(banUserListState);
 
   useInitHook();
+  console.log(chatList);
 
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
@@ -140,7 +143,10 @@ const ChatPage = () => {
       }) => {
         console.log("join-chat-success");
         setChatList(
-          chatList.map((chat) => ({ ...chat, count: chat.count + 1 }))
+          chatList.map((chat) => ({
+            ...chat,
+            count: chat.title === roomName ? chat.count + 1 : chat.count,
+          }))
         );
         if (chatDB[roomName]) {
           setChatDB({
@@ -212,7 +218,10 @@ const ChatPage = () => {
         console.log("leave-chat");
         setChatList(
           chatList
-            .map((chat) => ({ ...chat, count: chat.count - 1 }))
+            .map((chat) => ({
+              ...chat,
+              count: chat.title === roomName ? chat.count - 1 : chat.count,
+            }))
             .filter((chat) => chat.count !== 0)
         );
         if (chatDB[roomName]) {
@@ -253,6 +262,24 @@ const ChatPage = () => {
           delete temp[roomName];
           setChatDB({ ...temp });
         }
+        if (userName !== myName) {
+          if (currentChat && currentChat.title === roomName) {
+            setChatDB({
+              ...chatDB,
+              [roomName]: [
+                ...chatDB[roomName],
+                {
+                  sender: "admin",
+                  msg: `${userName}님이 추방 되었습니다.`,
+                  time: new Date(),
+                },
+              ],
+            });
+            setCurrentChatUserList(
+              currentChatUserList.filter((name) => name !== userName)
+            );
+          }
+        }
         setChatList(
           chatList.map((chat) => ({
             ...chat,
@@ -262,7 +289,46 @@ const ChatPage = () => {
       }
     );
 
-    socket.on("ban-user", () => {});
+    socket.on(
+      "ban-user",
+      ({ userName, roomName }: { userName: string; roomName: string }) => {
+        if (userName === myName) {
+          if (currentChat && currentChat.title === roomName) {
+            setCurrentChat(null);
+          }
+          setJoinnedChatList(
+            joinnedChatList.filter(({ title }) => title !== roomName)
+          );
+          const temp = { ...chatDB };
+          delete temp[roomName];
+          setChatDB({ ...temp });
+        }
+        if (userName !== myName) {
+          if (currentChat && currentChat.title === roomName) {
+            setChatDB({
+              ...chatDB,
+              [roomName]: [
+                ...chatDB[roomName],
+                {
+                  sender: "admin",
+                  msg: `${userName}님의 입장이 금지 되었습니다.`,
+                  time: new Date(),
+                },
+              ],
+            });
+            setCurrentChatUserList(
+              currentChatUserList.filter((name) => name !== userName)
+            );
+          }
+        }
+        setChatList(
+          chatList.map((chat) => ({
+            ...chat,
+            count: chat.title === roomName ? chat.count - 1 : chat.count,
+          }))
+        );
+      }
+    );
 
     return () => {
       socket.off("chat-list");
@@ -274,6 +340,9 @@ const ChatPage = () => {
       socket.off("chat-fail");
       socket.off("leave-chat-success");
       socket.off("join-chat-success");
+      socket.off("kick-user");
+      socket.off("ban-user");
+
       setAllChatFlag(true);
       setJoinnedChatFlag(true);
 

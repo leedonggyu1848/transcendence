@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect } from "react";
-import { useRecoilValue } from "recoil";
-import { currentChatState } from "../../../api/atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { banUserListState, currentChatState } from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const userList = [
@@ -24,23 +24,47 @@ const userList = [
 const Sub = () => {
   const socket = useContext(WebsocketContext);
   const currentChat = useRecoilValue(currentChatState);
+  const [banUserList, setBanUserList] = useRecoilState(banUserListState);
 
-  useEffect(()=>{
-    
+  useEffect(() => {
+    if (!currentChat) return;
+    socket.emit("ban-list", currentChat.title);
 
-  },[])
+    socket.on("ban-list", (users: string[]) => {
+      if (!currentChat) return;
+      setBanUserList({ ...banUserList, [currentChat.title]: users.slice() });
+    });
+
+    socket.on(
+      "ban-user",
+      ({ userName, roomName }: { userName: string; roomName: string }) => {
+        setBanUserList({
+          ...banUserList,
+          [roomName]: [...banUserList[roomName], userName],
+        });
+      }
+    );
+    return () => {
+      socket.off("ban-list");
+      socket.off("ban-user");
+    };
+  }, []);
+
+  useEffect(() => {}, []);
   return (
     <SubContainer>
       <Header>Ban List</Header>
       <BanList>
-        {userList.map((user, idx) => (
-          <User key={idx}>
-            <Name>{user}</Name>
-            <ButtonContainer>
-              <Button>해제</Button>
-            </ButtonContainer>
-          </User>
-        ))}
+        {currentChat &&
+          banUserList[currentChat.title] &&
+          banUserList[currentChat.title].map((user, idx) => (
+            <User key={idx}>
+              <Name>{user}</Name>
+              <ButtonContainer>
+                <Button>해제</Button>
+              </ButtonContainer>
+            </User>
+          ))}
       </BanList>
     </SubContainer>
   );

@@ -34,7 +34,16 @@ const Main = () => {
 
   const handleGiveOperator = (username: string) => {};
 
-  useEffect(() => {});
+  useEffect(() => {
+    socket.on(
+      "kick-user",
+      ({ userName, roomName }: { userName: String; roomName: string }) => {
+        setCurrentChatUserList(
+          currentChatUserList.filter((name) => name !== userName)
+        );
+      }
+    );
+  });
   return (
     <MainContainer>
       <HeaderContainer>

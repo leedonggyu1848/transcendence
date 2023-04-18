@@ -109,3 +109,7 @@ export interface IChatRoom {
   operator: string;
   count: number;
 }
+
+export interface IBanUserList {
+  [key: string]: string[];
+}
