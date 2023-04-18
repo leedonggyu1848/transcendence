@@ -82,11 +82,7 @@ export class GameController {
   ) {
     this.logger.log(`Join game: ${title} / ${user.intra_id}`);
     const found_user = await this.userService.findUserWithGame(user.intra_id);
-    const data = await this.gameService.serviceJoinGame(
-      title,
-      password,
-      found_user,
-    );
+    const data = await this.gameService.joinGame(title, password, found_user);
     if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
@@ -104,11 +100,7 @@ export class GameController {
   ) {
     this.logger.log(`Watch game: ${title} / ${user.intra_id}`);
     const found_user = await this.userService.findUserWithGame(user.intra_id);
-    const data = await this.gameService.serviceWatchGame(
-      title,
-      password,
-      found_user,
-    );
+    const data = await this.gameService.watchGame(title, password, found_user);
     if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
       throw new BadRequestException(data.data);
