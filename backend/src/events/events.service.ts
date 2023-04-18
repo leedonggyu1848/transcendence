@@ -6,6 +6,7 @@ import { UserService } from 'src/user/user.service';
 import { IBanRepository } from './repository/ban.interface.repository';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class EventsService {
@@ -100,7 +101,10 @@ export class EventsService {
   async joinChat(socketId: string, roomName: string, password: string) {
     const user = await this.userService.findUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.type === ChatType.PASSWORD && chat.password !== password)
+    if (
+      chat.type === ChatType.PASSWORD &&
+      !(await bcrypt.compare(password, chat.password))
+    )
       return { success: false, msg: `비밀번호가 맞지 않습니다.` };
     const joined = chat.users.filter((usr) => usr.intra_id === user.intra_id);
     if (joined.length !== 0)

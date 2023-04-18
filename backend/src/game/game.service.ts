@@ -9,6 +9,7 @@ import { IUserRepository } from '../user/repository/users.interface.repository';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { randomInt } from 'crypto';
 import { UserService } from 'src/user/user.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class GameService {
@@ -56,7 +57,7 @@ export class GameService {
   async serviceJoinGame(title: string, password: string, user: Users) {
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
-    if (game.private_mode && game.password !== password)
+    if (game.private_mode && !(await bcrypt.compare(password, game.password)))
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
     if (game.count == 2)
       return { success: false, data: '해당 방에 자리가 없습니다.' };
@@ -90,7 +91,7 @@ export class GameService {
   async serviceWatchGame(title: string, password: string, user: Users) {
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
-    if (game.private_mode && game.password !== password)
+    if (game.private_mode && !(await bcrypt.compare(password, game.password)))
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
     if (user.play_game || user.watch_game)
       return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
