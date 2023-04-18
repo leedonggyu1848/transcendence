@@ -1,7 +1,11 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { currentChatUserListState, myNameState } from "../../../api/atom";
+import {
+  currentChatState,
+  currentChatUserListState,
+  myNameState,
+} from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const Main = () => {
@@ -9,13 +13,26 @@ const Main = () => {
     currentChatUserListState
   );
   const myName = useRecoilValue(myNameState);
+  const currentChat = useRecoilValue(currentChatState);
   const socket = useContext(WebsocketContext);
 
-  const handleKickUser = (target: string) => {};
+  const handleKickUser = (username: string) => {
+    if (!currentChat) return;
+    socket.emit("kick-user", {
+      roomName: currentChat.title,
+      userName: username,
+    });
+  };
 
-  const handleBanUser = (target: string) => {};
+  const handleBanUser = (username: string) => {
+    if (!currentChat) return;
+    socket.emit("ban-user", {
+      roomName: currentChat.title,
+      userName: username,
+    });
+  };
 
-  const handleGiveOperator = (target: string) => {};
+  const handleGiveOperator = (username: string) => {};
 
   useEffect(() => {});
   return (
@@ -37,8 +54,8 @@ const Main = () => {
             <User key={idx}>
               <Name>{user}</Name>
               <ButtonContainer>
-                <Button>Kick</Button>
-                <Button>Ban</Button>
+                <Button onClick={() => handleKickUser(user)}>Kick</Button>
+                <Button onClick={() => handleBanUser(user)}>Ban</Button>
                 <Button>Oper</Button>
               </ButtonContainer>
             </User>

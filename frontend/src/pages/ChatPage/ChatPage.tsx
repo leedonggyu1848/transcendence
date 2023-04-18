@@ -239,6 +239,31 @@ const ChatPage = () => {
       });
     });
 
+    socket.on(
+      "kick-user",
+      ({ userName, roomName }: { userName: string; roomName: string }) => {
+        if (userName === myName) {
+          if (currentChat && currentChat.title === roomName) {
+            setCurrentChat(null);
+          }
+          setJoinnedChatList(
+            joinnedChatList.filter(({ title }) => title !== roomName)
+          );
+          const temp = { ...chatDB };
+          delete temp[roomName];
+          setChatDB({ ...temp });
+        }
+        setChatList(
+          chatList.map((chat) => ({
+            ...chat,
+            count: chat.title === roomName ? chat.count - 1 : chat.count,
+          }))
+        );
+      }
+    );
+
+    socket.on("ban-user", () => {});
+
     return () => {
       socket.off("chat-list");
       socket.off("create-chat");
