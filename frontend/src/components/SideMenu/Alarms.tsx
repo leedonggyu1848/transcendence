@@ -8,51 +8,15 @@ import {
   axiosGetFriendRequestList,
 } from "../../api/request";
 
-function convertDate(date: Date) {
-  const now = new Date();
-
-  let diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diff < 60) {
-    return diff + "초 전";
-  }
-
-  diff = Math.floor(diff / 60);
-
-  if (diff < 60) {
-    return diff + "분 전";
-  }
-
-  diff = Math.floor(diff / 60);
-
-  if (diff < 24) {
-    return diff + "시간 전";
-  }
-
-  diff = Math.floor(diff / 24);
-  return diff + "일 전";
-}
-
 const Alarm = ({ w }: { w: number }) => {
-  //const data = createDummyData();
-  const [data, setData] = useState<IFriendRequest[]>([]);
   const friendRequestList = useRecoilValue(friendRequestListState);
   const setAlertInfo = useSetRecoilState(alertModalState);
 
-  const acceptRequest = async (intra_id: string) => {
-    try {
-      await axiosAcceptFriendRequest(intra_id);
-      console.log("hello");
-    } catch (e) {
-      console.error(e);
-      setAlertInfo({
-        type: "failure",
-        header: "게임 참가 실패",
-        msg: "게임 참가에 실패 했습니다...",
-        toggle: true,
-      });
-    }
-  };
+  const acceptFriendRequest = () => {};
+
+  const refuseFriendRequest = () => {};
+
+  const cancelFriendRequest = () => {};
 
   return (
     <AlarmContainer w={w}>
@@ -70,10 +34,7 @@ const Alarm = ({ w }: { w: number }) => {
                   </div>
                   {type ? (
                     <div>
-                      <Button
-                        className="margin"
-                        onClick={() => acceptRequest(intra_id)}
-                      >
+                      <Button className="margin" onClick={() => {}}>
                         수락
                       </Button>
                       <Button>거절</Button>
@@ -101,12 +62,35 @@ const Alarm = ({ w }: { w: number }) => {
             </div>
           </NoFriends>
         )}
-
-        {/*<AlarmList></AlarmList>*/}
       </Contents>
     </AlarmContainer>
   );
 };
+
+function convertDate(date: Date) {
+  const now = new Date();
+
+  let diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diff < 60) {
+    return diff + "초 전";
+  }
+
+  diff = Math.floor(diff / 60);
+
+  if (diff < 60) {
+    return diff + "분 전";
+  }
+
+  diff = Math.floor(diff / 60);
+
+  if (diff < 24) {
+    return diff + "시간 전";
+  }
+
+  diff = Math.floor(diff / 24);
+  return diff + "일 전";
+}
 
 const Icon = styled.div<{ type: string }>`
   width: 12px;

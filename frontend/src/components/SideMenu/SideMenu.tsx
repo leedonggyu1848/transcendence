@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
-import { useRecoilValue } from "recoil";
-import { friendRequestListState } from "../../api/atom";
+import { useContext, useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { alertModalState, friendRequestListState } from "../../api/atom";
+import { WebsocketContext } from "../../api/WebsocketContext";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
 
@@ -10,10 +11,39 @@ const SideMenu = ({ w }: { w: number }) => {
     friends: false,
     alarm: false,
   });
-
-  const friendRequestList = useRecoilValue(friendRequestListState);
+  const socket = useContext(WebsocketContext);
+  const setAlertInfo = useSetRecoilState(alertModalState);
+  const [friendRequestList, setFriendRequestList] = useRecoilState(
+    friendRequestListState
+  );
 
   const clickLogout = () => {};
+
+  useEffect(() => {
+    socket.on("friend-success", (friendName: string) => {
+      setFriendRequestList([
+        ...friendRequestList,
+        {
+          intra_id: friendName,
+          profile: "",
+          time: new Date().toString(),
+          type: 0,
+        },
+      ]);
+    });
+
+    socket.on("friend-fail", (message: string) => {
+      setAlertInfo({
+        type: "failure",
+        header: "",
+        msg: message,
+        toggle: true,
+      });
+    });
+    return () => {
+      socket.off("friend-success");
+    };
+  });
 
   return (
     <SideMenuContainer>

@@ -28,14 +28,14 @@ const CurrentUserInfo = ({
 
   const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     const name = e.currentTarget.textContent as string;
-    //if (myName === name) return;
+    if (myName === name) return;
     setBlock(true);
     setTimeout(() => setToggle(true), 0);
     setTarget(name);
   };
 
   const clickFriendRequest = (friendname: string) => {
-    socket.emit("send-friend-request", friendname);
+    socket.emit("send-friend", friendname);
   };
 
   const clickDirectMessage = () => {
