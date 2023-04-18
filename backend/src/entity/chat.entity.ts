@@ -1,6 +1,7 @@
 import { NotEquals } from 'class-validator';
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   OneToMany,
@@ -29,6 +30,7 @@ export class Chat {
   password: string;
 
   @BeforeInsert()
+  @BeforeUpdate()
   async setPassword(password: string) {
     const salt = await bcrypt.genSalt();
     this.password = await bcrypt.hash(password || this.password, salt);

@@ -256,8 +256,24 @@ export class EventsGateway
     this.logger.log(result.msg);
   }
 
-  @SubscribeMessage('change-oper')
-  async handleChangeOper(
+  @SubscribeMessage('chat-password')
+  async handleChatChangePassword(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, password }: { roomName: string; password: string },
+  ) {
+    const result = await this.eventsService.changePassword(
+      socket.id,
+      roomName,
+      password,
+    );
+    if (result.success) socket.emit('chat-password', result.msg);
+    else socket.emit('chat-fail', result.msg);
+    this.logger.log(result.msg);
+  }
+
+  @SubscribeMessage('chat-operator')
+  async handleChatChangeOperator(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, operator }: { roomName: string; operator: string },
@@ -268,7 +284,7 @@ export class EventsGateway
       operator,
     );
     if (result.success)
-      socket.broadcast.to(roomName).emit('change-oper', result.msg);
+      socket.broadcast.to(roomName).emit('chat-operator', result.msg);
     else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }

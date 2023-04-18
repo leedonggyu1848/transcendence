@@ -203,6 +203,18 @@ export class EventsService {
     };
   }
 
+  async changePassword(socketId: string, roomName: string, password: string) {
+    const user = await this.userService.findUserBySocketId(socketId);
+    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    if (chat.operator !== user.intra_id)
+      return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
+    await this.chatRepository.updatePassword(chat, password);
+    return {
+      success: true,
+      msg: `${roomName}의 비밀번호가 바뀌었습니다.`,
+    };
+  }
+
   async changeOperator(socketId: string, roomName: string, operator: string) {
     const user = await this.userService.findUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);

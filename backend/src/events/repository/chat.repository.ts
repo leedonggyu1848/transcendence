@@ -40,6 +40,12 @@ export class ChatRepository implements IChatRepository {
     });
   }
 
+  async updatePassword(chat: Chat, password: string) {
+    const data = this.chatRepository.create({ ...chat });
+    data.password = password;
+    await this.chatRepository.save(data);
+  }
+
   async updateOperator(chatId: number, operator: string) {
     await this.chatRepository.update(chatId, { operator: operator });
   }
