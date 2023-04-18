@@ -115,7 +115,11 @@ export class EventsService {
     return {
       success: true,
       msg: `${user.intra_id}가 ${roomName}에 들어왔습니다.`,
-      data: this.userService.userToUserDto(user),
+      data: {
+        userInfo: this.userService.userToUserDto(user),
+        operator: chat.operator,
+        type: chat.type,
+      },
     };
   }
 
