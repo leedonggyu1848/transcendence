@@ -1,38 +1,23 @@
 import styled from "@emotion/styled";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { currentChatUserListState, myNameState } from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
-const userList = [
-  "jpark2",
-  "yooh",
-  "sanan",
-  "dongglee",
-  "sunwsong",
-  "mingkang",
-  "hyungnoh",
-  "jdoh",
-  "seonghyu",
-  "jnho",
-  "heejikim",
-  "inshin",
-  "jaesejeon",
-  "eunbikim",
-];
-
 const Main = () => {
+  const [currentChatUserList, setCurrentChatUserList] = useRecoilState(
+    currentChatUserListState
+  );
+  const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
 
-  const handleKickUser = (target : string) => {
+  const handleKickUser = (target: string) => {};
 
-  }
-  
-  const handleBanUser = (target : string) => {
+  const handleBanUser = (target: string) => {};
 
-  }
+  const handleGiveOperator = (target: string) => {};
 
-  const handleGiveOperator = (target : string) => {
-    
-  }
+  useEffect(() => {});
   return (
     <MainContainer>
       <HeaderContainer>
@@ -46,16 +31,18 @@ const Main = () => {
         </div>
       </HeaderContainer>
       <UsersContainer>
-        {userList.map((user, idx) => (
-          <User key={idx}>
-            <Name>{user}</Name>
-            <ButtonContainer>
-              <Button>Kick</Button>
-              <Button>Ban</Button>
-              <Button>Oper</Button>
-            </ButtonContainer>
-          </User>
-        ))}
+        {currentChatUserList
+          .filter((name) => name !== myName)
+          .map((user, idx) => (
+            <User key={idx}>
+              <Name>{user}</Name>
+              <ButtonContainer>
+                <Button>Kick</Button>
+                <Button>Ban</Button>
+                <Button>Oper</Button>
+              </ButtonContainer>
+            </User>
+          ))}
       </UsersContainer>
     </MainContainer>
   );

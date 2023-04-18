@@ -15,15 +15,9 @@ import {
   myNameState,
   operatorModalToggleState,
 } from "../../api/atom";
-import {
-  ChatListDto,
-  IChatRoom,
-  JoinListDto,
-  UserDto,
-} from "../../api/interface";
+import { IChatRoom } from "../../api/interface";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
-import CurrentUserInfo from "../../components/CurrentUserInfo";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";

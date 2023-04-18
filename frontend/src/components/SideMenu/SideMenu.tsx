@@ -20,17 +20,20 @@ const SideMenu = ({ w }: { w: number }) => {
   const clickLogout = () => {};
 
   useEffect(() => {
-    socket.on("friend-success", (friendName: string) => {
-      setFriendRequestList([
-        ...friendRequestList,
-        {
-          intra_id: friendName,
-          profile: "",
-          time: new Date().toString(),
-          type: 0,
-        },
-      ]);
-    });
+    socket.on(
+      "request-friend",
+      ({ username, profile }: { username: string; profile: string }) => {
+        setFriendRequestList([
+          ...friendRequestList,
+          {
+            intra_id: username,
+            profile: profile,
+            time: new Date().toString(),
+            type: 0,
+          },
+        ]);
+      }
+    );
 
     socket.on("friend-fail", (message: string) => {
       setAlertInfo({
@@ -41,9 +44,10 @@ const SideMenu = ({ w }: { w: number }) => {
       });
     });
     return () => {
-      socket.off("friend-success");
+      socket.off("request-friend");
+      socket.off("friend-fail");
     };
-  });
+  }, [friendRequestList]);
 
   return (
     <SideMenuContainer>

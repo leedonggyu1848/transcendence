@@ -26,7 +26,6 @@ const CurrentChat = ({
 
   useEffect(() => {
     socket.on("message", ({ userName, message }) => {
-      console.log(userName, message);
       setChatDB({
         ...chatDB,
         [roomName]: [
@@ -38,7 +37,6 @@ const CurrentChat = ({
 
     return () => {
       socket.off("message");
-      socket.off("user-list");
     };
   }, [chatDB]);
 

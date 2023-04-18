@@ -1,4 +1,8 @@
 import styled from "@emotion/styled";
+import { useContext, useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { currentChatState } from "../../../api/atom";
+import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const userList = [
   "jpark2",
@@ -18,6 +22,13 @@ const userList = [
 ];
 
 const Sub = () => {
+  const socket = useContext(WebsocketContext);
+  const currentChat = useRecoilValue(currentChatState);
+
+  useEffect(()=>{
+    
+
+  },[])
   return (
     <SubContainer>
       <Header>Ban List</Header>

@@ -35,7 +35,7 @@ const CurrentUserInfo = ({
   };
 
   const clickFriendRequest = (friendname: string) => {
-    socket.emit("send-friend", friendname);
+    socket.emit("request-friend", friendname);
   };
 
   const clickDirectMessage = () => {
