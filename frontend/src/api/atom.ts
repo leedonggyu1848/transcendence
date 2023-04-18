@@ -230,7 +230,7 @@ export const currentChatState = atom<IChatRoom | null>({
   default: null,
 });
 
-export const currentChatUserListState = atom<UserDto[]>({
+export const currentChatUserListState = atom<string[]>({
   key: "currentChatUserListState",
   default: [],
 });

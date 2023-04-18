@@ -121,6 +121,7 @@ export class EventsService {
       msg: `${user.intra_id}가 ${roomName}에 들어왔습니다.`,
       joinuser: user.intra_id,
       data: {
+        roomName,
         operator: chat.operator,
         type: chat.type,
         users: usernames,

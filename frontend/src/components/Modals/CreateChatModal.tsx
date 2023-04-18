@@ -45,7 +45,7 @@ const CreateChatModal = () => {
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInfo({ ...info, [e.target.name]: e.target.value });
   };
-  
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     socket.emit("create-chat", {
@@ -61,14 +61,13 @@ const CreateChatModal = () => {
         roomName,
         type,
         operator,
-        userInfo,
       }: {
         roomName: string;
         type: number;
         operator: string;
-        userInfo: UserDto;
       }) => {
         console.log("방생성 성공");
+        console.log(operator);
         const temp = {
           title: roomName,
           type,
@@ -78,7 +77,7 @@ const CreateChatModal = () => {
         setCurrentChat(temp);
         setChatList([...chatList, temp]);
         socket.emit("chat-list");
-        setCurrentChatUserList([userInfo]);
+        setCurrentChatUserList([operator]);
         closeModal();
       }
     );

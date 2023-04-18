@@ -195,11 +195,13 @@ export class EventsGateway
     @MessageBody() roomName: string,
   ) {
     const result = await this.eventsService.leaveChat(socket.id, roomName);
+    console.log(result);
     if (result.success) {
       socket.leave(roomName);
+      console.log('good');
       this.nsp.emit('leave-chat', {
         message: result.msg,
-        userInfo: result.data,
+        username: result.data.intra_id,
       });
     } else {
       socket.emit('chat-fail', result.msg);

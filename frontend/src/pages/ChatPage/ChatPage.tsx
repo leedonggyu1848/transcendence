@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  alertModalState,
   allChatFlagState,
   chatListState,
   createChatModalToggleState,
@@ -44,11 +45,13 @@ const ChatPage = () => {
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
   const myName = useRecoilValue(myNameState);
+  const setAlertInfo = useSetRecoilState(alertModalState);
 
   useInitHook();
 
   const LeaveChatRoom = (roomName: string) => {
     console.log("leave room ", roomName);
+    socket.emit("leave-chat", roomName);
   };
   console.log(currentChatUserList);
 
@@ -72,7 +75,7 @@ const ChatPage = () => {
     if (type === 2) {
       // password type 대응
     } else {
-      socket.emit("join-chat", { roomName, type, operator, password: "" });
+      socket.emit("join-chat", { roomName, password: "" });
     }
     console.log("hi", roomName, type);
   };
@@ -125,14 +128,14 @@ const ChatPage = () => {
 
     socket.on(
       "join-chat",
-      ({ roomName, userInfo }: { roomName: string; userInfo: UserDto }) => {
-        console.log("새로운 방 참여");
-        console.log(roomName, userInfo);
+      ({ message, username }: { message: string; username: string }) => {
+        console.log(message);
+        setCurrentChatUserList([...currentChatUserList, username]);
       }
     );
 
     socket.on(
-      "join-success",
+      "chat-success",
       ({
         roomName,
         type,
@@ -142,7 +145,7 @@ const ChatPage = () => {
         roomName: string;
         type: number;
         operator: string;
-        users: UserDto[];
+        users: string[];
       }) => {
         console.log("in join-success", users);
         setCurrentChat({
@@ -151,15 +154,37 @@ const ChatPage = () => {
           operator,
           count: users.length,
         });
-        setCurrentChatUserList(users.slice());
+        setCurrentChatUserList([...users, myName]);
       }
     );
+
+    socket.on(
+      "leave-chat",
+      ({ message, username }: { message: string; username: string }) => {
+        console.log(message);
+        setCurrentChatUserList(
+          currentChatUserList.filter((name) => name !== username)
+        );
+      }
+    );
+
+    socket.on("chat-fail", (message: string) => {
+      setAlertInfo({
+        type: "failure",
+        header: "방 나가기 실패",
+        msg: message,
+        toggle: true,
+      });
+    });
 
     return () => {
       socket.off("chat-list");
       socket.off("create-chat");
       socket.off("all-chat");
       socket.off("join-chat");
+      socket.off("chat-success");
+      socket.off("leave-chat");
+      socket.off("chat-fail");
       setAllChatFlag(true);
       setJoinnedChatFlag(true);
 
@@ -218,18 +243,14 @@ const ChatPage = () => {
 };
 
 function UserDtoToJoinnedUserDto(
-  data: UserDto[],
+  data: string[],
   myName: string,
   operator: string
 ) {
-  return data.map(({ intra_id }) => ({
-    intra_id,
+  return data.map((name) => ({
+    intra_id: name,
     type:
-      intra_id === operator
-        ? "owner"
-        : intra_id === myName
-        ? "opponent"
-        : "watcher",
+      name === operator ? "owner" : name === myName ? "opponent" : "watcher",
   }));
 }
 

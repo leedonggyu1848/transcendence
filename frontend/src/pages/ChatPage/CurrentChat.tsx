@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { currentChatLogsState } from "../../api/atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { currentChatLogsState, myNameState } from "../../api/atom";
 import { IChatLog, JoinnedUserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -25,16 +25,11 @@ const CurrentChat = ({
   const [chatLogs, setChatLogs] = useRecoilState(currentChatLogsState);
 
   useEffect(() => {
-    socket.emit("user-list", roomName);
-
-    socket.on("user-list", ({ users }: { users: any }) => {
-      console.log(users);
-    });
-
-    socket.on("message", ({ username, message }) => {
+    socket.on("message", ({ userName, message }) => {
+      console.log(userName, message);
       setChatLogs([
         ...chatLogs,
-        { sender: username, msg: message, time: new Date() },
+        { sender: userName, msg: message, time: new Date() },
       ]);
     });
 
