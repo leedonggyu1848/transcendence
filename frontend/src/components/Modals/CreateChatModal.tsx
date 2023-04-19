@@ -67,8 +67,6 @@ const CreateChatModal = () => {
         type: number;
         operator: string;
       }) => {
-        console.log("방생성 성공");
-        console.log(operator);
         const temp = {
           title: roomName,
           type,
@@ -85,7 +83,6 @@ const CreateChatModal = () => {
     );
 
     socket.on("chat-fail", (msg: string) => {
-      console.log(msg);
       closeModal();
       setAlertInfo({
         type: "failure",

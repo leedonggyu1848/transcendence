@@ -37,7 +37,6 @@ const CurrentChat = ({
     });
 
     socket.on("chat-muted", (roomName: string) => {
-      console.log("chat-muted");
       setMuteCountList({ ...muteCountList, [roomName]: 30 });
     });
     let timer: NodeJS.Timeout;

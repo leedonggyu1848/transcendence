@@ -48,8 +48,6 @@ const ChatPage = () => {
   const [banUserList, setBanUserList] = useRecoilState(banUserListState);
 
   useInitHook();
-  console.log(chatList);
-
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
     setJoinnedChatList(
@@ -60,7 +58,6 @@ const ChatPage = () => {
     setChatDB({ ...temp });
     if (currentChat && currentChat.title === roomName) setCurrentChat(null);
   };
-  console.log(currentChat);
   const joinChatRoom = (
     roomName: string,
     type: number,
@@ -81,7 +78,6 @@ const ChatPage = () => {
       // password type 대응
       setJoinChatToggle({ roomName, toggle: true });
     } else {
-      console.log("send join-chat");
       socket.emit("join-chat", { roomName, password: "" });
     }
   };
@@ -141,7 +137,6 @@ const ChatPage = () => {
         username: string;
         roomName: string;
       }) => {
-        console.log("join-chat-success");
         setChatList(
           chatList.map((chat) => ({
             ...chat,
@@ -180,7 +175,6 @@ const ChatPage = () => {
           operator,
           count: users.length + 1,
         };
-        console.log("join-chat-success", roomName);
         setCurrentChat(temp);
         setChatDB({ ...chatDB, [roomName]: [] });
         setCurrentChatUserList([...users, myName]);
@@ -192,7 +186,6 @@ const ChatPage = () => {
     );
 
     socket.on("leave-chat-success", (roomName: string) => {
-      console.log("leave-chat-success");
       setChatList(
         chatList
           .map((chat) => ({
@@ -214,8 +207,6 @@ const ChatPage = () => {
         username: string;
         roomName: string;
       }) => {
-        console.log(chatDB);
-        console.log("leave-chat");
         setChatList(
           chatList
             .map((chat) => ({
@@ -335,11 +326,17 @@ const ChatPage = () => {
       ({ roomName, operator }: { roomName: string; operator: string }) => {
         if (currentChat && currentChat.title === roomName) {
           setCurrentChat({ ...currentChat, operator: operator });
-          setChatDB({...chatDB, [roomName] : [... chatDB[roomName], {
-            sender :'admin',
-            msg:`${operator}님이 관리자가 되었습니다.`,
-            time:new Date()
-          }]})
+          setChatDB({
+            ...chatDB,
+            [roomName]: [
+              ...chatDB[roomName],
+              {
+                sender: "admin",
+                msg: `${operator}님이 관리자가 되었습니다.`,
+                time: new Date(),
+              },
+            ],
+          });
         }
       }
     );

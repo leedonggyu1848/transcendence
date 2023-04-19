@@ -15,7 +15,6 @@ const Sub = () => {
 
     socket.on("ban-list", (users: string[]) => {
       if (!currentChat) return;
-      console.log(users);
       setBanUserList({ ...banUserList, [currentChat.title]: users.slice() });
     });
 

@@ -32,12 +32,22 @@ const Alarm = ({ w }: { w: number }) => {
     // 창 닫기
   };
 
-  const cancelFriendRequest = () => {};
+  const cancelFriendRequest = (friendName: string) => {
+    socket.emit("cancel-friend", friendName);
+  };
 
   useEffect(() => {
     socket.on(
       "response-friend",
-      ({ username, profile }: { username: string; profile: string }) => {
+      ({
+        username,
+        type,
+        profile,
+      }: {
+        username: string;
+        type: boolean;
+        profile: string;
+      }) => {
         setFriendList([...friendList, { intra_id: username, profile }]);
         setFriendRequestList(
           friendRequestList.filter((friend) => friend.intra_id !== username)
@@ -103,7 +113,9 @@ const Alarm = ({ w }: { w: number }) => {
                     </div>
                   ) : (
                     <div>
-                      <Button>취소</Button>
+                      <Button onClick={() => cancelFriendRequest(intra_id)}>
+                        취소
+                      </Button>
                     </div>
                   )}
                 </Container>

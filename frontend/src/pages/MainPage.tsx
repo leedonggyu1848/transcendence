@@ -10,6 +10,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   createChatModalToggleState,
+  friendListState,
   friendRequestListState,
   joinChatToggleState,
   joinGameModalToggleState,
@@ -42,7 +43,10 @@ const MainPage = () => {
   const joinChatToggle = useRecoilValue(joinChatToggleState);
   const setMyInfo = useSetRecoilState(myInfoState);
   const socket = useContext(WebsocketContext);
-  const setFriendRequestList = useSetRecoilState(friendRequestListState);
+  const [friendRequestList, setFriendRequestList] = useRecoilState(
+    friendRequestListState
+  );
+  const [friendList, setFriendList] = useRecoilState(friendListState);
 
   const navigate = useNavigate();
 
@@ -65,10 +69,40 @@ const MainPage = () => {
       //console.log(request);
       setFriendRequestList([...request]);
     });
+    socket.on("cacnel-friend", (userName: string) => {
+      console.log("친구 요청 취소됨" + userName);
+      setFriendRequestList(
+        friendRequestList.filter((friend) => friend.intra_id !== userName)
+      );
+    });
+
+    socket.on(
+      "friend-result",
+      ({
+        username,
+        type,
+        profile,
+      }: {
+        username: string;
+        type: boolean;
+        profile: string;
+      }) => {
+        setFriendRequestList(
+          friendRequestList.filter((request) => request.intra_id !== username)
+        );
+        if (type) {
+          setFriendList([
+            ...friendList,
+            { intra_id: username, profile: profile },
+          ]);
+        }
+      }
+    );
 
     return () => {
       socket.off("first-connection");
       socket.off("friend-request-list");
+      socket.off("cancel-friend");
     };
   }, []);
   return (
