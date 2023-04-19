@@ -60,7 +60,7 @@ const ChatPage = () => {
     setChatDB({ ...temp });
     if (currentChat && currentChat.title === roomName) setCurrentChat(null);
   };
-
+  console.log(currentChat);
   const joinChatRoom = (
     roomName: string,
     type: number,
@@ -327,6 +327,20 @@ const ChatPage = () => {
             count: chat.title === roomName ? chat.count - 1 : chat.count,
           }))
         );
+      }
+    );
+
+    socket.on(
+      "chat-operator",
+      ({ roomName, operator }: { roomName: string; operator: string }) => {
+        if (currentChat && currentChat.title === roomName) {
+          setCurrentChat({ ...currentChat, operator: operator });
+          setChatDB({...chatDB, [roomName] : [... chatDB[roomName], {
+            sender :'admin',
+            msg:`${operator}님이 관리자가 되었습니다.`,
+            time:new Date()
+          }]})
+        }
       }
     );
 

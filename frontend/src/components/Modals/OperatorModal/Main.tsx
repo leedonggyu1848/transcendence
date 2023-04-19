@@ -6,6 +6,7 @@ import {
   currentChatState,
   currentChatUserListState,
   myNameState,
+  operatorModalToggleState,
 } from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
@@ -18,6 +19,7 @@ const Main = () => {
   const [password, setPassword] = useState("");
   const socket = useContext(WebsocketContext);
   const setAlertInfo = useSetRecoilState(alertModalState);
+  const operatorModal = useSetRecoilState(operatorModalToggleState);
 
   const handleKickUser = (username: string) => {
     if (!currentChat) return;
@@ -48,7 +50,10 @@ const Main = () => {
     setPassword(e.target.value);
   };
 
-  const handleGiveOperator = (username: string) => {};
+  const handleGiveOperator = (roomName: string, username: string) => {
+    socket.emit("chat-operator", { roomName: roomName, operator: username });
+    operatorModal(false);
+  };
 
   useEffect(() => {
     socket.on(
@@ -72,7 +77,7 @@ const Main = () => {
     socket.on("caht-fail", (message: string) => {
       setAlertInfo({
         type: "failure",
-        header: "비밀번호 변경 실패!",
+        header: "",
         msg: message,
         toggle: true,
       });
@@ -103,7 +108,15 @@ const Main = () => {
               <ButtonContainer>
                 <Button onClick={() => handleKickUser(user)}>Kick</Button>
                 <Button onClick={() => handleBanUser(user)}>Ban</Button>
-                <Button>Oper</Button>
+                <Button
+                  onClick={() =>
+                    currentChat
+                      ? handleGiveOperator(currentChat.title, user)
+                      : ""
+                  }
+                >
+                  Oper
+                </Button>
               </ButtonContainer>
             </User>
           ))}
