@@ -73,7 +73,8 @@ export class EventsService {
       user = await this.userService.getUserBySocketIdWithFriend(socketId);
     }
     //return null
-    const result = user.friends.map(async (friend) => {
+    const friends = user.friends.filter((friend) => friend.accept === true);
+    const result = friends.map((friend) => {
       return {
         intra_id: friend.intra_id,
         profile: friend.profile,
