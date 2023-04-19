@@ -306,7 +306,6 @@ export class EventsGateway
       roomName,
       userName,
     );
-    console.log(result);
     if (result.success) {
       socket.emit('mute-user', { roomName: roomName, username: userName });
       this.nsp.sockets.get(result.data).emit('chat-muted', roomName);
