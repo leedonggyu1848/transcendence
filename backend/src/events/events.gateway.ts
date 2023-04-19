@@ -158,10 +158,8 @@ export class EventsGateway
       type,
     );
     if (result.success) {
-      socket.emit('response-friend', { friendName, type });
-      this.nsp.sockets
-        .get(result.data)
-        ?.emit('friend-result', { friendName, type });
+      socket.emit('response-friend', result.sender);
+      this.nsp.sockets.get(result.data)?.emit('friend-result', result.receiver);
     } else {
       socket.emit('friend-fail', result.msg);
     }
