@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { alertModalState, friendRequestListState } from "../../api/atom";
+import { alertModalState, friendRequestListState, requestAlarmListState } from "../../api/atom";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
@@ -16,10 +16,16 @@ const SideMenu = ({ w }: { w: number }) => {
   const [friendRequestList, setFriendRequestList] = useRecoilState(
     friendRequestListState
   );
+  const [requestAlarmFlag, setRequestAlarmFlag] = useRecoilState(requestAlarmListState);
 
   const clickLogout = () => {};
 
   useEffect(() => {
+    if (!requestAlarmFlag) {
+      socket.emit('')
+      setRequestAlarmFlag(true);
+    }
+
     socket.on(
       "request-friend",
       ({ username, profile }: { username: string; profile: string }) => {
@@ -43,9 +49,25 @@ const SideMenu = ({ w }: { w: number }) => {
         toggle: true,
       });
     });
+
+    socket.on(
+      "new-friend",
+      ({ username, profile }: { username: string; profile: string }) => {
+        setFriendRequestList([
+          ...friendRequestList,
+          {
+            intra_id: username,
+            profile: profile,
+            time: new Date().toString(),
+            type: 1,
+          },
+        ]);
+      }
+    );
     return () => {
       socket.off("request-friend");
       socket.off("friend-fail");
+      socket.off("new-friend");
     };
   }, [friendRequestList]);
 

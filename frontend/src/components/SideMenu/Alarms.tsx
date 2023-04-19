@@ -1,22 +1,79 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { alertModalState, friendRequestListState } from "../../api/atom";
+import React, { useContext, useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  alertModalState,
+  friendListState,
+  friendRequestListState,
+  myInfoState,
+} from "../../api/atom";
 import { IFriendRequest } from "../../api/interface";
 import {
   axiosAcceptFriendRequest,
   axiosGetFriendRequestList,
 } from "../../api/request";
+import { WebsocketContext } from "../../api/WebsocketContext";
 
 const Alarm = ({ w }: { w: number }) => {
-  const friendRequestList = useRecoilValue(friendRequestListState);
+  const [friendRequestList, setFriendRequestList] = useRecoilState(
+    friendRequestListState
+  );
+  const [friendList, setFriendList] = useRecoilState(friendListState);
   const setAlertInfo = useSetRecoilState(alertModalState);
+  const socket = useContext(WebsocketContext);
 
-  const acceptFriendRequest = () => {};
+  const acceptFriendRequest = (friendName: string) => {
+    socket.emit("response-friend", { friendName, type: true });
+    //창 닫기
+  };
 
-  const refuseFriendRequest = () => {};
+  const refuseFriendRequest = (friendName: string) => {
+    socket.emit("response-friend", { friendName, type: false });
+    // 창 닫기
+  };
 
   const cancelFriendRequest = () => {};
+
+  useEffect(() => {
+    socket.on(
+      "response-friend",
+      ({ username, profile }: { username: string; profile: string }) => {
+        setFriendList([...friendList, { intra_id: username, profile }]);
+        setFriendRequestList(
+          friendRequestList.filter((friend) => friend.intra_id !== username)
+        );
+      }
+    );
+
+    socket.on(
+      "friend-fail",
+      ({ username, profile }: { username: string; profile: string }) => {
+        console.log("friend-fail");
+        setAlertInfo({
+          type: "failure",
+          header: "친구 수락 실패",
+          msg: "친구 수락하기에 실패 하였습니다",
+          toggle: true,
+        });
+      }
+    );
+
+    socket.on(
+      "new-friend",
+      ({ username, profile }: { username: string; profile: string }) => {
+        setFriendList([...friendList, { intra_id: username, profile }]);
+        setFriendRequestList(
+          friendRequestList.filter((friend) => friend.intra_id !== username)
+        );
+      }
+    );
+
+    return () => {
+      socket.off("request-friend");
+      socket.off("friend-fail");
+      socket.off("new-friend");
+    };
+  }, []);
 
   return (
     <AlarmContainer w={w}>
@@ -34,10 +91,15 @@ const Alarm = ({ w }: { w: number }) => {
                   </div>
                   {type ? (
                     <div>
-                      <Button className="margin" onClick={() => {}}>
+                      <Button
+                        className="margin"
+                        onClick={() => acceptFriendRequest(intra_id)}
+                      >
                         수락
                       </Button>
-                      <Button>거절</Button>
+                      <Button onClick={() => refuseFriendRequest(intra_id)}>
+                        거절
+                      </Button>
                     </div>
                   ) : (
                     <div>

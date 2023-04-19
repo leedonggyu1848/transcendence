@@ -6,6 +6,7 @@ import {
   IChatLog,
   IChatRoom,
   ICurrentNormalGame,
+  IFriendDto,
   IFriendRequest,
   IGameUserInfo,
   ISelectedGameRecord,
@@ -270,4 +271,14 @@ export const joinChatToggleState = atom({
 export const banUserListState = atom<IBanUserList>({
   key: "banUserListState",
   default: {},
+});
+
+export const requestAlarmListState = atom({
+  key: "requestAlarmListState",
+  default: false,
+});
+
+export const friendListState = atom<IFriendDto[]>({
+  key: "friendListState",
+  default: [],
 });

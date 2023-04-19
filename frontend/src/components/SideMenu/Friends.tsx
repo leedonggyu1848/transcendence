@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { IFriendDto } from "../../api/interface";
+import { useRecoilState } from "recoil";
+import { friendListState } from "../../api/atom";
 import { axiosGetFriendsList } from "../../api/request";
 import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {
   const [loading, setLoading] = useState(true);
-  const [friendsList, setFriendsList] = useState<IFriendDto[]>([]);
+  const [friendsList, setFriendsList] = useRecoilState(friendListState);
   useEffect(() => {
     async function getFriendsList() {
       const response = await axiosGetFriendsList();
