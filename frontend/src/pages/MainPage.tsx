@@ -55,12 +55,21 @@ const MainPage = () => {
       setMyInfo({ ...myInfo });
 
       socket.emit("first-connection", myInfo.intra_id);
-      socket.emit("friend-request-list");
     }
+    socket.on("first-connection", () => {
+      console.log("연결 성공");
+      socket.emit("friend-request-list");
+    });
     //socket.on("receive-friend-request", (sender: string) => {});
     socket.on("friend-request-list", (request: IFriendRequest[]) => {
+      //console.log(request);
       setFriendRequestList([...request]);
     });
+
+    return () => {
+      socket.off("first-connection");
+      socket.off("friend-request-list");
+    };
   }, []);
   return (
     token.access_token && (
