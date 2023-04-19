@@ -151,8 +151,12 @@ export class EventsService {
     return {
       success: true,
       data: friend.socket_id,
-      sender: { friendName: friendName, profile: friend.profile },
-      receiver: { friendName: user.intra_id, profile: user.profile },
+      sender: { username: friendName, profile: friend.profile, type: type },
+      receiver: {
+        username: user.intra_id,
+        profile: user.profile,
+        type: type,
+      },
       msg: `${user.intra_id}와 ${friendName}의 친구 신청이 처리 되었습니다.`,
     };
   }
