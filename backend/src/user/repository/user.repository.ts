@@ -83,7 +83,7 @@ export class UserRepository implements IUserRepository {
   async findBySocketIdWithJoinFriend(socket_id: string) {
     return await this.userRepository.findOne({
       where: { socket_id: socket_id },
-      relations: ['friends'],
+      relations: ['friends', 'friends.user'],
     });
   }
 

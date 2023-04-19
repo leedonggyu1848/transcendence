@@ -168,10 +168,11 @@ export class EventsService {
     );
     if (requests.length === 0)
       return { success: false, msg: `${friendName}에게 보낸 요청이 없습니다.` };
+    const data = requests[0].user.socket_id;
     await this.friendRepository.deleteFriend(requests[0]);
     return {
       success: true,
-      data: requests[0].user.socket_id,
+      data: data,
       username: user.intra_id,
     };
   }
