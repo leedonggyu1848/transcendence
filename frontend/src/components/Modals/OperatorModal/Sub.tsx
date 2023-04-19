@@ -4,23 +4,6 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { banUserListState, currentChatState } from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
-const userList = [
-  "jpark2",
-  "yooh",
-  "sanan",
-  "dongglee",
-  "sunwsong",
-  "mingkang",
-  "hyungnoh",
-  "jdoh",
-  "seonghyu",
-  "jnho",
-  "heejikim",
-  "inshin",
-  "jaesejeon",
-  "eunbikim",
-];
-
 const Sub = () => {
   const socket = useContext(WebsocketContext);
   const currentChat = useRecoilValue(currentChatState);
@@ -32,6 +15,7 @@ const Sub = () => {
 
     socket.on("ban-list", (users: string[]) => {
       if (!currentChat) return;
+      console.log(users);
       setBanUserList({ ...banUserList, [currentChat.title]: users.slice() });
     });
 
