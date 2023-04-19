@@ -262,7 +262,6 @@ export class EventsGateway
     @MessageBody() roomName: string,
   ) {
     const result = await this.eventsService.leaveChat(socket.id, roomName);
-    console.log(result);
     if (result.success) {
       socket.leave(roomName);
       socket.broadcast.emit('leave-chat', {

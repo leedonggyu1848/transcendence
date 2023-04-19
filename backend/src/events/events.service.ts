@@ -86,7 +86,6 @@ export class EventsService {
   }
 
   async getFriendRequestList(socketId: string) {
-    console.log(socketId)
     const user = await this.userService.getUserBySocketIdWithFriend(socketId);
     console.log(user);
     const send = user.friends.filter((friend) => friend.accept === false);
