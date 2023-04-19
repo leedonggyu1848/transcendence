@@ -163,12 +163,13 @@ export class EventsService {
 
   async cancelFriend(socketId: string, friendName: string) {
     const user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    const friend = await this.userService.getUserByIntraId(friendName);
     const requests = user.friends.filter(
       (req) => req.friendname === friendName && req.accept === false,
     );
     if (requests.length === 0)
       return { success: false, msg: `${friendName}에게 보낸 요청이 없습니다.` };
-    const data = requests[0].user.socket_id;
+    const data = friend.socket_id;
     await this.friendRepository.deleteFriend(requests[0]);
     return {
       success: true,
