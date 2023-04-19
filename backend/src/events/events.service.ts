@@ -133,6 +133,12 @@ export class EventsService {
     };
   }
 
+  async cancelFriend(socketId: string, friendName: string) {
+    const user = await this.userService.findUserBySocketId(socketId);
+    const requests = await this.friendRepository.findFriends(user);
+    const myRequest = requests.filter((request) => request.user);
+  }
+
   async creatChat(
     socketId: string,
     roomName: string,
@@ -336,7 +342,7 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
-    const users = chat.users.map((usr) => {
+    const users = chat.banUsers.map((usr) => {
       return usr.user.intra_id;
     });
     return {

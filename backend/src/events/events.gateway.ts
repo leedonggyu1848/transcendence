@@ -168,6 +168,12 @@ export class EventsGateway
     this.logger.log(result.msg);
   }
 
+  @SubscribeMessage('cancel-friend')
+  async handleCancelFriend(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() friendName: string,
+  ) {}
+
   @SubscribeMessage('create-chat')
   async handleCreateChat(
     @ConnectedSocket() socket: Socket,
