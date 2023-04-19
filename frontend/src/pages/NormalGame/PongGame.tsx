@@ -18,6 +18,8 @@ const PongGame = ({
   type,
   resetGame,
   setCount,
+  hard,
+  obstaclePos,
 }: {
   roomName: string;
   isOwner: boolean;
@@ -26,6 +28,8 @@ const PongGame = ({
   type: string;
   resetGame: React.Dispatch<React.SetStateAction<boolean>>;
   setCount: React.Dispatch<React.SetStateAction<number>>;
+  hard: boolean;
+  obstaclePos: Array<number>;
 }) => {
   const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
   const isWatcher = useRecoilValue(isWatcherState);
@@ -62,6 +66,23 @@ const PongGame = ({
       radius: ballRadius,
     };
 
+    const obstacleHeight = 10;
+    const obstacleWidth = canvasSize * 0.15;
+
+    const leftObstacle = {
+      x: obstaclePos[0] * canvasSize,
+      y: canvasSize / 2 - obstacleHeight / 2,
+      width: obstacleWidth,
+      height: obstacleHeight,
+    };
+
+    const rightObstacle = {
+      x: obstaclePos[1] * canvasSize,
+      y: canvasSize / 2 - obstacleHeight / 2,
+      width: obstacleWidth,
+      height: obstacleHeight,
+    };
+
     const myPaddle = {
       x: canvasSize / 2 - paddleWidth / 2,
       y: canvasSize - paddleHeight - 10,
@@ -93,6 +114,26 @@ const PongGame = ({
         ball.y + ball.dy < otherPaddle.y + otherPaddle.height + ball.radius &&
         ball.x > otherPaddle.x - ball.radius &&
         ball.x < otherPaddle.x + otherPaddle.width + ball.radius;
+
+      if (hard) {
+        const leftObstacleCollision =
+          ball.y + ball.dy > leftObstacle.y - ball.radius &&
+          ball.y + ball.dy <
+            leftObstacle.y + leftObstacle.height + ball.radius &&
+          ball.x > leftObstacle.x - ball.radius &&
+          ball.x < leftObstacle.x + leftObstacle.width + ball.radius;
+
+        const rightObstacleCollision =
+          ball.y + ball.dy > rightObstacle.y - ball.radius &&
+          ball.y + ball.dy <
+            rightObstacle.y + rightObstacle.height + ball.radius &&
+          ball.x > rightObstacle.x - ball.radius &&
+          ball.x < rightObstacle.x + rightObstacle.width + ball.radius;
+
+        if (leftObstacleCollision || rightObstacleCollision) {
+          ball.dy = -ball.dy;
+        }
+      }
 
       // 윗 벽에 닿았을 때
       if (ball.y + ball.dy < ball.radius) {
@@ -227,6 +268,27 @@ const PongGame = ({
       ball.y += ball.dy;
     }
 
+    function drawObstacles() {
+      if (!ctx) return;
+
+      ctx.beginPath();
+      ctx.rect(
+        leftObstacle.x,
+        leftObstacle.y,
+        leftObstacle.width,
+        leftObstacle.height
+      );
+      ctx.rect(
+        rightObstacle.x,
+        rightObstacle.y,
+        rightObstacle.width,
+        rightObstacle.height
+      );
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.closePath();
+    }
+
     function gameLoop() {
       if (gameState !== "playing") return;
       if (ctx) {
@@ -234,6 +296,7 @@ const PongGame = ({
         drawBall();
         drawMyPaddle();
         drawOtherPaddle();
+        if (hard) drawObstacles();
         updateBallPosition();
         reflectBall();
       }
@@ -284,6 +347,7 @@ const PongGame = ({
         drawBall();
         drawMyPaddle();
         drawOtherPaddle();
+        if (hard) drawObstacles();
       }
     });
 
@@ -344,6 +408,7 @@ const PongGame = ({
       drawBall();
       drawMyPaddle();
       drawOtherPaddle();
+      if (hard) drawObstacles();
     }
 
     initGame();

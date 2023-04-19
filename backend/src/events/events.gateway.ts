@@ -420,6 +420,15 @@ export class EventsGateway
     });
   }
 
+  @SubscribeMessage('obstacle-info')
+  handleObstacleInfo(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, obstaclePos }: { roomName: string; obstaclePos: number[] },
+  ) {
+    socket.broadcast.to(roomName).emit('obstacle-info', obstaclePos);
+  }
+
   @SubscribeMessage('move-ball')
   handleMoveBall(
     @ConnectedSocket() socket: Socket,

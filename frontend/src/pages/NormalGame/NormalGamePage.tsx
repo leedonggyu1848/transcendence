@@ -30,11 +30,11 @@ const NormalGamePage = () => {
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
+  const [obstaclePos, setObstaclePos] = useState([0, 0]);
   const [normalJoinType, setNormalJoinType] =
     useRecoilState(normalJoinTypeState);
   const [firstJoin, setJoinSocketState] = useRecoilState(joinSocketState);
   const [count, setCount] = useState(4);
-
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
@@ -60,6 +60,15 @@ const NormalGamePage = () => {
     setStartCount(() => true);
     setCount((prev) => prev - 1);
     socket.emit("start-game", gameInfo.gameDto.title);
+    if (gameInfo.gameDto.interrupt_mode) {
+      const leftPos = Math.floor(Math.random() * 30) / 100;
+      const rightPos = (Math.floor(Math.random() * 30) + 50) / 100;
+      setObstaclePos([leftPos, rightPos]);
+      socket.emit("obstacle-info", {
+        roomName: gameInfo.gameDto.title,
+        obstaclePos: [leftPos, rightPos],
+      });
+    }
   };
 
   const clickExit = async () => {
@@ -155,11 +164,16 @@ const NormalGamePage = () => {
       setCount((prev) => prev - 1);
     });
 
+    socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
+      setObstaclePos([leftPos, rightPos]);
+    });
+
     return () => {
       socket.off("join-game");
       socket.off("message");
       socket.off("leave-game");
       socket.off("start-game");
+      socket.off("obstacle-info");
       if (timer) clearInterval(timer);
     };
   }, [chatLogs, startCount, count]);
@@ -178,6 +192,8 @@ const NormalGamePage = () => {
             type="normal"
             resetGame={setStart}
             setCount={setCount}
+            hard={gameInfo.gameDto.interrupt_mode}
+            obstaclePos={obstaclePos}
           />
         )}
       </GameContainer>
