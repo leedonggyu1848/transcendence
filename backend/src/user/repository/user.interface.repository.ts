@@ -4,6 +4,7 @@ import { User } from 'src/entity/user.entity';
 
 export interface IUserRepository {
   createUser(user_id: number, intra_id: string);
+  findAll();
   findByIntraId(intra_id: string);
   findByIntraIdWithJoinGame(intra_id: string);
   findByIntraIdWithJoinChat(intra_id: string);

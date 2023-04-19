@@ -76,8 +76,8 @@ export class EventsService {
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map((friend) => {
       return {
-        intra_id: friend.intra_id,
-        profile: friend.profile,
+        intra_id: friend.friendname,
+        profile: friend.friendProfile,
         time: friend.time,
         type: FriendReqType.ACCEPT,
       };

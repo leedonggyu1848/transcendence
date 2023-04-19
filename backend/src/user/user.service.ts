@@ -28,43 +28,43 @@ export class UserService {
   }
 
   async getUserByIntraId(intra_id: string) {
-    return this.userRepository.findByIntraId(intra_id);
+    return await this.userRepository.findByIntraId(intra_id);
   }
 
   async getUserBySocketId(socket_id: string) {
-    return this.userRepository.findBySocketId(socket_id);
+    return await this.userRepository.findBySocketId(socket_id);
   }
 
   async getUserByIntraIdWithGame(intra_id: string) {
-    return this.userRepository.findByIntraIdWithJoinGame(intra_id);
+    return await this.userRepository.findByIntraIdWithJoinGame(intra_id);
   }
 
   async getUserBySocketIdWithGame(socketId: string) {
-    return this.userRepository.findBySocketIdWithJoinGame(socketId);
+    return await this.userRepository.findBySocketIdWithJoinGame(socketId);
   }
 
   async getUserByIntraIdWithChat(intra_id: string) {
-    return this.userRepository.findByIntraIdWithJoinChat(intra_id);
+    return await this.userRepository.findByIntraIdWithJoinChat(intra_id);
   }
 
   async getUserBySocketIdWithChat(socketId: string) {
-    return this.userRepository.findBySocketIdWithJoinChat(socketId);
+    return await this.userRepository.findBySocketIdWithJoinChat(socketId);
   }
 
   async getUserByIntraIdWithFriend(intra_id: string) {
-    return this.userRepository.findByIntraIdWithJoinFriend(intra_id);
+    return await this.userRepository.findByIntraIdWithJoinFriend(intra_id);
   }
 
   async getUserBySocketIdWithFriend(socketId: string) {
-    return this.userRepository.findBySocketIdWithJoinFriend(socketId);
+    return await this.userRepository.findBySocketIdWithJoinFriend(socketId);
   }
 
   async getUserByIntraIdWithBlock(intra_id: string) {
-    return this.userRepository.findByIntraIdWithJoinBlock(intra_id);
+    return await this.userRepository.findByIntraIdWithJoinBlock(intra_id);
   }
 
   async getUserBySocketIdWithBlock(socketId: string) {
-    return this.userRepository.findBySocketIdWithJoinBlock(socketId);
+    return await this.userRepository.findBySocketIdWithJoinBlock(socketId);
   }
 
   async addUserFromSession(user: UserSessionDto) {

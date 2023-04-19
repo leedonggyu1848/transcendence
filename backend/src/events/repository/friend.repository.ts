@@ -37,6 +37,7 @@ export class FriendRepository implements IFriendRepository {
     await this.friendRepository.save({
       user: user,
       friendname: friendname,
+      friendProfile: '',
       accept: true,
       time: new Date(Date.now()),
     });

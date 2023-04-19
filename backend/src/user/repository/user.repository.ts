@@ -26,6 +26,10 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async findAll() {
+    return await this.userRepository.find();
+  }
+
   async findByIntraId(intra_id: string) {
     return await this.userRepository.findOneBy({ intra_id: intra_id });
   }
