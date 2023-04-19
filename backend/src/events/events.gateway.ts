@@ -111,15 +111,15 @@ export class EventsGateway
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`친구 목록 조회`);
-    const data = await this.eventsService.getFriendList(socket.id);
-    socket.emit('friend-list', data);
+    const friends = await this.eventsService.getFriendList(socket.id);
+    socket.emit('friend-list', friends);
   }
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`친구 요청 목록 조회`);
-    const data = await this.eventsService.getFriendRequestList(socket.id);
-    socket.emit('friend-request-list', data);
+    const requests = await this.eventsService.getFriendRequestList(socket.id);
+    socket.emit('friend-request-list', requests);
   }
 
   @SubscribeMessage('request-friend')
