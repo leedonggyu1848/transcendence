@@ -6,7 +6,7 @@ import ChatPage from "./ChatPage/ChatPage";
 import { useCookies } from "react-cookie";
 import { useContext, useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   createChatModalToggleState,
@@ -29,6 +29,7 @@ import SettingModal from "../components/Modals/SettingModal/SettingModal";
 import { axiosGetFriendRequestList, axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
 import JoinChatModal from "../components/Modals/JoinChatModal";
+import { IFriendDto, IFriendRequest } from "../api/interface";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -38,10 +39,10 @@ const MainPage = () => {
   const operatorModalToggle = useRecoilValue(operatorModalToggleState);
   const settingModalToggle = useRecoilValue(settingModalState);
   const createChatModalToggle = useRecoilValue(createChatModalToggleState);
-  const setFriendRequestList = useSetRecoilState(friendRequestListState);
   const joinChatToggle = useRecoilValue(joinChatToggleState);
   const setMyInfo = useSetRecoilState(myInfoState);
   const socket = useContext(WebsocketContext);
+  const setFriendRequestList = useSetRecoilState(friendRequestListState);
 
   const navigate = useNavigate();
 
@@ -51,13 +52,15 @@ const MainPage = () => {
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
-      const friendRequestList = await axiosGetFriendRequestList();
       setMyInfo({ ...myInfo });
-      setFriendRequestList([...friendRequestList]);
 
       socket.emit("first-connection", myInfo.intra_id);
+      socket.emit("friend-request-list");
     }
     //socket.on("receive-friend-request", (sender: string) => {});
+    socket.on("friend-request-list", (request: IFriendRequest[]) => {
+      setFriendRequestList([...request]);
+    });
   }, []);
   return (
     token.access_token && (

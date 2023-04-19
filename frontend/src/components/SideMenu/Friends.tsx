@@ -2,20 +2,22 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { friendListState } from "../../api/atom";
-import { axiosGetFriendsList } from "../../api/request";
+import { IFriendDto } from "../../api/interface";
+import { socket } from "../../api/WebsocketContext";
 import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {
   const [loading, setLoading] = useState(true);
   const [friendsList, setFriendsList] = useRecoilState(friendListState);
   useEffect(() => {
-    async function getFriendsList() {
-      const response = await axiosGetFriendsList();
-      setFriendsList([...response]);
-      setLoading(false);
-    }
+    socket.emit("friend-list");
 
-    getFriendsList();
+    socket.on("friend-list", (friends: IFriendDto[]) => {
+      setFriendsList([...friends]);
+    });
+    return () => {
+      socket.off("friend-list");
+    };
   }, []);
   return (
     <FriendsContainer w={w}>
