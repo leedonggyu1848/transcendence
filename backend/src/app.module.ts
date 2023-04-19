@@ -6,13 +6,11 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import configurations from './configs/configurations';
 import { EventsModule } from './events/events.module';
-import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
     UserModule,
     GameModule,
-    FriendModule,
     EventsModule,
     ConfigModule.forRoot({
       load: [configurations],
