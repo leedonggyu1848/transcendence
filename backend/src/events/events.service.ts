@@ -135,8 +135,20 @@ export class EventsService {
 
   async cancelFriend(socketId: string, friendName: string) {
     const user = await this.userService.findUserBySocketId(socketId);
-    const requests = await this.friendRepository.findFriends(user);
-    const myRequest = requests.filter((request) => request.user);
+    const friend = await this.userService.findUserByIntraId(friendName);
+    if (!friend) return { success: false, msg: '없는 유저입니다.' };
+    const requestFriend = await this.friendRepository.findFriends(user);
+    const myRequest = requestFriend.filter(
+      (request) => request.user.intra_id === friendName,
+    );
+    const requestedFriend = await this.friendRepository.findFriends(friend);
+    const myRequested = requestedFriend.filter(
+      (request) => request.friendname === friendName,
+    );
+    if (myRequest.length === 0 && myRequested.length === 0)
+      return { success: false, msg: `${friendName} 유저와 친구가 아닙니다.` };
+    if (myRequest.length === 0) this.friendRepository.deleteRequest(friend);
+    else this.friendRepository.deleteRequest(user);
   }
 
   async creatChat(
@@ -302,13 +314,13 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
-    const data = chat.users.filter((usr) => usr.intra_id === operator);
+    const data = chat.users.filter((usr) => usr.user.intra_id === operator);
     if (data.length === 0)
       return { success: false, msg: `${roomName}에 ${operator}가 없습니다.` };
     await this.chatRepository.updateOperator(chat.id, operator);
     return {
       success: true,
-      msg: `${roomName}의 방장이 ${operator}으로 바뀌었습니다.`,
+      data: { roomName, operator },
     };
   }
 
