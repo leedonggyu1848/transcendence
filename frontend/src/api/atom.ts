@@ -9,6 +9,7 @@ import {
   IFriendDto,
   IFriendRequest,
   IGameUserInfo,
+  IMuteCountList,
   ISelectedGameRecord,
   JoinnedUserDto,
   UserDto,
@@ -281,4 +282,9 @@ export const requestAlarmListState = atom({
 export const friendListState = atom<IFriendDto[]>({
   key: "friendListState",
   default: [],
+});
+
+export const muteCountState = atom<IMuteCountList>({
+  key: "muteCountState",
+  default: {},
 });

@@ -209,6 +209,7 @@ const NormalGamePage = () => {
           height={350}
           data={chatLogs}
           myName={myName}
+          muteCount={0}
         />
       </SubContainer>
     </NormalGamePageContainer>

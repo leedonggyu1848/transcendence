@@ -113,3 +113,7 @@ export interface IChatRoom {
 export interface IBanUserList {
   [key: string]: string[];
 }
+
+export interface IMuteCountList {
+  [key: string]: number;
+}

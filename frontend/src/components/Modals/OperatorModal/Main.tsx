@@ -21,6 +21,15 @@ const Main = () => {
   const setAlertInfo = useSetRecoilState(alertModalState);
   const operatorModal = useSetRecoilState(operatorModalToggleState);
 
+  const handleMuteUser = (username: string) => {
+    if (!currentChat) return;
+    console.log("handleMute");
+    socket.emit("mute-user", {
+      roomName: currentChat.title,
+      userName: username,
+    });
+  };
+
   const handleKickUser = (username: string) => {
     if (!currentChat) return;
     socket.emit("kick-user", {
@@ -85,6 +94,8 @@ const Main = () => {
 
     return () => {
       socket.off("kick-user");
+      socket.off("chat-password");
+      socket.off("chat-fail");
     };
   }, []);
   return (
@@ -106,6 +117,7 @@ const Main = () => {
             <User key={idx}>
               <Name>{user}</Name>
               <ButtonContainer>
+                <Button onClick={() => handleMuteUser(user)}>Mute</Button>
                 <Button onClick={() => handleKickUser(user)}>Kick</Button>
                 <Button onClick={() => handleBanUser(user)}>Ban</Button>
                 <Button
@@ -138,13 +150,14 @@ const User = styled.div`
 `;
 const ButtonContainer = styled.div`
   display: flex;
+  padding-right: 10px;
 `;
 const Button = styled.div`
   border-radius: 10px;
   background: white;
   color: black;
-  padding: 5px 10px;
-  margin-right: 10px;
+  padding: 5px;
+  margin-right: 5px;
   cursor: pointer;
 `;
 const Name = styled.div`
@@ -153,7 +166,7 @@ const Name = styled.div`
 `;
 
 const UsersContainer = styled.div`
-  width: 90%;
+  width: 95%;
   height: 300px;
   background: var(--sub-bg-color);
   border-radius: 10px;

@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 import { useEffect, useRef } from "react";
+import { useRecoilState } from "recoil";
+import { muteCountState } from "../../api/atom";
 import { IChatLog } from "../../api/interface";
 import Chat from "./Chat";
 
@@ -10,6 +12,7 @@ const ChatBox = ({
   onChange,
   onSend,
   msg,
+  muteCount,
 }: {
   height: number;
   data: IChatLog[];
@@ -17,6 +20,7 @@ const ChatBox = ({
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   onSend: React.KeyboardEventHandler<HTMLInputElement>;
   msg: string;
+  muteCount: number;
 }) => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +40,10 @@ const ChatBox = ({
         value={msg}
         onChange={onChange}
         onKeyUp={onSend}
-        placeholder="대화하기"
+        placeholder={
+          muteCount > 0 ? `${muteCount}초 뒤에 채팅 가능합니다.` : "채팅하기"
+        }
+        disabled={muteCount > 0}
       />
     </ChatBoxWrapper>
   );
