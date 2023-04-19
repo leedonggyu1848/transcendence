@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ChatType, FriendReqType } from 'src/entity/common.enum';
-import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
+import { IFriendRepository } from 'src/events/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/user.interface.repository';
 import { UserService } from 'src/user/user.service';
 import { IBanRepository } from './repository/ban.interface.repository';
@@ -8,7 +8,7 @@ import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
 import * as bcrypt from 'bcrypt';
 import { GameService } from 'src/game/game.service';
-import { FriendService } from 'src/friend/friend.service';
+import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class EventsService {
@@ -25,7 +25,6 @@ export class EventsService {
     private banRepository: IBanRepository,
     private userService: UserService,
     private gameService: GameService,
-    private friendService: FriendService,
   ) {}
 
   async registUser(intra_id: string, socket_id: string) {
@@ -33,78 +32,99 @@ export class EventsService {
     await this.userRepository.updateSocketId(user.id, socket_id);
   }
 
-  requestCheck(reqs, findName) {
+  // testcode -> TODO: delete
+  async getUserDtoFromSocketId(socketId: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    return this.userService.userToUserDto(user);
+  }
+
+  private async addDummyFriends(user: User) {
+    await this.userRepository.createUser(1122, 'tmp1');
+    await this.userRepository.createUser(1123, 'tmp2');
+    await this.userRepository.createUser(1124, 'tmp3');
+    await this.userRepository.createUser(1125, 'tmp4');
+    await this.userRepository.createUser(1126, 'tmp5');
+    await this.userRepository.createUser(1127, 'tmp6');
+    await this.userRepository.createUser(1128, 'tmp7');
+    await this.userRepository.createUser(1129, 'tmp8');
+    await this.userRepository.createUser(1130, 'tmp9');
+    await this.friendRepository.addDummyFriend(user, 'tmp1');
+    await this.friendRepository.addDummyFriend(user, 'tmp2');
+    await this.friendRepository.addDummyFriend(user, 'tmp3');
+    const user1 = await this.userRepository.findByIntraId('tmp4');
+    const user2 = await this.userRepository.findByIntraId('tmp5');
+    const user3 = await this.userRepository.findByIntraId('tmp6');
+    const user4 = await this.userRepository.findByIntraId('tmp7');
+    const user5 = await this.userRepository.findByIntraId('tmp8');
+    const user6 = await this.userRepository.findByIntraId('tmp9');
+    await this.friendRepository.addFriend(user, user1, false);
+    await this.friendRepository.addFriend(user, user2, false);
+    await this.friendRepository.addFriend(user, user3, false);
+    await this.friendRepository.addFriend(user4, user, false);
+    await this.friendRepository.addFriend(user5, user, false);
+    await this.friendRepository.addFriend(user6, user, false);
+  }
+
+  async getFriendList(socketId: string) {
+    let user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    if (user.friends.length === 0) {
+      // testcode -> TODO: delete
+      await this.addDummyFriends(user);
+      user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    }
+    //return null
+    const result = user.friends.map(async (friend) => {
+      return {
+        intra_id: friend.intra_id,
+        profile: friend.profile,
+        time: friend.time,
+        type: FriendReqType.ACCEPT,
+      };
+    });
+    return result;
+  }
+
+  async getFriendRequestList(socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    const send = user.friends.filter((friend) => friend.accept === false);
+    const receive = await this.friendRepository.findFriendRequestedWithJoin(
+      user.intra_id,
+    );
+    const sendDto = send.map(async (friend) => {
+      return {
+        intra_id: friend.friendname,
+        profile: friend.friendProfile,
+        time: friend.time,
+        type: FriendReqType.SEND,
+      };
+    });
+    const receiveDto = receive.map(async (friend) => {
+      return {
+        intra_id: friend.user.intra_id,
+        profile: friend.user.profile,
+        time: friend.time,
+        type: FriendReqType.RECEIVE,
+      };
+    });
+    const result = [...sendDto, ...receiveDto];
+    return result;
+  }
+
+  private requestCheck(reqs, findName) {
     if (!reqs) return false;
     const tmp = reqs.filter((req) => req.friendname === findName);
     if (tmp.length !== 0) return true;
     return false;
   }
 
-  async getUserDtoFromSocketId(socketId: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
-    return this.userService.userToUserDto(user);
-  }
-
-  async getFriendList(socketId: string) {
-    const user = await this.userRepository.findBySocketId(socketId);
-    let friends = await this.friendRepository.findFriends(user);
-    if (friends.length === 0) {
-      // testcode -> TODO: delete
-      await this.friendService.addDummyFriends(user);
-      friends = await this.friendRepository.findFriends(user);
-    }
-    //return null
-    const result = friends.map(async (friend) => {
-      const data = await this.userRepository.findByIntraId(friend.friendname);
-      return this.friendRepository.userToFriendDto(
-        data,
-        friend.time,
-        FriendReqType.ACCEPT,
-      );
-    });
-    return await Promise.all(result);
-  }
-
-  async getFriendRequestList(socketId: string) {
-    const user = await this.userRepository.findBySocketId(socketId);
-    const send = await this.friendRepository.findFriendRequests(user);
-    const receive = await this.friendRepository.findFriendRequestedWithJoin(
-      user.intra_id,
-    );
-    const sendDto = send.map(async (friend) => {
-      const data = await this.userRepository.findByIntraId(friend.intra_id);
-      return await this.friendRepository.userToFriendDto(
-        data,
-        friend.time,
-        FriendReqType.SEND,
-      );
-    });
-    const receiveDto = receive.map(async (friend) => {
-      return await this.friendRepository.userToFriendDto(
-        friend.user,
-        friend.time,
-        FriendReqType.RECEIVE,
-      );
-    });
-    const result = [
-      ...(await Promise.all(sendDto)),
-      ...(await Promise.all(receiveDto)),
-    ];
-    return result;
-  }
-
   async friendRequest(socketId: string, friendName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
-    const friend = await this.userService.findUserByIntraId(friendName);
+    const user = await this.userService.getUserBySocketId(socketId);
+    const friend = await this.userService.getUserByIntraId(friendName);
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
     const userReqs = await this.friendRepository.findAllWithJoin(user);
-    const friendReqs = await this.friendRepository.findAllWithJoin(friend);
-    if (
-      this.requestCheck(userReqs, friendName) ||
-      this.requestCheck(friendReqs, user.intra_id)
-    )
+    if (this.requestCheck(userReqs, friendName))
       return { success: false, msg: '이미 친구 신청을 보냈습니다.' };
-    await this.friendRepository.addFriend(user, friendName);
+    await this.friendRepository.addFriend(user, friend, false);
     return {
       success: true,
       data: { user, friend },
@@ -113,19 +133,18 @@ export class EventsService {
   }
 
   async friendResponse(socketId: string, friendName: string, type: boolean) {
-    const user = await this.userService.findUserBySocketId(socketId);
-    const friend = await this.userService.findUserByIntraId(friendName);
+    const user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    const friend = await this.userService.getUserByIntraId(friendName);
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
-    const requests = await this.friendRepository.findFriendRequestsWithJoin(
-      user,
+    const requests = user.friends.filter(
+      (req) => req.friendname === friendName && req.accept === false,
     );
-    const myRequest = requests.filter(
-      (request) => request.user.intra_id === friendName,
-    );
-    if (myRequest.length !== 1)
+    if (requests.length !== 1)
       return { success: false, msg: '친구 신청이 없거나 이미 처리되었습니다.' };
-    if (type) await this.friendRepository.updateAccept(myRequest[0].id, true);
-    else await this.friendRepository.deleteRequest(myRequest[0]);
+    if (type) {
+      await this.friendRepository.updateAccept(requests[0].id, true);
+      await this.friendRepository.addFriend(friend, user.intra_id, true);
+    } else await this.friendRepository.deleteFriend(requests[0]);
     return {
       success: true,
       data: friend.socket_id,
@@ -134,21 +153,39 @@ export class EventsService {
   }
 
   async cancelFriend(socketId: string, friendName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
-    const friend = await this.userService.findUserByIntraId(friendName);
+    const user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    const requests = user.friends.filter(
+      (req) => req.friendname === friendName && req.accept === false,
+    );
+    if (requests.length === 0)
+      return { success: false, msg: `${friendName}에게 보낸 요청이 없습니다.` };
+    await this.friendRepository.deleteFriend(requests[0]);
+    return {
+      success: true,
+      data: requests[0].user.socket_id,
+      username: user.intra_id,
+    };
+  }
+
+  async deleteFriend(socketId: string, friendName: string) {
+    const user = await this.userService.getUserBySocketIdWithFriend(socketId);
+    const friend = await this.userService.getUserByIntraIdWithFriend(
+      friendName,
+    );
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
-    const requestFriend = await this.friendRepository.findFriends(user);
-    const myRequest = requestFriend.filter(
-      (request) => request.user.intra_id === friendName,
+    const userRelation = user.friends.filter(
+      (req) => req.friendname === friendName && req.accept === true,
     );
-    const requestedFriend = await this.friendRepository.findFriends(friend);
-    const myRequested = requestedFriend.filter(
-      (request) => request.friendname === friendName,
+    const friendRelation = user.friends.filter(
+      (req) => req.friendname === user.intra_id && req.accept === true,
     );
-    if (myRequest.length === 0 && myRequested.length === 0)
+    if (userRelation.length === 0 || friendRelation.length === 0)
       return { success: false, msg: `${friendName} 유저와 친구가 아닙니다.` };
-    if (myRequest.length === 0) this.friendRepository.deleteRequest(friend);
-    else this.friendRepository.deleteRequest(user);
+    if (userRelation.length !== 0)
+      await this.friendRepository.deleteFriend(userRelation[0]);
+    if (friendRelation.length !== 0)
+      await this.friendRepository.deleteFriend(friendRelation[0]);
+    return { success: true, data: friend.socket_id, username: user.intra_id };
   }
 
   async creatChat(
@@ -157,7 +194,7 @@ export class EventsService {
     type: ChatType,
     password: string,
   ) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const exist = await this.chatRepository.findByTitle(roomName);
     if (exist)
       return { success: false, msg: `${roomName} 방이 이미 존재합니다.` };
@@ -179,7 +216,7 @@ export class EventsService {
   }
 
   async joinChat(socketId: string, roomName: string, password: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (
       chat.type === ChatType.PASSWORD &&
@@ -212,7 +249,7 @@ export class EventsService {
   }
 
   async leaveChat(socketId: string, roomName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0)
@@ -254,7 +291,7 @@ export class EventsService {
   }
 
   async getUserList(socketId: string, roomName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     const usersDto = chat.users.map((usr) => {
       return this.userService.userToUserDto(usr.user);
@@ -263,14 +300,14 @@ export class EventsService {
   }
 
   async kickUser(socketId: string, roomName: string, userName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
     const data = chat.users.filter((usr) => usr.user.intra_id === userName);
     if (data.length === 0)
       return { success: false, msg: `${roomName}에 ${userName}가 없습니다.` };
-    const kicked = await this.userService.findUserByIntraId(userName);
+    const kicked = await this.userService.getUserByIntraId(userName);
     const chatuser = await this.chatUserRepository.findByBoth(chat, kicked);
     await this.chatUserRepository.deleteChatUser(chatuser);
     await this.chatRepository.updateCount(chat.id, chat.count - 1);
@@ -282,8 +319,8 @@ export class EventsService {
   }
 
   async muteUser(socketId: string, roomName: string, userName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
-    const muted = await this.userService.findUserByIntraId(userName);
+    const user = await this.userService.getUserBySocketId(socketId);
+    const muted = await this.userService.getUserByIntraId(userName);
     if (!muted) return { success: false, msg: `${userName} 유저가 없습니다.` };
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
@@ -298,7 +335,7 @@ export class EventsService {
   }
 
   async changePassword(socketId: string, roomName: string, password: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
@@ -310,7 +347,7 @@ export class EventsService {
   }
 
   async changeOperator(socketId: string, roomName: string, operator: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
@@ -325,7 +362,7 @@ export class EventsService {
   }
 
   async banUser(socketId: string, roomName: string, banUser: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${user.intra_id}의 방장이 아닙니다.` };
@@ -337,7 +374,7 @@ export class EventsService {
   }
 
   async cancelBan(socketId: string, roomName: string, banUser: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const userId = user.intra_id;
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== userId)
@@ -350,7 +387,7 @@ export class EventsService {
   }
 
   async getBanList(socketId: string, roomName: string) {
-    const user = await this.userService.findUserBySocketId(socketId);
+    const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };

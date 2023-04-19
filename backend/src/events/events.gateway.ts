@@ -161,7 +161,7 @@ export class EventsGateway
       socket.emit('response-friend', { friendName, type });
       this.nsp.sockets
         .get(result.data)
-        .emit('friend-result', { friendName, type });
+        ?.emit('friend-result', { friendName, type });
     } else {
       socket.emit('friend-fail', result.msg);
     }
@@ -172,7 +172,35 @@ export class EventsGateway
   async handleCancelFriend(
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
-  ) {}
+  ) {
+    const result = await this.eventsService.cancelFriend(socket.id, friendName);
+    if (result.success) {
+      socket.emit('cancel-friend', { userName: friendName });
+      this.nsp.sockets
+        .get(result.data)
+        ?.emit('cancel-friend', { userName: result.username });
+    } else {
+      socket.emit('friend-fail', result.msg);
+    }
+    this.logger.log(`${result.username} -> ${friendName} 친구 요청 취소`);
+  }
+
+  @SubscribeMessage('delete-friend')
+  async handleDeleteFriend(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() friendName: string,
+  ) {
+    const result = await this.eventsService.deleteFriend(socket.id, friendName);
+    if (result.success) {
+      socket.emit('delete-friend', { userName: friendName });
+      this.nsp.sockets
+        .get(result.data)
+        ?.emit('delete-friend', { userName: result.username });
+    } else {
+      socket.emit('friend-fail', result.msg);
+    }
+    this.logger.log(`${result.username} <-> ${friendName} 친구 삭제`);
+  }
 
   @SubscribeMessage('create-chat')
   async handleCreateChat(

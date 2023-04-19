@@ -7,9 +7,13 @@ export interface IUserRepository {
   findByIntraId(intra_id: string);
   findByIntraIdWithJoinGame(intra_id: string);
   findByIntraIdWithJoinChat(intra_id: string);
+  findByIntraIdWithJoinFriend(intra_id: string);
+  findByIntraIdWithJoinBlock(intra_id: string);
   findBySocketId(socket_id: string);
   findBySocketIdWithJoinGame(socket_id: string);
   findBySocketIdWithJoinChat(socket_id: string);
+  findBySocketIdWithJoinFriend(socket_id: string);
+  findBySocketIdWithJoinBlock(socket_id: string);
   updateSocketId(id: number, socket_id: string);
   updateOwnGame(id: number, game: Game);
   updatePlayGame(id: number, game: Game);

@@ -63,7 +63,9 @@ export class GameController {
     @UserDeco() user: UserSessionDto,
   ) {
     this.logger.log(`Create new game: ${user.intra_id}`);
-    const found_user = await this.userService.findUserWithGame(user.intra_id);
+    const found_user = await this.userService.getUserByIntraIdWithGame(
+      user.intra_id,
+    );
     const data = await this.gameService.createGame(gameDto, found_user);
     if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
@@ -81,7 +83,9 @@ export class GameController {
     @UserDeco() user: UserSessionDto,
   ) {
     this.logger.log(`Join game: ${title} / ${user.intra_id}`);
-    const found_user = await this.userService.findUserWithGame(user.intra_id);
+    const found_user = await this.userService.getUserByIntraIdWithGame(
+      user.intra_id,
+    );
     const data = await this.gameService.joinGame(title, password, found_user);
     if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
@@ -99,7 +103,9 @@ export class GameController {
     @UserDeco() user: UserSessionDto,
   ) {
     this.logger.log(`Watch game: ${title} / ${user.intra_id}`);
-    const found_user = await this.userService.findUserWithGame(user.intra_id);
+    const found_user = await this.userService.getUserByIntraIdWithGame(
+      user.intra_id,
+    );
     const data = await this.gameService.watchGame(title, password, found_user);
     if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);
@@ -116,8 +122,8 @@ export class GameController {
     @Body('lose') lose: string,
     @Body('type') type: GameType,
   ) {
-    const winner = await this.userService.findUserWithGame(win);
-    const loser = await this.userService.findUserWithGame(lose);
+    const winner = await this.userService.getUserByIntraIdWithGame(win);
+    const loser = await this.userService.getUserByIntraIdWithGame(lose);
     if (!winner || !loser) throw new BadRequestException('잘못된 요청입니다.');
     this.logger.log(`Save game result: ${winner.intra_id} / ${loser.intra_id}`);
     const data = await this.gameService.saveGameResult(winner, loser, type);
@@ -136,7 +142,9 @@ export class GameController {
   @UseGuards(JwtGuard)
   async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Leave game: ${user.intra_id}`);
-    const found_user = await this.userService.findUserWithGame(user.intra_id);
+    const found_user = await this.userService.getUserByIntraIdWithGame(
+      user.intra_id,
+    );
     const data = await this.gameService.serviceLeaveGame(found_user);
     if (!data.success) {
       this.logger.log(`Bad request: ${data.data}`);

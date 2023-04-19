@@ -22,6 +22,9 @@ export class Friend {
   friendname: string;
 
   @Column()
+  friendProfile: string;
+
+  @Column()
   @NotEquals(null)
   accept: boolean;
 

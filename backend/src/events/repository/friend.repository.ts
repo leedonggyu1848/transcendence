@@ -22,11 +22,12 @@ export class FriendRepository implements IFriendRepository {
     return friendDto;
   }
 
-  async addFriend(user: User, friendname: string) {
+  async addFriend(user: User, friend: User, accept: boolean) {
     await this.friendRepository.save({
       user: user,
-      friendname: friendname,
-      accept: false,
+      friendname: friend.intra_id,
+      friendProfile: friend.profile,
+      accept: accept,
       time: new Date(Date.now()),
     });
   }
@@ -67,28 +68,15 @@ export class FriendRepository implements IFriendRepository {
     });
   }
 
-  async findFriendRequests(user: User) {
-    return await this.friendRepository.find({
-      where: { friendname: user.intra_id, accept: false },
-    });
-  }
-
-  async findFriendRequestsWithJoin(user: User) {
-    return await this.friendRepository.find({
-      where: { friendname: user.intra_id, accept: false },
-      relations: ['user'],
-    });
-  }
-
   async findFriendRequested(username: string) {
     return await this.friendRepository.find({
-      where: { friendname: username },
+      where: { friendname: username, accept: false },
     });
   }
 
   async findFriendRequestedWithJoin(username: string) {
     return await this.friendRepository.find({
-      where: { friendname: username },
+      where: { friendname: username, accept: false },
       relations: ['user'],
     });
   }
@@ -97,7 +85,7 @@ export class FriendRepository implements IFriendRepository {
     await this.friendRepository.update(id, { accept: accept });
   }
 
-  async deleteRequest(friend: Friend) {
+  async deleteFriend(friend: Friend) {
     await this.friendRepository.remove(friend);
   }
 }
