@@ -134,17 +134,19 @@ export class EventsService {
   }
 
   async friendResponse(socketId: string, friendName: string, type: boolean) {
-    const user = await this.userService.getUserBySocketIdWithFriend(socketId);
-    const friend = await this.userService.getUserByIntraId(friendName);
+    const user = await this.userService.getUserBySocketId(socketId);
+    const friend = await this.userService.getUserByIntraIdWithFriend(
+      friendName,
+    );
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
-    const requests = user.friends.filter(
-      (req) => req.friendname === friendName && req.accept === false,
+    const requests = friend.friends.filter(
+      (req) => req.friendname === user.intra_id && req.accept === false,
     );
     if (requests.length !== 1)
       return { success: false, msg: '친구 신청이 없거나 이미 처리되었습니다.' };
     if (type) {
       await this.friendRepository.updateAccept(requests[0].id, true);
-      await this.friendRepository.addFriend(friend, user.intra_id, true);
+      await this.friendRepository.addFriend(user, friend, true);
     } else await this.friendRepository.deleteFriend(requests[0]);
     return {
       success: true,
