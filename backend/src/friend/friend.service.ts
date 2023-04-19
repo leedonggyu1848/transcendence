@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FriendReqType } from 'src/entity/common.enum';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
-import { IUserRepository } from 'src/user/repository/users.interface.repository';
+import { IUserRepository } from 'src/user/repository/user.interface.repository';
 
 @Injectable()
 export class FriendService {
@@ -13,7 +13,7 @@ export class FriendService {
     private friendRepository: IFriendRepository,
   ) {}
 
-  async getFriendList(user: Users) {
+  async getFriendList(user: User) {
     const friends = await this.friendRepository.findFriends(user);
     if (friends.length === 0) return null;
     const result = friends.map(async (friend) => {
@@ -27,7 +27,7 @@ export class FriendService {
     return await Promise.all(result);
   }
 
-  async getFriendRequestList(user: Users) {
+  async getFriendRequestList(user: User) {
     const send = await this.friendRepository.findFriendRequests(user);
     const receive = await this.friendRepository.findFriendRequestedWithJoin(
       user.intra_id,
@@ -55,7 +55,7 @@ export class FriendService {
   }
 
   // testcode -> TODO: delete
-  async addDummyFriends(user: Users) {
+  async addDummyFriends(user: User) {
     await this.userRepository.createUser(1122, 'tmp1');
     await this.userRepository.createUser(1123, 'tmp2');
     await this.userRepository.createUser(1124, 'tmp3');

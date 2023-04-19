@@ -7,7 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Users } from './user.entity';
+import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 
 @Entity()
@@ -42,9 +42,9 @@ export class Game {
   @NotEquals(null)
   count: number;
 
-  @OneToMany(() => Users, (user) => user.play_game, { cascade: true })
-  players: Users[];
+  @OneToMany(() => User, (user) => user.play_game, { cascade: true })
+  players: User[];
 
-  @OneToMany(() => Users, (user) => user.watch_game, { cascade: true })
-  watchers: Users[];
+  @OneToMany(() => User, (user) => user.watch_game, { cascade: true })
+  watchers: User[];
 }

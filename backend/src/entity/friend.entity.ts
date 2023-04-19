@@ -6,16 +6,16 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Users } from './user.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Friend {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Users, (user) => user.friends)
+  @ManyToOne(() => User, (user) => user.friends)
   @JoinColumn()
-  user: Users;
+  user: User;
 
   @Column()
   @NotEquals(null)

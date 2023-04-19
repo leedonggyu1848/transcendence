@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FriendDto } from 'src/dto/friend.dto';
 import { FriendReqType } from 'src/entity/common.enum';
 import { Friend } from 'src/entity/friend.entity';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { IFriendRepository } from './friend.interface.repository';
 
@@ -12,7 +12,7 @@ export class FriendRepository implements IFriendRepository {
     private friendRepository: Repository<Friend>,
   ) {}
 
-  userToFriendDto(user: Users, time: Date, type: FriendReqType) {
+  userToFriendDto(user: User, time: Date, type: FriendReqType) {
     const friendDto: FriendDto = {
       intra_id: user.intra_id,
       profile: user.profile,
@@ -22,7 +22,7 @@ export class FriendRepository implements IFriendRepository {
     return friendDto;
   }
 
-  async addFriend(user: Users, friendname: string) {
+  async addFriend(user: User, friendname: string) {
     await this.friendRepository.save({
       user: user,
       friendname: friendname,
@@ -32,7 +32,7 @@ export class FriendRepository implements IFriendRepository {
   }
 
   // testcode -> TODO: delete
-  async addDummyFriend(user: Users, friendname: string) {
+  async addDummyFriend(user: User, friendname: string) {
     await this.friendRepository.save({
       user: user,
       friendname: friendname,
@@ -41,39 +41,39 @@ export class FriendRepository implements IFriendRepository {
     });
   }
 
-  async findAll(user: Users) {
+  async findAll(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id } },
     });
   }
 
-  async findAllWithJoin(user: Users) {
+  async findAllWithJoin(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id } },
       relations: ['user'],
     });
   }
 
-  async findFriends(user: Users) {
+  async findFriends(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id }, accept: true },
     });
   }
 
-  async findFriendsWithJoin(user: Users) {
+  async findFriendsWithJoin(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id }, accept: true },
       relations: ['user'],
     });
   }
 
-  async findFriendRequests(user: Users) {
+  async findFriendRequests(user: User) {
     return await this.friendRepository.find({
       where: { friendname: user.intra_id, accept: false },
     });
   }
 
-  async findFriendRequestsWithJoin(user: Users) {
+  async findFriendRequestsWithJoin(user: User) {
     return await this.friendRepository.find({
       where: { friendname: user.intra_id, accept: false },
       relations: ['user'],

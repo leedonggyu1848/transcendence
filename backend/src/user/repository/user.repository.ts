@@ -1,14 +1,14 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { JoinType } from 'src/entity/common.enum';
 import { Game } from 'src/entity/game.entity';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
-import { IUserRepository } from './users.interface.repository';
+import { IUserRepository } from './user.interface.repository';
 
 export class UserRepository implements IUserRepository {
   constructor(
-    @InjectRepository(Users)
-    private userRepository: Repository<Users>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   async createUser(user_id: number, intra_id: string) {

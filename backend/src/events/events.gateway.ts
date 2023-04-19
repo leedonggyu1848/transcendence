@@ -108,6 +108,20 @@ export class EventsGateway
     });
   }
 
+  @SubscribeMessage('friend-list')
+  async handleFriendList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`친구 목록 조회`);
+    const data = await this.eventsService.getFriendList(socket.id);
+    socket.emit('friend-list', data);
+  }
+
+  @SubscribeMessage('friend-request-list')
+  async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`친구 요청 목록 조회`);
+    const data = await this.eventsService.getFriendRequestList(socket.id);
+    socket.emit('friend-request-list', data);
+  }
+
   @SubscribeMessage('request-friend')
   async handleFriendRequest(
     @ConnectedSocket() socket: Socket,
@@ -130,6 +144,7 @@ export class EventsGateway
     } else {
       socket.emit('friend-fail', result.msg);
     }
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('response-friend')
@@ -150,6 +165,7 @@ export class EventsGateway
     } else {
       socket.emit('friend-fail', result.msg);
     }
+    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('create-chat')

@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameDto } from 'src/dto/game.dto';
 import { Game } from 'src/entity/game.entity';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { IGameRepository } from './game.interface.repository';
 
@@ -47,14 +47,14 @@ export class GameRepository implements IGameRepository {
     });
   }
 
-  async findByPlayerWithJoin(player: Users) {
+  async findByPlayerWithJoin(player: User) {
     return await this.gameRepository.findOne({
       where: { players: { id: player.id } },
       relations: ['players', 'watchers'],
     });
   }
 
-  async findByWatcherWithJoin(watcher: Users) {
+  async findByWatcherWithJoin(watcher: User) {
     return await this.gameRepository.findOne({
       where: { watchers: { id: watcher.id } },
       relations: ['players', 'watchers'],

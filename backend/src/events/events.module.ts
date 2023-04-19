@@ -7,12 +7,13 @@ import { ChatUser } from 'src/entity/chatuser.entity';
 import { Friend } from 'src/entity/friend.entity';
 import { Game } from 'src/entity/game.entity';
 import { Record } from 'src/entity/record.entity';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
+import { FriendService } from 'src/friend/friend.service';
 import { FriendRepository } from 'src/friend/repository/friend.repository';
 import { GameService } from 'src/game/game.service';
 import { GameRepository } from 'src/game/repository/game.repository';
 import { RecordRepository } from 'src/game/repository/record.repository';
-import { UserRepository } from 'src/user/repository/users.repository';
+import { UserRepository } from 'src/user/repository/user.repository';
 import { UserService } from 'src/user/user.service';
 import { EventsGateway } from './events.gateway';
 import { EventsService } from './events.service';
@@ -57,21 +58,14 @@ const banRepo = {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Users,
-      Game,
-      Record,
-      Friend,
-      Chat,
-      ChatUser,
-      Ban,
-    ]),
+    TypeOrmModule.forFeature([User, Game, Record, Friend, Chat, ChatUser, Ban]),
   ],
   providers: [
     EventsGateway,
     EventsService,
     UserService,
     GameService,
+    FriendService,
     userRepo,
     gameRepo,
     recordRepo,

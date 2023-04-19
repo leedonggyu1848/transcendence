@@ -1,6 +1,6 @@
 import { Chat } from 'src/entity/chat.entity';
 import { Game } from 'src/entity/game.entity';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 
 export interface IUserRepository {
   createUser(user_id: number, intra_id: string);

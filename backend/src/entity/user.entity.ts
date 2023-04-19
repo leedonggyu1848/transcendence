@@ -7,13 +7,14 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Block } from './block.entity';
 import { ChatUser } from './chatuser.entity';
 import { JoinType } from './common.enum';
 import { Friend } from './friend.entity';
 import { Game } from './game.entity';
 
 @Entity()
-export class Users {
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -67,4 +68,7 @@ export class Users {
 
   @OneToMany(() => ChatUser, (chat) => chat.user, { cascade: true })
   chats: ChatUser[];
+
+  @OneToMany(() => Block, (block) => block.user, { cascade: true })
+  blockUsers: Block[];
 }

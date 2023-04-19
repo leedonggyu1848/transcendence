@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LobbyDto } from 'src/dto/lobby.dto';
 import { GameDto } from 'src/dto/game.dto';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 import { GameType, JoinType } from 'src/entity/common.enum';
 import { UserDto } from 'src/dto/user.dto';
 import { IGameRepository } from './repository/game.interface.repository';
-import { IUserRepository } from '../user/repository/users.interface.repository';
+import { IUserRepository } from '../user/repository/user.interface.repository';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { randomInt } from 'crypto';
 import { UserService } from 'src/user/user.service';
@@ -48,7 +48,7 @@ export class GameService {
     return players;
   }
 
-  async createGame(gameDto: GameDto, user: Users) {
+  async createGame(gameDto: GameDto, user: User) {
     if (user.join_type !== JoinType.NONE)
       return { success: false, data: '이미 다른 방에 참여 중입니다.' };
     const found = await this.gameRepository.findByTitle(gameDto.title);
@@ -62,7 +62,7 @@ export class GameService {
     };
   }
 
-  async joinGame(title: string, password: string, user: Users) {
+  async joinGame(title: string, password: string, user: User) {
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
@@ -96,7 +96,7 @@ export class GameService {
     };
   }
 
-  async watchGame(title: string, password: string, user: Users) {
+  async watchGame(title: string, password: string, user: User) {
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
@@ -128,7 +128,7 @@ export class GameService {
     };
   }
 
-  async saveGameResult(winner: Users, loser: Users, type: GameType) {
+  async saveGameResult(winner: User, loser: User, type: GameType) {
     if (!winner || !loser)
       return { success: false, data: '유저 이름이 맞지 않습니다.' };
     if (winner.play_game.id !== loser.play_game.id)
@@ -170,7 +170,7 @@ export class GameService {
     });
   }
 
-  async serviceLeaveGame(user: Users) {
+  async serviceLeaveGame(user: User) {
     if (!user) return { success: false, data: '잘못된 유저 정보입니다.' };
     let game = await this.gameRepository.findByPlayerWithJoin(user);
     if (!game) {

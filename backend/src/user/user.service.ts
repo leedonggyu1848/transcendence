@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import * as fs from 'fs';
-import { IUserRepository } from './repository/users.interface.repository';
-import { Users } from 'src/entity/user.entity';
+import { IUserRepository } from './repository/user.interface.repository';
+import { User } from 'src/entity/user.entity';
 import { UserDto } from 'src/dto/user.dto';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class UserService {
     private userRepository: IUserRepository,
   ) {}
 
-  userToUserDto(user: Users) {
+  userToUserDto(user: User) {
     if (!user) return null;
     const userDto: UserDto = {
       user_id: user.user_id,

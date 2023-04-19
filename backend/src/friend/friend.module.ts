@@ -2,8 +2,8 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Friend } from 'src/entity/friend.entity';
-import { Users } from 'src/entity/user.entity';
-import { UserRepository } from 'src/user/repository/users.repository';
+import { User } from 'src/entity/user.entity';
+import { UserRepository } from 'src/user/repository/user.repository';
 import { UserService } from 'src/user/user.service';
 import { FriendController } from './friend.controller';
 import { FriendService } from './friend.service';
@@ -20,7 +20,7 @@ const friendRepo = {
 };
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([Users, Friend])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Friend])],
   controllers: [FriendController],
   providers: [UserService, FriendService, userRepo, friendRepo],
 })

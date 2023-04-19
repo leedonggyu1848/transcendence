@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from 'src/entity/chat.entity';
 import { ChatUser } from 'src/entity/chatuser.entity';
-import { Users } from 'src/entity/user.entity';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { IChatUserRepository } from './chatuser.interface.repository';
 
@@ -11,7 +11,7 @@ export class ChatUserRepository implements IChatUserRepository {
     private chatUserRepository: Repository<ChatUser>,
   ) {}
 
-  async addChatUser(chat: Chat, user: Users) {
+  async addChatUser(chat: Chat, user: User) {
     await this.chatUserRepository.save({
       chat: chat,
       user: user,
@@ -29,25 +29,25 @@ export class ChatUserRepository implements IChatUserRepository {
     });
   }
 
-  async findByUser(user: Users) {
+  async findByUser(user: User) {
     return await this.chatUserRepository.findBy({ user: { id: user.id } });
   }
 
-  async findByUserWithJoin(user: Users) {
+  async findByUserWithJoin(user: User) {
     return await this.chatUserRepository.find({
       where: { user: { id: user.id } },
       relations: ['chat', 'user'],
     });
   }
 
-  async findByBoth(chat: Chat, user: Users) {
+  async findByBoth(chat: Chat, user: User) {
     return await this.chatUserRepository.findOneBy({
       chat: { id: chat.id },
       user: { id: user.id },
     });
   }
 
-  async findByBothWithJoin(chat: Chat, user: Users) {
+  async findByBothWithJoin(chat: Chat, user: User) {
     return await this.chatUserRepository.findOne({
       where: { chat: { id: chat.id }, user: { id: user.id } },
       relations: ['chat', 'user'],

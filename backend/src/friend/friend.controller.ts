@@ -1,12 +1,8 @@
 import {
-  BadRequestException,
-  Body,
   Controller,
   Get,
   HttpStatus,
   Logger,
-  NotFoundException,
-  Post,
   Res,
   UseGuards,
 } from '@nestjs/common';
