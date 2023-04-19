@@ -48,22 +48,11 @@ const Alarm = ({ w }: { w: number }) => {
         type: boolean;
         profile: string;
       }) => {
-        setFriendList([...friendList, { intra_id: username, profile }]);
+        if (type)
+          setFriendList([...friendList, { intra_id: username, profile }]);
         setFriendRequestList(
           friendRequestList.filter((friend) => friend.intra_id !== username)
         );
-      }
-    );
-
-    socket.on(
-      "friend-fail",
-      ({ username, profile }: { username: string; profile: string }) => {
-        setAlertInfo({
-          type: "failure",
-          header: "친구 수락 실패",
-          msg: "친구 수락하기에 실패 하였습니다",
-          toggle: true,
-        });
       }
     );
 
@@ -79,7 +68,6 @@ const Alarm = ({ w }: { w: number }) => {
 
     return () => {
       socket.off("request-friend");
-      socket.off("friend-fail");
       socket.off("new-friend");
     };
   }, []);

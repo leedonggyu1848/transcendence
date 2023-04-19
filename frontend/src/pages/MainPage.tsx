@@ -36,7 +36,7 @@ const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
   const rankWaitModalToggle = useRecoilValue(rankWaitModalToggleState);
   const joinGameModalToggle = useRecoilValue(joinGameModalToggleState);
-  const alertModalToggle = useRecoilValue(alertModalState);
+  const [alertModalToggle, setAlertInfo] = useRecoilState(alertModalState);
   const operatorModalToggle = useRecoilValue(operatorModalToggleState);
   const settingModalToggle = useRecoilValue(settingModalState);
   const createChatModalToggle = useRecoilValue(createChatModalToggleState);
@@ -79,6 +79,12 @@ const MainPage = () => {
       );
     });
 
+    socket.on("delete-friend", ({ username }: { username: string }) => {
+      setFriendList(
+        friendList.filter((friend) => friend.intra_id !== username)
+      );
+    });
+
     socket.on(
       "friend-result",
       ({
@@ -102,10 +108,21 @@ const MainPage = () => {
       }
     );
 
+    socket.on("friend-fail", (message: string) => {
+      setAlertInfo({
+        type: "failure",
+        header: "",
+        msg: message,
+        toggle: true,
+      });
+    });
+
     return () => {
       socket.off("first-connection");
       socket.off("friend-request-list");
       socket.off("cancel-friend");
+      socket.off("delete-friend");
+      socket.off("friend-fail");
     };
   }, []);
   return (

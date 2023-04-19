@@ -1,17 +1,34 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { banUserListState, currentChatState } from "../../../api/atom";
+import {
+  banUserListState,
+  banUserRequestFlagState,
+  currentChatState,
+} from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const Sub = () => {
   const socket = useContext(WebsocketContext);
   const currentChat = useRecoilValue(currentChatState);
   const [banUserList, setBanUserList] = useRecoilState(banUserListState);
+  const [requestBanListFlag, setRequestBanListFlag] = useRecoilState(
+    banUserRequestFlagState
+  );
+  console.log(banUserList);
+
+  const handleCancelUserBan = (username: string) => {
+    if (!currentChat) return;
+    console.log(username);
+    socket.emit("ban-cancel", { roomName: currentChat.title, user: username });
+  };
 
   useEffect(() => {
     if (!currentChat) return;
-    socket.emit("ban-list", currentChat.title);
+    if (!requestBanListFlag) {
+      socket.emit("ban-list", currentChat.title);
+      setRequestBanListFlag(true);
+    }
 
     socket.on("ban-list", (users: string[]) => {
       if (!currentChat) return;
@@ -21,17 +38,33 @@ const Sub = () => {
     socket.on(
       "ban-user",
       ({ userName, roomName }: { userName: string; roomName: string }) => {
+        let temp = { ...banUserList };
+        if (!temp[roomName]) temp[roomName] = [];
+        setBanUserList({
+          ...temp,
+          [roomName]: [...temp[roomName], userName],
+        });
+      }
+    );
+
+    socket.on(
+      "ban-cancel",
+      ({ roomName, user }: { roomName: string; user: string }) => {
+        console.log(roomName, banUserList);
         setBanUserList({
           ...banUserList,
-          [roomName]: [...banUserList[roomName], userName],
+          [roomName]: banUserList[roomName].filter(
+            (username) => username !== user
+          ),
         });
       }
     );
     return () => {
       socket.off("ban-list");
       socket.off("ban-user");
+      socket.off("ban-cancel");
     };
-  }, []);
+  }, [banUserList]);
 
   useEffect(() => {}, []);
   return (
@@ -44,7 +77,7 @@ const Sub = () => {
             <User key={idx}>
               <Name>{user}</Name>
               <ButtonContainer>
-                <Button>해제</Button>
+                <Button onClick={() => handleCancelUserBan(user)}>해제</Button>
               </ButtonContainer>
             </User>
           ))}

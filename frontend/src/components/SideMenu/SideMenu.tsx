@@ -1,7 +1,11 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { alertModalState, friendRequestListState, requestAlarmListState } from "../../api/atom";
+import {
+  alertModalState,
+  friendRequestListState,
+  requestAlarmListState,
+} from "../../api/atom";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
@@ -16,13 +20,15 @@ const SideMenu = ({ w }: { w: number }) => {
   const [friendRequestList, setFriendRequestList] = useRecoilState(
     friendRequestListState
   );
-  const [requestAlarmFlag, setRequestAlarmFlag] = useRecoilState(requestAlarmListState);
+  const [requestAlarmFlag, setRequestAlarmFlag] = useRecoilState(
+    requestAlarmListState
+  );
 
   const clickLogout = () => {};
 
   useEffect(() => {
     if (!requestAlarmFlag) {
-      socket.emit('')
+      socket.emit("");
       setRequestAlarmFlag(true);
     }
 
@@ -41,15 +47,6 @@ const SideMenu = ({ w }: { w: number }) => {
       }
     );
 
-    socket.on("friend-fail", (message: string) => {
-      setAlertInfo({
-        type: "failure",
-        header: "",
-        msg: message,
-        toggle: true,
-      });
-    });
-
     socket.on(
       "new-friend",
       ({ username, profile }: { username: string; profile: string }) => {
@@ -66,7 +63,6 @@ const SideMenu = ({ w }: { w: number }) => {
     );
     return () => {
       socket.off("request-friend");
-      socket.off("friend-fail");
       socket.off("new-friend");
     };
   }, [friendRequestList]);

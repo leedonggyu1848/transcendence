@@ -274,6 +274,11 @@ export const banUserListState = atom<IBanUserList>({
   default: {},
 });
 
+export const banUserRequestFlagState = atom({
+  key: "banUserRequestFlagState",
+  default: false,
+});
+
 export const requestAlarmListState = atom({
   key: "requestAlarmListState",
   default: false,

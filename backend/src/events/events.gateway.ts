@@ -406,12 +406,12 @@ export class EventsGateway
   async handleCancelUserBan(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, userInfo }: { roomName: string; userInfo: UserDto },
+    { roomName, user }: { roomName: string; user: string },
   ) {
     const result = await this.eventsService.cancelBan(
       socket.id,
       roomName,
-      userInfo.intra_id,
+      user,
     );
     if (result.success) socket.emit('ban-cancel', result.msg);
     else socket.emit('chat-fail', result.msg);

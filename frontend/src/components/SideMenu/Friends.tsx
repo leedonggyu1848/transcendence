@@ -1,14 +1,22 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { friendListState } from "../../api/atom";
 import { IFriendDto } from "../../api/interface";
-import { socket } from "../../api/WebsocketContext";
+import { socket, WebsocketContext } from "../../api/WebsocketContext";
 import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {
   const [loading, setLoading] = useState(true);
   const [friendsList, setFriendsList] = useRecoilState(friendListState);
+  const socket = useContext(WebsocketContext);
+
+  const handleDeleteFriend = (friendName: string) => {
+    socket.emit("delete-friend", friendName);
+  };
+  const handleRequestMatch = (friendName: string) => {};
+  const handleDirectMessage = (friendName: string) => {};
+
   useEffect(() => {
     socket.emit("friend-list");
     socket.on("friend-list", (friends: IFriendDto[]) => {
@@ -37,7 +45,7 @@ const Friends = ({ w }: { w: number }) => {
                 <div className="buttonContainer">
                   <Message />
                   <Game />
-                  <Delete />
+                  <Delete onClick={() => handleDeleteFriend(friend.intra_id)} />
                 </div>
               </FriendInfo>
             ))}

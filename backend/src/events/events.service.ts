@@ -390,9 +390,9 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== userId)
       return { success: false, msg: `${userId}의 방장이 아닙니다.` };
-    const ban = chat.banUsers.find((ban) => ban.username === userId);
+    const ban = chat.banUsers.filter((ban) => ban.username === banUser);
     if (ban.length === 0)
-      return { success: false, msg: `${userId}는 밴 되어있지 않습니다.` };
+      return { success: false, msg: `${banUser}는 밴 되어있지 않습니다.` };
     await this.banRepository.deleteBanUser(ban);
     return { success: true, msg: `${banUser}의 밴이 취소되었습니다.` };
   }
