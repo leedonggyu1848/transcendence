@@ -47,6 +47,7 @@ export class EventsGateway
   ) {
     this.logger.log(`connect ${socket.id} to ${intra_id}`);
     this.eventsService.registUser(intra_id, socket.id);
+    socket.emit('first-connection');
     socket.broadcast.emit('connect-user', `${intra_id}가 접속했습니다.`);
   }
 

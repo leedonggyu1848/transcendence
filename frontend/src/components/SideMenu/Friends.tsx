@@ -11,8 +11,9 @@ const Friends = ({ w }: { w: number }) => {
   const [friendsList, setFriendsList] = useRecoilState(friendListState);
   useEffect(() => {
     socket.emit("friend-list");
-
     socket.on("friend-list", (friends: IFriendDto[]) => {
+      console.log(friends);
+      setLoading(false);
       setFriendsList([...friends]);
     });
     return () => {
