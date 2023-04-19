@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import { useContext, useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  alertModalState,
   currentChatState,
   currentChatUserListState,
   myNameState,
@@ -14,7 +15,9 @@ const Main = () => {
   );
   const myName = useRecoilValue(myNameState);
   const currentChat = useRecoilValue(currentChatState);
+  const [password, setPassword] = useState("");
   const socket = useContext(WebsocketContext);
+  const setAlertInfo = useSetRecoilState(alertModalState);
 
   const handleKickUser = (username: string) => {
     if (!currentChat) return;
@@ -32,6 +35,19 @@ const Main = () => {
     });
   };
 
+  const changePasswod = (password: string) => {
+    if (!password) return;
+    socket.emit("chat-password", {
+      roomName: currentChat?.title,
+      password: password,
+    });
+    setPassword("");
+  };
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
   const handleGiveOperator = (username: string) => {};
 
   useEffect(() => {
@@ -43,7 +59,29 @@ const Main = () => {
         );
       }
     );
-  });
+
+    socket.on("chat-password", () => {
+      setAlertInfo({
+        type: "success",
+        header: "",
+        msg: "비밀번호 변경 성공!",
+        toggle: true,
+      });
+    });
+
+    socket.on("caht-fail", (message: string) => {
+      setAlertInfo({
+        type: "failure",
+        header: "비밀번호 변경 실패!",
+        msg: message,
+        toggle: true,
+      });
+    });
+
+    return () => {
+      socket.off("kick-user");
+    };
+  }, []);
   return (
     <MainContainer>
       <HeaderContainer>
@@ -51,9 +89,9 @@ const Main = () => {
         <div>
           <div className="passwordTitle">
             <span>비밀번호 변경</span>
-            <span className="button" />
+            <span className="button" onClick={() => changePasswod(password)} />
           </div>
-          <Input type="password" />
+          <Input type="password" onChange={onChange} value={password} />
         </div>
       </HeaderContainer>
       <UsersContainer>
