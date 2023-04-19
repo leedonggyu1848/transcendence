@@ -61,18 +61,21 @@ const MainPage = () => {
       socket.emit("first-connection", myInfo.intra_id);
     }
     socket.on("first-connection", () => {
-      console.log("연결 성공");
       socket.emit("friend-request-list");
     });
     //socket.on("receive-friend-request", (sender: string) => {});
     socket.on("friend-request-list", (request: IFriendRequest[]) => {
-      //console.log(request);
       setFriendRequestList([...request]);
     });
     socket.on("cacnel-friend", (userName: string) => {
-      console.log("친구 요청 취소됨" + userName);
       setFriendRequestList(
         friendRequestList.filter((friend) => friend.intra_id !== userName)
+      );
+    });
+
+    socket.on("cancel-friend", ({ userName }: { userName: string }) => {
+      setFriendRequestList(
+        friendRequestList.filter((request) => request.intra_id !== userName)
       );
     });
 

@@ -23,7 +23,6 @@ const Main = () => {
 
   const handleMuteUser = (username: string) => {
     if (!currentChat) return;
-    console.log("handleMute");
     socket.emit("mute-user", {
       roomName: currentChat.title,
       userName: username,

@@ -58,7 +58,6 @@ const Alarm = ({ w }: { w: number }) => {
     socket.on(
       "friend-fail",
       ({ username, profile }: { username: string; profile: string }) => {
-        console.log("friend-fail");
         setAlertInfo({
           type: "failure",
           header: "친구 수락 실패",

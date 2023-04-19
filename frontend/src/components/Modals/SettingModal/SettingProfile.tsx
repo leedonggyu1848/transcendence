@@ -9,7 +9,6 @@ const SettingProfile = () => {
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const [profileImage, setProfileImage] = useState("");
 
-  console.log(myInfo);
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
