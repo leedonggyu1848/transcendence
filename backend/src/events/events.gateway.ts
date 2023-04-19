@@ -340,7 +340,11 @@ export class EventsGateway
       operator,
     );
     if (result.success)
-      socket.broadcast.to(roomName).emit('chat-operator', result.msg);
+      this.nsp.to(roomName).emit('chat-operator', {
+        roomName: roomName,
+        operator: operator,
+        message: result.msg,
+      });
     else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }
