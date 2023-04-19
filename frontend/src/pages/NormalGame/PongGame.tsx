@@ -290,7 +290,7 @@ const PongGame = ({
     socket.on("normal-game-over", ({ winner }) => {
       if (myName === gameInfo.opponentDto?.intra_id) {
         setAlertInfo({
-          type: winner === myName ? "success" : "bad",
+          type: winner === myName ? "success" : "failure",
           header: winner === myName ? "Victory!" : "Lose...",
           msg:
             winner === myName
