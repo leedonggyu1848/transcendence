@@ -13,6 +13,7 @@ import {
   axiosUpdateProfileImage,
 } from "../../../api/request";
 import ModalBackground from "../../ModalBackground";
+import BlockList from "./BlockList";
 import SettingProfile from "./SettingProfile";
 import SettingTextArea from "./SettingTextarea";
 
@@ -27,9 +28,14 @@ const SettingModal = () => {
     <>
       <ModalBackground onClick={onClickBackground} />
       <SettingModalContainer>
-        <SettingProfile />
-        <Name>{myName}</Name>
-        <SettingTextArea />
+        <Container>
+          <SettingProfile />
+          <Name>{myName}</Name>
+          <SettingTextArea />
+        </Container>
+        <Container>
+          <BlockList />
+        </Container>
       </SettingModalContainer>
     </>
   );
@@ -41,17 +47,28 @@ const Name = styled.div`
   margin: 20px;
 `;
 
+const Container = styled.div`
+  width: 400px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  &:last-of-type {
+    margin-right: 20px;
+  }
+`;
+
 const SettingModalContainer = styled.div`
   position: fixed;
-  left: 30%;
-  top: 30%;
-  width: 400px;
+  left: calc(50% - 370px);
+  top: calc(50%-300px);
+  width: 740px;
   height: 600px;
   background: var(--main-bg-color);
   border-radius: 10px;
   z-index: 2;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 `;

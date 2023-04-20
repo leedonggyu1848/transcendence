@@ -293,3 +293,13 @@ export const muteCountState = atom<IMuteCountList>({
   key: "muteCountState",
   default: {},
 });
+
+export const blockUserListState = atom<Array<string>>({
+  key: "blockUserListState",
+  default: [],
+});
+
+export const requestBlockUserListFlagState = atom({
+  key: "requestBlockUserListFlagState",
+  default: false,
+});
