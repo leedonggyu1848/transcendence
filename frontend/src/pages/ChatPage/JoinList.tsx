@@ -12,7 +12,7 @@ const JoinList = ({
     <JoinListContainer>
       {Object.keys(data).map((roomName, idx) => (
         <Room key={idx}>
-          {true ? <NewMessage /> : <Empty />}
+          {data[roomName].newMsg ? <NewMessage /> : <Empty />}
           <Private private_mode={data[roomName].type} />
           <Title title={data[roomName].title.slice(1)}>
             {data[roomName].title.slice(1, 10)}

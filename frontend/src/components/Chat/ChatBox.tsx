@@ -1,13 +1,16 @@
 import styled from "@emotion/styled";
 import { useEffect, useRef } from "react";
-import { useRecoilState } from "recoil";
-import { muteCountState } from "../../api/atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  currentChatState,
+  joinnedChatState,
+  muteCountState,
+} from "../../api/atom";
 import { IChatLog } from "../../api/interface";
 import Chat from "./Chat";
 
 const ChatBox = ({
   height,
-  data,
   myName,
   onChange,
   onSend,
@@ -15,7 +18,6 @@ const ChatBox = ({
   muteCount,
 }: {
   height: number;
-  data: IChatLog[];
   myName: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   onSend: React.KeyboardEventHandler<HTMLInputElement>;
@@ -23,17 +25,20 @@ const ChatBox = ({
   muteCount: number;
 }) => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
+  const joinChatList = useRecoilValue(joinnedChatState);
+  const currentChat = useRecoilValue(currentChatState);
 
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [data]);
+  }, [currentChat, joinChatList]);
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer ref={chatBoxRef} h={height}>
-        {data &&
-          data.map((info, idx) => <Chat key={idx} {...info} myName={myName} />)}
+        {joinChatList[currentChat].chatLogs.map((info, idx) => (
+          <Chat key={idx} {...info} myName={myName} />
+        ))}
       </ChatBoxContainer>
       <ChatInput
         value={msg}

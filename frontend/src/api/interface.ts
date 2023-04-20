@@ -112,6 +112,8 @@ export interface IChatDetail {
   operator: string;
   userList: string[];
   chatLogs: IChatLog[];
+  banUsers: string[];
+  newMsg: boolean;
 }
 
 export interface IBanUserList {

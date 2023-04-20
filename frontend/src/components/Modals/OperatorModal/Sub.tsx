@@ -5,44 +5,51 @@ import {
   banUserListState,
   banUserRequestFlagState,
   currentChatState,
+  joinnedChatState,
 } from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const Sub = () => {
   const socket = useContext(WebsocketContext);
   const currentChat = useRecoilValue(currentChatState);
-  const [banUserList, setBanUserList] = useRecoilState(banUserListState);
+  const [joinnedChat, setJoinnedChat] = useRecoilState(joinnedChatState);
   const [requestBanListFlag, setRequestBanListFlag] = useRecoilState(
     banUserRequestFlagState
   );
-  console.log(banUserList);
 
   const handleCancelUserBan = (username: string) => {
-    if (!currentChat) return;
     console.log(username);
-    socket.emit("ban-cancel", { roomName: currentChat.title, user: username });
+    socket.emit("ban-cancel", { roomName: currentChat, user: username });
   };
 
   useEffect(() => {
-    if (!currentChat) return;
     if (!requestBanListFlag) {
-      socket.emit("ban-list", currentChat.title);
+      socket.emit("ban-list", currentChat);
       setRequestBanListFlag(true);
     }
 
     socket.on("ban-list", (users: string[]) => {
-      if (!currentChat) return;
-      setBanUserList({ ...banUserList, [currentChat.title]: users.slice() });
+      setJoinnedChat({
+        ...joinnedChat,
+        [currentChat]: {
+          ...joinnedChat[currentChat],
+          banUsers: [...users],
+        },
+      });
     });
 
     socket.on(
       "ban-user",
       ({ userName, roomName }: { userName: string; roomName: string }) => {
-        let temp = { ...banUserList };
-        if (!temp[roomName]) temp[roomName] = [];
-        setBanUserList({
-          ...temp,
-          [roomName]: [...temp[roomName], userName],
+        setJoinnedChat({
+          ...joinnedChat,
+          [roomName]: {
+            ...joinnedChat[roomName],
+            userList: joinnedChat[roomName].userList.filter(
+              (name) => name !== userName
+            ),
+            banUsers: [...joinnedChat[roomName].banUsers, userName],
+          },
         });
       }
     );
@@ -50,12 +57,14 @@ const Sub = () => {
     socket.on(
       "ban-cancel",
       ({ roomName, user }: { roomName: string; user: string }) => {
-        console.log(roomName, banUserList);
-        setBanUserList({
-          ...banUserList,
-          [roomName]: banUserList[roomName].filter(
-            (username) => username !== user
-          ),
+        setJoinnedChat({
+          ...joinnedChat,
+          [roomName]: {
+            ...joinnedChat[roomName],
+            banUsers: joinnedChat[roomName].banUsers.filter(
+              (name) => name !== user
+            ),
+          },
         });
       }
     );
@@ -64,23 +73,20 @@ const Sub = () => {
       socket.off("ban-user");
       socket.off("ban-cancel");
     };
-  }, [banUserList]);
+  }, [joinnedChat]);
 
-  useEffect(() => {}, []);
   return (
     <SubContainer>
       <Header>Ban List</Header>
       <BanList>
-        {currentChat &&
-          banUserList[currentChat.title] &&
-          banUserList[currentChat.title].map((user, idx) => (
-            <User key={idx}>
-              <Name>{user}</Name>
-              <ButtonContainer>
-                <Button onClick={() => handleCancelUserBan(user)}>해제</Button>
-              </ButtonContainer>
-            </User>
-          ))}
+        {joinnedChat[currentChat].banUsers.map((user, idx) => (
+          <User key={idx}>
+            <Name>{user}</Name>
+            <ButtonContainer>
+              <Button onClick={() => handleCancelUserBan(user)}>해제</Button>
+            </ButtonContainer>
+          </User>
+        ))}
       </BanList>
     </SubContainer>
   );

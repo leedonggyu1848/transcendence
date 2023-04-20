@@ -56,7 +56,6 @@ const ChatPage = () => {
   const myName = useRecoilValue(myNameState);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
-  const [banUserList, setBanUserList] = useRecoilState(banUserListState);
 
   const hooks: any = {
     socket,
@@ -77,15 +76,10 @@ const ChatPage = () => {
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
   };
-  const joinChatRoom = (
-    roomName: string,
-    type: number,
-    operator: string,
-    count: number
-  ) => {
+  const joinChatRoom = (roomName: string, type: number) => {
     if (joinnedChatList[roomName] !== undefined) {
       //current chat setting
-      setCurrentChat({ ...joinnedChatList[roomName] });
+      setCurrentChat(roomName);
       return;
     }
     if (type === 2) {
@@ -118,12 +112,13 @@ const ChatPage = () => {
     listenBanUser(hooks);
     listenChangeOperator(hooks);
 
-    socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
+    socket.on("all-list", ({ chats }: { chats: IChatRoom[] }) => {
       setChatList([...chats]);
     });
 
     return () => {
       chatSocketOff(
+        socket,
         "chat-list",
         "create-chat",
         "all-chat",
@@ -134,7 +129,8 @@ const ChatPage = () => {
         "leave-chat-success",
         "join-chat-success",
         "kick-user",
-        "ban-user"
+        "ban-user",
+        "chat-operator"
       );
 
       setAllChatFlag(true);
@@ -156,22 +152,24 @@ const ChatPage = () => {
         </HeaderContainer>
         <ChatList joinChatRoom={joinChatRoom} data={chatList}></ChatList>
       </WapperContainer>
-      {currentChat && (
+      {currentChat && joinnedChatList[currentChat] && (
         <WapperContainer>
           <HeaderContainer>
             <div>현재 참가 중인 방</div>
-            <Leave onClick={() => LeaveChatRoom(currentChat.title)}>
+            <Leave
+              onClick={() => LeaveChatRoom(joinnedChatList[currentChat].title)}
+            >
               나가기
             </Leave>
           </HeaderContainer>
           <CurrentChat
-            roomName={currentChat.title}
-            operator={currentChat.operator === myName}
+            roomName={joinnedChatList[currentChat].title}
+            operator={joinnedChatList[currentChat].operator === myName}
             myName={myName}
             data={UserDtoToJoinnedUserDto(
-              currentChatUserList,
+              joinnedChatList[currentChat].userList,
               myName,
-              currentChat.operator
+              joinnedChatList[currentChat].operator
             )}
             clickOperatorButton={clickOperatorButton}
           />

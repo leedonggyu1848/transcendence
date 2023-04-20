@@ -122,13 +122,6 @@ const NormalGamePage = () => {
       timer = setTimeout(() => setCount(count - 1), 1000);
     }
 
-    socket.on("message", ({ username, message }) => {
-      setChatLogs([
-        ...chatLogs,
-        { sender: username, msg: message, time: new Date() },
-      ]);
-    });
-
     socket.on(
       "leave-game",
       ({ message, userInfo }: { message: string; userInfo: UserDto }) => {

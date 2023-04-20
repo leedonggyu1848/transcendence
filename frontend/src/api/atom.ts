@@ -230,9 +230,9 @@ export const createChatModalToggleState = atom({
   default: false,
 });
 
-export const currentChatState = atom<IChatDetail | null>({
+export const currentChatState = atom({
   key: "currentChatState",
-  default: null,
+  default: "",
 });
 
 export const currentChatUserListState = atom<string[]>({

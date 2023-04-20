@@ -5,6 +5,7 @@ import {
   alertModalState,
   currentChatState,
   currentChatUserListState,
+  joinnedChatState,
   myNameState,
   operatorModalToggleState,
 } from "../../../api/atom";
@@ -20,35 +21,32 @@ const Main = () => {
   const socket = useContext(WebsocketContext);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const operatorModal = useSetRecoilState(operatorModalToggleState);
+  const [joinnedChat, setJoinnedChat] = useRecoilState(joinnedChatState);
 
   const handleMuteUser = (username: string) => {
-    if (!currentChat) return;
     socket.emit("mute-user", {
-      roomName: currentChat.title,
+      roomName: currentChat,
       userName: username,
     });
   };
 
   const handleKickUser = (username: string) => {
-    if (!currentChat) return;
     socket.emit("kick-user", {
-      roomName: currentChat.title,
+      roomName: currentChat,
       userName: username,
     });
   };
 
   const handleBanUser = (username: string) => {
-    if (!currentChat) return;
     socket.emit("ban-user", {
-      roomName: currentChat.title,
+      roomName: currentChat,
       userName: username,
     });
   };
 
   const changePasswod = (password: string) => {
-    if (!password) return;
     socket.emit("chat-password", {
-      roomName: currentChat?.title,
+      roomName: currentChat,
       password: password,
     });
     setPassword("");
@@ -67,9 +65,15 @@ const Main = () => {
     socket.on(
       "kick-user",
       ({ userName, roomName }: { userName: String; roomName: string }) => {
-        setCurrentChatUserList(
-          currentChatUserList.filter((name) => name !== userName)
-        );
+        setJoinnedChat({
+          ...joinnedChat,
+          [roomName]: {
+            ...joinnedChat[roomName],
+            userList: joinnedChat[roomName].userList.filter(
+              (user) => user != userName
+            ),
+          },
+        });
       }
     );
 
@@ -82,21 +86,11 @@ const Main = () => {
       });
     });
 
-    socket.on("caht-fail", (message: string) => {
-      setAlertInfo({
-        type: "failure",
-        header: "",
-        msg: message,
-        toggle: true,
-      });
-    });
-
     return () => {
       socket.off("kick-user");
       socket.off("chat-password");
-      socket.off("chat-fail");
     };
-  }, []);
+  }, [joinnedChat, currentChat]);
   return (
     <MainContainer>
       <HeaderContainer>
@@ -110,7 +104,7 @@ const Main = () => {
         </div>
       </HeaderContainer>
       <UsersContainer>
-        {currentChatUserList
+        {joinnedChat[currentChat].userList
           .filter((name) => name !== myName)
           .map((user, idx) => (
             <User key={idx}>
@@ -119,13 +113,7 @@ const Main = () => {
                 <Button onClick={() => handleMuteUser(user)}>Mute</Button>
                 <Button onClick={() => handleKickUser(user)}>Kick</Button>
                 <Button onClick={() => handleBanUser(user)}>Ban</Button>
-                <Button
-                  onClick={() =>
-                    currentChat
-                      ? handleGiveOperator(currentChat.title, user)
-                      : ""
-                  }
-                >
+                <Button onClick={() => handleGiveOperator(currentChat, user)}>
                   Oper
                 </Button>
               </ButtonContainer>

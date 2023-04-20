@@ -14,6 +14,7 @@ import {
   friendRequestListState,
   joinChatToggleState,
   joinGameModalToggleState,
+  joinnedChatState,
   myInfoState,
   operatorModalToggleState,
   rankWaitModalToggleState,
@@ -51,6 +52,8 @@ const MainPage = () => {
   const [requestFriendListFlag, setRequestFriendListFlag] = useRecoilState(
     requestFriendListFlagState
   );
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
 
   const navigate = useNavigate();
 
@@ -129,6 +132,34 @@ const MainPage = () => {
       });
     });
 
+    socket.on(
+      "message",
+      ({
+        roomName,
+        userName,
+        message,
+      }: {
+        roomName: string;
+        userName: string;
+        message: string;
+      }) => {
+        setJoinnedChatList({
+          ...joinnedChatList,
+          [roomName]: {
+            ...joinnedChatList[roomName],
+            chatLogs: [
+              ...joinnedChatList[roomName].chatLogs,
+              {
+                sender: userName,
+                msg: message,
+                time: new Date(),
+              },
+            ],
+          },
+        });
+      }
+    );
+
     return () => {
       socket.off("first-connection");
       socket.off("friend-request-list");
@@ -136,8 +167,9 @@ const MainPage = () => {
       socket.off("delete-friend");
       socket.off("friend-fail");
       socket.off("friend-list");
+      socket.off("message");
     };
-  }, []);
+  }, [joinnedChatList]);
   return (
     token.access_token && (
       <MainPageContainer>

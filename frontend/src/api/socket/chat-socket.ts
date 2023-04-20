@@ -43,10 +43,15 @@ export const listenCreateChat = ({
         operator,
         userList: [myName],
         chatLogs: [],
+        banUsers: [],
+        newMsg: false,
       };
       if (operator === myName) {
-        setCurrentChat({ ...detailTemp });
-        setJoinnedChatList({ ...joinnedChatList, roomName: detailTemp });
+        setCurrentChat(roomName);
+        setJoinnedChatList({
+          ...joinnedChatList,
+          [roomName]: { ...detailTemp },
+        });
       }
     }
   );
@@ -82,7 +87,7 @@ export const listenSomeoneJoinned = ({
   myName: string;
   setAlertInfo: any;
   setJoinChatToggle: any;
-  currentChat: IChatDetail;
+  currentChat: string;
   setCurrentChat: any;
   chatList: IChatRoom[];
   setChatList: any;
@@ -115,7 +120,7 @@ export const listenSomeoneJoinned = ({
             ...joinnedChatList[roomName],
             userList: [...joinnedChatList[roomName].userList, username],
             chatLogs:
-              currentChat.title === roomName
+              currentChat === roomName
                 ? [
                     ...joinnedChatList[roomName].chatLogs,
                     {
@@ -133,6 +138,7 @@ export const listenSomeoneJoinned = ({
 };
 
 export const listenJoinSucces = ({
+  myName,
   socket,
   setCurrentChat,
   chatList,
@@ -140,6 +146,7 @@ export const listenJoinSucces = ({
   joinnedChatList,
   setJoinnedChatList,
 }: {
+  myName: string;
   socket: any;
   setCurrentChat: any;
   chatList: IChatRoom[];
@@ -164,12 +171,19 @@ export const listenJoinSucces = ({
         title: roomName,
         type,
         operator,
-        userList: [...users],
+        userList: [...users, myName],
         chatLogs: [],
+        banUsers: [],
+        newMsg: false,
       };
-      setCurrentChat(temp);
       setJoinnedChatList({ ...joinnedChatList, [roomName]: temp });
-      setChatList(chatList.map((chat) => ({ ...chat, count: chat.count + 1 })));
+      setCurrentChat(roomName);
+      setChatList(
+        chatList.map((chat) => ({
+          ...chat,
+          count: chat.title === roomName ? chat.count + 1 : chat.count,
+        }))
+      );
     }
   );
 };
@@ -239,7 +253,7 @@ export const listenLeaveSuccess = ({
   setJoinnedChatList,
 }: {
   socket: any;
-  currentChat: IChatDetail;
+  currentChat: string;
   setCurrentChat: any;
   chatList: IChatRoom[];
   setChatList: any;
@@ -255,11 +269,11 @@ export const listenLeaveSuccess = ({
         }))
         .filter((chat) => chat.count !== 0)
     );
-    const temp = joinnedChatList;
-    if (currentChat.title === roomName) {
+    const temp = { ...joinnedChatList };
+    if (currentChat === roomName) {
       setCurrentChat(null);
     }
-    delete temp[roomName];
+    if (temp[roomName]) delete temp[roomName];
     setJoinnedChatList({ ...temp });
   });
 };
@@ -293,7 +307,7 @@ export const listenKickUser = ({
 }: {
   socket: any;
   myName: string;
-  currentChat: IChatDetail;
+  currentChat: string;
   setCurrentChat: any;
   chatList: IChatRoom[];
   setChatList: any;
@@ -304,8 +318,8 @@ export const listenKickUser = ({
     "kick-user",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       if (userName === myName) {
-        if (currentChat && currentChat.title === roomName) {
-          setCurrentChat(null);
+        if (currentChat === roomName) {
+          setCurrentChat("");
         }
         const temp: IJoinnedChat = {
           ...joinnedChatList,
@@ -315,25 +329,23 @@ export const listenKickUser = ({
         setJoinnedChatList({ ...temp });
       }
       if (userName !== myName) {
-        if (currentChat && currentChat.title === roomName) {
-          setJoinnedChatList({
-            ...joinnedChatList,
-            [roomName]: {
-              ...joinnedChatList[roomName],
-              userList: joinnedChatList[roomName].userList.filter(
-                (name) => name !== userName
-              ),
-              chatLogs: [
-                ...joinnedChatList[roomName].chatLogs,
-                {
-                  sender: "admin",
-                  msg: `${userName}님이 추방 되었습니다.`,
-                  time: new Date(),
-                },
-              ],
-            },
-          });
-        }
+        setJoinnedChatList({
+          ...joinnedChatList,
+          [roomName]: {
+            ...joinnedChatList[roomName],
+            userList: joinnedChatList[roomName].userList.filter(
+              (name) => name !== userName
+            ),
+            chatLogs: [
+              ...joinnedChatList[roomName].chatLogs,
+              {
+                sender: "admin",
+                msg: `${userName}님이 추방 되었습니다.`,
+                time: new Date(),
+              },
+            ],
+          },
+        });
       }
       setChatList(
         chatList.map((chat) => ({
@@ -357,7 +369,7 @@ export const listenBanUser = ({
 }: {
   socket: any;
   myName: string;
-  currentChat: IChatDetail;
+  currentChat: string;
   setCurrentChat: any;
   chatList: IChatRoom[];
   setChatList: any;
@@ -368,7 +380,7 @@ export const listenBanUser = ({
     "ban-user",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       if (userName === myName) {
-        if (currentChat && currentChat.title === roomName) {
+        if (currentChat === roomName) {
           setCurrentChat(null);
         }
         const temp: IJoinnedChat = {
@@ -378,12 +390,15 @@ export const listenBanUser = ({
         setJoinnedChatList({ ...temp });
       }
       if (userName !== myName) {
-        if (currentChat && currentChat.title === roomName) {
+        if (currentChat === roomName) {
           setJoinnedChatList({
             ...joinnedChatList,
             [roomName]: {
               ...joinnedChatList[roomName],
               userList: joinnedChatList[roomName].userList.filter(
+                (name) => name !== userName
+              ),
+              banUsers: joinnedChatList[roomName].banUsers.filter(
                 (name) => name !== userName
               ),
               chatLogs: [
@@ -416,7 +431,7 @@ export const listenChangeOperator = ({
   setJoinnedChatList,
 }: {
   socket: any;
-  currentChat: IChatDetail;
+  currentChat: string;
   setCurrentChat: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
@@ -424,27 +439,13 @@ export const listenChangeOperator = ({
   socket.on(
     "chat-operator",
     ({ roomName, operator }: { roomName: string; operator: string }) => {
-      if (currentChat && currentChat.title === roomName) {
-        setCurrentChat({
-          ...currentChat,
-          operator: operator,
-          chatLogs: [
-            ...currentChat.chatLogs,
-            {
-              sender: "admin",
-              msg: `${operator}님이 관리자가 되었습니다.`,
-              time: new Date(),
-            },
-          ],
-        });
-      }
       setJoinnedChatList({
         ...joinnedChatList,
         [roomName]: {
           ...joinnedChatList[roomName],
           operator: operator,
           chatLogs: [
-            ...currentChat.chatLogs,
+            ...joinnedChatList[roomName].chatLogs,
             {
               sender: "admin",
               msg: `${operator}님이 관리자가 되었습니다.`,
@@ -457,7 +458,7 @@ export const listenChangeOperator = ({
   );
 };
 
-export function chatSocketOff(...rest: string[]) {
+export function chatSocketOff(socket: any, ...rest: string[]) {
   for (let api of rest) {
     socket.off(api);
   }

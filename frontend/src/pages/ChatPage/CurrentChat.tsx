@@ -1,7 +1,12 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { muteCountState, myNameState } from "../../api/atom";
+import {
+  currentChatState,
+  joinnedChatState,
+  muteCountState,
+  myNameState,
+} from "../../api/atom";
 import { IChatLog, JoinnedUserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -23,19 +28,11 @@ const CurrentChat = ({
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
   const [muteCountList, setMuteCountList] = useRecoilState(muteCountState);
+  const currentChat = useRecoilValue(currentChatState);
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
 
   useEffect(() => {
-    socket.on("message", ({ userName, message, roomName: target }) => {
-      console.log(userName, roomName, target);
-      //setChatDB({
-      //  ...chatDB,
-      //  [target]: [
-      //    ...chatDB[target],
-      //    { sender: userName, msg: message, time: new Date() },
-      //  ],
-      //});
-    });
-
     socket.on("chat-muted", (roomName: string) => {
       setMuteCountList({ ...muteCountList, [roomName]: 30 });
     });
@@ -45,24 +42,30 @@ const CurrentChat = ({
     }
 
     return () => {
-      socket.off("message");
       socket.off("chat-muted");
       clearTimeout(timer);
     };
-  }, [muteCountList]);
+  }, [muteCountList, joinnedChatList]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
   const onSend = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && msg) {
-      //setChatDB({
-      //  ...chatDB,
-      //  [roomName]: [
-      //    ...chatDB[roomName],
-      //    { sender: myName, msg, time: new Date() },
-      //  ],
-      //});
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            {
+              sender: myName,
+              msg,
+              time: new Date(),
+            },
+          ],
+        },
+      });
       socket.emit("message", {
         roomName,
         userName: myName,
@@ -82,7 +85,6 @@ const CurrentChat = ({
       />
       <ChatBox
         height={340}
-        data={[]}
         myName={myName}
         onChange={onChange}
         onSend={onSend}
