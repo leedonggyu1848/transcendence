@@ -18,6 +18,18 @@ export const listenFriendRequestList = ({
   });
 };
 
+export const listenAllChatList = ({
+  socket,
+  setChatList,
+}: {
+  socket: any;
+  setChatList: any;
+}) => {
+  socket.on("all-chat", (chats: IChatRoom[]) => {
+    setChatList([...chats]);
+  });
+};
+
 export const listenFriendList = ({
   socket,
   setFriendList,
@@ -426,7 +438,7 @@ export const listenLeaveSuccess = ({
     );
     const temp = { ...joinnedChatList };
     if (currentChat === roomName) {
-      setCurrentChat(null);
+      setCurrentChat("");
     }
     if (temp[roomName]) delete temp[roomName];
     setJoinnedChatList({ ...temp });

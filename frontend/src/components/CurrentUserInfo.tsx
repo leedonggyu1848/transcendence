@@ -2,7 +2,12 @@ import styled from "@emotion/styled";
 import React, { useContext, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { alertModalState, friendListState, myNameState } from "../api/atom";
+import {
+  alertModalState,
+  confirmModalToggleState,
+  friendListState,
+  myNameState,
+} from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
 import { axiosSendFriendRequest } from "../api/request";
 import { WebsocketContext } from "../api/WebsocketContext";
@@ -23,16 +28,17 @@ const CurrentUserInfo = ({
   const [target, setTarget] = useState("");
   const location = useLocation();
   const myName = useRecoilValue(myNameState);
-  const setAlertInfo = useSetRecoilState(alertModalState);
+  const setConfirmModalState = useSetRecoilState(confirmModalToggleState);
   const socket = useContext(WebsocketContext);
   const friendList = useRecoilValue(friendListState);
-
+  const [isFriend, setIsFriend] = useState(false);
   const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     const name = e.currentTarget.textContent as string;
     if (myName === name) return;
     setBlock(true);
     setTimeout(() => setToggle(true), 0);
     setTarget(name);
+    setIsFriend(friendList.some((friend) => friend.intra_id === name));
   };
 
   const clickFriendRequest = (friendname: string) => {
@@ -42,6 +48,14 @@ const CurrentUserInfo = ({
 
   const clickDirectMessage = () => {
     console.log(location);
+  };
+
+  const clickDeleteFriend = (friendname: string) => {
+    setConfirmModalState({
+      msg: `${friendname}님을 친구목록에서 삭제하시겠습니까?`,
+      toggle: true,
+      confirmFunc: () => {},
+    });
   };
 
   const closePersonalMenu = () => {
@@ -74,7 +88,13 @@ const CurrentUserInfo = ({
           <TargetName>{target}</TargetName>
           <div>
             <MessageIcon onClick={clickDirectMessage} />
-            <FriendIcon onClick={() => clickFriendRequest(target)} />
+            {isFriend && (
+              <DeleteFriendIcon onClick={() => clickDeleteFriend(target)} />
+            )}
+            {!isFriend && (
+              <AddFriendIcon onClick={() => clickFriendRequest(target)} />
+            )}
+            {!isFriend && <BlockUserIcon />}
             <ExitIcon onClick={closePersonalMenu} />
           </div>
         </PersonalMenu>
@@ -83,32 +103,52 @@ const CurrentUserInfo = ({
   );
 };
 
+const DeleteFriendIcon = styled.div`
+  width: 30px;
+  height: 30px;
+  background-image: url("/src/assets/deleteUserIcon.png");
+  background-size: 100% 100%;
+  cursor: pointer;
+  margin-right: 15px;
+`;
 const ExitIcon = styled.div`
   width: 25px;
   height: 25px;
   background-image: url("/src/assets/exitButton.png");
   background-size: 100% 100%;
+  cursor: pointer;
   margin-right: 10px;
 `;
 
 const MessageIcon = styled.div`
-  width: 25px;
-  height: 25px;
+  width: 23px;
+  height: 23px;
   background-image: url("/src/assets/messageIcon.png");
   background-size: 100% 100%;
-  margin-right: 10px;
+  cursor: pointer;
+  margin-right: 15px;
 `;
 
-const FriendIcon = styled.div`
-  width: 25px;
-  height: 22px;
-  background-image: url("/src/assets/friendsIcon.png");
+const AddFriendIcon = styled.div`
+  width: 28px;
+  height: 28px;
+  background-image: url("/src/assets/addFriendIcon.png");
   background-size: 100% 100%;
   margin-right: 10px;
+  cursor: pointer;
 `;
 
 const TargetName = styled.div`
   margin-left: 15px;
+`;
+
+const BlockUserIcon = styled.div`
+  width: 28px;
+  height: 28px;
+  background: url("/src/assets/blockUserIcon.png");
+  background-size: 100% 100%;
+  margin-right: 10px;
+  cursor: pointer;
 `;
 
 const PersonalMenu = styled.div<{ toggle: boolean }>`
@@ -148,6 +188,7 @@ const UserIcon = styled.div`
   height: 15px;
   background-size: 100% 100%;
   margin-right: 10px;
+  cursor: pointer;
 `;
 
 const InfoContainer = styled.div`

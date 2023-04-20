@@ -9,10 +9,11 @@ import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
+  allChatFlagState,
   chatListState,
+  confirmModalToggleState,
   createChatModalToggleState,
   currentChatState,
-  currentChatUserListState,
   friendListState,
   friendRequestListState,
   getMyInfoFlagState,
@@ -59,6 +60,7 @@ import {
   listenSomeoneJoinned,
   listenSomeoneLeave,
 } from "../api/socket/chat-socket";
+import ConfirmModal from "../components/Modals/ConfirmModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -88,6 +90,9 @@ const MainPage = () => {
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [chatList, setChatList] = useRecoilState(chatListState);
+  const confirmModalState = useRecoilValue(confirmModalToggleState);
+
+  const [allChatFlag, setAllChatFlag] = useRecoilState(allChatFlagState);
 
   const hooks: any = {
     socket,
@@ -108,6 +113,7 @@ const MainPage = () => {
   };
 
   useEffect(() => {
+    console.log(myInfo);
     if (!token.access_token) navigate("/no_auth");
     if (!getMyInfoFlag) {
       getMyInfo();
@@ -117,6 +123,12 @@ const MainPage = () => {
       socket.emit("friend-list");
     }
 
+    if (!allChatFlag) {
+      socket.emit("all-chat");
+      setAllChatFlag(true);
+    }
+
+    listenRequestAllChat(hooks);
     listenFirstConnection(hooks);
     listenFriendRequestList(hooks);
     listenFriendList(hooks);
@@ -141,6 +153,7 @@ const MainPage = () => {
       const myInfo = await axiosGetMyInfo();
       setMyInfo({ ...myInfo });
       console.log(myInfo);
+      localStorage.setItem("info", JSON.stringify(myInfo));
 
       socket.emit("first-connection", myInfo.intra_id);
     }
@@ -148,6 +161,7 @@ const MainPage = () => {
     return () => {
       chatSocketOff(
         socket,
+        "all-chat",
         "chat-list",
         "create-chat",
         "join-chat",
@@ -188,6 +202,7 @@ const MainPage = () => {
         {settingModalToggle && <SettingModal />}
         {createChatModalToggle && <CreateChatModal />}
         {joinChatToggle.toggle && <JoinChatModal />}
+        {confirmModalState.toggle && <ConfirmModal />}
       </MainPageContainer>
     )
   );

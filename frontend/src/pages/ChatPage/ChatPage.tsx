@@ -33,6 +33,7 @@ const ChatPage = () => {
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
   };
+
   const joinChatRoom = (roomName: string, type: number) => {
     if (joinnedChatList[roomName] !== undefined) {
       //current chat setting
@@ -57,7 +58,7 @@ const ChatPage = () => {
         </HeaderContainer>
         <ChatList joinChatRoom={joinChatRoom} data={chatList}></ChatList>
       </WapperContainer>
-      {currentChat && joinnedChatList[currentChat] && (
+      {currentChat.length > 0 && joinnedChatList[currentChat] && (
         <WapperContainer>
           <HeaderContainer>
             <div>현재 참가 중인 방</div>
@@ -80,7 +81,7 @@ const ChatPage = () => {
           />
         </WapperContainer>
       )}
-      {!currentChat && (
+      {(currentChat.length === 0 || !joinnedChatList[currentChat]) && (
         <WapperContainer>
           <HeaderContainer></HeaderContainer>
           <NotInChatRoom>채팅방을 선택해주세요</NotInChatRoom>

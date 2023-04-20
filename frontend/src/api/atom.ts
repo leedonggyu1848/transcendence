@@ -1,8 +1,8 @@
 import { atom, DefaultValue, selector } from "recoil";
+import { recoilPersist } from "recoil-persist";
 import { Socket } from "socket.io-client";
 import {
   IBanUserList,
-  IChatDetail,
   IChatLog,
   IChatRoom,
   ICurrentNormalGame,
@@ -16,6 +16,8 @@ import {
   UserDto,
 } from "./interface";
 
+const { persistAtom } = recoilPersist();
+
 export const myInfoState = atom<UserDto>({
   key: "myInfoState",
   default: {
@@ -28,6 +30,7 @@ export const myInfoState = atom<UserDto>({
     rank_win: 17,
     rank_lose: 2,
   },
+  effects_UNSTABLE: [persistAtom],
 });
 
 export const friendRequestListState = atom<IFriendRequest[]>({
@@ -308,4 +311,13 @@ export const requestFriendListFlagState = atom({
 export const getMyInfoFlagState = atom({
   key: "getMyInfoFlagState",
   default: false,
+});
+
+export const confirmModalToggleState = atom({
+  key: "confirmModalToggleState",
+  default: {
+    toggle: true,
+    msg: "",
+    confirmFunc: () => {},
+  },
 });

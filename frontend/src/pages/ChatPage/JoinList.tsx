@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useSetRecoilState } from "recoil";
+import { currentChatState } from "../../api/atom";
 import { IChatRoom, IJoinnedChat, JoinListDto } from "../../api/interface";
 
 const JoinList = ({
@@ -8,10 +10,11 @@ const JoinList = ({
   data: IJoinnedChat;
   handleLeave: Function;
 }) => {
+  const setCurrentChat = useSetRecoilState(currentChatState);
   return (
     <JoinListContainer>
       {Object.keys(data).map((roomName, idx) => (
-        <Room key={idx}>
+        <Room key={idx} onClick={() => setCurrentChat(data[roomName].title)}>
           {data[roomName].newMsg ? <NewMessage /> : <Empty />}
           <Private private_mode={data[roomName].type} />
           <Title title={data[roomName].title.slice(1)}>
@@ -47,6 +50,7 @@ const LeaveButton = styled.div`
   border: 1px solid white;
   border-radius: 10px;
   cursor: pointer;
+  margin-right: 15px;
 `;
 
 const Private = styled.div<{ private_mode: number }>`
@@ -72,6 +76,12 @@ const Room = styled.div`
   justify-content: space-between;
   height: 50px;
   margin: 5px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: 0.3s;
+  &:hover {
+    border: 2px solid white;
+  }
 `;
 
 const JoinListContainer = styled.div`
