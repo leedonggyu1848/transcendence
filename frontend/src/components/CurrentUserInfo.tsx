@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useContext, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { alertModalState, myNameState } from "../api/atom";
+import { alertModalState, friendListState, myNameState } from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
 import { axiosSendFriendRequest } from "../api/request";
 import { WebsocketContext } from "../api/WebsocketContext";
@@ -25,6 +25,7 @@ const CurrentUserInfo = ({
   const myName = useRecoilValue(myNameState);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const socket = useContext(WebsocketContext);
+  const friendList = useRecoilValue(friendListState);
 
   const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     const name = e.currentTarget.textContent as string;
@@ -35,6 +36,7 @@ const CurrentUserInfo = ({
   };
 
   const clickFriendRequest = (friendname: string) => {
+    if (friendList.some((friend) => friend.intra_id === friendname)) return;
     socket.emit("request-friend", friendname);
   };
 

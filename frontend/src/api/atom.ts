@@ -303,3 +303,8 @@ export const requestBlockUserListFlagState = atom({
   key: "requestBlockUserListFlagState",
   default: false,
 });
+
+export const requestFriendListFlagState = atom({
+  key: "requestFriendListFlagState",
+  default: false,
+});

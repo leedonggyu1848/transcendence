@@ -2,12 +2,10 @@ import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { friendListState } from "../../api/atom";
-import { IFriendDto } from "../../api/interface";
-import { socket, WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../api/WebsocketContext";
 import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {
-  const [loading, setLoading] = useState(true);
   const [friendsList, setFriendsList] = useRecoilState(friendListState);
   const socket = useContext(WebsocketContext);
 
@@ -17,26 +15,12 @@ const Friends = ({ w }: { w: number }) => {
   const handleRequestMatch = (friendName: string) => {};
   const handleDirectMessage = (friendName: string) => {};
 
-  useEffect(() => {
-    socket.emit("friend-list");
-    socket.on("friend-list", (friends: IFriendDto[]) => {
-      setLoading(false);
-      setFriendsList([...friends]);
-    });
-    return () => {
-      socket.off("friend-list");
-    };
-  }, []);
   return (
     <FriendsContainer w={w}>
       <Background />
       <Contents>
         <Header>Friends</Header>
-        {loading ? (
-          <div className="LoadingContainer">
-            <Loading />
-          </div>
-        ) : friendsList.length > 0 ? (
+        {friendsList.length > 0 ? (
           <FriendsList>
             {friendsList.map((friend, idx) => (
               <FriendInfo key={idx}>

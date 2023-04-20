@@ -17,17 +17,18 @@ import {
   myInfoState,
   operatorModalToggleState,
   rankWaitModalToggleState,
+  requestFriendListFlagState,
   settingModalState,
 } from "../api/atom";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import NormalGamePage from "./NormalGame/NormalGamePage";
-import { socket, WebsocketContext } from "../api/WebsocketContext";
+import { WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
-import { axiosGetFriendRequestList, axiosGetMyInfo } from "../api/request";
+import { axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
 import JoinChatModal from "../components/Modals/JoinChatModal";
 import { IFriendDto, IFriendRequest } from "../api/interface";
@@ -47,12 +48,23 @@ const MainPage = () => {
     friendRequestListState
   );
   const [friendList, setFriendList] = useRecoilState(friendListState);
+  const [requestFriendListFlag, setRequestFriendListFlag] = useRecoilState(
+    requestFriendListFlagState
+  );
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
     getMyInfo();
+    if (!requestFriendListFlag) {
+      socket.emit("friend-list");
+    }
+
+    socket.on("friend-list", (friends: IFriendDto[]) => {
+      setFriendList([...friends]);
+      setRequestFriendListFlag(true);
+    });
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -123,6 +135,7 @@ const MainPage = () => {
       socket.off("cancel-friend");
       socket.off("delete-friend");
       socket.off("friend-fail");
+      socket.off("friend-list");
     };
   }, []);
   return (
