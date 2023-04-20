@@ -32,9 +32,8 @@ const ChatBox = ({
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer ref={chatBoxRef} h={height}>
-        {data.map((info, idx) => (
-          <Chat key={idx} {...info} myName={myName} />
-        ))}
+        {data &&
+          data.map((info, idx) => <Chat key={idx} {...info} myName={myName} />)}
       </ChatBoxContainer>
       <ChatInput
         value={msg}

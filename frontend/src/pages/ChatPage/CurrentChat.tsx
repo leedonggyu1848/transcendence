@@ -26,11 +26,12 @@ const CurrentChat = ({
   const [muteCountList, setMuteCountList] = useRecoilState(muteCountState);
 
   useEffect(() => {
-    socket.on("message", ({ userName, message }) => {
+    socket.on("message", ({ userName, message, roomName: target }) => {
+      console.log(userName, roomName, target, chatDB);
       setChatDB({
         ...chatDB,
-        [roomName]: [
-          ...chatDB[roomName],
+        [target]: [
+          ...chatDB[target],
           { sender: userName, msg: message, time: new Date() },
         ],
       });

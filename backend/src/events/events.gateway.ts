@@ -62,7 +62,9 @@ export class EventsGateway
     }: { roomName: string; userName: string; message: string },
   ) {
     this.logger.log(`${roomName} message => ${userName}: ${message}`);
-    socket.broadcast.to(roomName).emit('message', { userName, message });
+    socket.broadcast
+      .to(roomName)
+      .emit('message', { userName, roomName, message });
   }
 
   @SubscribeMessage('create-game')

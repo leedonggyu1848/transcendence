@@ -104,26 +104,26 @@ const ChatPage = () => {
         type: number;
         operator: string;
       }) => {
+        const temp = {
+          title: roomName,
+          type,
+          operator,
+          count: 1,
+        };
         if (type !== 1) {
-          setChatList([
-            ...chatList,
-            {
-              title: roomName,
-              type,
-              operator,
-              count: 1,
-            },
-          ]);
+          setChatList([...chatList, temp]);
         }
+        setJoinnedChatList([...joinnedChatList, temp]);
       }
     );
 
     socket.on("all-chat", ({ chats }: { chats: IChatRoom[] }) => {
+      console.log(chats);
       setChatList(chats.filter((chat) => chat.type !== 1));
     });
 
     socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
-      setJoinnedChatList([...chats]);
+      setChatList([...chats]);
     });
 
     socket.on(
@@ -307,9 +307,6 @@ const ChatPage = () => {
                 },
               ],
             });
-            setCurrentChatUserList(
-              currentChatUserList.filter((name) => name !== userName)
-            );
           }
         }
         setChatList(
