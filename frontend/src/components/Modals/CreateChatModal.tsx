@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
-  chatDBState,
   chatListState,
   createChatModalToggleState,
   currentChatState,
@@ -15,10 +14,6 @@ import { WebsocketContext } from "../../api/WebsocketContext";
 const CreateChatModal = () => {
   const socket = useContext(WebsocketContext);
   const myName = useRecoilValue(myNameState);
-  const setAlertInfo = useSetRecoilState(alertModalState);
-  const setCurrentChat = useSetRecoilState(currentChatState);
-  const [chatDB, setChatDB] = useRecoilState(chatDBState);
-  const [chatList, setChatList] = useRecoilState(chatListState);
   const setCreateChatModalToggle = useSetRecoilState(
     createChatModalToggleState
   );
@@ -31,7 +26,6 @@ const CreateChatModal = () => {
     type: 0,
     password: "",
   });
-  const setCurrentChatUserList = useSetRecoilState(currentChatUserListState);
 
   const onChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "password") {
@@ -53,50 +47,9 @@ const CreateChatModal = () => {
       ...info,
       roomName: "#" + (info.roomName || `${myName}님의 채팅방`),
     });
+    closeModal();
   };
 
-  useEffect(() => {
-    socket.on(
-      "create-success",
-      ({
-        roomName,
-        type,
-        operator,
-      }: {
-        roomName: string;
-        type: number;
-        operator: string;
-      }) => {
-        const temp = {
-          title: roomName,
-          type,
-          operator,
-          count: 1,
-        };
-        setCurrentChat(temp);
-        setChatList([...chatList, temp]);
-        socket.emit("chat-list");
-        setCurrentChatUserList([operator]);
-        setChatDB({ ...chatDB, [roomName]: [] });
-        closeModal();
-      }
-    );
-
-    socket.on("chat-fail", (msg: string) => {
-      closeModal();
-      setAlertInfo({
-        type: "failure",
-        header: "챗 생성 실패",
-        msg,
-        toggle: true,
-      });
-    });
-
-    return () => {
-      socket.off("create-success");
-      socket.off("chat-fail");
-    };
-  }, []);
   return (
     <>
       <ModalBackground onClick={closeModal} />

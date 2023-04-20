@@ -2,13 +2,14 @@ import { atom, DefaultValue, selector } from "recoil";
 import { Socket } from "socket.io-client";
 import {
   IBanUserList,
-  IChatDB,
+  IChatDetail,
   IChatLog,
   IChatRoom,
   ICurrentNormalGame,
   IFriendDto,
   IFriendRequest,
   IGameUserInfo,
+  IJoinnedChat,
   IMuteCountList,
   ISelectedGameRecord,
   JoinnedUserDto,
@@ -229,7 +230,7 @@ export const createChatModalToggleState = atom({
   default: false,
 });
 
-export const currentChatState = atom<IChatRoom | null>({
+export const currentChatState = atom<IChatDetail | null>({
   key: "currentChatState",
   default: null,
 });
@@ -239,9 +240,9 @@ export const currentChatUserListState = atom<string[]>({
   default: [],
 });
 
-export const joinnedChatState = atom<IChatRoom[]>({
+export const joinnedChatState = atom<IJoinnedChat>({
   key: "joinnedChatState",
-  default: [],
+  default: {},
 });
 
 export const chatListState = atom<IChatRoom[]>({
@@ -257,11 +258,6 @@ export const allChatFlagState = atom({
 export const joinnedChatFlagState = atom({
   key: "joinnedChatFlagState",
   default: false,
-});
-
-export const chatDBState = atom<IChatDB>({
-  key: "chatDBState",
-  default: {},
 });
 
 export const joinChatToggleState = atom({

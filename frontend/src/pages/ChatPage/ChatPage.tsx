@@ -5,7 +5,6 @@ import {
   alertModalState,
   allChatFlagState,
   banUserListState,
-  chatDBState,
   chatListState,
   createChatModalToggleState,
   currentChatState,
@@ -17,6 +16,19 @@ import {
   operatorModalToggleState,
 } from "../../api/atom";
 import { IChatRoom } from "../../api/interface";
+import {
+  chatSocketOff,
+  listenAlert,
+  listenBanUser,
+  listenChangeOperator,
+  listenCreateChat,
+  listenJoinSucces,
+  listenKickUser,
+  listenLeaveSuccess,
+  listenRequestAllChat,
+  listenSomeoneJoinned,
+  listenSomeoneLeave,
+} from "../../api/socket/chat-socket";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import SideMenu from "../../components/SideMenu/SideMenu";
@@ -43,20 +55,27 @@ const ChatPage = () => {
     useRecoilState(joinnedChatState);
   const myName = useRecoilValue(myNameState);
   const setAlertInfo = useSetRecoilState(alertModalState);
-  const [chatDB, setChatDB] = useRecoilState(chatDBState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
   const [banUserList, setBanUserList] = useRecoilState(banUserListState);
+
+  const hooks: any = {
+    socket,
+    myName,
+    setAlertInfo,
+    setJoinChatToggle,
+    currentChat,
+    setCurrentChat,
+    chatList,
+    setChatList,
+    currentChatUserList,
+    setCurrentChatUserList,
+    joinnedChatList,
+    setJoinnedChatList,
+  };
 
   useInitHook();
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
-    setJoinnedChatList(
-      joinnedChatList.filter((chat) => chat.title !== roomName)
-    );
-    const temp = { ...chatDB };
-    delete temp[roomName];
-    setChatDB({ ...temp });
-    if (currentChat && currentChat.title === roomName) setCurrentChat(null);
   };
   const joinChatRoom = (
     roomName: string,
@@ -64,14 +83,9 @@ const ChatPage = () => {
     operator: string,
     count: number
   ) => {
-    if (joinnedChatList.some((chat) => chat.title === roomName)) {
+    if (joinnedChatList[roomName] !== undefined) {
       //current chat setting
-      setCurrentChat({
-        title: roomName,
-        type,
-        operator,
-        count: count + 1,
-      });
+      setCurrentChat({ ...joinnedChatList[roomName] });
       return;
     }
     if (type === 2) {
@@ -93,263 +107,35 @@ const ChatPage = () => {
       setJoinnedChatFlag(true);
     }
 
-    socket.on(
-      "create-chat",
-      ({
-        roomName,
-        type,
-        operator,
-      }: {
-        roomName: string;
-        type: number;
-        operator: string;
-      }) => {
-        const temp = {
-          title: roomName,
-          type,
-          operator,
-          count: 1,
-        };
-        if (type !== 1) {
-          setChatList([...chatList, temp]);
-        }
-        setJoinnedChatList([...joinnedChatList, temp]);
-      }
-    );
-
-    socket.on("all-chat", ({ chats }: { chats: IChatRoom[] }) => {
-      console.log(chats);
-      setChatList(chats.filter((chat) => chat.type !== 1));
-    });
+    listenCreateChat(hooks);
+    listenRequestAllChat(hooks);
+    listenSomeoneJoinned(hooks);
+    listenJoinSucces(hooks);
+    listenSomeoneLeave(hooks);
+    listenLeaveSuccess(hooks);
+    listenAlert(hooks);
+    listenKickUser(hooks);
+    listenBanUser(hooks);
+    listenChangeOperator(hooks);
 
     socket.on("chat-list", ({ chats }: { chats: IChatRoom[] }) => {
       setChatList([...chats]);
     });
 
-    socket.on(
-      "join-chat",
-      ({
-        message,
-        username,
-        roomName,
-      }: {
-        message: string;
-        username: string;
-        roomName: string;
-      }) => {
-        setChatList(
-          chatList.map((chat) => ({
-            ...chat,
-            count: chat.title === roomName ? chat.count + 1 : chat.count,
-          }))
-        );
-        if (chatDB[roomName]) {
-          setChatDB({
-            ...chatDB,
-            [roomName]: [
-              ...chatDB[roomName],
-              { sender: "admin", msg: message, time: new Date() },
-            ],
-          });
-        }
-        setCurrentChatUserList([...currentChatUserList, username]);
-      }
-    );
-
-    socket.on(
-      "join-chat-success",
-      ({
-        roomName,
-        type,
-        operator,
-        users,
-      }: {
-        roomName: string;
-        type: number;
-        operator: string;
-        users: string[];
-      }) => {
-        const temp: IChatRoom = {
-          title: roomName,
-          type,
-          operator,
-          count: users.length + 1,
-        };
-        setCurrentChat(temp);
-        setChatDB({ ...chatDB, [roomName]: [] });
-        setCurrentChatUserList([...users, myName]);
-        setJoinnedChatList([...joinnedChatList, temp]);
-        setChatList(
-          chatList.map((chat) => ({ ...chat, count: chat.count + 1 }))
-        );
-      }
-    );
-
-    socket.on("leave-chat-success", (roomName: string) => {
-      setChatList(
-        chatList
-          .map((chat) => ({
-            ...chat,
-            count: chat.title === roomName ? chat.count - 1 : chat.count,
-          }))
-          .filter((chat) => chat.count !== 0)
-      );
-    });
-
-    socket.on(
-      "leave-chat",
-      ({
-        message,
-        username,
-        roomName,
-      }: {
-        message: string;
-        username: string;
-        roomName: string;
-      }) => {
-        setChatList(
-          chatList
-            .map((chat) => ({
-              ...chat,
-              count: chat.title === roomName ? chat.count - 1 : chat.count,
-            }))
-            .filter((chat) => chat.count !== 0)
-        );
-        if (chatDB[roomName]) {
-          setChatDB({
-            ...chatDB,
-            [roomName]: [
-              ...chatDB[roomName],
-              { sender: "admin", msg: message, time: new Date() },
-            ],
-          });
-        }
-        setCurrentChatUserList(
-          currentChatUserList.filter((name) => name !== username)
-        );
-      }
-    );
-
-    socket.on("chat-fail", (message: string) => {
-      setAlertInfo({
-        type: "failure",
-        header: "",
-        msg: message,
-        toggle: true,
-      });
-    });
-
-    socket.on(
-      "kick-user",
-      ({ userName, roomName }: { userName: string; roomName: string }) => {
-        if (userName === myName) {
-          if (currentChat && currentChat.title === roomName) {
-            setCurrentChat(null);
-          }
-          setJoinnedChatList(
-            joinnedChatList.filter(({ title }) => title !== roomName)
-          );
-          const temp = { ...chatDB };
-          delete temp[roomName];
-          setChatDB({ ...temp });
-        }
-        if (userName !== myName) {
-          if (currentChat && currentChat.title === roomName) {
-            setChatDB({
-              ...chatDB,
-              [roomName]: [
-                ...chatDB[roomName],
-                {
-                  sender: "admin",
-                  msg: `${userName}님이 추방 되었습니다.`,
-                  time: new Date(),
-                },
-              ],
-            });
-            setCurrentChatUserList(
-              currentChatUserList.filter((name) => name !== userName)
-            );
-          }
-        }
-        setChatList(
-          chatList.map((chat) => ({
-            ...chat,
-            count: chat.title === roomName ? chat.count - 1 : chat.count,
-          }))
-        );
-      }
-    );
-
-    socket.on(
-      "ban-user",
-      ({ userName, roomName }: { userName: string; roomName: string }) => {
-        if (userName === myName) {
-          if (currentChat && currentChat.title === roomName) {
-            setCurrentChat(null);
-          }
-          setJoinnedChatList(
-            joinnedChatList.filter(({ title }) => title !== roomName)
-          );
-          const temp = { ...chatDB };
-          delete temp[roomName];
-          setChatDB({ ...temp });
-        }
-        if (userName !== myName) {
-          if (currentChat && currentChat.title === roomName) {
-            setChatDB({
-              ...chatDB,
-              [roomName]: [
-                ...chatDB[roomName],
-                {
-                  sender: "admin",
-                  msg: `${userName}님의 입장이 금지 되었습니다.`,
-                  time: new Date(),
-                },
-              ],
-            });
-          }
-        }
-        setChatList(
-          chatList.map((chat) => ({
-            ...chat,
-            count: chat.title === roomName ? chat.count - 1 : chat.count,
-          }))
-        );
-      }
-    );
-
-    socket.on(
-      "chat-operator",
-      ({ roomName, operator }: { roomName: string; operator: string }) => {
-        if (currentChat && currentChat.title === roomName) {
-          setCurrentChat({ ...currentChat, operator: operator });
-          setChatDB({
-            ...chatDB,
-            [roomName]: [
-              ...chatDB[roomName],
-              {
-                sender: "admin",
-                msg: `${operator}님이 관리자가 되었습니다.`,
-                time: new Date(),
-              },
-            ],
-          });
-        }
-      }
-    );
-
     return () => {
-      socket.off("chat-list");
-      socket.off("create-chat");
-      socket.off("all-chat");
-      socket.off("join-chat");
-      socket.off("chat-success");
-      socket.off("leave-chat");
-      socket.off("chat-fail");
-      socket.off("leave-chat-success");
-      socket.off("join-chat-success");
-      socket.off("kick-user");
-      socket.off("ban-user");
+      chatSocketOff(
+        "chat-list",
+        "create-chat",
+        "all-chat",
+        "join-chat",
+        "chat-success",
+        "leave-chat",
+        "chat-fail",
+        "leave-chat-success",
+        "join-chat-success",
+        "kick-user",
+        "ban-user"
+      );
 
       setAllChatFlag(true);
       setJoinnedChatFlag(true);

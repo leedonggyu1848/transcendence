@@ -1,24 +1,24 @@
 import styled from "@emotion/styled";
-import { IChatRoom, JoinListDto } from "../../api/interface";
+import { IChatRoom, IJoinnedChat, JoinListDto } from "../../api/interface";
 
 const JoinList = ({
   data,
   handleLeave,
 }: {
-  data: IChatRoom[];
+  data: IJoinnedChat;
   handleLeave: Function;
 }) => {
   return (
     <JoinListContainer>
-      {data.map(({ title, type }, idx) => (
+      {Object.keys(data).map((roomName, idx) => (
         <Room key={idx}>
           {true ? <NewMessage /> : <Empty />}
-          <Private private_mode={type} />
-          <Title title={title.slice(1)}>
-            {title.slice(1, 10)}
-            {title.length > 10 ? "..." : ""}
+          <Private private_mode={data[roomName].type} />
+          <Title title={data[roomName].title.slice(1)}>
+            {data[roomName].title.slice(1, 10)}
+            {data[roomName].title.length > 10 ? "..." : ""}
           </Title>
-          <LeaveButton onClick={() => handleLeave(title)}>
+          <LeaveButton onClick={() => handleLeave(data[roomName].title)}>
             나가기
           </LeaveButton>
         </Room>

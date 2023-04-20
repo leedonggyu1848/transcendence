@@ -66,10 +66,6 @@ export interface IChatLog {
   time: Date;
 }
 
-export interface IChatDB {
-  [key: string]: IChatLog[];
-}
-
 export interface IGameHistory {
   id: number;
   type: number;
@@ -110,10 +106,22 @@ export interface IChatRoom {
   count: number;
 }
 
+export interface IChatDetail {
+  title: string;
+  type: number;
+  operator: string;
+  userList: string[];
+  chatLogs: IChatLog[];
+}
+
 export interface IBanUserList {
   [key: string]: string[];
 }
 
 export interface IMuteCountList {
   [key: string]: number;
+}
+
+export interface IJoinnedChat {
+  [key: string]: IChatDetail;
 }
