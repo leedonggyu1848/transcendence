@@ -6,7 +6,6 @@ import {
   joinnedChatState,
   muteCountState,
 } from "../../api/atom";
-import { IChatLog } from "../../api/interface";
 import Chat from "./Chat";
 
 const ChatBox = ({

@@ -215,7 +215,6 @@ const NormalGamePage = () => {
           onChange={onChange}
           msg={msg}
           height={350}
-          data={chatLogs}
           myName={myName}
           muteCount={0}
         />

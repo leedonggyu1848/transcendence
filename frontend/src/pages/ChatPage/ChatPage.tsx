@@ -1,35 +1,16 @@
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
-  alertModalState,
-  allChatFlagState,
-  banUserListState,
   chatListState,
   createChatModalToggleState,
   currentChatState,
   currentChatUserListState,
   joinChatToggleState,
-  joinnedChatFlagState,
   joinnedChatState,
   myNameState,
   operatorModalToggleState,
 } from "../../api/atom";
-import { IChatRoom } from "../../api/interface";
-import {
-  chatSocketOff,
-  listenAlert,
-  listenBanUser,
-  listenChangeOperator,
-  listenCreateChat,
-  listenJoinSucces,
-  listenKickUser,
-  listenLeaveSuccess,
-  listenRequestAllChat,
-  listenSomeoneJoinned,
-  listenSomeoneLeave,
-} from "../../api/socket/chat-socket";
-import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import ChatList from "./ChatList";
@@ -40,39 +21,15 @@ const ChatPage = () => {
   const socket = useContext(WebsocketContext);
   const openOperatorModal = useSetRecoilState(operatorModalToggleState);
   const openCreateChatModal = useSetRecoilState(createChatModalToggleState);
-  const [allChatFlag, setAllChatFlag] = useRecoilState(allChatFlagState);
-  const [joinnedChatFlag, setJoinnedChatFlag] =
-    useRecoilState(joinnedChatFlagState);
   const clickOperatorButton = () => {
     openOperatorModal(true);
   };
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
-  const [chatList, setChatList] = useRecoilState(chatListState);
-  const [currentChatUserList, setCurrentChatUserList] = useRecoilState(
-    currentChatUserListState
-  );
-  const [joinnedChatList, setJoinnedChatList] =
-    useRecoilState(joinnedChatState);
+  const chatList = useRecoilValue(chatListState);
+  const joinnedChatList = useRecoilValue(joinnedChatState);
   const myName = useRecoilValue(myNameState);
-  const setAlertInfo = useSetRecoilState(alertModalState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
 
-  const hooks: any = {
-    socket,
-    myName,
-    setAlertInfo,
-    setJoinChatToggle,
-    currentChat,
-    setCurrentChat,
-    chatList,
-    setChatList,
-    currentChatUserList,
-    setCurrentChatUserList,
-    joinnedChatList,
-    setJoinnedChatList,
-  };
-
-  useInitHook();
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
   };
@@ -89,58 +46,6 @@ const ChatPage = () => {
       socket.emit("join-chat", { roomName, password: "" });
     }
   };
-
-  useEffect(() => {
-    if (!allChatFlag) {
-      socket.emit("all-chat");
-      setAllChatFlag(true);
-    }
-
-    if (!joinnedChatFlag) {
-      socket.emit("chat-list");
-      setJoinnedChatFlag(true);
-    }
-
-    listenCreateChat(hooks);
-    listenRequestAllChat(hooks);
-    listenSomeoneJoinned(hooks);
-    listenJoinSucces(hooks);
-    listenSomeoneLeave(hooks);
-    listenLeaveSuccess(hooks);
-    listenAlert(hooks);
-    listenKickUser(hooks);
-    listenBanUser(hooks);
-    listenChangeOperator(hooks);
-
-    socket.on("all-list", ({ chats }: { chats: IChatRoom[] }) => {
-      setChatList([...chats]);
-    });
-
-    return () => {
-      chatSocketOff(
-        socket,
-        "chat-list",
-        "create-chat",
-        "all-chat",
-        "join-chat",
-        "chat-success",
-        "leave-chat",
-        "chat-fail",
-        "leave-chat-success",
-        "join-chat-success",
-        "kick-user",
-        "ban-user",
-        "chat-operator"
-      );
-
-      setAllChatFlag(true);
-      setJoinnedChatFlag(true);
-
-      // 얘네는 다른 페이지로 갔을 때 초기화 하는 로직으로 해야할 듯
-      //setCurrentChat(null);
-      //setCurrentChatUserList([]);
-    };
-  }, [chatList, joinnedChatList, currentChat, currentChatUserList]);
 
   return (
     <ChatPageContainer>

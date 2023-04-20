@@ -1,6 +1,171 @@
-import { chatListState } from "../atom";
-import { IChatDetail, IChatRoom, IJoinnedChat } from "../interface";
-import { socket } from "../WebsocketContext";
+import {
+  IChatDetail,
+  IChatRoom,
+  IFriendDto,
+  IFriendRequest,
+  IJoinnedChat,
+} from "../interface";
+
+export const listenFriendRequestList = ({
+  socket,
+  setFriendRequestList,
+}: {
+  socket: any;
+  setFriendRequestList: any;
+}) => {
+  socket.on("friend-request-list", (request: IFriendRequest[]) => {
+    setFriendRequestList([...request]);
+  });
+};
+
+export const listenFriendList = ({
+  socket,
+  setFriendList,
+  setRequestFriendListFlag,
+}: {
+  socket: any;
+  setFriendList: any;
+  setRequestFriendListFlag: any;
+}) => {
+  socket.on("friend-list", (friends: IFriendDto[]) => {
+    setFriendList([...friends]);
+    setRequestFriendListFlag(true);
+  });
+};
+
+export const listenFirstConnection = ({ socket }: { socket: any }) => {
+  socket.on("first-connection", () => {
+    socket.emit("friend-request-list");
+  });
+};
+
+export const listenCancelFriend = ({
+  socket,
+  setFriendRequestList,
+  friendRequestList,
+}: {
+  socket: any;
+  setFriendRequestList: any;
+  friendRequestList: any;
+}) => {
+  socket.on("cacnel-friend", (userName: string) => {
+    setFriendRequestList(
+      friendRequestList.filter(
+        (friend: IFriendRequest) => friend.intra_id !== userName
+      )
+    );
+  });
+};
+
+export const listenDeleteFriend = ({
+  socket,
+  setFriendList,
+  friendList,
+}: {
+  socket: any;
+  setFriendList: any;
+  friendList: any;
+}) => {
+  socket.on("delete-friend", ({ username }: { username: string }) => {
+    setFriendList(
+      friendList.filter((friend: IFriendDto) => friend.intra_id !== username)
+    );
+  });
+};
+
+export const listenFriendResult = ({
+  socket,
+  setFriendRequestList,
+  setFriendList,
+  friendRequestList,
+  friendList,
+}: {
+  socket: any;
+  setFriendRequestList: any;
+  setFriendList: any;
+  friendRequestList: any;
+  friendList: any;
+}) => {
+  socket.on(
+    "friend-result",
+    ({
+      username,
+      type,
+      profile,
+    }: {
+      username: string;
+      type: boolean;
+      profile: string;
+    }) => {
+      setFriendRequestList(
+        friendRequestList.filter(
+          (request: IFriendRequest) => request.intra_id !== username
+        )
+      );
+      if (type) {
+        setFriendList([
+          ...friendList,
+          { intra_id: username, profile: profile },
+        ]);
+      }
+    }
+  );
+};
+
+export const listenFriendFail = ({
+  socket,
+  setAlertInfo,
+}: {
+  socket: any;
+  setAlertInfo: any;
+}) => {
+  socket.on("friend-fail", (message: string) => {
+    setAlertInfo({
+      type: "failure",
+      header: "",
+      msg: message,
+      toggle: true,
+    });
+  });
+};
+
+export const listenMessage = ({
+  socket,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+}) => {
+  socket.on(
+    "message",
+    ({
+      roomName,
+      userName,
+      message,
+    }: {
+      roomName: string;
+      userName: string;
+      message: string;
+    }) => {
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            {
+              sender: userName,
+              msg: message,
+              time: new Date(),
+            },
+          ],
+        },
+      });
+    }
+  );
+};
 
 export const listenCreateChat = ({
   socket,
@@ -72,27 +237,17 @@ export const listenRequestAllChat = ({
 export const listenSomeoneJoinned = ({
   socket,
   myName,
-  setAlertInfo,
-  setJoinChatToggle,
   currentChat,
-  setCurrentChat,
   chatList,
   setChatList,
-  currentChatUserList,
-  setCurrentChatUserList,
   joinnedChatList,
   setJoinnedChatList,
 }: {
   socket: any;
   myName: string;
-  setAlertInfo: any;
-  setJoinChatToggle: any;
   currentChat: string;
-  setCurrentChat: any;
   chatList: IChatRoom[];
   setChatList: any;
-  currentChatUserList: any;
-  setCurrentChatUserList: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
 }) => {
@@ -425,14 +580,10 @@ export const listenBanUser = ({
 
 export const listenChangeOperator = ({
   socket,
-  currentChat,
-  setCurrentChat,
   joinnedChatList,
   setJoinnedChatList,
 }: {
   socket: any;
-  currentChat: string;
-  setCurrentChat: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
 }) => {

@@ -304,3 +304,8 @@ export const requestFriendListFlagState = atom({
   key: "requestFriendListFlagState",
   default: false,
 });
+
+export const getMyInfoFlagState = atom({
+  key: "getMyInfoFlagState",
+  default: false,
+});

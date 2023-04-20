@@ -9,13 +9,18 @@ import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
+  chatListState,
   createChatModalToggleState,
+  currentChatState,
+  currentChatUserListState,
   friendListState,
   friendRequestListState,
+  getMyInfoFlagState,
   joinChatToggleState,
   joinGameModalToggleState,
   joinnedChatState,
   myInfoState,
+  myNameState,
   operatorModalToggleState,
   rankWaitModalToggleState,
   requestFriendListFlagState,
@@ -33,6 +38,27 @@ import { axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
 import JoinChatModal from "../components/Modals/JoinChatModal";
 import { IFriendDto, IFriendRequest } from "../api/interface";
+import {
+  chatSocketOff,
+  listenAlert,
+  listenBanUser,
+  listenCancelFriend,
+  listenChangeOperator,
+  listenCreateChat,
+  listenDeleteFriend,
+  listenFirstConnection,
+  listenFriendFail,
+  listenFriendList,
+  listenFriendRequestList,
+  listenFriendResult,
+  listenJoinSucces,
+  listenKickUser,
+  listenLeaveSuccess,
+  listenMessage,
+  listenRequestAllChat,
+  listenSomeoneJoinned,
+  listenSomeoneLeave,
+} from "../api/socket/chat-socket";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -43,7 +69,7 @@ const MainPage = () => {
   const settingModalToggle = useRecoilValue(settingModalState);
   const createChatModalToggle = useRecoilValue(createChatModalToggleState);
   const joinChatToggle = useRecoilValue(joinChatToggleState);
-  const setMyInfo = useSetRecoilState(myInfoState);
+  const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const socket = useContext(WebsocketContext);
   const [friendRequestList, setFriendRequestList] = useRecoilState(
     friendRequestListState
@@ -54,122 +80,95 @@ const MainPage = () => {
   );
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
+  const [getMyInfoFlag, setGetMyInfoFlag] = useRecoilState(getMyInfoFlagState);
 
   const navigate = useNavigate();
 
+  const myName = useRecoilValue(myNameState);
+  const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
+  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
+  const [chatList, setChatList] = useRecoilState(chatListState);
+
+  const hooks: any = {
+    socket,
+    myName,
+    setAlertInfo,
+    setJoinChatToggle,
+    currentChat,
+    setCurrentChat,
+    chatList,
+    setChatList,
+    joinnedChatList,
+    setJoinnedChatList,
+    setFriendRequestList,
+    setFriendList,
+    setRequestFriendListFlag,
+    friendRequestList,
+    friendList,
+  };
+
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
-    getMyInfo();
+    if (!getMyInfoFlag) {
+      getMyInfo();
+      setGetMyInfoFlag(true);
+    }
     if (!requestFriendListFlag) {
       socket.emit("friend-list");
     }
 
-    socket.on("friend-list", (friends: IFriendDto[]) => {
-      setFriendList([...friends]);
-      setRequestFriendListFlag(true);
-    });
+    listenFirstConnection(hooks);
+    listenFriendRequestList(hooks);
+    listenFriendList(hooks);
+    listenCancelFriend(hooks);
+    listenDeleteFriend(hooks);
+    listenFriendResult(hooks);
+    listenFriendFail(hooks);
+
+    listenMessage(hooks);
+    listenCreateChat(hooks);
+    listenRequestAllChat(hooks);
+    listenSomeoneJoinned(hooks);
+    listenJoinSucces(hooks);
+    listenSomeoneLeave(hooks);
+    listenLeaveSuccess(hooks);
+    listenAlert(hooks);
+    listenKickUser(hooks);
+    listenBanUser(hooks);
+    listenChangeOperator(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
       setMyInfo({ ...myInfo });
+      console.log(myInfo);
 
       socket.emit("first-connection", myInfo.intra_id);
     }
-    socket.on("first-connection", () => {
-      socket.emit("friend-request-list");
-    });
-    //socket.on("receive-friend-request", (sender: string) => {});
-    socket.on("friend-request-list", (request: IFriendRequest[]) => {
-      setFriendRequestList([...request]);
-    });
-    socket.on("cacnel-friend", (userName: string) => {
-      setFriendRequestList(
-        friendRequestList.filter((friend) => friend.intra_id !== userName)
-      );
-    });
-
-    socket.on("cancel-friend", ({ userName }: { userName: string }) => {
-      setFriendRequestList(
-        friendRequestList.filter((request) => request.intra_id !== userName)
-      );
-    });
-
-    socket.on("delete-friend", ({ username }: { username: string }) => {
-      setFriendList(
-        friendList.filter((friend) => friend.intra_id !== username)
-      );
-    });
-
-    socket.on(
-      "friend-result",
-      ({
-        username,
-        type,
-        profile,
-      }: {
-        username: string;
-        type: boolean;
-        profile: string;
-      }) => {
-        setFriendRequestList(
-          friendRequestList.filter((request) => request.intra_id !== username)
-        );
-        if (type) {
-          setFriendList([
-            ...friendList,
-            { intra_id: username, profile: profile },
-          ]);
-        }
-      }
-    );
-
-    socket.on("friend-fail", (message: string) => {
-      setAlertInfo({
-        type: "failure",
-        header: "",
-        msg: message,
-        toggle: true,
-      });
-    });
-
-    socket.on(
-      "message",
-      ({
-        roomName,
-        userName,
-        message,
-      }: {
-        roomName: string;
-        userName: string;
-        message: string;
-      }) => {
-        setJoinnedChatList({
-          ...joinnedChatList,
-          [roomName]: {
-            ...joinnedChatList[roomName],
-            chatLogs: [
-              ...joinnedChatList[roomName].chatLogs,
-              {
-                sender: userName,
-                msg: message,
-                time: new Date(),
-              },
-            ],
-          },
-        });
-      }
-    );
 
     return () => {
-      socket.off("first-connection");
-      socket.off("friend-request-list");
-      socket.off("cancel-friend");
-      socket.off("delete-friend");
-      socket.off("friend-fail");
-      socket.off("friend-list");
-      socket.off("message");
+      chatSocketOff(
+        socket,
+        "chat-list",
+        "create-chat",
+        "join-chat",
+        "chat-success",
+        "leave-chat",
+        "chat-fail",
+        "leave-chat-success",
+        "join-chat-success",
+        "kick-user",
+        "ban-user",
+        "chat-operator",
+        "first-connection",
+        "friend-request-list",
+        "cancel-friend",
+        "delete-friend",
+        "friend-fail",
+        "friend-list",
+        "message"
+      );
     };
-  }, [joinnedChatList]);
+  }, [myInfo, joinnedChatList, chatList]);
   return (
     token.access_token && (
       <MainPageContainer>
