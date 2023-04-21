@@ -48,6 +48,13 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async findByIntraIdWithJoinAll(intra_id: string) {
+    return await this.userRepository.findOne({
+      where: { intra_id: intra_id },
+      relations: ['chats', 'chats.chat', 'play_game', 'watch_game'],
+    });
+  }
+
   async findByIntraIdWithJoinFriend(intra_id: string) {
     return await this.userRepository.findOne({
       where: { intra_id: intra_id },
@@ -77,6 +84,13 @@ export class UserRepository implements IUserRepository {
     return await this.userRepository.findOne({
       where: { socket_id: socket_id },
       relations: ['chats', 'chats.chat', 'chats.user'],
+    });
+  }
+
+  async findBySocketIdWithJoinAll(socket_id: string) {
+    return await this.userRepository.findOne({
+      where: { socket_id: socket_id },
+      relations: ['chats', 'chats.chat', 'play_game', 'watch_game'],
     });
   }
 
