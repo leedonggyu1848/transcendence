@@ -5,23 +5,18 @@ import {
   alertModalState,
   friendRequestListState,
   requestAlarmListState,
+  sideMenuToggle,
 } from "../../api/atom";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
 
 const SideMenu = ({ w }: { w: number }) => {
-  const [toggles, setToggles] = useState({
-    friends: false,
-    alarm: false,
-  });
+  const [toggles, setToggles] = useRecoilState(sideMenuToggle);
   const socket = useContext(WebsocketContext);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const [friendRequestList, setFriendRequestList] = useRecoilState(
     friendRequestListState
-  );
-  const [requestAlarmFlag, setRequestAlarmFlag] = useRecoilState(
-    requestAlarmListState
   );
 
   const clickLogout = () => {};
