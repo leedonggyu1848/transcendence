@@ -120,6 +120,7 @@ export class EventsGateway
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`친구 요청 목록 조회`);
     const requests = await this.eventsService.getFriendRequestList(socket.id);
     socket.emit('friend-request-list', requests);
   }

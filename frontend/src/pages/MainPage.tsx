@@ -119,7 +119,7 @@ const MainPage = () => {
       getMyInfo();
       setGetMyInfoFlag(true);
     }
-    if (!requestFriendListFlag) {
+    if (getMyInfoFlag && !requestFriendListFlag) {
       socket.emit("friend-list");
     }
 
