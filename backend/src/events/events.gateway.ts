@@ -432,6 +432,21 @@ export class EventsGateway
     this.logger.log(result.msg);
   }
 
+  @SubscribeMessage('block-list')
+  async handleBlockList(@ConnectedSocket() socket: Socket) {}
+
+  @SubscribeMessage('block-user')
+  async handleBlockUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() userName: string,
+  ) {}
+
+  @SubscribeMessage('block-cancel')
+  async handleBlockCancel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() userName: string,
+  ) {}
+
   @SubscribeMessage('start-game')
   async handleStartGame(
     @ConnectedSocket() socket: Socket,

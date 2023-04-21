@@ -415,6 +415,11 @@ export class EventsService {
     };
   }
 
+  async getBlockList(socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithBlock(socketId);
+    // const blockUsers = user.blockUsers.map((usr) => )
+  }
+
   async gameAlert(roomName: string, message: string) {
     const players = await this.gameService.getGamePlayers(roomName);
     const data = players.map((player) => {
