@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   confirmModalToggleState,
+  currentChatState,
   friendListState,
   myNameState,
 } from "../api/atom";
@@ -32,6 +33,7 @@ const CurrentUserInfo = ({
   const socket = useContext(WebsocketContext);
   const friendList = useRecoilValue(friendListState);
   const [isFriend, setIsFriend] = useState(false);
+  const currentChat = useRecoilValue(currentChatState);
   const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     const name = e.currentTarget.textContent as string;
     if (myName === name) return;
@@ -44,17 +46,27 @@ const CurrentUserInfo = ({
   const clickFriendRequest = (friendname: string) => {
     if (friendList.some((friend) => friend.intra_id === friendname)) return;
     socket.emit("request-friend", friendname);
+    closePersonalMenu();
   };
 
   const clickDirectMessage = () => {
     console.log(location);
   };
 
-  const clickDeleteFriend = (friendname: string) => {
+  const clickDeleteFriend = (friendName: string) => {
+    console.log(friendName);
     setConfirmModalState({
-      msg: `${friendname}님을 친구목록에서 삭제하시겠습니까?`,
+      msg: `${friendName}님을 친구목록에서 삭제하시겠습니까?`,
       toggle: true,
-      confirmFunc: () => {},
+      confirmFunc: () => {
+        socket.emit("delete-friend", friendName);
+        setConfirmModalState({
+          msg: "",
+          toggle: false,
+          confirmFunc: () => {},
+        });
+        closePersonalMenu();
+      },
     });
   };
 
@@ -63,6 +75,10 @@ const CurrentUserInfo = ({
     setToggle(false);
     setTimeout(() => setBlock(false), 800);
   };
+
+  useEffect(() => {
+    closePersonalMenu();
+  }, [currentChat]);
   return (
     <CurrentUserInfoContainer>
       <HeaderContainer>

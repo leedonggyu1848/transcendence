@@ -1,17 +1,20 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { friendListState } from "../../api/atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { friendListState, sideMenuToggle } from "../../api/atom";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {
   const [friendsList, setFriendsList] = useRecoilState(friendListState);
   const socket = useContext(WebsocketContext);
+  const setSideMenuToggle = useSetRecoilState(sideMenuToggle);
 
   const handleDeleteFriend = (friendName: string) => {
     socket.emit("delete-friend", friendName);
+    setSideMenuToggle({ alarm: false, friends: false });
   };
+
   const handleRequestMatch = (friendName: string) => {};
   const handleDirectMessage = (friendName: string) => {};
 

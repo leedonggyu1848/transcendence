@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { useSetRecoilState } from "recoil";
-import { currentChatState } from "../../api/atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { currentChatState, joinnedChatState } from "../../api/atom";
 import { IChatRoom, IJoinnedChat, JoinListDto } from "../../api/interface";
 
 const JoinList = ({
@@ -11,10 +11,23 @@ const JoinList = ({
   handleLeave: Function;
 }) => {
   const setCurrentChat = useSetRecoilState(currentChatState);
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
+
+  const joinChat = (roomName: string) => {
+    setCurrentChat(roomName);
+    setJoinnedChatList({
+      ...joinnedChatList,
+      [roomName]: {
+        ...joinnedChatList[roomName],
+        newMsg: false,
+      },
+    });
+  };
   return (
     <JoinListContainer>
       {Object.keys(data).map((roomName, idx) => (
-        <Room key={idx} onClick={() => setCurrentChat(data[roomName].title)}>
+        <Room key={idx} onClick={() => joinChat(data[roomName].title)}>
           {data[roomName].newMsg ? <NewMessage /> : <Empty />}
           <Private private_mode={data[roomName].type} />
           <Title title={data[roomName].title.slice(1)}>

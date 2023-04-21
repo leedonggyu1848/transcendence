@@ -321,3 +321,11 @@ export const confirmModalToggleState = atom({
     confirmFunc: () => {},
   },
 });
+
+export const sideMenuToggle = atom({
+  key: "sideMenuToggle",
+  default: {
+    friends: false,
+    alarm: false,
+  },
+});

@@ -63,6 +63,7 @@ export const listenCancelFriend = ({
   friendRequestList: any;
 }) => {
   socket.on("cancel-friend", (userName: string) => {
+    console.log("cancel-friend");
     setFriendRequestList(
       friendRequestList.filter(
         (friend: IFriendRequest) => friend.intra_id !== userName
@@ -240,7 +241,9 @@ export const listenMessage = ({
   socket,
   joinnedChatList,
   setJoinnedChatList,
+  currentChat,
 }: {
+  currentChat: any;
   socket: any;
   joinnedChatList: any;
   setJoinnedChatList: any;
@@ -268,6 +271,7 @@ export const listenMessage = ({
               time: new Date(),
             },
           ],
+          newMsg: roomName === currentChat ? false : true,
         },
       });
     }

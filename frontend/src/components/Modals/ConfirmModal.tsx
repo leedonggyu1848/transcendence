@@ -88,7 +88,7 @@ const ConfirmModalContainer = styled.div`
   width: 400px;
   height: 500px;
   position: fixed;
-  let: calc(50% - 200px);
+  left: calc(50% - 200px);
   top: calc(50% - 250px);
   z-index: 4;
   background: var(--main-bg-color);

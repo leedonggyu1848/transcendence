@@ -2,33 +2,25 @@ import styled from "@emotion/styled";
 import React, { useContext, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
-  alertModalState,
   friendListState,
   friendRequestListState,
-  myInfoState,
+  sideMenuToggle,
 } from "../../api/atom";
-import { IFriendRequest } from "../../api/interface";
-import {
-  axiosAcceptFriendRequest,
-  axiosGetFriendRequestList,
-} from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
 
 const Alarm = ({ w }: { w: number }) => {
-  const [friendRequestList, setFriendRequestList] = useRecoilState(
-    friendRequestListState
-  );
-  const [friendList, setFriendList] = useRecoilState(friendListState);
+  const friendRequestList = useRecoilValue(friendRequestListState);
   const socket = useContext(WebsocketContext);
+  const setSideMenuToggle = useSetRecoilState(sideMenuToggle);
 
   const acceptFriendRequest = (friendName: string) => {
     socket.emit("response-friend", { friendName, type: true });
-    //창 닫기
+    setSideMenuToggle({ alarm: false, friends: false });
   };
 
   const refuseFriendRequest = (friendName: string) => {
     socket.emit("response-friend", { friendName, type: false });
-    // 창 닫기
+    setSideMenuToggle({ alarm: false, friends: false });
   };
 
   const cancelFriendRequest = (friendName: string) => {
