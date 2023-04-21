@@ -60,7 +60,40 @@ export const listenCancelFriend = ({
   setFriendRequestList: any;
   friendRequestList: any;
 }) => {
-  socket.on("cacnel-friend", (userName: string) => {
+  socket.on("cancel-friend", (userName: string) => {
+    setFriendRequestList(
+      friendRequestList.filter(
+        (friend: IFriendRequest) => friend.intra_id !== userName
+      )
+    );
+  });
+};
+
+export const listenNewFriend = ({
+  socket,
+  setFriendList,
+  friendList,
+  setFriendRequestList,
+  friendRequestList,
+}: {
+  socket: any;
+  setFriendList: any;
+  friendList: any;
+  setFriendRequestList: any;
+  friendRequestList: any;
+}) => {
+  socket.on(
+    "new-friend",
+    ({ username, profile }: { username: string; profile: string }) => {
+      setFriendList([...friendList, { intra_id: username, profile }]);
+      setFriendRequestList(
+        friendRequestList.filter(
+          (friend: IFriendRequest) => friend.intra_id !== username
+        )
+      );
+    }
+  );
+  socket.on("cancel-friend", (userName: string) => {
     setFriendRequestList(
       friendRequestList.filter(
         (friend: IFriendRequest) => friend.intra_id !== userName
@@ -100,6 +133,45 @@ export const listenFriendResult = ({
 }) => {
   socket.on(
     "friend-result",
+    ({
+      username,
+      type,
+      profile,
+    }: {
+      username: string;
+      type: boolean;
+      profile: string;
+    }) => {
+      setFriendRequestList(
+        friendRequestList.filter(
+          (request: IFriendRequest) => request.intra_id !== username
+        )
+      );
+      if (type) {
+        setFriendList([
+          ...friendList,
+          { intra_id: username, profile: profile },
+        ]);
+      }
+    }
+  );
+};
+
+export const listenResponseFriend = ({
+  socket,
+  setFriendRequestList,
+  setFriendList,
+  friendRequestList,
+  friendList,
+}: {
+  socket: any;
+  setFriendRequestList: any;
+  setFriendList: any;
+  friendRequestList: any;
+  friendList: any;
+}) => {
+  socket.on(
+    "response-friend",
     ({
       username,
       type,

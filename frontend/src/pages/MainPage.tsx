@@ -56,7 +56,9 @@ import {
   listenKickUser,
   listenLeaveSuccess,
   listenMessage,
+  listenNewFriend,
   listenRequestAllChat,
+  listenResponseFriend,
   listenSomeoneJoinned,
   listenSomeoneLeave,
 } from "../api/socket/chat-socket";
@@ -119,7 +121,7 @@ const MainPage = () => {
       getMyInfo();
       setGetMyInfoFlag(true);
     }
-    if (!requestFriendListFlag) {
+    if (getMyInfoFlag && !requestFriendListFlag) {
       socket.emit("friend-list");
     }
 
@@ -136,6 +138,8 @@ const MainPage = () => {
     listenDeleteFriend(hooks);
     listenFriendResult(hooks);
     listenFriendFail(hooks);
+    listenResponseFriend(hooks);
+    listenNewFriend(hooks);
 
     listenMessage(hooks);
     listenCreateChat(hooks);
@@ -178,6 +182,7 @@ const MainPage = () => {
         "cancel-friend",
         "delete-friend",
         "friend-fail",
+        "new-friend",
         "friend-list",
         "message"
       );

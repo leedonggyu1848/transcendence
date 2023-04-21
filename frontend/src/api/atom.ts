@@ -316,7 +316,7 @@ export const getMyInfoFlagState = atom({
 export const confirmModalToggleState = atom({
   key: "confirmModalToggleState",
   default: {
-    toggle: true,
+    toggle: false,
     msg: "",
     confirmFunc: () => {},
   },
