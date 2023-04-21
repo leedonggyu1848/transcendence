@@ -19,7 +19,6 @@ const Alarm = ({ w }: { w: number }) => {
     friendRequestListState
   );
   const [friendList, setFriendList] = useRecoilState(friendListState);
-  const setAlertInfo = useSetRecoilState(alertModalState);
   const socket = useContext(WebsocketContext);
 
   const acceptFriendRequest = (friendName: string) => {
@@ -35,42 +34,6 @@ const Alarm = ({ w }: { w: number }) => {
   const cancelFriendRequest = (friendName: string) => {
     socket.emit("cancel-friend", friendName);
   };
-
-  useEffect(() => {
-    socket.on(
-      "response-friend",
-      ({
-        username,
-        type,
-        profile,
-      }: {
-        username: string;
-        type: boolean;
-        profile: string;
-      }) => {
-        if (type)
-          setFriendList([...friendList, { intra_id: username, profile }]);
-        setFriendRequestList(
-          friendRequestList.filter((friend) => friend.intra_id !== username)
-        );
-      }
-    );
-
-    socket.on(
-      "new-friend",
-      ({ username, profile }: { username: string; profile: string }) => {
-        setFriendList([...friendList, { intra_id: username, profile }]);
-        setFriendRequestList(
-          friendRequestList.filter((friend) => friend.intra_id !== username)
-        );
-      }
-    );
-
-    return () => {
-      socket.off("request-friend");
-      socket.off("new-friend");
-    };
-  }, []);
 
   return (
     <AlarmContainer w={w}>

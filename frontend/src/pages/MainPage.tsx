@@ -56,7 +56,9 @@ import {
   listenKickUser,
   listenLeaveSuccess,
   listenMessage,
+  listenNewFriend,
   listenRequestAllChat,
+  listenResponseFriend,
   listenSomeoneJoinned,
   listenSomeoneLeave,
 } from "../api/socket/chat-socket";
@@ -92,8 +94,6 @@ const MainPage = () => {
   const [chatList, setChatList] = useRecoilState(chatListState);
   const confirmModalState = useRecoilValue(confirmModalToggleState);
 
-  const [allChatFlag, setAllChatFlag] = useRecoilState(allChatFlagState);
-
   const hooks: any = {
     socket,
     myName,
@@ -119,14 +119,6 @@ const MainPage = () => {
       getMyInfo();
       setGetMyInfoFlag(true);
     }
-    if (getMyInfoFlag && !requestFriendListFlag) {
-      socket.emit("friend-list");
-    }
-
-    if (!allChatFlag) {
-      socket.emit("all-chat");
-      setAllChatFlag(true);
-    }
 
     listenRequestAllChat(hooks);
     listenFirstConnection(hooks);
@@ -136,6 +128,8 @@ const MainPage = () => {
     listenDeleteFriend(hooks);
     listenFriendResult(hooks);
     listenFriendFail(hooks);
+    listenResponseFriend(hooks);
+    listenNewFriend(hooks);
 
     listenMessage(hooks);
     listenCreateChat(hooks);
@@ -178,6 +172,7 @@ const MainPage = () => {
         "cancel-friend",
         "delete-friend",
         "friend-fail",
+        "new-friend",
         "friend-list",
         "message"
       );
