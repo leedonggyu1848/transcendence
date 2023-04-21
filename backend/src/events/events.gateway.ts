@@ -313,10 +313,8 @@ export class EventsGateway
     );
     if (result.success) {
       const room = await this.nsp.in(roomName).fetchSockets();
-      if (room.some((socket) => socket.id === result.data)) {
-        this.nsp.in(roomName).emit('kick-user', { roomName, userName });
-        await this.nsp.sockets.get(result.data)?.leave(roomName);
-      }
+      this.nsp.in(roomName).emit('kick-user', { roomName, userName });
+      await this.nsp.sockets.get(result.data)?.leave(roomName);
     } else {
       socket.emit('chat-fail', result.msg);
     }
@@ -393,10 +391,8 @@ export class EventsGateway
       );
       if (kickResult.success) {
         const room = await this.nsp.in(roomName).fetchSockets();
-        if (room.some((socket) => socket.id === kickResult.data)) {
-          this.nsp.in(roomName).emit('ban-user', { roomName, userName });
-          await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
-        }
+        this.nsp.in(roomName).emit('ban-user', { roomName, userName });
+        await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
       } else {
         socket.emit('chat-fail', kickResult.msg);
         message = kickResult.msg;
@@ -411,7 +407,7 @@ export class EventsGateway
     @MessageBody()
     { roomName, userName }: { roomName: string; userName: string },
   ) {
-    const result = await this.eventsService.cancelBan(
+    const result = await this.eventsService.banCancel(
       socket.id,
       roomName,
       userName,
@@ -433,19 +429,32 @@ export class EventsGateway
   }
 
   @SubscribeMessage('block-list')
-  async handleBlockList(@ConnectedSocket() socket: Socket) {}
+  async handleBlockList(@ConnectedSocket() socket: Socket) {
+    const result = await this.eventsService.getBlockList(socket.id);
+    socket.emit('block-list', result);
+  }
 
   @SubscribeMessage('block-user')
   async handleBlockUser(
     @ConnectedSocket() socket: Socket,
     @MessageBody() userName: string,
-  ) {}
+  ) {
+    const result = await this.eventsService.blockUser(socket.id, userName);
+    if (result.success) socket.emit('block-user', userName);
+    else socket.emit('chat-fail', result.msg);
+    this.logger.log(result.msg);
+  }
 
   @SubscribeMessage('block-cancel')
   async handleBlockCancel(
     @ConnectedSocket() socket: Socket,
     @MessageBody() userName: string,
-  ) {}
+  ) {
+    const result = await this.eventsService.blockCancel(socket.id, userName);
+    if (result.success) socket.emit('block-cancel', userName);
+    else socket.emit('chat-fail', result.msg);
+    this.logger.log(result.msg);
+  }
 
   @SubscribeMessage('start-game')
   async handleStartGame(

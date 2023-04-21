@@ -9,6 +9,7 @@ import { IChatUserRepository } from './repository/chatuser.interface.repository'
 import * as bcrypt from 'bcrypt';
 import { GameService } from 'src/game/game.service';
 import { User } from 'src/entity/user.entity';
+import { IBlockRepository } from './repository/block.interface.repository';
 
 @Injectable()
 export class EventsService {
@@ -23,6 +24,8 @@ export class EventsService {
     private chatUserRepository: IChatUserRepository,
     @Inject('IBanRepository')
     private banRepository: IBanRepository,
+    @Inject('IBlockRepository')
+    private blockRepository: IBlockRepository,
     private userService: UserService,
     private gameService: GameService,
   ) {}
@@ -380,19 +383,18 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.intra_id)
       return { success: false, msg: `${user.intra_id}의 방장이 아닙니다.` };
-    const isBan = chat.banUsers.filter((ban) => ban.username === user.intra_id);
+    const isBan = chat.banUsers.filter((ban) => ban.username === banUser);
     if (isBan.length !== 0)
       return { success: false, msg: `${banUser}는 이미 밴 되어있습니다.` };
     await this.banRepository.addBanUser(chat, banUser);
     return { success: true, msg: `${banUser}가 밴 되었습니다.` };
   }
 
-  async cancelBan(socketId: string, roomName: string, banUser: string) {
+  async banCancel(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.getUserBySocketId(socketId);
-    const userId = user.intra_id;
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
-    if (chat.operator !== userId)
-      return { success: false, msg: `${userId}의 방장이 아닙니다.` };
+    if (chat.operator !== user.intra_id)
+      return { success: false, msg: `${user.intra_id}의 방장이 아닙니다.` };
     const ban = chat.banUsers.filter((ban) => ban.username === banUser);
     if (ban.length === 0)
       return { success: false, msg: `${banUser}는 밴 되어있지 않습니다.` };
@@ -417,7 +419,32 @@ export class EventsService {
 
   async getBlockList(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithBlock(socketId);
-    // const blockUsers = user.blockUsers.map((usr) => )
+    const blockUsers = user.blockUsers.map((usr) => {
+      return usr.user.blockuser;
+    });
+    return blockUsers;
+  }
+
+  async blockUser(socketId: string, blockUser: string) {
+    const user = await this.userService.getUserBySocketIdWithBlock(socketId);
+    const isBan = user.blockUsers.filter(
+      (block) => block.blockUser === blockUser,
+    );
+    if (isBan.length !== 0)
+      return { success: false, msg: `${blockUser}는 이미 차단 되어있습니다.` };
+    await this.blockRepository.addBlockUser(user, blockUser);
+    return { success: true, msg: `${blockUser}가 차단 되었습니다.` };
+  }
+
+  async blockCancel(socketId: string, blockUser: string) {
+    const user = await this.userService.getUserBySocketIdWithBlock(socketId);
+    const block = user.blockUsers.filter(
+      (block) => block.blockUser === blockUser,
+    );
+    if (block.length === 0)
+      return { success: false, msg: `${blockUser}는 차단 되어있지 않습니다.` };
+    await this.blockRepository.deleteBlockUser(block);
+    return { success: true, msg: `${blockUser}의 차단이 해제되었습니다.` };
   }
 
   async gameAlert(roomName: string, message: string) {
