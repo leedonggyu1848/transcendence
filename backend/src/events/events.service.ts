@@ -30,6 +30,46 @@ export class EventsService {
     private gameService: GameService,
   ) {}
 
+  async disconnect(socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithAll(socketId);
+    if (user) {
+      let result = [];
+      console.log(user.chats);
+      console.log(user.play_game);
+      console.log(user.watch_game);
+      if (user.chats) {
+        result = [
+          ...user.chats.map(async (chat) => {
+            await this.leaveChat(socketId, chat.chat.title);
+          }),
+        ];
+      }
+      if (user.play_game) {
+        // result = [
+        //   ...result,
+        //   ...user.play_game.map(async (game) => {
+        //     await this.safd
+        //   }),
+        // ];
+      }
+      if (user.watch_game) {
+        // result = [
+        //   ...result,
+        //   ...user.chats.map(async (chat) => {
+        //     await this.leaveChat(socketId, chat.chat.title);
+        //   }),
+        // ];
+      }
+      await Promise.all(result);
+    }
+    await this.userRepository.updateSocketId(user.id, '');
+  }
+
+  async isConnect(intra_id: string) {
+    const user = await this.userService.getUserByIntraId(intra_id);
+    return user !== null;
+  }
+
   async registUser(intra_id: string, socket_id: string) {
     const user = await this.userRepository.findByIntraId(intra_id);
     await this.userRepository.updateSocketId(user.id, socket_id);

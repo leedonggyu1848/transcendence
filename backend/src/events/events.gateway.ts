@@ -36,7 +36,8 @@ export class EventsGateway
     this.logger.log(`${socket.id} 소켓 연결`);
   }
 
-  handleDisconnect(@ConnectedSocket() socket: Socket) {
+  async handleDisconnect(@ConnectedSocket() socket: Socket) {
+    await this.eventsService.disconnect(socket.id);
     this.logger.log(`${socket.id} 소켓 연결 해제`);
   }
 
@@ -49,6 +50,15 @@ export class EventsGateway
     await this.eventsService.registUser(intra_id, socket.id);
     socket.emit('first-connection');
     socket.broadcast.emit('connect-user', `${intra_id}가 접속했습니다.`);
+  }
+
+  @SubscribeMessage('check-connection')
+  async handleCheckConnect(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() userName: string,
+  ) {
+    const isConnect = await this.eventsService.isConnect(userName);
+    socket.emit('check-connection', { userName, isConnect });
   }
 
   @SubscribeMessage('message')

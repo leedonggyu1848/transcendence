@@ -51,6 +51,14 @@ export class UserService {
     return await this.userRepository.findBySocketIdWithJoinChat(socketId);
   }
 
+  async getUserByIntraIdWithAll(intra_id: string) {
+    return await this.userRepository.findByIntraIdWithJoinAll(intra_id);
+  }
+
+  async getUserBySocketIdWithAll(socketId: string) {
+    return await this.userRepository.findBySocketIdWithJoinAll(socketId);
+  }
+
   async getUserByIntraIdWithFriend(intra_id: string) {
     return await this.userRepository.findByIntraIdWithJoinFriend(intra_id);
   }
