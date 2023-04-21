@@ -61,8 +61,8 @@ export class EventsService {
         // ];
       }
       await Promise.all(result);
+      await this.userRepository.updateSocketId(user.id, '');
     }
-    await this.userRepository.updateSocketId(user.id, '');
   }
 
   async isConnect(intra_id: string) {

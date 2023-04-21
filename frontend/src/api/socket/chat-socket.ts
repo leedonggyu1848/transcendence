@@ -196,6 +196,7 @@ export const listenFriendResult = ({
         )
       );
       if (type) {
+        socket.emit("check-connection", username);
         setFriendList([
           ...friendList,
           { intra_id: username, profile: profile },
@@ -235,10 +236,45 @@ export const listenResponseFriend = ({
         )
       );
       if (type) {
+        socket.emit("check-connection", username);
         setFriendList([
           ...friendList,
           { intra_id: username, profile: profile },
         ]);
+      }
+    }
+  );
+};
+
+export const listenCheckConnection = ({
+  socket,
+  friendList,
+  setFriendList,
+}: {
+  socket: any;
+  setAlertInfo: any;
+  friendList: any;
+  setFriendList: any;
+}) => {
+  socket.on(
+    "check-connection",
+    ({ userName, isConnect }: { userName: string; isConnect: boolean }) => {
+      if (isConnect) {
+        setFriendList(
+          friendList.map((friend: IFriendDto) =>
+            friend.intra_id === userName
+              ? { ...friend, status: "online" }
+              : { ...friend }
+          )
+        );
+      } else {
+        setFriendList(
+          friendList.map((friend: IFriendDto) =>
+            friend.intra_id === userName
+              ? { ...friend, status: "offline" }
+              : { ...friend }
+          )
+        );
       }
     }
   );
