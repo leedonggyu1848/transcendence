@@ -26,7 +26,7 @@ const ChatPage = () => {
   };
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const chatList = useRecoilValue(chatListState);
-  const joinnedChatList = useRecoilValue(joinnedChatState);
+  const [joinnedChatList, setJoinChatList] = useRecoilState(joinnedChatState);
   const myName = useRecoilValue(myNameState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
 
@@ -38,6 +38,13 @@ const ChatPage = () => {
     if (joinnedChatList[roomName] !== undefined) {
       //current chat setting
       setCurrentChat(roomName);
+      setJoinChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          newMsg: false,
+        },
+      });
       return;
     }
     if (type === 2) {

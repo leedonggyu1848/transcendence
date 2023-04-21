@@ -241,7 +241,9 @@ export const listenMessage = ({
   socket,
   joinnedChatList,
   setJoinnedChatList,
+  currentChat,
 }: {
+  currentChat: any;
   socket: any;
   joinnedChatList: any;
   setJoinnedChatList: any;
@@ -269,6 +271,7 @@ export const listenMessage = ({
               time: new Date(),
             },
           ],
+          newMsg: roomName === currentChat ? false : true,
         },
       });
     }
