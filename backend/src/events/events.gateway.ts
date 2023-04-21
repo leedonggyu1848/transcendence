@@ -200,7 +200,7 @@ export class EventsGateway
     } else {
       socket.emit('friend-fail', result.msg);
     }
-    this.logger.log(`${result.username} <-> ${friendName} 친구 삭제`);
+    this.logger.log(`${result.username} <-> ${friendName} 친구 삭제 `);
   }
 
   @SubscribeMessage('create-chat')
@@ -409,14 +409,14 @@ export class EventsGateway
   async handleCancelUserBan(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, user }: { roomName: string; user: string },
+    { roomName, userName }: { roomName: string; userName: string },
   ) {
     const result = await this.eventsService.cancelBan(
       socket.id,
       roomName,
-      user,
+      userName,
     );
-    if (result.success) socket.emit('ban-cancel', result.msg);
+    if (result.success) socket.emit('ban-cancel', { roomName, userName });
     else socket.emit('chat-fail', result.msg);
     this.logger.log(result.msg);
   }

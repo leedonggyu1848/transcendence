@@ -187,9 +187,11 @@ export class EventsService {
     const userRelation = user.friends.filter(
       (req) => req.friendname === friendName && req.accept === true,
     );
-    const friendRelation = user.friends.filter(
+    const friendRelation = friend.friends.filter(
       (req) => req.friendname === user.intra_id && req.accept === true,
     );
+    console.log(userRelation);
+    console.log(friendRelation);
     if (userRelation.length === 0 || friendRelation.length === 0)
       return { success: false, msg: `${friendName} 유저와 친구가 아닙니다.` };
     if (userRelation.length !== 0)
