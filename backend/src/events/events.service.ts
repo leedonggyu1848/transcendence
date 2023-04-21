@@ -285,6 +285,7 @@ export class EventsService {
 
   async getAllChatList(socketId: string) {
     const user = await this.userRepository.findBySocketIdWithJoinChat(socketId);
+
     const chats = await this.chatRepository.findAll();
     const chatsDto = chats.map((chat) => {
       return this.chatRepository.chatToChatDto(chat);

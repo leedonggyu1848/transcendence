@@ -94,8 +94,6 @@ const MainPage = () => {
   const [chatList, setChatList] = useRecoilState(chatListState);
   const confirmModalState = useRecoilValue(confirmModalToggleState);
 
-  const [allChatFlag, setAllChatFlag] = useRecoilState(allChatFlagState);
-
   const hooks: any = {
     socket,
     myName,
@@ -120,14 +118,6 @@ const MainPage = () => {
     if (!getMyInfoFlag) {
       getMyInfo();
       setGetMyInfoFlag(true);
-    }
-    if (getMyInfoFlag && !requestFriendListFlag) {
-      socket.emit("friend-list");
-    }
-
-    if (!allChatFlag) {
-      socket.emit("all-chat");
-      setAllChatFlag(true);
     }
 
     listenRequestAllChat(hooks);

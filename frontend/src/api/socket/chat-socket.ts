@@ -48,6 +48,9 @@ export const listenFriendList = ({
 export const listenFirstConnection = ({ socket }: { socket: any }) => {
   socket.on("first-connection", () => {
     socket.emit("friend-request-list");
+    socket.emit("friend-list");
+    socket.emit("all-chat");
+
   });
 };
 
