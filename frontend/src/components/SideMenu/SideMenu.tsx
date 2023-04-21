@@ -26,47 +26,6 @@ const SideMenu = ({ w }: { w: number }) => {
 
   const clickLogout = () => {};
 
-  useEffect(() => {
-    if (!requestAlarmFlag) {
-      socket.emit("");
-      setRequestAlarmFlag(true);
-    }
-
-    socket.on(
-      "request-friend",
-      ({ username, profile }: { username: string; profile: string }) => {
-        setFriendRequestList([
-          ...friendRequestList,
-          {
-            intra_id: username,
-            profile: profile,
-            time: new Date().toString(),
-            type: 0,
-          },
-        ]);
-      }
-    );
-
-    socket.on(
-      "new-friend",
-      ({ username, profile }: { username: string; profile: string }) => {
-        setFriendRequestList([
-          ...friendRequestList,
-          {
-            intra_id: username,
-            profile: profile,
-            time: new Date().toString(),
-            type: 1,
-          },
-        ]);
-      }
-    );
-    return () => {
-      socket.off("request-friend");
-      socket.off("new-friend");
-    };
-  }, [friendRequestList]);
-
   return (
     <SideMenuContainer>
       <FriendsIcon

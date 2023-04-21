@@ -58,6 +58,7 @@ import {
   listenMessage,
   listenNewFriend,
   listenRequestAllChat,
+  listenRequestFriend,
   listenResponseFriend,
   listenSomeoneJoinned,
   listenSomeoneLeave,
@@ -113,7 +114,6 @@ const MainPage = () => {
   };
 
   useEffect(() => {
-    console.log(myInfo);
     if (!token.access_token) navigate("/no_auth");
     if (!getMyInfoFlag) {
       getMyInfo();
@@ -130,6 +130,7 @@ const MainPage = () => {
     listenFriendFail(hooks);
     listenResponseFriend(hooks);
     listenNewFriend(hooks);
+    listenRequestFriend(hooks);
 
     listenMessage(hooks);
     listenCreateChat(hooks);
@@ -146,7 +147,6 @@ const MainPage = () => {
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
       setMyInfo({ ...myInfo });
-      console.log(myInfo);
       localStorage.setItem("info", JSON.stringify(myInfo));
 
       socket.emit("first-connection", myInfo.intra_id);
@@ -168,6 +168,7 @@ const MainPage = () => {
         "ban-user",
         "chat-operator",
         "first-connection",
+        "request-friend",
         "friend-request-list",
         "cancel-friend",
         "delete-friend",

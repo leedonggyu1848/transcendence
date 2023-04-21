@@ -50,7 +50,6 @@ export const listenFirstConnection = ({ socket }: { socket: any }) => {
     socket.emit("friend-request-list");
     socket.emit("friend-list");
     socket.emit("all-chat");
-
   });
 };
 
@@ -72,6 +71,31 @@ export const listenCancelFriend = ({
   });
 };
 
+export const listenRequestFriend = ({
+  socket,
+  friendRequestList,
+  setFriendRequestList,
+}: {
+  socket: any;
+  friendRequestList: any;
+  setFriendRequestList: any;
+}) => {
+  socket.on(
+    "request-friend",
+    ({ username, profile }: { username: string; profile: string }) => {
+      setFriendRequestList([
+        ...friendRequestList,
+        {
+          intra_id: username,
+          profile: profile,
+          time: new Date().toString(),
+          type: 0,
+        },
+      ]);
+    }
+  );
+};
+
 export const listenNewFriend = ({
   socket,
   setFriendList,
@@ -88,21 +112,17 @@ export const listenNewFriend = ({
   socket.on(
     "new-friend",
     ({ username, profile }: { username: string; profile: string }) => {
-      setFriendList([...friendList, { intra_id: username, profile }]);
-      setFriendRequestList(
-        friendRequestList.filter(
-          (friend: IFriendRequest) => friend.intra_id !== username
-        )
-      );
+      setFriendRequestList([
+        ...friendRequestList,
+        {
+          intra_id: username,
+          profile: profile,
+          time: new Date().toString(),
+          type: 1,
+        },
+      ]);
     }
   );
-  socket.on("cancel-friend", (userName: string) => {
-    setFriendRequestList(
-      friendRequestList.filter(
-        (friend: IFriendRequest) => friend.intra_id !== userName
-      )
-    );
-  });
 };
 
 export const listenDeleteFriend = ({
