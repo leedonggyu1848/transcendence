@@ -90,6 +90,7 @@ export interface ISelectedGameRecord {
 export interface IFriendDto {
   intra_id: string;
   profile: string;
+  status: "offline" | "online" | "game";
 }
 
 export interface IFriendRequest {

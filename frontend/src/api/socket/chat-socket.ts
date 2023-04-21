@@ -6,6 +6,38 @@ import {
   IJoinnedChat,
 } from "../interface";
 
+export const listenFirstConnection = ({ socket }: { socket: any }) => {
+  socket.on("first-connection", () => {
+    socket.emit("friend-request-list");
+    socket.emit("friend-list");
+    socket.emit("all-chat");
+  });
+};
+
+export const listenFriendConnection = ({
+  socket,
+  setFriendList,
+  friendList,
+}: {
+  socket: any;
+  setFriendList: any;
+  friendList: any;
+}) => {
+  socket.on(
+    "connect-user",
+    ({ username, message }: { username: string; message: string }) => {
+      console.log(message);
+      setFriendList(
+        friendList.map((friend: IFriendDto) =>
+          friend.intra_id === username
+            ? { ...friend, status: "online" }
+            : { ...friend }
+        )
+      );
+    }
+  );
+};
+
 export const listenFriendRequestList = ({
   socket,
   setFriendRequestList,
@@ -42,14 +74,6 @@ export const listenFriendList = ({
   socket.on("friend-list", (friends: IFriendDto[]) => {
     setFriendList([...friends]);
     setRequestFriendListFlag(true);
-  });
-};
-
-export const listenFirstConnection = ({ socket }: { socket: any }) => {
-  socket.on("first-connection", () => {
-    socket.emit("friend-request-list");
-    socket.emit("friend-list");
-    socket.emit("all-chat");
   });
 };
 
