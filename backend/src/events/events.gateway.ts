@@ -10,6 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { FriendService } from 'src/friend/friend.service';
 import { CreateChatPayload, MessagePayload } from './events.payload';
 import { EventsService } from './events.service';
 
@@ -23,7 +24,11 @@ export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private logger = new Logger(EventsGateway.name);
-  constructor(private eventsService: EventsService) {}
+  private muteQueue = [];
+  constructor(
+    private eventsService: EventsService,
+    private friendService: FriendService,
+  ) {}
 
   @WebSocketServer() nsp: Namespace;
 
@@ -76,9 +81,17 @@ export class EventsGateway
       `userName: ${userName},`,
       `message: ${message}`,
     );
-    socket.broadcast
-      .to(roomName)
-      .emit('message', { userName, roomName, message });
+    let flag = true;
+    this.muteQueue.forEach((mute) => {
+      if (mute[0] === roomName && mute[1] === userName) flag = false;
+    });
+    if (flag) {
+      socket.broadcast
+        .to(roomName)
+        .emit('message', { userName, roomName, message });
+    } else {
+      socket.emit('chat-fail', `${roomName}에서 mute 당했습니다.`);
+    }
   }
 
   @SubscribeMessage('create-game')
@@ -128,14 +141,14 @@ export class EventsGateway
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
-    const friends = await this.eventsService.getFriendList(socket.id);
+    const friends = await this.friendService.getFriendList(socket.id);
     socket.emit('friend-list', friends);
   }
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendRequestList]`);
-    const requests = await this.eventsService.getFriendRequestList(socket.id);
+    const requests = await this.friendService.getFriendRequestList(socket.id);
     socket.emit('friend-request-list', requests);
   }
 
@@ -145,7 +158,7 @@ export class EventsGateway
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`[FriendRequest] friendName: ${friendName}`);
-    const result = await this.eventsService.friendRequest(
+    const result = await this.friendService.friendRequest(
       socket.id,
       friendName,
     );
@@ -170,7 +183,7 @@ export class EventsGateway
     @MessageBody() { friendName, type }: { friendName: string; type: boolean },
   ) {
     this.logger.log(`[AcceptFriend] friendName: ${friendName}, type: ${type}`);
-    const result = await this.eventsService.friendResponse(
+    const result = await this.friendService.friendResponse(
       socket.id,
       friendName,
       type,
@@ -189,7 +202,7 @@ export class EventsGateway
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`[CancelFriend] friendName: ${friendName}`);
-    const result = await this.eventsService.cancelFriend(socket.id, friendName);
+    const result = await this.friendService.cancelFriend(socket.id, friendName);
     if (result.success) {
       socket.emit('cancel-friend', { userName: friendName });
       this.nsp.sockets
@@ -206,7 +219,7 @@ export class EventsGateway
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`DeleteFriend / friendName: ${friendName}`);
-    const result = await this.eventsService.deleteFriend(socket.id, friendName);
+    const result = await this.friendService.deleteFriend(socket.id, friendName);
     if (result.success) {
       socket.emit('delete-friend', { userName: friendName });
       this.nsp.sockets
@@ -370,7 +383,13 @@ export class EventsGateway
     );
     if (result.success) {
       socket.emit('mute-user', { roomName, userName });
+      this.muteQueue.push([roomName, userName]);
+      setTimeout(() => {
+        this.muteQueue.shift();
+      }, 30000);
       this.nsp.sockets.get(result.data).emit('chat-muted', roomName);
+    } else {
+      socket.emit('chat-fail', result.msg);
     }
   }
 

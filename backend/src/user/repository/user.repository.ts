@@ -115,7 +115,7 @@ export class UserRepository implements IUserRepository {
   async findBySocketIdWithJoinBlock(socketId: string) {
     return await this.userRepository.findOne({
       where: { socketId: socketId },
-      relations: ['banUsers'],
+      relations: ['blockUsers'],
     });
   }
 
