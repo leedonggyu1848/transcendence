@@ -157,7 +157,7 @@ export class EventsService {
 
   private requestCheck(reqs, findName) {
     if (!reqs) return false;
-    const tmp = reqs.filter((req) => req.friendname === findName);
+    const tmp = reqs.filter((req) => req.friendName === findName);
     if (tmp.length !== 0) return true;
     return false;
   }
@@ -184,7 +184,7 @@ export class EventsService {
     );
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
     const requests = friend.friends.filter(
-      (req) => req.friendname === user.userName && req.accept === false,
+      (req) => req.friendName === user.userName && req.accept === false,
     );
     if (requests.length !== 1)
       return { success: false, msg: '친구 신청이 없거나 이미 처리되었습니다.' };
