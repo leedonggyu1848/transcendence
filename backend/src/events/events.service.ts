@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ChatType, FriendReqType } from 'src/entity/common.enum';
 import { IFriendRepository } from 'src/events/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/user.interface.repository';
@@ -13,6 +13,7 @@ import { IBlockRepository } from './repository/block.interface.repository';
 
 @Injectable()
 export class EventsService {
+  private logger = new Logger(EventsService.name);
   constructor(
     @Inject('IUserRepository')
     private userRepository: IUserRepository,
@@ -35,6 +36,7 @@ export class EventsService {
     if (user) {
       let result = [];
       if (user.chats) {
+        this.logger.log(`[disconnect] ${user.userName} leave chats`);
         result = [
           ...user.chats.map(async (chat) => {
             await this.leaveChat(socketId, chat.chat.title);
@@ -42,14 +44,15 @@ export class EventsService {
         ];
       }
       if (user.playGame) {
+        this.logger.log(`[disconnect] ${user.userName} leave playing game`);
         // result = [
         //   ...result,
-        //   ...user.playGame.map(async (game) => {
-        //     await this.safd
+        //   ...user.playGame.leaveGame();
         //   }),
         // ];
       }
       if (user.watchGame) {
+        this.logger.log(`[disconnect] ${user.userName} leave watching game`);
         // result = [
         //   ...result,
         //   ...user.chats.map(async (chat) => {
@@ -58,6 +61,7 @@ export class EventsService {
         // ];
       }
       await Promise.all(result);
+      this.logger.log(`[disconnect] ${user.userName} delete socket id`);
       await this.userService.updateSocketId(user, '');
     }
   }
@@ -67,8 +71,8 @@ export class EventsService {
     await this.userService.updateSocketId(user, socketId);
   }
 
-  async isConnect(socketId: string) {
-    const user = await this.userService.getUserBySocketId(socketId);
+  async isConnect(userName: string) {
+    const user = await this.userService.getUserByUserName(userName);
     const result = {
       userName: user.userName,
       isConnect: user !== null,
@@ -286,7 +290,7 @@ export class EventsService {
       return { success: false, msg: `${roomName}에 밴 되어있습니다.` };
     await this.chatUserRepository.addChatUser(chat, user);
     await this.chatRepository.updateCount(chat.id, chat.count + 1);
-    const usernames = chat.users.map((usr) => {
+    const userNames = chat.users.map((usr) => {
       if (usr.user) return usr.user.userName;
       return '';
     });
@@ -298,7 +302,7 @@ export class EventsService {
         roomName: roomName,
         operator: chat.operator,
         type: chat.type,
-        users: usernames,
+        users: userNames,
       },
     };
   }
@@ -422,7 +426,7 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.userName)
       return { success: false, msg: `${user.userName}의 방장이 아닙니다.` };
-    const isBan = chat.banUsers.filter((ban) => ban.username === banUser);
+    const isBan = chat.banUsers.filter((ban) => ban.userName === banUser);
     if (isBan.length !== 0)
       return { success: false, msg: `${banUser}는 이미 밴 되어있습니다.` };
     await this.banRepository.addBanUser(chat, banUser);
@@ -434,7 +438,7 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.userName)
       return { success: false, msg: `${user.userName}의 방장이 아닙니다.` };
-    const ban = chat.banUsers.filter((ban) => ban.username === banUser);
+    const ban = chat.banUsers.filter((ban) => ban.userName === banUser);
     if (ban.length === 0)
       return { success: false, msg: `${banUser}는 밴 되어있지 않습니다.` };
     await this.banRepository.deleteBanUser(ban);

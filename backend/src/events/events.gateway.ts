@@ -55,10 +55,13 @@ export class EventsGateway
   }
 
   @SubscribeMessage('check-connection')
-  async handleCheckConnect(@ConnectedSocket() socket: Socket) {
-    this.logger.log(`[CheckConnect] socketId: ${socket.id}`);
-    const data = await this.eventsService.isConnect(socket.id);
-    socket.emit('check-connection', data);
+  async handleCheckConnect(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() userName: string,
+  ) {
+    this.logger.log(`[CheckConnect] userName: ${userName}`);
+    const isConnect = await this.eventsService.isConnect(userName);
+    socket.emit('check-connection', { userName, isConnect });
   }
 
   @SubscribeMessage('message')
