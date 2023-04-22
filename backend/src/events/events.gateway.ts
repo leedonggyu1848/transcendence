@@ -226,10 +226,18 @@ export class EventsGateway
     this.logger.log(`[DirectMessage] userName: ${userName}`);
     const result = await this.eventsService.directMessage(socket.id, userName);
     if (result.success) {
-      socket.emit('send-dm', result.title);
+      socket.emit('send-dm', {
+        title: result.title,
+        userName: result.receiverName,
+      });
       socket.join(result.title);
-      this.nsp.sockets.get(result.receiver)?.emit('receive-dm', result.title);
-      this.nsp.sockets.get(result.receiver)?.join(result.title);
+      this.nsp.sockets
+        .get(result.receiverSocket)
+        ?.emit('receive-dm', {
+          title: result.title,
+          userName: result.senderName,
+        });
+      this.nsp.sockets.get(result.receiverSocket)?.join(result.title);
     } else {
       socket.emit('chat-fail', result.msg);
     }
