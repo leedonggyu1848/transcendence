@@ -73,11 +73,7 @@ export class EventsService {
 
   async isConnect(userName: string) {
     const user = await this.userService.getUserByUserName(userName);
-    const result = {
-      userName: user.userName,
-      isConnect: user !== null,
-    };
-    return result;
+    return user !== null;
   }
 
   // testcode -> TODO: delete
