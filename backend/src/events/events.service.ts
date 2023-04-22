@@ -1,5 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ChatType, FriendReqType } from 'src/entity/common.enum';
+import {
+  ChatType,
+  FriendReqType,
+  UserStatusType,
+} from 'src/entity/common.enum';
 import { IFriendRepository } from 'src/events/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/user.interface.repository';
 import { UserService } from 'src/user/user.service';
@@ -36,7 +40,6 @@ export class EventsService {
     if (user) {
       let result = [];
       if (user.chats) {
-        this.logger.log(`[disconnect] ${user.userName} leave chats`);
         result = [
           ...user.chats.map(async (chat) => {
             await this.leaveChat(socketId, chat.chat.title);
@@ -44,7 +47,6 @@ export class EventsService {
         ];
       }
       if (user.playGame) {
-        this.logger.log(`[disconnect] ${user.userName} leave playing game`);
         // result = [
         //   ...result,
         //   ...user.playGame.leaveGame();
@@ -52,7 +54,6 @@ export class EventsService {
         // ];
       }
       if (user.watchGame) {
-        this.logger.log(`[disconnect] ${user.userName} leave watching game`);
         // result = [
         //   ...result,
         //   ...user.chats.map(async (chat) => {
@@ -61,7 +62,6 @@ export class EventsService {
         // ];
       }
       await Promise.all(result);
-      this.logger.log(`[disconnect] ${user.userName} delete socket id`);
       await this.userService.updateSocketId(user, '');
     }
   }
@@ -119,12 +119,18 @@ export class EventsService {
     //return null
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map(async (friend) => {
-      const found = await this.userService.getUserByUserName(friend.friendName);
+      const found = await this.userService.getUserByUserNameWithGame(
+        friend.friendName,
+      );
+      let status: UserStatusType;
+      if (found.socketId === '') status = UserStatusType.OFFLINE;
+      else if (!found.playGame) status = UserStatusType.ONLINE;
+      else status = UserStatusType.PLAYING;
       return {
         userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
-        online: found.socketId !== '',
+        status: status,
       };
     });
     return await Promise.all(result);

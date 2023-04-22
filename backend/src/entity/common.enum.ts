@@ -10,6 +10,12 @@ export enum GameType {
   'RANK',
 }
 
+export enum UserStatusType {
+  'OFFLINE',
+  'ONLINE',
+  'PLAYING',
+}
+
 export enum FriendReqType {
   'SEND',
   'RECEIVE',
