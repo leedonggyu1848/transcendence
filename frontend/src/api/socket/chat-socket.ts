@@ -11,6 +11,7 @@ export const listenFirstConnection = ({ socket }: { socket: any }) => {
     socket.emit("friend-request-list");
     socket.emit("friend-list");
     socket.emit("all-chat");
+    socket.emit("block-list");
   });
 };
 
@@ -26,11 +27,10 @@ export const listenFriendConnection = ({
   socket.on(
     "connect-user",
     ({ userName, message }: { userName: string; message: string }) => {
-      console.log("in connect-user", userName, message);
       setFriendList(
         friendList.map((friend: IFriendDto) =>
           friend.userName === userName
-            ? { ...friend, status: "online" }
+            ? { ...friend, status: 1 }
             : { ...friend }
         )
       );
@@ -50,18 +50,6 @@ export const listenFriendRequestList = ({
   });
 };
 
-export const listenAllChatList = ({
-  socket,
-  setChatList,
-}: {
-  socket: any;
-  setChatList: any;
-}) => {
-  socket.on("all-chat", (chats: IChatRoom[]) => {
-    setChatList([...chats]);
-  });
-};
-
 export const listenFriendList = ({
   socket,
   setFriendList,
@@ -72,7 +60,6 @@ export const listenFriendList = ({
   setRequestFriendListFlag: any;
 }) => {
   socket.on("friend-list", (friends: IFriendDto[]) => {
-    console.log(friends);
     setFriendList([...friends]);
     setRequestFriendListFlag(true);
   });
@@ -88,7 +75,6 @@ export const listenCancelFriend = ({
   friendRequestList: any;
 }) => {
   socket.on("cancel-friend", (userName: string) => {
-    console.log("cancel-friend");
     setFriendRequestList(
       friendRequestList.filter(
         (friend: IFriendRequest) => friend.userName !== userName
@@ -109,7 +95,6 @@ export const listenRequestFriend = ({
   socket.on(
     "request-friend",
     ({ userName, profile }: { userName: string; profile: string }) => {
-      console.log(userName, profile);
       setFriendRequestList([
         ...friendRequestList,
         {
@@ -161,9 +146,9 @@ export const listenDeleteFriend = ({
   setFriendList: any;
   friendList: any;
 }) => {
-  socket.on("delete-friend", ({ username }: { username: string }) => {
+  socket.on("delete-friend", ({ userName }: { userName: string }) => {
     setFriendList(
-      friendList.filter((friend: IFriendDto) => friend.userName !== username)
+      friendList.filter((friend: IFriendDto) => friend.userName !== userName)
     );
   });
 };
@@ -240,7 +225,7 @@ export const listenResponseFriend = ({
       if (type) {
         setFriendList([
           ...friendList,
-          { userName: userName, profile: profile, status: "online" },
+          { userName: userName, profile: profile, status: 1 },
         ]);
       }
     }
@@ -260,11 +245,12 @@ export const listenCheckConnection = ({
   socket.on(
     "check-connection",
     ({ userName, isConnect }: { userName: string; isConnect: boolean }) => {
+      console.log("isConnect", userName, isConnect);
       if (isConnect) {
         setFriendList(
           friendList.map((friend: IFriendDto) =>
             friend.userName === userName
-              ? { ...friend, status: "online" }
+              ? { ...friend, status: 1 }
               : { ...friend }
           )
         );
@@ -717,28 +703,24 @@ export const listenBanUser = ({
         setJoinnedChatList({ ...temp });
       }
       if (userName !== myName) {
-        if (currentChat === roomName) {
-          setJoinnedChatList({
-            ...joinnedChatList,
-            [roomName]: {
-              ...joinnedChatList[roomName],
-              userList: joinnedChatList[roomName].userList.filter(
-                (name) => name !== userName
-              ),
-              banUsers: joinnedChatList[roomName].banUsers.filter(
-                (name) => name !== userName
-              ),
-              chatLogs: [
-                ...joinnedChatList[roomName].chatLogs,
-                {
-                  sender: "admin",
-                  msg: `${userName}님의 입장이 금지 되었습니다.`,
-                  time: new Date(),
-                },
-              ],
-            },
-          });
-        }
+        setJoinnedChatList({
+          ...joinnedChatList,
+          [roomName]: {
+            ...joinnedChatList[roomName],
+            userList: joinnedChatList[roomName].userList.filter(
+              (name) => name !== userName
+            ),
+            banUsers: [...joinnedChatList[roomName].banUsers, userName],
+            chatLogs: [
+              ...joinnedChatList[roomName].chatLogs,
+              {
+                sender: "admin",
+                msg: `${userName}님의 입장이 금지 되었습니다.`,
+                time: new Date(),
+              },
+            ],
+          },
+        });
       }
       setChatList(
         chatList.map((chat) => ({
@@ -746,6 +728,42 @@ export const listenBanUser = ({
           count: chat.title === roomName ? chat.count - 1 : chat.count,
         }))
       );
+    }
+  );
+};
+
+export const listenBanCancel = ({
+  socket,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+}) => {
+  socket.on(
+    "ban-cancel",
+    ({ userName, roomName }: { userName: string; roomName: string }) => {
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          userList: joinnedChatList[roomName].userList.filter(
+            (name) => name !== userName
+          ),
+          banUsers: joinnedChatList[roomName].banUsers.filter(
+            (name) => name !== userName
+          ),
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            {
+              sender: "admin",
+              msg: `${userName}님의 입장 금지가 풀렸습니다.`,
+              time: new Date(),
+            },
+          ],
+        },
+      });
     }
   );
 };
@@ -789,18 +807,15 @@ export const listenReceiveDM = ({
   myName,
   joinnedChatList,
   setJoinnedChatList,
-  setCurrentChat,
 }: {
   socket: any;
   myName: string;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
-  setCurrentChat: any;
 }) => {
   socket.on(
     "receive-dm",
     ({ userName, title }: { userName: string; title: string }) => {
-      console.log("hi");
       const temp: IChatDetail = {
         title: title,
         type: 3,
@@ -847,6 +862,51 @@ export const listenChangeOperator = ({
       });
     }
   );
+};
+
+export const listenBlockList = ({
+  socket,
+  blockList,
+  setBlockList,
+}: {
+  socket: any;
+  blockList: string[];
+  setBlockList: any;
+}) => {
+  socket.on("block-list", (list: string[]) => {
+    console.log("blocklist", list);
+    setBlockList([...list]);
+  });
+};
+
+export const listenBlockUser = ({
+  socket,
+  blockList,
+  setBlockList,
+}: {
+  socket: any;
+  blockList: string[];
+  setBlockList: any;
+}) => {
+  socket.on("block-user", (userName: string) => {
+    console.log("userName : ", userName, "이 블락 되었습니다.");
+    setBlockList([...blockList, userName]);
+  });
+};
+
+export const listenUnBlockUser = ({
+  socket,
+  blockList,
+  setBlockList,
+}: {
+  socket: any;
+  blockList: string[];
+  setBlockList: any;
+}) => {
+  socket.on("block-cancel", (userName: string) => {
+    console.log("userName : ", userName, "이 블락 해제되었습니다.");
+    setBlockList(blockList.filter((name) => name !== userName));
+  });
 };
 
 export function chatSocketOff(socket: any, ...rest: string[]) {

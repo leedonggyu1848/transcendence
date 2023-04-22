@@ -38,7 +38,6 @@ const Friends = ({ w }: { w: number }) => {
       });
       return;
     }
-    console.log(location.pathname);
     socket.emit("send-dm", friendName);
     //if (location.pathname)
   };
