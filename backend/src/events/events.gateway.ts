@@ -48,14 +48,17 @@ export class EventsGateway
     this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
     await this.eventsService.registUser(userName, socket.id);
     socket.emit('first-connection');
-    socket.broadcast.emit('connect-user', `${userName}가 접속했습니다.`);
+    socket.broadcast.emit('connect-user', {
+      userName,
+      message: `${userName}가 접속했습니다.`,
+    });
   }
 
   @SubscribeMessage('check-connection')
   async handleCheckConnect(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[CheckConnect] socketId: ${socket.id}`);
-    const isConnect = await this.eventsService.isConnect(socket.id);
-    socket.emit('check-connection', isConnect);
+    const data = await this.eventsService.isConnect(socket.id);
+    socket.emit('check-connection', data);
   }
 
   @SubscribeMessage('message')
@@ -147,12 +150,12 @@ export class EventsGateway
       const user = result.data.user;
       const friend = result.data.friend;
       socket.emit('request-friend', {
-        username: friendName,
+        userName: friendName,
         profile: friend.profile,
       });
       socket
         .to(friend.socketId)
-        .emit('new-friend', { username: user.userName, profile: user.profile });
+        .emit('new-friend', { userName: user.userName, profile: user.profile });
     } else {
       socket.emit('friend-fail', result.msg);
     }
@@ -188,7 +191,7 @@ export class EventsGateway
       socket.emit('cancel-friend', { userName: friendName });
       this.nsp.sockets
         .get(result.data)
-        ?.emit('cancel-friend', { userName: result.username });
+        ?.emit('cancel-friend', { userName: result.userName });
     } else {
       socket.emit('friend-fail', result.msg);
     }
@@ -205,7 +208,7 @@ export class EventsGateway
       socket.emit('delete-friend', { userName: friendName });
       this.nsp.sockets
         .get(result.data)
-        ?.emit('delete-friend', { userName: result.username });
+        ?.emit('delete-friend', { userName: result.userName });
     } else {
       socket.emit('friend-fail', result.msg);
     }
@@ -251,7 +254,7 @@ export class EventsGateway
       socket.join(roomName);
       socket.broadcast.emit('join-chat', {
         message: result.msg,
-        username: result.joinuser,
+        userName: result.joinuser,
         roomName,
       });
       socket.emit('join-chat-success', result.data);
@@ -272,7 +275,7 @@ export class EventsGateway
       socket.leave(roomName);
       socket.broadcast.emit('leave-chat', {
         message: result.msg,
-        username: result.data,
+        userName: result.data,
         roomName: roomName,
       });
       socket.emit('leave-chat-success', roomName);
@@ -340,7 +343,7 @@ export class EventsGateway
       userName,
     );
     if (result.success) {
-      socket.emit('mute-user', { roomName: roomName, username: userName });
+      socket.emit('mute-user', { roomName, userName });
       this.nsp.sockets.get(result.data).emit('chat-muted', roomName);
     }
   }
@@ -524,7 +527,7 @@ export class EventsGateway
       '의 게임이 끝났습니다.',
     );
     result.forEach((data) => {
-      socket.broadcast.emit('user-ingame', data);
+      socket.broadcast.emit('user-gameout', data);
     });
   }
 }

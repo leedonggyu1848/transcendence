@@ -69,7 +69,11 @@ export class EventsService {
 
   async isConnect(socketId: string) {
     const user = await this.userService.getUserBySocketId(socketId);
-    return user !== null;
+    const result = {
+      userName: user.userName,
+      isConnect: user !== null,
+    };
+    return result;
   }
 
   // testcode -> TODO: delete
@@ -191,9 +195,9 @@ export class EventsService {
     return {
       success: true,
       data: friend.socketId,
-      sender: { username: friendName, profile: friend.profile, type: type },
+      sender: { userName: friendName, profile: friend.profile, type: type },
       receiver: {
-        username: user.userName,
+        userName: user.userName,
         profile: user.profile,
         type: type,
       },
@@ -214,7 +218,7 @@ export class EventsService {
     return {
       success: true,
       data: data,
-      username: user.userName,
+      userName: user.userName,
     };
   }
 
@@ -225,10 +229,10 @@ export class EventsService {
     );
     if (!friend) return { success: false, msg: '없는 유저입니다.' };
     const userRelation = user.friends.filter(
-      (req) => req.friendname === friendName && req.accept === true,
+      (req) => req.friendName === friendName && req.accept === true,
     );
     const friendRelation = friend.friends.filter(
-      (req) => req.friendname === user.userName && req.accept === true,
+      (req) => req.friendName === user.userName && req.accept === true,
     );
     if (userRelation.length === 0 || friendRelation.length === 0)
       return { success: false, msg: `${friendName} 유저와 친구가 아닙니다.` };
@@ -236,7 +240,7 @@ export class EventsService {
       await this.friendRepository.deleteFriend(userRelation[0]);
     if (friendRelation.length !== 0)
       await this.friendRepository.deleteFriend(friendRelation[0]);
-    return { success: true, data: friend.socketId, username: user.userName };
+    return { success: true, data: friend.socketId, userName: user.userName };
   }
 
   async creatChat(
@@ -277,7 +281,7 @@ export class EventsService {
     const joined = chat.users.filter((usr) => usr.userName === user.userName);
     if (joined.length !== 0)
       return { success: false, msg: `${roomName}에 이미 참가 중 입니다.` };
-    const ban = chat.banUsers.filter((ban) => ban.username === user.userName);
+    const ban = chat.banUsers.filter((ban) => ban.userName === user.userName);
     if (ban.length !== 0)
       return { success: false, msg: `${roomName}에 밴 되어있습니다.` };
     await this.chatUserRepository.addChatUser(chat, user);
@@ -486,7 +490,7 @@ export class EventsService {
     const players = await this.gameService.getGamePlayers(roomName);
     const data = players.map((player) => {
       return {
-        username: player.userName,
+        userName: player.userName,
         message: `${player.userName}` + message,
       };
     });
