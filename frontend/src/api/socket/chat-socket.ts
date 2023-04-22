@@ -26,11 +26,10 @@ export const listenFriendConnection = ({
   socket.on(
     "connect-user",
     ({ userName, message }: { userName: string; message: string }) => {
-      console.log("in connect-user", userName, message);
       setFriendList(
         friendList.map((friend: IFriendDto) =>
           friend.userName === userName
-            ? { ...friend, status: "online" }
+            ? { ...friend, status: 1 }
             : { ...friend }
         )
       );
@@ -72,7 +71,6 @@ export const listenFriendList = ({
   setRequestFriendListFlag: any;
 }) => {
   socket.on("friend-list", (friends: IFriendDto[]) => {
-    console.log(friends);
     setFriendList([...friends]);
     setRequestFriendListFlag(true);
   });
@@ -88,7 +86,6 @@ export const listenCancelFriend = ({
   friendRequestList: any;
 }) => {
   socket.on("cancel-friend", (userName: string) => {
-    console.log("cancel-friend");
     setFriendRequestList(
       friendRequestList.filter(
         (friend: IFriendRequest) => friend.userName !== userName
@@ -109,7 +106,6 @@ export const listenRequestFriend = ({
   socket.on(
     "request-friend",
     ({ userName, profile }: { userName: string; profile: string }) => {
-      console.log(userName, profile);
       setFriendRequestList([
         ...friendRequestList,
         {
@@ -789,18 +785,15 @@ export const listenReceiveDM = ({
   myName,
   joinnedChatList,
   setJoinnedChatList,
-  setCurrentChat,
 }: {
   socket: any;
   myName: string;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
-  setCurrentChat: any;
 }) => {
   socket.on(
     "receive-dm",
     ({ userName, title }: { userName: string; title: string }) => {
-      console.log("hi");
       const temp: IChatDetail = {
         title: title,
         type: 3,

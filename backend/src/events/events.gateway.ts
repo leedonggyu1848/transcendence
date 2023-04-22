@@ -129,7 +129,6 @@ export class EventsGateway
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
     const friends = await this.eventsService.getFriendList(socket.id);
-    console.log(friends);
     socket.emit('friend-list', friends);
   }
 
@@ -231,12 +230,10 @@ export class EventsGateway
         userName: result.receiverName,
       });
       socket.join(result.title);
-      this.nsp.sockets
-        .get(result.receiverSocket)
-        ?.emit('receive-dm', {
-          title: result.title,
-          userName: result.senderName,
-        });
+      this.nsp.sockets.get(result.receiverSocket)?.emit('receive-dm', {
+        title: result.title,
+        userName: result.senderName,
+      });
       this.nsp.sockets.get(result.receiverSocket)?.join(result.title);
     } else {
       socket.emit('chat-fail', result.msg);

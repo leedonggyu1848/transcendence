@@ -54,7 +54,6 @@ const CurrentUserInfo = ({
   };
 
   const clickDeleteFriend = (friendName: string) => {
-    console.log(friendName);
     setConfirmModalState({
       msg: `${friendName}님을 친구목록에서 삭제하시겠습니까?`,
       toggle: true,

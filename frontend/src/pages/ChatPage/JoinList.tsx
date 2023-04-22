@@ -45,8 +45,16 @@ const JoinList = ({
               myName
             )}
           >
-            {data[roomName].title.slice(1, 10)}
-            {data[roomName].title.length > 10 ? "..." : ""}
+            {getRoomNameByType(
+              data[roomName].type,
+              data[roomName].title,
+              myName
+            ).slice(0, 10)}
+            {getRoomNameByType(
+              data[roomName].type,
+              data[roomName].title,
+              myName
+            ).length > 10 ? "..." : ""}
           </Title>
           <LeaveButton
             onClick={(e: React.MouseEvent) => {

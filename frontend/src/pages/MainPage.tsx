@@ -117,8 +117,6 @@ const MainPage = () => {
     friendList,
   };
 
-  console.log(joinnedChatList);
-
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
     if (!getMyInfoFlag) {
@@ -191,7 +189,7 @@ const MainPage = () => {
         "receive-dm"
       );
     };
-  }, [myInfo, joinnedChatList, chatList]);
+  }, [myInfo, joinnedChatList, chatList, friendList, friendRequestList]);
   return (
     token.access_token && (
       <MainPageContainer>

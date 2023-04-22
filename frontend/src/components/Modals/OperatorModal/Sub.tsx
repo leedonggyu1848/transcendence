@@ -18,7 +18,6 @@ const Sub = () => {
   );
 
   const handleCancelUserBan = (username: string) => {
-    console.log(username);
     socket.emit("ban-cancel", { roomName: currentChat, user: username });
   };
 
