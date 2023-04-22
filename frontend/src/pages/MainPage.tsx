@@ -42,6 +42,7 @@ import { IFriendDto, IFriendRequest } from "../api/interface";
 import {
   chatSocketOff,
   listenAlert,
+  listenBanCancel,
   listenBanUser,
   listenCancelFriend,
   listenChangeOperator,
@@ -146,6 +147,7 @@ const MainPage = () => {
     listenAlert(hooks);
     listenKickUser(hooks);
     listenBanUser(hooks);
+    listenBanCancel(hooks);
     listenSendDM(hooks);
     listenReceiveDM(hooks);
     listenChangeOperator(hooks);
@@ -183,6 +185,7 @@ const MainPage = () => {
         "chat-fail",
         "kick-user",
         "ban-user",
+        "ban-cancel",
         "send-dm",
         "receive-dm",
         "chat-operator"

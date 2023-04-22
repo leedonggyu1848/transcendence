@@ -17,62 +17,30 @@ const Sub = () => {
     banUserRequestFlagState
   );
 
-  const handleCancelUserBan = (username: string) => {
-    socket.emit("ban-cancel", { roomName: currentChat, user: username });
+  const handleCancelUserBan = (userName: string) => {
+    socket.emit("ban-cancel", { roomName: currentChat, userName });
   };
 
-  useEffect(() => {
-    if (!requestBanListFlag) {
-      socket.emit("ban-list", currentChat);
-      setRequestBanListFlag(true);
-    }
+  //useEffect(() => {
+  //  if (!requestBanListFlag) {
+  //    socket.emit("ban-list", currentChat);
+  //    setRequestBanListFlag(true);
+  //  }
 
-    socket.on("ban-list", (users: string[]) => {
-      setJoinnedChat({
-        ...joinnedChat,
-        [currentChat]: {
-          ...joinnedChat[currentChat],
-          banUsers: [...users],
-        },
-      });
-    });
+  //  socket.on("ban-list", (users: string[]) => {
+  //    setJoinnedChat({
+  //      ...joinnedChat,
+  //      [currentChat]: {
+  //        ...joinnedChat[currentChat],
+  //        banUsers: [...users],
+  //      },
+  //    });
+  //  });
 
-    socket.on(
-      "ban-user",
-      ({ userName, roomName }: { userName: string; roomName: string }) => {
-        setJoinnedChat({
-          ...joinnedChat,
-          [roomName]: {
-            ...joinnedChat[roomName],
-            userList: joinnedChat[roomName].userList.filter(
-              (name) => name !== userName
-            ),
-            banUsers: [...joinnedChat[roomName].banUsers, userName],
-          },
-        });
-      }
-    );
-
-    socket.on(
-      "ban-cancel",
-      ({ roomName, user }: { roomName: string; user: string }) => {
-        setJoinnedChat({
-          ...joinnedChat,
-          [roomName]: {
-            ...joinnedChat[roomName],
-            banUsers: joinnedChat[roomName].banUsers.filter(
-              (name) => name !== user
-            ),
-          },
-        });
-      }
-    );
-    return () => {
-      socket.off("ban-list");
-      socket.off("ban-user");
-      socket.off("ban-cancel");
-    };
-  }, [joinnedChat]);
+  //  return () => {
+  //    socket.off("ban-list");
+  //  };
+  //}, [joinnedChat]);
 
   return (
     <SubContainer>

@@ -702,28 +702,24 @@ export const listenBanUser = ({
         setJoinnedChatList({ ...temp });
       }
       if (userName !== myName) {
-        if (currentChat === roomName) {
-          setJoinnedChatList({
-            ...joinnedChatList,
-            [roomName]: {
-              ...joinnedChatList[roomName],
-              userList: joinnedChatList[roomName].userList.filter(
-                (name) => name !== userName
-              ),
-              banUsers: joinnedChatList[roomName].banUsers.filter(
-                (name) => name !== userName
-              ),
-              chatLogs: [
-                ...joinnedChatList[roomName].chatLogs,
-                {
-                  sender: "admin",
-                  msg: `${userName}님의 입장이 금지 되었습니다.`,
-                  time: new Date(),
-                },
-              ],
-            },
-          });
-        }
+        setJoinnedChatList({
+          ...joinnedChatList,
+          [roomName]: {
+            ...joinnedChatList[roomName],
+            userList: joinnedChatList[roomName].userList.filter(
+              (name) => name !== userName
+            ),
+            banUsers: [...joinnedChatList[roomName].banUsers, userName],
+            chatLogs: [
+              ...joinnedChatList[roomName].chatLogs,
+              {
+                sender: "admin",
+                msg: `${userName}님의 입장이 금지 되었습니다.`,
+                time: new Date(),
+              },
+            ],
+          },
+        });
       }
       setChatList(
         chatList.map((chat) => ({
@@ -731,6 +727,52 @@ export const listenBanUser = ({
           count: chat.title === roomName ? chat.count - 1 : chat.count,
         }))
       );
+    }
+  );
+};
+
+export const listenBanCancel = ({
+  socket,
+  myName,
+  currentChat,
+  setCurrentChat,
+  chatList,
+  setChatList,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  myName: string;
+  currentChat: string;
+  setCurrentChat: any;
+  chatList: IChatRoom[];
+  setChatList: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+}) => {
+  socket.on(
+    "ban-cancel",
+    ({ userName, roomName }: { userName: string; roomName: string }) => {
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          userList: joinnedChatList[roomName].userList.filter(
+            (name) => name !== userName
+          ),
+          banUsers: joinnedChatList[roomName].banUsers.filter(
+            (name) => name !== userName
+          ),
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            {
+              sender: "admin",
+              msg: `${userName}님의 입장 금지가 풀렸습니다.`,
+              time: new Date(),
+            },
+          ],
+        },
+      });
     }
   );
 };

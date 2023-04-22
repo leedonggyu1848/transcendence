@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import {} from "react";
 import { useSetRecoilState } from "recoil";
 import { operatorModalToggleState } from "../../../api/atom";
 import ModalBackground from "../../ModalBackground";
