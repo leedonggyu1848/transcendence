@@ -13,34 +13,10 @@ const Sub = () => {
   const socket = useContext(WebsocketContext);
   const currentChat = useRecoilValue(currentChatState);
   const [joinnedChat, setJoinnedChat] = useRecoilState(joinnedChatState);
-  const [requestBanListFlag, setRequestBanListFlag] = useRecoilState(
-    banUserRequestFlagState
-  );
 
   const handleCancelUserBan = (userName: string) => {
     socket.emit("ban-cancel", { roomName: currentChat, userName });
   };
-
-  //useEffect(() => {
-  //  if (!requestBanListFlag) {
-  //    socket.emit("ban-list", currentChat);
-  //    setRequestBanListFlag(true);
-  //  }
-
-  //  socket.on("ban-list", (users: string[]) => {
-  //    setJoinnedChat({
-  //      ...joinnedChat,
-  //      [currentChat]: {
-  //        ...joinnedChat[currentChat],
-  //        banUsers: [...users],
-  //      },
-  //    });
-  //  });
-
-  //  return () => {
-  //    socket.off("ban-list");
-  //  };
-  //}, [joinnedChat]);
 
   return (
     <SubContainer>

@@ -11,6 +11,7 @@ export const listenFirstConnection = ({ socket }: { socket: any }) => {
     socket.emit("friend-request-list");
     socket.emit("friend-list");
     socket.emit("all-chat");
+    socket.emit("block-list");
   });
 };
 
@@ -733,20 +734,10 @@ export const listenBanUser = ({
 
 export const listenBanCancel = ({
   socket,
-  myName,
-  currentChat,
-  setCurrentChat,
-  chatList,
-  setChatList,
   joinnedChatList,
   setJoinnedChatList,
 }: {
   socket: any;
-  myName: string;
-  currentChat: string;
-  setCurrentChat: any;
-  chatList: IChatRoom[];
-  setChatList: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
 }) => {
@@ -871,6 +862,51 @@ export const listenChangeOperator = ({
       });
     }
   );
+};
+
+export const listenBlockList = ({
+  socket,
+  blockList,
+  setBlockList,
+}: {
+  socket: any;
+  blockList: string[];
+  setBlockList: any;
+}) => {
+  socket.on("block-list", (list: string[]) => {
+    console.log("blocklist", list);
+    setBlockList([...list]);
+  });
+};
+
+export const listenBlockUser = ({
+  socket,
+  blockList,
+  setBlockList,
+}: {
+  socket: any;
+  blockList: string[];
+  setBlockList: any;
+}) => {
+  socket.on("block-user", (userName: string) => {
+    console.log("userName : ", userName, "이 블락 되었습니다.");
+    setBlockList([...blockList, userName]);
+  });
+};
+
+export const listenUnBlockUser = ({
+  socket,
+  blockList,
+  setBlockList,
+}: {
+  socket: any;
+  blockList: string[];
+  setBlockList: any;
+}) => {
+  socket.on("block-cancel", (userName: string) => {
+    console.log("userName : ", userName, "이 블락 해제되었습니다.");
+    setBlockList(blockList.filter((name) => name !== userName));
+  });
 };
 
 export function chatSocketOff(socket: any, ...rest: string[]) {

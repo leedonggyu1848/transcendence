@@ -44,7 +44,7 @@ const Message = styled.div`
   margin: 45px;
   font-size: 1.25rem;
   width: 50%;
-  word-break: break-word;
+  word-break: keep-all;
   text-align: center;
   line-height: 50px;
 `;

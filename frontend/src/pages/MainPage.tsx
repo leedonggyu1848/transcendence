@@ -10,6 +10,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   allChatFlagState,
+  blockUserListState,
   chatListState,
   confirmModalToggleState,
   createChatModalToggleState,
@@ -44,6 +45,8 @@ import {
   listenAlert,
   listenBanCancel,
   listenBanUser,
+  listenBlockList,
+  listenBlockUser,
   listenCancelFriend,
   listenChangeOperator,
   listenCheckConnection,
@@ -67,6 +70,7 @@ import {
   listenSendDM,
   listenSomeoneJoinned,
   listenSomeoneLeave,
+  listenUnBlockUser,
 } from "../api/socket/chat-socket";
 import ConfirmModal from "../components/Modals/ConfirmModal";
 
@@ -99,6 +103,7 @@ const MainPage = () => {
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [chatList, setChatList] = useRecoilState(chatListState);
   const confirmModalState = useRecoilValue(confirmModalToggleState);
+  const [blockList, setBlockList] = useRecoilState(blockUserListState);
 
   const hooks: any = {
     socket,
@@ -116,6 +121,8 @@ const MainPage = () => {
     setRequestFriendListFlag,
     friendRequestList,
     friendList,
+    blockList,
+    setBlockList,
   };
 
   useEffect(() => {
@@ -151,6 +158,9 @@ const MainPage = () => {
     listenSendDM(hooks);
     listenReceiveDM(hooks);
     listenChangeOperator(hooks);
+    listenBlockList(hooks);
+    listenBlockUser(hooks);
+    listenUnBlockUser(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -188,7 +198,10 @@ const MainPage = () => {
         "ban-cancel",
         "send-dm",
         "receive-dm",
-        "chat-operator"
+        "chat-operator",
+        "block-list",
+        "block-user",
+        "block-cancel"
       );
     };
   }, [myInfo, joinnedChatList, chatList, friendList, friendRequestList]);

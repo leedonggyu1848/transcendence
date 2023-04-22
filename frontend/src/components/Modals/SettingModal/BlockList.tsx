@@ -1,46 +1,28 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   blockUserListState,
   requestBlockUserListFlagState,
 } from "../../../api/atom";
 import { WebsocketContext } from "../../../api/WebsocketContext";
 
-const data = [
-  "yooh",
-  "jpark2",
-  "yooh",
-  "jpark2",
-  "yooh",
-  "jpark2",
-  "yooh",
-  "jpark2",
-  "yooh",
-  "jpark2",
-  "yooh",
-  "jpark2",
-  "yooh",
-  "jpark2",
-];
-
 const BlockList = () => {
   const socket = useContext(WebsocketContext);
-  const [blockList, setBlockList] = useRecoilState(blockUserListState);
+  const blockList = useRecoilValue(blockUserListState);
   const [requestBlockListFlag, setRequestBlockListFlag] = useRecoilState(
     requestBlockUserListFlagState
   );
   useEffect(() => {
     if (!requestBlockListFlag) {
-      socket.emit('request-block')
+      socket.emit("request-block");
     }
-
   }, []);
   return (
     <BlockListContainer>
       <h1>차단 목록</h1>
       <BlockedUsers>
-        {data.map((name) => (
+        {blockList.map((name) => (
           <BlockedUser key={name}>
             <Name>{name}</Name>
             <Button>해제</Button>

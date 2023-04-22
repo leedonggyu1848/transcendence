@@ -69,6 +69,22 @@ const CurrentUserInfo = ({
     });
   };
 
+  const clickBlockUser = (friendName: string) => {
+    setConfirmModalState({
+      msg: `${friendName}님을 차단하시겠습니까?`,
+      toggle: true,
+      confirmFunc: () => {
+        socket.emit("block-user", friendName);
+        setConfirmModalState({
+          msg: "",
+          toggle: false,
+          confirmFunc: () => {},
+        });
+        closePersonalMenu();
+      },
+    });
+  };
+
   const closePersonalMenu = () => {
     setTarget("");
     setToggle(false);
@@ -109,7 +125,9 @@ const CurrentUserInfo = ({
             {!isFriend && (
               <AddFriendIcon onClick={() => clickFriendRequest(target)} />
             )}
-            {!isFriend && <BlockUserIcon />}
+            {!isFriend && (
+              <BlockUserIcon onClick={() => clickBlockUser(target)} />
+            )}
             <ExitIcon onClick={closePersonalMenu} />
           </div>
         </PersonalMenu>
