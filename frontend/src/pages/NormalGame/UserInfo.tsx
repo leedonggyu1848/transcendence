@@ -2,40 +2,40 @@ import styled from "@emotion/styled";
 
 const UserInfo = ({
   profile,
-  intra_id,
-  normal_win,
-  normal_lose,
-  rank_win,
-  rank_lose,
+  userName,
+  normalWin,
+  normalLose,
+  rankWin,
+  rankLose,
   introduce,
 }: {
   profile: string;
-  intra_id: string;
-  normal_win: number;
-  normal_lose: number;
-  rank_win: number;
-  rank_lose: number;
+  userName: string;
+  normalWin: number;
+  normalLose: number;
+  rankWin: number;
+  rankLose: number;
   introduce: string;
 }) => {
-  const normalRate = (normal_win / (normal_lose + normal_win)) * 100;
-  const rankRate = (rank_win / (rank_lose + rank_win)) * 100;
+  const normalRate = (normalWin / (normalLose + normalWin)) * 100;
+  const rankRate = (rankWin / (rankLose + rankWin)) * 100;
   return (
     <UserInfoContainer>
       <Profile profile={profile} />
       <Info>
-        <div>{intra_id}</div>
+        <div>{userName}</div>
         <div>
           <div>일반 게임</div>
           <div>
-            {normal_win}승 {normal_lose}패{" "}
+            {normalWin}승 {normalLose}패{" "}
             {isNaN(normalRate) ? 0 : normalRate.toFixed(1)}%
           </div>
         </div>
         <div>
           <div>랭크 게임</div>
           <div>
-            {rank_win}승 {rank_lose}패{" "}
-            {isNaN(rankRate) ? 0 : rankRate.toFixed(1)}%
+            {rankWin}승 {rankLose}패 {isNaN(rankRate) ? 0 : rankRate.toFixed(1)}
+            %
           </div>
         </div>
       </Info>

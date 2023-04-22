@@ -20,14 +20,14 @@ export class User {
 
   @Column()
   @NotEquals(null)
-  user_id: number;
+  userId: number;
 
   @Column()
-  socket_id: string;
+  socketId: string;
 
   @Column()
   @NotEquals(null)
-  intra_id: string;
+  userName: string;
 
   @Column()
   profile: string;
@@ -37,31 +37,31 @@ export class User {
 
   @Column()
   @NotEquals(null)
-  normal_win: number;
+  normalWin: number;
 
   @Column()
   @NotEquals(null)
-  normal_lose: number;
+  normalLose: number;
 
   @Column()
   @NotEquals(null)
-  rank_win: number;
+  rankWin: number;
 
   @Column()
   @NotEquals(null)
-  rank_lose: number;
+  rankLose: number;
 
   @ManyToOne(() => Game, (game) => game.players)
-  @JoinColumn({ name: 'play_game_id' })
-  play_game: Game;
+  @JoinColumn({ name: 'playGameId' })
+  playGame: Game;
 
   @ManyToOne(() => Game, (game) => game.watchers)
-  @JoinColumn({ name: 'watch_game_id' })
-  watch_game: Game;
+  @JoinColumn({ name: 'watchGameId' })
+  watchGame: Game;
 
   @Column({ type: 'enum', name: 'join_type', enum: JoinType })
   @NotEquals(null)
-  join_type: JoinType;
+  joinType: JoinType;
 
   @OneToMany(() => Friend, (friend) => friend.user, { cascade: true })
   friends: Friend[];

@@ -15,17 +15,27 @@ const GameList = ({
     <GameListContainer>
       {data.length ? (
         <ListContainer>
-          {data.map(({ title, cur, private_mode, interrupt_mode }, idx) => (
-            <RoomInfo
-              title={title}
-              cur={cur}
-              private_mode={private_mode}
-              interrupt_mode={interrupt_mode}
-              key={idx}
-              clickJoin={clickJoin}
-              clickWatch={clickWatch}
-            />
-          ))}
+          {data.map(
+            (
+              {
+                title,
+                cur,
+                privateMode: private_mode,
+                interruptMode: interrupt_mode,
+              },
+              idx
+            ) => (
+              <RoomInfo
+                title={title}
+                cur={cur}
+                private_mode={private_mode}
+                interrupt_mode={interrupt_mode}
+                key={idx}
+                clickJoin={clickJoin}
+                clickWatch={clickWatch}
+              />
+            )
+          )}
         </ListContainer>
       ) : (
         <NoGame>열려 있는 게임이 없습니다.</NoGame>

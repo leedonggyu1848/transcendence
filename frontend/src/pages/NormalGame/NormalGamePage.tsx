@@ -86,7 +86,7 @@ const NormalGamePage = () => {
   };
 
   useEffect(() => {
-    if (gameInfo.ownerDto.intra_id === myName) {
+    if (gameInfo.ownerDto.userName === myName) {
       socket.emit("create-game", gameInfo.gameDto.title);
     } else {
       if (!firstJoin) {
@@ -125,11 +125,11 @@ const NormalGamePage = () => {
     socket.on(
       "leave-game",
       ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
-        if (userInfo.intra_id === gameInfo.ownerDto.intra_id) {
+        if (userInfo.userName === gameInfo.ownerDto.userName) {
           navigate("/main/lobby");
         } else if (
           gameInfo.opponentDto &&
-          userInfo.intra_id === gameInfo.opponentDto.intra_id
+          userInfo.userName === gameInfo.opponentDto.userName
         ) {
           setChatLogs([
             ...chatLogs,
@@ -144,7 +144,7 @@ const NormalGamePage = () => {
           setGameInfo({
             ...gameInfo,
             watchersDto: gameInfo.watchersDto.filter(
-              (watcher) => watcher.intra_id !== userInfo.intra_id
+              (watcher) => watcher.intra_id !== userInfo.userName
             ),
           });
         }
@@ -178,9 +178,9 @@ const NormalGamePage = () => {
         {start && (
           <PongGame
             roomName={gameInfo.gameDto.title}
-            isOwner={gameInfo.ownerDto.intra_id === myName}
-            owner={gameInfo.ownerDto.intra_id}
-            opponent={gameInfo.opponentDto?.intra_id || ""}
+            isOwner={gameInfo.ownerDto.userName === myName}
+            owner={gameInfo.ownerDto.userName}
+            opponent={gameInfo.opponentDto?.userName || ""}
             type="normal"
             resetGame={setStart}
             setCount={setCount}
@@ -194,7 +194,7 @@ const NormalGamePage = () => {
           {" "}
           <Button
             className={
-              myName === gameInfo.ownerDto.intra_id ? "active" : "notActive"
+              myName === gameInfo.ownerDto.userName ? "active" : "notActive"
             }
             onClick={clickStart}
           >

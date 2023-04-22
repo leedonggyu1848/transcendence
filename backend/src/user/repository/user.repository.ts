@@ -11,18 +11,18 @@ export class UserRepository implements IUserRepository {
     private userRepository: Repository<User>,
   ) {}
 
-  async createUser(user_id: number, intra_id: string) {
+  async createUser(userId: number, userName: string) {
     await this.userRepository.save({
-      user_id: user_id,
-      intra_id: intra_id,
-      socket_id: '',
+      userId: userId,
+      userName: userName,
+      socketId: '',
       profile: '',
       introduce: '',
-      normal_win: 0,
-      normal_lose: 0,
-      rank_win: 0,
-      rank_lose: 0,
-      join_type: JoinType.NONE,
+      normalWin: 0,
+      normalLose: 0,
+      rankWin: 0,
+      rankLose: 0,
+      joinType: JoinType.NONE,
     });
   }
 
@@ -30,133 +30,144 @@ export class UserRepository implements IUserRepository {
     return await this.userRepository.find();
   }
 
-  async findByIntraId(intra_id: string) {
-    return await this.userRepository.findOneBy({ intra_id: intra_id });
+  async findByUserId(userId: number) {
+    return await this.userRepository.findOneBy({ userId: userId });
   }
 
-  async findByIntraIdWithJoinGame(intra_id: string) {
+  async findByUserIdWithJoinGame(userId: number) {
     return await this.userRepository.findOne({
-      where: { intra_id: intra_id },
-      relations: ['play_game', 'watch_game'],
+      where: { userId: userId },
+      relations: ['playGame', 'watchGame'],
     });
   }
 
-  async findByIntraIdWithJoinChat(intra_id: string) {
+  async findByUserName(userName: string) {
+    return await this.userRepository.findOneBy({ userName: userName });
+  }
+
+  async findByUserNameWithJoinGame(userName: string) {
     return await this.userRepository.findOne({
-      where: { intra_id: intra_id },
+      where: { userName: userName },
+      relations: ['playGame', 'watchGame'],
+    });
+  }
+
+  async findByUserNameWithJoinChat(userName: string) {
+    return await this.userRepository.findOne({
+      where: { userName: userName },
       relations: ['chats', 'chats.chat'],
     });
   }
 
-  async findByIntraIdWithJoinAll(intra_id: string) {
+  async findByUserNameWithJoinAll(userName: string) {
     return await this.userRepository.findOne({
-      where: { intra_id: intra_id },
-      relations: ['chats', 'chats.chat', 'play_game', 'watch_game'],
+      where: { userName: userName },
+      relations: ['chats', 'chats.chat', 'playGame', 'watchGame'],
     });
   }
 
-  async findByIntraIdWithJoinFriend(intra_id: string) {
+  async findByUserNameWithJoinFriend(userName: string) {
     return await this.userRepository.findOne({
-      where: { intra_id: intra_id },
+      where: { userName: userName },
       relations: ['friends', 'friends.user'],
     });
   }
 
-  async findByIntraIdWithJoinBlock(intra_id: string) {
+  async findByUserNameWithJoinBlock(userName: string) {
     return await this.userRepository.findOne({
-      where: { intra_id: intra_id },
+      where: { userName: userName },
       relations: ['blockUsers'],
     });
   }
 
-  async findBySocketId(socket_id: string) {
-    return await this.userRepository.findOneBy({ socket_id: socket_id });
+  async findBySocketId(socketId: string) {
+    return await this.userRepository.findOneBy({ socketId: socketId });
   }
 
-  async findBySocketIdWithJoinGame(socket_id: string) {
+  async findBySocketIdWithJoinGame(socketId: string) {
     return await this.userRepository.findOne({
-      where: { socket_id: socket_id },
-      relations: ['play_game', 'watch_game'],
+      where: { socketId: socketId },
+      relations: ['playGame', 'watchGame'],
     });
   }
 
-  async findBySocketIdWithJoinChat(socket_id: string) {
+  async findBySocketIdWithJoinChat(socketId: string) {
     return await this.userRepository.findOne({
-      where: { socket_id: socket_id },
+      where: { socketId: socketId },
       relations: ['chats', 'chats.chat', 'chats.user'],
     });
   }
 
-  async findBySocketIdWithJoinAll(socket_id: string) {
+  async findBySocketIdWithJoinAll(socketId: string) {
     return await this.userRepository.findOne({
-      where: { socket_id: socket_id },
-      relations: ['chats', 'chats.chat', 'play_game', 'watch_game'],
+      where: { socketId: socketId },
+      relations: ['chats', 'chats.chat', 'playGame', 'watchGame'],
     });
   }
 
-  async findBySocketIdWithJoinFriend(socket_id: string) {
+  async findBySocketIdWithJoinFriend(socketId: string) {
     return await this.userRepository.findOne({
-      where: { socket_id: socket_id },
+      where: { socketId: socketId },
       relations: ['friends', 'friends.user'],
     });
   }
 
-  async findBySocketIdWithJoinBlock(socket_id: string) {
+  async findBySocketIdWithJoinBlock(socketId: string) {
     return await this.userRepository.findOne({
-      where: { socket_id: socket_id },
+      where: { socketId: socketId },
       relations: ['banUsers'],
     });
   }
 
-  async updateSocketId(id: number, socket_id: string) {
+  async updateSocketId(id: number, socketId: string) {
     await this.userRepository.update(id, {
-      socket_id: socket_id,
+      socketId: socketId,
     });
   }
 
   async updateOwnGame(id: number, game: Game) {
     await this.userRepository.update(id, {
-      play_game: game,
-      join_type: JoinType.OWNER,
+      playGame: game,
+      joinType: JoinType.OWNER,
     });
   }
 
   async updatePlayGame(id: number, game: Game) {
     await this.userRepository.update(id, {
-      play_game: game,
-      join_type: JoinType.PLAYER,
+      playGame: game,
+      joinType: JoinType.PLAYER,
     });
   }
 
   async updateWatchGame(id: number, game: Game) {
     await this.userRepository.update(id, {
-      watch_game: game,
-      join_type: JoinType.WATCHER,
+      watchGame: game,
+      joinType: JoinType.WATCHER,
     });
   }
 
   async updateGameNone(id: number) {
     await this.userRepository.update(id, {
-      play_game: null,
-      watch_game: null,
-      join_type: JoinType.NONE,
+      playGame: null,
+      watchGame: null,
+      joinType: JoinType.NONE,
     });
   }
 
   async updateNormalWin(id: number, win: number) {
-    await this.userRepository.update(id, { normal_win: win + 1 });
+    await this.userRepository.update(id, { normalWin: win + 1 });
   }
 
   async updateNormalLose(id: number, lose: number) {
-    await this.userRepository.update(id, { normal_lose: lose + 1 });
+    await this.userRepository.update(id, { normalLose: lose + 1 });
   }
 
   async updateRankWin(id: number, win: number) {
-    await this.userRepository.update(id, { rank_win: win + 1 });
+    await this.userRepository.update(id, { rankWin: win + 1 });
   }
 
   async updateRankLose(id: number, lose: number) {
-    await this.userRepository.update(id, { rank_lose: lose + 1 });
+    await this.userRepository.update(id, { rankLose: lose + 1 });
   }
 
   async updateProfileImage(id: number, filename: string) {

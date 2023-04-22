@@ -10,8 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { UserDto } from 'src/dto/user.dto';
-import { ChatType } from 'src/entity/common.enum';
+import { CreateChatPayload, MessagePayload } from './events.payload';
 import { EventsService } from './events.service';
 
 @WebSocketGateway({
@@ -29,66 +28,65 @@ export class EventsGateway
   @WebSocketServer() nsp: Namespace;
 
   afterInit() {
-    this.logger.log('웹소켓 서버 초기화');
+    this.logger.log('AfterInit');
   }
 
   handleConnection(@ConnectedSocket() socket: Socket) {
-    this.logger.log(`${socket.id} 소켓 연결`);
+    this.logger.log(`[Connection] socketId: ${socket.id}`);
   }
 
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[Disconnect] socketId: ${socket.id}`);
     await this.eventsService.disconnect(socket.id);
-    this.logger.log(`${socket.id} 소켓 연결 해제`);
   }
 
   @SubscribeMessage('first-connection')
   async handleSocketConnect(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() intra_id: string,
+    @MessageBody() userName: string,
   ) {
-    this.logger.log(`connect ${socket.id} to ${intra_id}`);
-    await this.eventsService.registUser(intra_id, socket.id);
+    this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
+    await this.eventsService.registUser(userName, socket.id);
     socket.emit('first-connection');
-    socket.broadcast.emit('connect-user', `${intra_id}가 접속했습니다.`);
+    socket.broadcast.emit('connect-user', `${userName}가 접속했습니다.`);
   }
 
   @SubscribeMessage('check-connection')
-  async handleCheckConnect(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() userName: string,
-  ) {
-    const isConnect = await this.eventsService.isConnect(userName);
-    socket.emit('check-connection', { userName, isConnect });
+  async handleCheckConnect(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[CheckConnect] socketId: ${socket.id}`);
+    const isConnect = await this.eventsService.isConnect(socket.id);
+    socket.emit('check-connection', isConnect);
   }
 
   @SubscribeMessage('message')
   handleMessage(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    {
-      roomName,
-      userName,
-      message,
-    }: { roomName: string; userName: string; message: string },
+    { roomName, userName, message }: MessagePayload,
   ) {
-    this.logger.log(`${roomName} message => ${userName}: ${message}`);
+    this.logger.log(
+      `Message`,
+      `roomName: ${roomName},`,
+      `userName: ${userName},`,
+      `message: ${message}`,
+    );
     socket.broadcast
       .to(roomName)
       .emit('message', { userName, roomName, message });
   }
 
   @SubscribeMessage('create-game')
-  async handleCreateGame(
+  handleCreateGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
+    this.logger.log(`[CreateGame] roomName: ${roomName}`);
     if (this.nsp.adapter.rooms.has(roomName)) {
-      this.logger.log(`fail: ${roomName} 방이 이미 존재합니다.`);
       return;
     }
     socket.join(roomName);
     this.nsp.emit('create-game', roomName);
-    this.logger.log(`${roomName} 생성 완료`);
+    this.logger.log(`게임 ${roomName} 생성 성공`);
   }
 
   @SubscribeMessage('join-game')
@@ -96,14 +94,14 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, type }: { roomName: string; type: string },
   ) {
+    this.logger.log(`[JoinGame] roomName: ${roomName}, type: ${type}`);
     const user = await this.eventsService.getUserDtoFromSocketId(socket.id);
     socket.join(roomName);
     socket.broadcast.to(roomName).emit('join-game', {
-      message: `${user.intra_id}가 들어왔습니다.`,
+      message: `${user.userName}가 들어왔습니다.`,
       userInfo: user,
       type: type,
     });
-    this.logger.log(`${user.intra_id}가 ${roomName}에 참가했습니다.`);
   }
 
   @SubscribeMessage('leave-game')
@@ -111,11 +109,11 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomName, type }: { roomName: string; type: string },
   ) {
+    this.logger.log(`[LeaveGame] roomName: ${roomName}, type: ${type}`);
     const user = await this.eventsService.getUserDtoFromSocketId(socket.id);
-    this.logger.log(`${user.intra_id} leave game ${roomName} as ${type}`);
     socket.leave(roomName);
     socket.broadcast.to(roomName).emit('leave-game', {
-      message: `${user.intra_id}가 나갔습니다.`,
+      message: `${user.userName}가 나갔습니다.`,
       userInfo: user,
       type: type,
     });
@@ -123,14 +121,14 @@ export class EventsGateway
 
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
-    this.logger.log(`친구 목록 조회`);
+    this.logger.log(`[FriendList]`);
     const friends = await this.eventsService.getFriendList(socket.id);
     socket.emit('friend-list', friends);
   }
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
-    this.logger.log(`친구 요청 목록 조회`);
+    this.logger.log(`[FriendRequestList]`);
     const requests = await this.eventsService.getFriendRequestList(socket.id);
     socket.emit('friend-request-list', requests);
   }
@@ -140,6 +138,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
   ) {
+    this.logger.log(`[FriendRequest] friendName: ${friendName}`);
     const result = await this.eventsService.friendRequest(
       socket.id,
       friendName,
@@ -152,12 +151,11 @@ export class EventsGateway
         profile: friend.profile,
       });
       socket
-        .to(friend.socket_id)
-        .emit('new-friend', { username: user.intra_id, profile: user.profile });
+        .to(friend.socketId)
+        .emit('new-friend', { username: user.userName, profile: user.profile });
     } else {
       socket.emit('friend-fail', result.msg);
     }
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('response-friend')
@@ -165,6 +163,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() { friendName, type }: { friendName: string; type: boolean },
   ) {
+    this.logger.log(`[AcceptFriend] friendName: ${friendName}, type: ${type}`);
     const result = await this.eventsService.friendResponse(
       socket.id,
       friendName,
@@ -176,7 +175,6 @@ export class EventsGateway
     } else {
       socket.emit('friend-fail', result.msg);
     }
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('cancel-friend')
@@ -184,6 +182,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
   ) {
+    this.logger.log(`[CancelFriend] friendName: ${friendName}`);
     const result = await this.eventsService.cancelFriend(socket.id, friendName);
     if (result.success) {
       socket.emit('cancel-friend', { userName: friendName });
@@ -193,7 +192,6 @@ export class EventsGateway
     } else {
       socket.emit('friend-fail', result.msg);
     }
-    this.logger.log(`${result.username} -> ${friendName} 친구 요청 취소`);
   }
 
   @SubscribeMessage('delete-friend')
@@ -201,6 +199,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() friendName: string,
   ) {
+    this.logger.log(`DeleteFriend / friendName: ${friendName}`);
     const result = await this.eventsService.deleteFriend(socket.id, friendName);
     if (result.success) {
       socket.emit('delete-friend', { userName: friendName });
@@ -210,19 +209,17 @@ export class EventsGateway
     } else {
       socket.emit('friend-fail', result.msg);
     }
-    this.logger.log(`${result.username} <-> ${friendName} 친구 삭제 `);
   }
 
   @SubscribeMessage('create-chat')
   async handleCreateChat(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    {
-      roomName,
-      type,
-      password,
-    }: { roomName: string; type: ChatType; password: string },
+    { roomName, type, password }: CreateChatPayload,
   ) {
+    this.logger.log(
+      `[CreateChat] roomName: ${roomName}, type: ${type}, password: ${password}`,
+    );
     const result = await this.eventsService.creatChat(
       socket.id,
       roomName,
@@ -236,18 +233,15 @@ export class EventsGateway
     } else {
       socket.emit('chat-fail', result.msg);
     }
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('join-chat')
   async handleJoinChat(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    {
-      roomName,
-      password,
-    }: { roomName: string; password: string; type: number; operator: string },
+    { roomName, password }: { roomName: string; password: string },
   ) {
+    this.logger.log(`[JoinChat] roomName: ${roomName}, password: ${password}`);
     const result = await this.eventsService.joinChat(
       socket.id,
       roomName,
@@ -272,6 +266,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
+    this.logger.log(`[LeaveChat] roomName: ${roomName}`);
     const result = await this.eventsService.leaveChat(socket.id, roomName);
     if (result.success) {
       socket.leave(roomName);
@@ -289,15 +284,15 @@ export class EventsGateway
 
   @SubscribeMessage('all-chat')
   async handleAllChatList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[AllChatList]`);
     const data = await this.eventsService.getAllChatList(socket.id);
-    this.logger.log(`All chat request: ${data.user}`);
     socket.emit('all-chat', { chats: data.chats });
   }
 
   @SubscribeMessage('chat-list')
   async handleChatList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[ChatList]`);
     const data = await this.eventsService.getChatList(socket.id);
-    this.logger.log(`Chat list request: ${data.user}`);
     socket.emit('chat-list', { chats: data.chats });
   }
 
@@ -306,16 +301,18 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
+    this.logger.log(`[UserList] roomName: ${roomName}`);
     const data = await this.eventsService.getUserList(socket.id, roomName);
-    this.logger.log(`Users of ${roomName} request: ${data.user}`);
     socket.emit('user-list', { users: data.users });
   }
 
   @SubscribeMessage('kick-user')
   async handleKickUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, userName },
+    @MessageBody()
+    { roomName, userName }: { roomName: string; userName: string },
   ) {
+    this.logger.log(`[KickUser] roomName: ${roomName}, userName: ${userName}`);
     const result = await this.eventsService.kickUser(
       socket.id,
       roomName,
@@ -328,15 +325,15 @@ export class EventsGateway
     } else {
       socket.emit('chat-fail', result.msg);
     }
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('mute-user')
-  async handleMute(
+  async handleMuteUser(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, userName }: { roomName: string; userName: string },
   ) {
+    this.logger.log(`[MuteUser] roomName: ${roomName}, userName: ${userName}`);
     const result = await this.eventsService.muteUser(
       socket.id,
       roomName,
@@ -354,6 +351,9 @@ export class EventsGateway
     @MessageBody()
     { roomName, password }: { roomName: string; password: string },
   ) {
+    this.logger.log(
+      `[ChatChangePassword] roomName: ${roomName}, password: ${password}`,
+    );
     const result = await this.eventsService.changePassword(
       socket.id,
       roomName,
@@ -361,7 +361,6 @@ export class EventsGateway
     );
     if (result.success) socket.emit('chat-password', result.msg);
     else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('chat-operator')
@@ -370,6 +369,9 @@ export class EventsGateway
     @MessageBody()
     { roomName, operator }: { roomName: string; operator: string },
   ) {
+    this.logger.log(
+      `[ChatChangeOperator] roomName: ${roomName}, operator: ${operator}`,
+    );
     const result = await this.eventsService.changeOperator(
       socket.id,
       roomName,
@@ -378,7 +380,6 @@ export class EventsGateway
     if (result.success)
       this.nsp.to(roomName).emit('chat-operator', result.data);
     else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('ban-user')
@@ -387,12 +388,12 @@ export class EventsGateway
     @MessageBody()
     { roomName, userName }: { roomName: string; userName: string },
   ) {
+    this.logger.log(`[BanUser] roomName: ${roomName}, userName: ${userName}`);
     const banResult = await this.eventsService.banUser(
       socket.id,
       roomName,
       userName,
     );
-    let message = banResult.msg;
     if (banResult.success) {
       const kickResult = await this.eventsService.kickUser(
         socket.id,
@@ -405,18 +406,17 @@ export class EventsGateway
         await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
       } else {
         socket.emit('chat-fail', kickResult.msg);
-        message = kickResult.msg;
       }
     } else socket.emit('chat-fail', banResult.msg);
-    this.logger.log(message);
   }
 
   @SubscribeMessage('ban-cancel')
-  async handleCancelUserBan(
+  async handleBanCancel(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, userName }: { roomName: string; userName: string },
   ) {
+    this.logger.log(`[BanCancel] roomName: ${roomName}, userName: ${userName}`);
     const result = await this.eventsService.banCancel(
       socket.id,
       roomName,
@@ -424,7 +424,6 @@ export class EventsGateway
     );
     if (result.success) socket.emit('ban-cancel', { roomName, userName });
     else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('ban-list')
@@ -432,14 +431,15 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
+    this.logger.log(`[BanList] roomName: ${roomName}`);
     const result = await this.eventsService.getBanList(socket.id, roomName);
     if (result.success) socket.emit('ban-list', result.data);
     else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('block-list')
   async handleBlockList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[BlockList]`);
     const result = await this.eventsService.getBlockList(socket.id);
     socket.emit('block-list', result);
   }
@@ -449,6 +449,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() userName: string,
   ) {
+    this.logger.log(`[BlockUser] userName: ${userName}`);
     const result = await this.eventsService.blockUser(socket.id, userName);
     if (result.success) socket.emit('block-user', userName);
     else socket.emit('chat-fail', result.msg);
@@ -460,6 +461,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() userName: string,
   ) {
+    this.logger.log(`[BlockCancel] userName: ${userName}`);
     const result = await this.eventsService.blockCancel(socket.id, userName);
     if (result.success) socket.emit('block-cancel', userName);
     else socket.emit('chat-fail', result.msg);
@@ -471,7 +473,7 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomName: string,
   ) {
-    this.logger.log(`${roomName} Game Start`);
+    this.logger.log(`[StartGame] roomName: ${roomName}`);
     socket.broadcast.to(roomName).emit('start-game');
     const result = await this.eventsService.gameAlert(
       roomName,
@@ -510,11 +512,12 @@ export class EventsGateway
   }
 
   @SubscribeMessage('normal-game-over')
-  async handleNormalGameOver(
+  async handleGameOver(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, winner }: { roomName: string; winner: string },
   ) {
+    this.logger.log(`[GameOver] roomName: ${roomName}, winner: ${winner}`);
     socket.broadcast.to(roomName).emit('normal-game-over', { winner });
     const result = await this.eventsService.gameAlert(
       roomName,

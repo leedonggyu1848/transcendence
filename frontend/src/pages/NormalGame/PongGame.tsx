@@ -151,17 +151,17 @@ const PongGame = ({
                 ...gameInfo,
                 ownerDto: {
                   ...gameInfo.ownerDto,
-                  normal_win: gameInfo.ownerDto.normal_win + 1,
+                  normalWin: gameInfo.ownerDto.normalWin + 1,
                 },
                 opponentDto: {
                   ...gameInfo.opponentDto,
-                  normal_lose: gameInfo.opponentDto.normal_lose + 1,
+                  normalLose: gameInfo.opponentDto.normalLose + 1,
                 },
               });
             }
             socket.emit("normal-game-over", {
               roomName,
-              winner: gameInfo.ownerDto.intra_id,
+              winner: gameInfo.ownerDto.userName,
             });
             setCount(4);
             resetGame(false);
@@ -201,16 +201,16 @@ const PongGame = ({
                 ...gameInfo,
                 ownerDto: {
                   ...gameInfo.ownerDto,
-                  normal_lose: gameInfo.ownerDto.normal_lose + 1,
+                  normalLose: gameInfo.ownerDto.normalLose + 1,
                 },
                 opponentDto: {
                   ...gameInfo.opponentDto,
-                  normal_win: gameInfo.opponentDto.normal_win + 1,
+                  normalWin: gameInfo.opponentDto.normalWin + 1,
                 },
               });
               socket.emit("normal-game-over", {
                 roomName,
-                winner: gameInfo.opponentDto.intra_id,
+                winner: gameInfo.opponentDto.userName,
               });
               setCount(4);
               resetGame(false);
@@ -352,14 +352,14 @@ const PongGame = ({
     });
 
     socket.on("normal-game-over", ({ winner }) => {
-      if (myName === gameInfo.opponentDto?.intra_id) {
+      if (myName === gameInfo.opponentDto?.userName) {
         setAlertInfo({
           type: winner === myName ? "success" : "failure",
           header: winner === myName ? "Victory!" : "Lose...",
           msg:
             winner === myName
-              ? `${gameInfo.ownerDto.intra_id}님을 이겼습니다!`
-              : `${gameInfo.ownerDto.intra_id}님에게 졌습니다...!`,
+              ? `${gameInfo.ownerDto.userName}님을 이겼습니다!`
+              : `${gameInfo.ownerDto.userName}님에게 졌습니다...!`,
           toggle: true,
         });
       } else {
@@ -371,16 +371,16 @@ const PongGame = ({
         });
       }
       if (gameInfo.opponentDto) {
-        if (winner === gameInfo.ownerDto.intra_id) {
+        if (winner === gameInfo.ownerDto.userName) {
           setGameInfo({
             ...gameInfo,
             ownerDto: {
               ...gameInfo.ownerDto,
-              normal_win: gameInfo.ownerDto.normal_win + 1,
+              normalWin: gameInfo.ownerDto.normalWin + 1,
             },
             opponentDto: {
               ...gameInfo.opponentDto,
-              normal_lose: gameInfo.opponentDto.normal_lose + 1,
+              normalLose: gameInfo.opponentDto.normalLose + 1,
             },
           });
         } else {
@@ -388,11 +388,11 @@ const PongGame = ({
             ...gameInfo,
             ownerDto: {
               ...gameInfo.ownerDto,
-              normal_lose: gameInfo.ownerDto.normal_lose + 1,
+              normalLose: gameInfo.ownerDto.normalLose + 1,
             },
             opponentDto: {
               ...gameInfo.opponentDto,
-              normal_win: gameInfo.opponentDto.normal_win + 1,
+              normalWin: gameInfo.opponentDto.normalWin + 1,
             },
           });
         }

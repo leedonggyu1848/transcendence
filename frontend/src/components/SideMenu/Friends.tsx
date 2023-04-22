@@ -28,11 +28,11 @@ const Friends = ({ w }: { w: number }) => {
             {friendsList.map((friend, idx) => (
               <FriendInfo key={idx}>
                 <Profile src={friend.profile} />
-                <div className="name">{friend.intra_id}</div>
+                <div className="name">{friend.userName}</div>
                 <div className="buttonContainer">
                   <Message />
                   <Game />
-                  <Delete onClick={() => handleDeleteFriend(friend.intra_id)} />
+                  <Delete onClick={() => handleDeleteFriend(friend.userName)} />
                 </div>
               </FriendInfo>
             ))}

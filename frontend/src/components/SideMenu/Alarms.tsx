@@ -34,39 +34,41 @@ const Alarm = ({ w }: { w: number }) => {
         <Header>Alarms</Header>
         {friendRequestList.length > 0 ? (
           <AlarmList>
-            {friendRequestList.map(({ intra_id, time, type }, idx) => (
-              <FriendRequest key={idx}>
-                <Container>
-                  <div>
-                    <Icon type={type ? "recv" : "send"} />
-                    <Name>{intra_id}</Name>
-                  </div>
-                  {type ? (
+            {friendRequestList.map(
+              ({ userName: intra_id, time, type }, idx) => (
+                <FriendRequest key={idx}>
+                  <Container>
                     <div>
-                      <Button
-                        className="margin"
-                        onClick={() => acceptFriendRequest(intra_id)}
-                      >
-                        수락
-                      </Button>
-                      <Button onClick={() => refuseFriendRequest(intra_id)}>
-                        거절
-                      </Button>
+                      <Icon type={type ? "recv" : "send"} />
+                      <Name>{intra_id}</Name>
                     </div>
-                  ) : (
-                    <div>
-                      <Button onClick={() => cancelFriendRequest(intra_id)}>
-                        취소
-                      </Button>
-                    </div>
-                  )}
-                </Container>
-                <Container className="time">
-                  <div />
-                  <div>{convertDate(new Date(time))}</div>
-                </Container>
-              </FriendRequest>
-            ))}
+                    {type ? (
+                      <div>
+                        <Button
+                          className="margin"
+                          onClick={() => acceptFriendRequest(intra_id)}
+                        >
+                          수락
+                        </Button>
+                        <Button onClick={() => refuseFriendRequest(intra_id)}>
+                          거절
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <Button onClick={() => cancelFriendRequest(intra_id)}>
+                          취소
+                        </Button>
+                      </div>
+                    )}
+                  </Container>
+                  <Container className="time">
+                    <div />
+                    <div>{convertDate(new Date(time))}</div>
+                  </Container>
+                </FriendRequest>
+              )
+            )}
           </AlarmList>
         ) : (
           <NoFriends>

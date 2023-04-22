@@ -21,14 +21,14 @@ const { persistAtom } = recoilPersist();
 export const myInfoState = atom<UserDto>({
   key: "myInfoState",
   default: {
-    user_id: 15,
-    intra_id: "yooh",
+    userId: 15,
+    userName: "yooh",
     profile: "",
     introduce: "",
-    normal_win: 1000,
-    normal_lose: 500,
-    rank_win: 17,
-    rank_lose: 2,
+    normalWin: 1000,
+    normalLose: 500,
+    rankWin: 17,
+    rankLose: 2,
   },
   effects_UNSTABLE: [persistAtom],
 });
@@ -51,7 +51,7 @@ export const myNameState = selector({
   key: "myNameState",
   get: ({ get }) => {
     const myInfo = get(myInfoState);
-    return myInfo.intra_id;
+    return myInfo.userName;
   },
 });
 
@@ -87,15 +87,15 @@ export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
     opponentDto: null,
     ownerDto: {
       id: 4,
-      intra_id: "jpark2",
+      userName: "jpark2",
       introduce: "",
-      join_type: 0,
-      normal_lose: 0,
-      normal_win: 0,
+      joinType: 0,
+      normalLose: 0,
+      normalWin: 0,
       profile: "",
-      rank_lose: 0,
-      rank_win: 0,
-      user_id: 131546,
+      rankLose: 0,
+      rankWin: 0,
+      userId: 131546,
     },
     watchersDto: [],
   },
@@ -106,9 +106,9 @@ export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
   get: ({ get }) => {
     const data = get(currentNormalGameInfoState);
     const result = [];
-    result.push({ type: "owner", intra_id: data.ownerDto.intra_id });
+    result.push({ type: "owner", intra_id: data.ownerDto.userName });
     if (data.opponentDto)
-      result.push({ type: "opponent", intra_id: data.opponentDto.intra_id });
+      result.push({ type: "opponent", intra_id: data.opponentDto.userName });
     data.watchersDto.forEach((person) => {
       result.push({ type: "watcher", intra_id: person.intra_id });
     });
@@ -128,7 +128,7 @@ export const opponentInfoState = selector<IGameUserInfo | null>({
     const myName = get(myNameState);
 
     if (!opponentDto) return null;
-    return opponentDto.intra_id === myName ? ownerDto : opponentDto;
+    return opponentDto.userName === myName ? ownerDto : opponentDto;
   },
 });
 
@@ -139,8 +139,8 @@ export const isWatcherState = selector({
     const gameInfo = get(currentNormalGameInfoState);
     if (
       gameInfo.opponentDto &&
-      gameInfo.opponentDto.intra_id !== myName &&
-      gameInfo.ownerDto.intra_id !== myName
+      gameInfo.opponentDto.userName !== myName &&
+      gameInfo.ownerDto.userName !== myName
     )
       return true;
     return false;
@@ -183,24 +183,24 @@ export const selectedGameRecord = atom<ISelectedGameRecord>({
       time: "",
     },
     winner: {
-      user_id: -1,
-      intra_id: "",
+      userId: -1,
+      userName: "",
       profile: "",
       introduce: "",
-      normal_win: -1,
-      normal_lose: -1,
-      rank_win: -1,
-      rank_lose: -1,
+      normalWin: -1,
+      normalLose: -1,
+      rankWin: -1,
+      rankLose: -1,
     },
     loser: {
-      user_id: -1,
-      intra_id: "",
+      userId: -1,
+      userName: "",
       profile: "",
       introduce: "",
-      normal_win: -1,
-      normal_lose: -1,
-      rank_win: -1,
-      rank_lose: -1,
+      normalWin: -1,
+      normalLose: -1,
+      rankWin: -1,
+      rankLose: -1,
     },
   },
 });

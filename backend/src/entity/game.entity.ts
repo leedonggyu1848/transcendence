@@ -21,11 +21,11 @@ export class Game {
 
   @Column()
   @NotEquals(null)
-  interrupt_mode: boolean;
+  interruptMode: boolean;
 
   @Column()
   @NotEquals(null)
-  private_mode: boolean;
+  privateMode: boolean;
 
   @Column()
   @NotEquals(null)
@@ -42,9 +42,9 @@ export class Game {
   @NotEquals(null)
   count: number;
 
-  @OneToMany(() => User, (user) => user.play_game, { cascade: true })
+  @OneToMany(() => User, (user) => user.playGame, { cascade: true })
   players: User[];
 
-  @OneToMany(() => User, (user) => user.watch_game, { cascade: true })
+  @OneToMany(() => User, (user) => user.watchGame, { cascade: true })
   watchers: User[];
 }

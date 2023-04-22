@@ -149,7 +149,7 @@ const MainPage = () => {
       setMyInfo({ ...myInfo });
       localStorage.setItem("info", JSON.stringify(myInfo));
 
-      socket.emit("first-connection", myInfo.intra_id);
+      socket.emit("first-connection", myInfo.userName);
     }
 
     return () => {

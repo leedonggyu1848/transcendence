@@ -40,11 +40,11 @@ const CurrentUserInfo = ({
     setBlock(true);
     setTimeout(() => setToggle(true), 0);
     setTarget(name);
-    setIsFriend(friendList.some((friend) => friend.intra_id === name));
+    setIsFriend(friendList.some((friend) => friend.userName === name));
   };
 
   const clickFriendRequest = (friendname: string) => {
-    if (friendList.some((friend) => friend.intra_id === friendname)) return;
+    if (friendList.some((friend) => friend.userName === friendname)) return;
     socket.emit("request-friend", friendname);
     closePersonalMenu();
   };

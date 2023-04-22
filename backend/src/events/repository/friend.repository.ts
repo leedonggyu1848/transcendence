@@ -14,7 +14,7 @@ export class FriendRepository implements IFriendRepository {
 
   userToFriendDto(user: User, time: Date, type: FriendReqType) {
     const friendDto: FriendDto = {
-      intra_id: user.intra_id,
+      userName: user.userName,
       profile: user.profile,
       time: time,
       type: type,
@@ -25,7 +25,7 @@ export class FriendRepository implements IFriendRepository {
   async addFriend(user: User, friend: User, accept: boolean) {
     await this.friendRepository.save({
       user: user,
-      friendname: friend.intra_id,
+      friendName: friend.userName,
       friendProfile: friend.profile,
       accept: accept,
       time: new Date(Date.now()),
@@ -33,10 +33,10 @@ export class FriendRepository implements IFriendRepository {
   }
 
   // testcode -> TODO: delete
-  async addDummyFriend(user: User, friendname: string) {
+  async addDummyFriend(user: User, friendName: string) {
     await this.friendRepository.save({
       user: user,
-      friendname: friendname,
+      friendName: friendName,
       friendProfile: '',
       accept: true,
       time: new Date(Date.now()),
@@ -71,13 +71,13 @@ export class FriendRepository implements IFriendRepository {
 
   async findFriendRequested(username: string) {
     return await this.friendRepository.find({
-      where: { friendname: username, accept: false },
+      where: { friendName: username, accept: false },
     });
   }
 
   async findFriendRequestedWithJoin(username: string) {
     return await this.friendRepository.find({
-      where: { friendname: username, accept: false },
+      where: { friendName: username, accept: false },
       relations: ['user'],
     });
   }

@@ -66,7 +66,7 @@ export const listenCancelFriend = ({
     console.log("cancel-friend");
     setFriendRequestList(
       friendRequestList.filter(
-        (friend: IFriendRequest) => friend.intra_id !== userName
+        (friend: IFriendRequest) => friend.userName !== userName
       )
     );
   });
@@ -83,11 +83,11 @@ export const listenRequestFriend = ({
 }) => {
   socket.on(
     "request-friend",
-    ({ username, profile }: { username: string; profile: string }) => {
+    ({ userName, profile }: { userName: string; profile: string }) => {
       setFriendRequestList([
         ...friendRequestList,
         {
-          intra_id: username,
+          userName: userName,
           profile: profile,
           time: new Date().toString(),
           type: 0,
@@ -112,11 +112,11 @@ export const listenNewFriend = ({
 }) => {
   socket.on(
     "new-friend",
-    ({ username, profile }: { username: string; profile: string }) => {
+    ({ userName, profile }: { userName: string; profile: string }) => {
       setFriendRequestList([
         ...friendRequestList,
         {
-          intra_id: username,
+          userName: userName,
           profile: profile,
           time: new Date().toString(),
           type: 1,
@@ -137,7 +137,7 @@ export const listenDeleteFriend = ({
 }) => {
   socket.on("delete-friend", ({ username }: { username: string }) => {
     setFriendList(
-      friendList.filter((friend: IFriendDto) => friend.intra_id !== username)
+      friendList.filter((friend: IFriendDto) => friend.userName !== username)
     );
   });
 };
@@ -158,23 +158,23 @@ export const listenFriendResult = ({
   socket.on(
     "friend-result",
     ({
-      username,
+      userName,
       type,
       profile,
     }: {
-      username: string;
+      userName: string;
       type: boolean;
       profile: string;
     }) => {
       setFriendRequestList(
         friendRequestList.filter(
-          (request: IFriendRequest) => request.intra_id !== username
+          (request: IFriendRequest) => request.userName !== userName
         )
       );
       if (type) {
         setFriendList([
           ...friendList,
-          { intra_id: username, profile: profile },
+          { userName: userName, profile: profile },
         ]);
       }
     }
@@ -197,23 +197,23 @@ export const listenResponseFriend = ({
   socket.on(
     "response-friend",
     ({
-      username,
+      userName,
       type,
       profile,
     }: {
-      username: string;
+      userName: string;
       type: boolean;
       profile: string;
     }) => {
       setFriendRequestList(
         friendRequestList.filter(
-          (request: IFriendRequest) => request.intra_id !== username
+          (request: IFriendRequest) => request.userName !== userName
         )
       );
       if (type) {
         setFriendList([
           ...friendList,
-          { intra_id: username, profile: profile },
+          { userName: userName, profile: profile },
         ]);
       }
     }
@@ -366,11 +366,11 @@ export const listenSomeoneJoinned = ({
     "join-chat",
     ({
       message,
-      username,
+      userName,
       roomName,
     }: {
       message: string;
-      username: string;
+      userName: string;
       roomName: string;
     }) => {
       setChatList(
@@ -384,7 +384,7 @@ export const listenSomeoneJoinned = ({
           ...joinnedChatList,
           [roomName]: {
             ...joinnedChatList[roomName],
-            userList: [...joinnedChatList[roomName].userList, username],
+            userList: [...joinnedChatList[roomName].userList, userName],
             chatLogs:
               currentChat === roomName
                 ? [
@@ -471,11 +471,11 @@ export const listenSomeoneLeave = ({
     "leave-chat",
     ({
       message,
-      username,
+      userName,
       roomName,
     }: {
       message: string;
-      username: string;
+      userName: string;
       roomName: string;
     }) => {
       setChatList(
@@ -492,7 +492,7 @@ export const listenSomeoneLeave = ({
           [roomName]: {
             ...joinnedChatList[roomName],
             userList: joinnedChatList[roomName].userList.filter(
-              (name) => name != username
+              (name) => name != userName
             ),
             chatLogs: [
               ...joinnedChatList[roomName].chatLogs,

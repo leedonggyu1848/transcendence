@@ -1,18 +1,18 @@
 export interface UserDto {
-  user_id: number;
-  intra_id: string;
+  userId: number;
+  userName: string;
   profile: string;
   introduce: string;
-  normal_win: number;
-  normal_lose: number;
-  rank_win: number;
-  rank_lose: number;
+  normalWin: number;
+  normalLose: number;
+  rankWin: number;
+  rankLose: number;
 }
 
 export interface GameDto {
   title: string;
-  interrupt_mode: boolean;
-  private_mode: boolean;
+  interruptMode: boolean;
+  privateMode: boolean;
   cur: number;
 }
 
@@ -42,15 +42,15 @@ interface INormalRoomInfo {
 
 export interface IGameUserInfo {
   id: number;
-  intra_id: string;
+  userName: string;
   introduce: string;
-  join_type: number;
-  normal_lose: number;
-  normal_win: number;
+  joinType: number;
+  normalLose: number;
+  normalWin: number;
   profile: string;
-  rank_lose: number;
-  rank_win: number;
-  user_id: number;
+  rankLose: number;
+  rankWin: number;
+  userId: number;
 }
 
 export interface ICurrentNormalGame {
@@ -88,12 +88,12 @@ export interface ISelectedGameRecord {
 }
 
 export interface IFriendDto {
-  intra_id: string;
+  userName: string;
   profile: string;
 }
 
 export interface IFriendRequest {
-  intra_id: string;
+  userName: string;
   profile: string;
   time: string;
   type: number;

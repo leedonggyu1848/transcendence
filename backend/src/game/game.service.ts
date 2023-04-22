@@ -23,8 +23,8 @@ export class GameService {
     private userService: UserService,
   ) {}
 
-  async getUserInfo(intra_id: string) {
-    const found_user = await this.userRepository.findByIntraId(intra_id);
+  async getUserInfo(userName: string) {
+    const found_user = await this.userRepository.findByUserName(userName);
     return this.userService.userToUserDto(found_user);
   }
 
@@ -49,7 +49,7 @@ export class GameService {
   }
 
   async createGame(gameDto: GameDto, user: User) {
-    if (user.join_type !== JoinType.NONE)
+    if (user.joinType !== JoinType.NONE)
       return { success: false, data: '이미 다른 방에 참여 중입니다.' };
     const found = await this.gameRepository.findByTitle(gameDto.title);
     if (found)
@@ -69,7 +69,7 @@ export class GameService {
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
     if (game.count == 2)
       return { success: false, data: '해당 방에 자리가 없습니다.' };
-    if (user.play_game || user.watch_game)
+    if (user.playGame || user.watchGame)
       return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
 
     await this.gameRepository.updateCountById(game.id, game.count + 1);
@@ -101,7 +101,7 @@ export class GameService {
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
       return { success: false, data: '비밀번호가 맞지 않습니다.' };
-    if (user.play_game || user.watch_game)
+    if (user.playGame || user.watchGame)
       return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
 
     await this.userRepository.updateWatchGame(user.id, game);
@@ -131,20 +131,20 @@ export class GameService {
   async saveGameResult(winner: User, loser: User, type: GameType) {
     if (!winner || !loser)
       return { success: false, data: '유저 이름이 맞지 않습니다.' };
-    if (winner.play_game.id !== loser.play_game.id)
+    if (winner.playGame.id !== loser.playGame.id)
       return { success: false, data: '두 사람이 참가 중인 게임이 다릅니다.' };
 
     if (type == GameType.NORMAL) {
-      await this.userRepository.updateNormalWin(winner.id, winner.normal_win);
-      await this.userRepository.updateNormalLose(loser.id, loser.normal_lose);
+      await this.userRepository.updateNormalWin(winner.id, winner.normalWin);
+      await this.userRepository.updateNormalLose(loser.id, loser.normalLose);
     } else {
-      await this.userRepository.updateRankWin(winner.id, winner.rank_win);
-      await this.userRepository.updateRankLose(loser.id, loser.rank_lose);
+      await this.userRepository.updateRankWin(winner.id, winner.rankWin);
+      await this.userRepository.updateRankLose(loser.id, loser.rankLose);
     }
     await this.recordRepository.addRecord(
       type,
-      winner.intra_id,
-      loser.intra_id,
+      winner.userName,
+      loser.userName,
     );
     return { success: true, data: null };
   }
@@ -178,12 +178,12 @@ export class GameService {
       if (!game)
         return { success: false, data: '해당 방이 존재하지 않습니다.' };
     }
-    if (user.join_type === JoinType.OWNER) {
+    if (user.joinType === JoinType.OWNER) {
       await this.flushGame(game.title);
-    } else if (user.join_type === JoinType.PLAYER) {
+    } else if (user.joinType === JoinType.PLAYER) {
       await this.userRepository.updateGameNone(user.id);
       await this.gameRepository.updateCountById(game.id, game.count - 1);
-    } else if (user.join_type === JoinType.WATCHER) {
+    } else if (user.joinType === JoinType.WATCHER) {
       await this.userRepository.updateGameNone(user.id);
     } else {
       return { success: false, data: '데이터 저장 오류' };
@@ -204,8 +204,8 @@ export class GameService {
 
   async getRecordById(id: number) {
     const record = await this.recordRepository.findById(id);
-    const winner = await this.userRepository.findByIntraId(record.winner);
-    const loser = await this.userRepository.findByIntraId(record.loser);
+    const winner = await this.userRepository.findByUserName(record.winner);
+    const loser = await this.userRepository.findByUserName(record.loser);
     if (!record || !winner || !loser) return null;
     return { record: record, winner: winner, loser: loser };
   }
@@ -214,7 +214,7 @@ export class GameService {
   async addDummyData() {
     await this.userRepository.createUser(123, 'dummy_user1');
     await this.userRepository.createUser(456, 'dummy_user2');
-    const user1 = await this.userRepository.findByIntraId('dummy_user1');
+    const user1 = await this.userRepository.findByUserName('dummy_user1');
     await this.createGame(
       {
         title: 'game1',
@@ -224,7 +224,7 @@ export class GameService {
       },
       user1,
     );
-    const user2 = await this.userRepository.findByIntraId('dummy_user2');
+    const user2 = await this.userRepository.findByUserName('dummy_user2');
     await this.createGame(
       {
         title: 'game2',

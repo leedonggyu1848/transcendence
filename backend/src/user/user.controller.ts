@@ -41,7 +41,7 @@ export class UserController {
   @Get('/logincallback')
   @UseGuards(PhGuard, JwtSignGuard)
   async loginCallback(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`Login: ${user.intra_id}`);
+    this.logger.log(`Login: ${user.intraId}`);
     await this.authService.addUserFromSession(user);
     return res.redirect(`${this.configService.get<string>('frontend_home')}`);
   }
@@ -49,7 +49,7 @@ export class UserController {
   @Get('/logout')
   @UseGuards(JwtGuard)
   logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`Logout: ${user.intra_id}`);
+    this.logger.log(`Logout: ${user.intraId}`);
     res.clearCookie('access_token');
     res.status(HttpStatus.NO_CONTENT).send();
   }
@@ -62,7 +62,7 @@ export class UserController {
     @UserDeco() user: UserSessionDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    this.logger.log(`Profile upadate: ${user.intra_id}`);
+    this.logger.log(`Profile upadate: ${user.intraId}`);
     const data = await this.authService.updateProfileImage(user, image);
     if (!data.success) {
       this.logger.log(data.data);
@@ -78,9 +78,9 @@ export class UserController {
     @UserDeco() user: UserSessionDto,
     @Body('introduce') introduce: string,
   ) {
-    this.logger.log(`Introduce update: ${user.intra_id}`);
+    this.logger.log(`Introduce update: ${user.intraId}`);
     await this.authService.updateUserIntroduce(user, introduce);
-    const result = await this.authService.getUserByIntraId(user.intra_id);
+    const result = await this.authService.getUserByUserName(user.intraId);
     res.status(HttpStatus.OK).send(result);
   }
 }

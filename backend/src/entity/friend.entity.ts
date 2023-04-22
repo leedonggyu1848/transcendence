@@ -19,7 +19,7 @@ export class Friend {
 
   @Column()
   @NotEquals(null)
-  friendname: string;
+  friendName: string;
 
   @Column()
   friendProfile: string;

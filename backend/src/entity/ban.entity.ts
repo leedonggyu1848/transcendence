@@ -12,5 +12,5 @@ export class Ban {
 
   @Column()
   @NotEquals(null)
-  username: string;
+  userName: string;
 }

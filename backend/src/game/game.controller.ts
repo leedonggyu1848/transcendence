@@ -42,16 +42,16 @@ export class GameController {
   @Get('/userinfo')
   @UseGuards(JwtGuard)
   async getMyInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`User info request: ${user.intra_id}`);
-    const data = await this.gameService.getUserInfo(user.intra_id);
+    this.logger.log(`User info request: ${user.intraId}`);
+    const data = await this.gameService.getUserInfo(user.intraId);
     res.status(HttpStatus.OK).send(data);
   }
 
-  @Get('/userinfo/:intra_id')
+  @Get('/userinfo/:userName')
   @UseGuards(JwtGuard)
-  async getUserInfo(@Res() res: Response, @Param('intra_id') intra_id: string) {
-    this.logger.log(`User info request: ${intra_id}`);
-    const data = await this.gameService.getUserInfo(intra_id);
+  async getUserInfo(@Res() res: Response, @Param('userName') userName: string) {
+    this.logger.log(`User info request: ${userName}`);
+    const data = await this.gameService.getUserInfo(userName);
     res.status(HttpStatus.OK).send(data);
   }
 
@@ -62,9 +62,9 @@ export class GameController {
     @Body() gameDto: GameDto,
     @UserDeco() user: UserSessionDto,
   ) {
-    this.logger.log(`Create new game: ${user.intra_id}`);
-    const found_user = await this.userService.getUserByIntraIdWithGame(
-      user.intra_id,
+    this.logger.log(`Create new game: ${user.intraId}`);
+    const found_user = await this.userService.getUserByUserNameWithGame(
+      user.intraId,
     );
     const data = await this.gameService.createGame(gameDto, found_user);
     if (!data.success) {
@@ -82,9 +82,9 @@ export class GameController {
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
   ) {
-    this.logger.log(`Join game: ${title} / ${user.intra_id}`);
-    const found_user = await this.userService.getUserByIntraIdWithGame(
-      user.intra_id,
+    this.logger.log(`Join game: ${title} / ${user.intraId}`);
+    const found_user = await this.userService.getUserByUserNameWithGame(
+      user.intraId,
     );
     const data = await this.gameService.joinGame(title, password, found_user);
     if (!data.success) {
@@ -102,9 +102,9 @@ export class GameController {
     @Body('password') password: string,
     @UserDeco() user: UserSessionDto,
   ) {
-    this.logger.log(`Watch game: ${title} / ${user.intra_id}`);
-    const found_user = await this.userService.getUserByIntraIdWithGame(
-      user.intra_id,
+    this.logger.log(`Watch game: ${title} / ${user.intraId}`);
+    const found_user = await this.userService.getUserByUserNameWithGame(
+      user.intraId,
     );
     const data = await this.gameService.watchGame(title, password, found_user);
     if (!data.success) {
@@ -122,10 +122,10 @@ export class GameController {
     @Body('lose') lose: string,
     @Body('type') type: GameType,
   ) {
-    const winner = await this.userService.getUserByIntraIdWithGame(win);
-    const loser = await this.userService.getUserByIntraIdWithGame(lose);
+    const winner = await this.userService.getUserByUserNameWithGame(win);
+    const loser = await this.userService.getUserByUserNameWithGame(lose);
     if (!winner || !loser) throw new BadRequestException('잘못된 요청입니다.');
-    this.logger.log(`Save game result: ${winner.intra_id} / ${loser.intra_id}`);
+    this.logger.log(`Save game result: ${winner.userName} / ${loser.userName}`);
     const data = await this.gameService.saveGameResult(winner, loser, type);
     if (!data.success) throw new BadRequestException(data.data);
     res.status(HttpStatus.OK).send();
@@ -141,9 +141,9 @@ export class GameController {
   @Get('/leave')
   @UseGuards(JwtGuard)
   async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`Leave game: ${user.intra_id}`);
-    const found_user = await this.userService.getUserByIntraIdWithGame(
-      user.intra_id,
+    this.logger.log(`Leave game: ${user.intraId}`);
+    const found_user = await this.userService.getUserByUserNameWithGame(
+      user.intraId,
     );
     const data = await this.gameService.serviceLeaveGame(found_user);
     if (!data.success) {

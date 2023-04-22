@@ -1,10 +1,10 @@
 export class UserDto {
-  user_id: number;
-  intra_id: string;
+  userId: number;
+  userName: string;
   profile: string;
   introduce: string;
-  normal_win: number;
-  normal_lose: number;
-  rank_win: number;
-  rank_lose: number;
+  normalWin: number;
+  normalLose: number;
+  rankWin: number;
+  rankLose: number;
 }

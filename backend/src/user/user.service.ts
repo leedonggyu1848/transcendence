@@ -15,60 +15,60 @@ export class UserService {
   userToUserDto(user: User) {
     if (!user) return null;
     const userDto: UserDto = {
-      user_id: user.user_id,
-      intra_id: user.intra_id,
+      userId: user.userId,
+      userName: user.userName,
       profile: user.profile,
       introduce: user.introduce,
-      normal_win: user.normal_win,
-      normal_lose: user.normal_lose,
-      rank_win: user.rank_win,
-      rank_lose: user.rank_lose,
+      normalWin: user.normalWin,
+      normalLose: user.normalLose,
+      rankWin: user.rankWin,
+      rankLose: user.rankLose,
     };
     return userDto;
   }
 
-  async getUserByIntraId(intra_id: string) {
-    return await this.userRepository.findByIntraId(intra_id);
+  async getUserByUserName(userName: string) {
+    return await this.userRepository.findByUserName(userName);
   }
 
-  async getUserBySocketId(socket_id: string) {
-    return await this.userRepository.findBySocketId(socket_id);
+  async getUserBySocketId(socketId: string) {
+    return await this.userRepository.findBySocketId(socketId);
   }
 
-  async getUserByIntraIdWithGame(intra_id: string) {
-    return await this.userRepository.findByIntraIdWithJoinGame(intra_id);
+  async getUserByUserNameWithGame(userName: string) {
+    return await this.userRepository.findByUserNameWithJoinGame(userName);
   }
 
   async getUserBySocketIdWithGame(socketId: string) {
     return await this.userRepository.findBySocketIdWithJoinGame(socketId);
   }
 
-  async getUserByIntraIdWithChat(intra_id: string) {
-    return await this.userRepository.findByIntraIdWithJoinChat(intra_id);
+  async getUserByUserNameWithChat(userName: string) {
+    return await this.userRepository.findByUserNameWithJoinChat(userName);
   }
 
   async getUserBySocketIdWithChat(socketId: string) {
     return await this.userRepository.findBySocketIdWithJoinChat(socketId);
   }
 
-  async getUserByIntraIdWithAll(intra_id: string) {
-    return await this.userRepository.findByIntraIdWithJoinAll(intra_id);
+  async getUserByUserNameWithAll(userName: string) {
+    return await this.userRepository.findByUserNameWithJoinAll(userName);
   }
 
   async getUserBySocketIdWithAll(socketId: string) {
     return await this.userRepository.findBySocketIdWithJoinAll(socketId);
   }
 
-  async getUserByIntraIdWithFriend(intra_id: string) {
-    return await this.userRepository.findByIntraIdWithJoinFriend(intra_id);
+  async getUserByUserNameWithFriend(userName: string) {
+    return await this.userRepository.findByUserNameWithJoinFriend(userName);
   }
 
   async getUserBySocketIdWithFriend(socketId: string) {
     return await this.userRepository.findBySocketIdWithJoinFriend(socketId);
   }
 
-  async getUserByIntraIdWithBlock(intra_id: string) {
-    return await this.userRepository.findByIntraIdWithJoinBlock(intra_id);
+  async getUserByUserNameWithBlock(userName: string) {
+    return await this.userRepository.findByUserNameWithJoinBlock(userName);
   }
 
   async getUserBySocketIdWithBlock(socketId: string) {
@@ -76,31 +76,32 @@ export class UserService {
   }
 
   async addUserFromSession(user: UserSessionDto) {
-    const found = await this.getUserByIntraIdWithGame(user.intra_id);
+    const found = await this.userRepository.findByUserIdWithJoinGame(
+      user.userId,
+    );
     if (!found) {
-      await this.userRepository.createUser(user.user_id, user.intra_id);
+      await this.userRepository.createUser(user.userId, user.intraId);
     }
   }
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
-    let found = await this.getUserByIntraId(user.intra_id);
+    let found = await this.userRepository.findByUserId(user.userId);
     if (found.profile) {
       fs.unlinkSync('./uploads/' + found.profile);
     }
     const timeVal = new Date().getTime();
-    const imagePath =
-      './uploads/' + user.intra_id + timeVal.toString() + '.png';
+    const imagePath = './uploads/' + user.intraId + timeVal.toString() + '.png';
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) return { success: false, data: err };
     });
-    const findPath = user.intra_id + timeVal.toString() + '.png';
+    const findPath = user.intraId + timeVal.toString() + '.png';
     await this.userRepository.updateProfileImage(found.id, findPath);
-    found = await this.getUserByIntraId(user.intra_id);
+    found = await this.getUserByUserName(user.intraId);
     return { success: true, data: found };
   }
 
   async updateUserIntroduce(user: UserSessionDto, introduce: string) {
-    let found = await this.getUserByIntraId(user.intra_id);
+    let found = await this.userRepository.findByUserId(user.userId);
     await this.userRepository.updateUserIntroduce(found.id, introduce);
   }
 }

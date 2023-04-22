@@ -10,7 +10,7 @@ export class BanRepository implements IBanRepository {
   async addBanUser(chat: Chat, username: string) {
     const data = await this.banRepository.create({
       channel: chat,
-      username: username,
+      userName: username,
     });
     await this.banRepository.save(data);
     return data;
