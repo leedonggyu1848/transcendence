@@ -7,13 +7,13 @@ import {
 import { IFriendRepository } from 'src/events/repository/friend.interface.repository';
 import { IUserRepository } from 'src/user/repository/user.interface.repository';
 import { UserService } from 'src/user/user.service';
-import { IBanRepository } from './repository/ban.interface.repository';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
 import * as bcrypt from 'bcrypt';
 import { GameService } from 'src/game/game.service';
 import { User } from 'src/entity/user.entity';
 import { IBlockRepository } from './repository/block.interface.repository';
+import { BanService } from 'src/ban/ban.service';
 
 @Injectable()
 export class EventsService {
@@ -27,12 +27,11 @@ export class EventsService {
     private chatRepository: IChatRepository,
     @Inject('IChatUserRepository')
     private chatUserRepository: IChatUserRepository,
-    @Inject('IBanRepository')
-    private banRepository: IBanRepository,
     @Inject('IBlockRepository')
     private blockRepository: IBlockRepository,
     private userService: UserService,
     private gameService: GameService,
+    private banService: BanService,
   ) {}
 
   async disconnect(socketId: string) {
@@ -73,7 +72,11 @@ export class EventsService {
 
   async isConnect(userName: string) {
     const user = await this.userService.getUserByUserName(userName);
-    return user !== null;
+    let status: UserStatusType;
+    if (user.socketId === '') status = UserStatusType.OFFLINE;
+    else if (!user.playGame) status = UserStatusType.ONLINE;
+    else status = UserStatusType.PLAYING;
+    return status;
   }
 
   // testcode -> TODO: delete
@@ -456,7 +459,7 @@ export class EventsService {
     const isBan = chat.banUsers.filter((ban) => ban.userName === banUser);
     if (isBan.length !== 0)
       return { success: false, msg: `${banUser}는 이미 밴 되어있습니다.` };
-    await this.banRepository.addBanUser(chat, banUser);
+    await this.banService.addBanUser(chat, banUser);
     return { success: true, msg: `${banUser}가 밴 되었습니다.` };
   }
 
@@ -468,7 +471,7 @@ export class EventsService {
     const ban = chat.banUsers.filter((ban) => ban.userName === banUser);
     if (ban.length === 0)
       return { success: false, msg: `${banUser}는 밴 되어있지 않습니다.` };
-    await this.banRepository.deleteBanUser(ban);
+    await this.banService.deleteBanUser(ban);
     return { success: true, msg: `${banUser}의 밴이 취소되었습니다.` };
   }
 

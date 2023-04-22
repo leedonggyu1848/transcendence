@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ban } from 'src/entity/ban.entity';
-import { BanRepository } from 'src/events/repository/ban.repository';
-import { EventsService } from './ban.service';
+import { BanService } from './ban.service';
+import { BanRepository } from './repository/ban.repository';
 
 const banRepo = {
   provide: 'IBanRepository',
@@ -11,6 +11,7 @@ const banRepo = {
 
 @Module({
   imports: [TypeOrmModule.forFeature([Ban])],
-  providers: [EventsService, banRepo],
+  providers: [BanService, banRepo],
+  exports: [banRepo, BanService],
 })
 export class BanModule {}
