@@ -67,7 +67,7 @@ export class EventsService {
   }
 
   async registUser(userName: string, socketId: string) {
-    const user = await this.userRepository.findByUserName(userName);
+    const user = await this.userService.getUserByUserName(userName);
     await this.userService.updateSocketId(user, socketId);
   }
 
@@ -250,6 +250,30 @@ export class EventsService {
     return { success: true, data: friend.socketId, userName: user.userName };
   }
 
+  async directMessage(socketId: string, userName: string) {
+    const sender = await this.userService.getUserBySocketId(socketId);
+    const receiver = await this.userService.getUserByUserName(userName);
+    if (!sender || !receiver)
+      return { success: false, msg: `맞는 유저가 없습니다.` };
+    const dm = await this.chatRepository.createByChatDto(
+      {
+        title: sender.userName + ',' + receiver.userName,
+        type: ChatType.DM,
+        operator: sender.userName,
+        count: 2,
+      },
+      '',
+    );
+    await this.chatUserRepository.addChatUser(dm, sender);
+    await this.chatUserRepository.addChatUser(dm, receiver);
+    return {
+      success: true,
+      title: dm.title,
+      sender: sender.userName,
+      receiver: receiver.userName,
+    };
+  }
+
   async creatChat(
     socketId: string,
     roomName: string,
@@ -335,8 +359,7 @@ export class EventsService {
   }
 
   async getAllChatList(socketId: string) {
-    const user = await this.userRepository.findBySocketIdWithJoinChat(socketId);
-
+    const user = await this.userService.getUserBySocketIdWithChat(socketId);
     const chats = await this.chatRepository.findAll();
     const chatsDto = chats.map((chat) => {
       return this.chatRepository.chatToChatDto(chat);
@@ -345,7 +368,7 @@ export class EventsService {
   }
 
   async getChatList(socketId: string) {
-    const user = await this.userRepository.findBySocketIdWithJoinChat(socketId);
+    const user = await this.userService.getUserBySocketIdWithChat(socketId);
     if (user.chats.length === 0) return { user: user.userName, chats: [] };
     const chatsDto = user.chats.map((chat) => {
       return this.chatRepository.chatToChatDto(chat.chat);

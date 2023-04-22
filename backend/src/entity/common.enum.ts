@@ -25,4 +25,5 @@ export enum ChatType {
   'PUBLIC',
   'PRIVATE',
   'PASSWORD',
+  'DM',
 }
