@@ -269,7 +269,6 @@ export class EventsService {
     return {
       success: true,
       title: dm.title,
-      sender: sender.userName,
       receiver: receiver.userName,
     };
   }
