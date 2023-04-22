@@ -1,15 +1,22 @@
 import styled from "@emotion/styled";
 import React from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { currentChatState, joinnedChatState } from "../../api/atom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  currentChatState,
+  joinnedChatState,
+  myNameState,
+} from "../../api/atom";
+import { getRoomNameByType } from "../../api/funcs";
 import { IChatRoom, IJoinnedChat, JoinListDto } from "../../api/interface";
 
 const JoinList = ({
   data,
   handleLeave,
+  myName,
 }: {
   data: IJoinnedChat;
   handleLeave: Function;
+  myName: string;
 }) => {
   const setCurrentChat = useSetRecoilState(currentChatState);
   const [joinnedChatList, setJoinnedChatList] =
@@ -31,7 +38,13 @@ const JoinList = ({
         <Room key={idx} onClick={() => joinChat(data[roomName].title)}>
           {data[roomName].newMsg ? <NewMessage /> : <Empty />}
           <Private private_mode={data[roomName].type} />
-          <Title title={data[roomName].title.slice(1)}>
+          <Title
+            title={getRoomNameByType(
+              data[roomName].type,
+              data[roomName].title,
+              myName
+            )}
+          >
             {data[roomName].title.slice(1, 10)}
             {data[roomName].title.length > 10 ? "..." : ""}
           </Title>

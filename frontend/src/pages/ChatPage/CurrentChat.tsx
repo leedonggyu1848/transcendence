@@ -7,6 +7,7 @@ import {
   muteCountState,
   myNameState,
 } from "../../api/atom";
+import { getRoomNameByType } from "../../api/funcs";
 import { IChatLog, JoinnedUserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -18,12 +19,14 @@ const CurrentChat = ({
   operator,
   clickOperatorButton,
   myName,
+  type,
 }: {
   roomName: string;
   data: JoinnedUserDto[];
   operator: boolean;
   clickOperatorButton: Function;
   myName: string;
+  type: number;
 }) => {
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
@@ -79,7 +82,7 @@ const CurrentChat = ({
     <CurrentChatContainer>
       <CurrentUserInfo
         data={data}
-        title={roomName.slice(1)}
+        title={getRoomNameByType(type, roomName, myName)}
         operator={operator}
         clickOperatorButton={clickOperatorButton}
       />

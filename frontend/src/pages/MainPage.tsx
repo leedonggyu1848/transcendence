@@ -45,9 +45,11 @@ import {
   listenBanUser,
   listenCancelFriend,
   listenChangeOperator,
+  listenCheckConnection,
   listenCreateChat,
   listenDeleteFriend,
   listenFirstConnection,
+  listenFriendConnection,
   listenFriendFail,
   listenFriendList,
   listenFriendRequestList,
@@ -57,9 +59,11 @@ import {
   listenLeaveSuccess,
   listenMessage,
   listenNewFriend,
+  listenReceiveDM,
   listenRequestAllChat,
   listenRequestFriend,
   listenResponseFriend,
+  listenSendDM,
   listenSomeoneJoinned,
   listenSomeoneLeave,
 } from "../api/socket/chat-socket";
@@ -113,6 +117,8 @@ const MainPage = () => {
     friendList,
   };
 
+  console.log(joinnedChatList);
+
   useEffect(() => {
     if (!token.access_token) navigate("/no_auth");
     if (!getMyInfoFlag) {
@@ -120,6 +126,10 @@ const MainPage = () => {
       setGetMyInfoFlag(true);
     }
 
+    listenSendDM(hooks);
+    listenReceiveDM(hooks);
+    listenCheckConnection(hooks);
+    listenFriendConnection(hooks);
     listenRequestAllChat(hooks);
     listenFirstConnection(hooks);
     listenFriendRequestList(hooks);
@@ -175,7 +185,10 @@ const MainPage = () => {
         "friend-fail",
         "new-friend",
         "friend-list",
-        "message"
+        "message",
+        "connect-user",
+        "send-dm",
+        "receive-dm"
       );
     };
   }, [myInfo, joinnedChatList, chatList]);

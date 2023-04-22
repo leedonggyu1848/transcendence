@@ -25,11 +25,11 @@ export const listenFriendConnection = ({
 }) => {
   socket.on(
     "connect-user",
-    ({ username, message }: { username: string; message: string }) => {
-      console.log(message);
+    ({ userName, message }: { userName: string; message: string }) => {
+      console.log("in connect-user", userName, message);
       setFriendList(
         friendList.map((friend: IFriendDto) =>
-          friend.userName === username
+          friend.userName === userName
             ? { ...friend, status: "online" }
             : { ...friend }
         )
@@ -238,10 +238,9 @@ export const listenResponseFriend = ({
         )
       );
       if (type) {
-        socket.emit("check-connection", userName);
         setFriendList([
           ...friendList,
-          { userName: userName, profile: profile },
+          { userName: userName, profile: profile, status: "online" },
         ]);
       }
     }
@@ -747,6 +746,74 @@ export const listenBanUser = ({
           count: chat.title === roomName ? chat.count - 1 : chat.count,
         }))
       );
+    }
+  );
+};
+
+export const listenSendDM = ({
+  socket,
+  myName,
+  joinnedChatList,
+  setJoinnedChatList,
+  setCurrentChat,
+}: {
+  socket: any;
+  myName: string;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+  setCurrentChat: any;
+}) => {
+  socket.on(
+    "send-dm",
+    ({ userName, title }: { userName: string; title: string }) => {
+      const temp: IChatDetail = {
+        title: title,
+        type: 3,
+        operator: "",
+        userList: [myName, userName],
+        chatLogs: [],
+        banUsers: [],
+        newMsg: false,
+      };
+      setCurrentChat(title);
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [title]: { ...temp },
+      });
+    }
+  );
+};
+
+export const listenReceiveDM = ({
+  socket,
+  myName,
+  joinnedChatList,
+  setJoinnedChatList,
+  setCurrentChat,
+}: {
+  socket: any;
+  myName: string;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+  setCurrentChat: any;
+}) => {
+  socket.on(
+    "receive-dm",
+    ({ userName, title }: { userName: string; title: string }) => {
+      console.log("hi");
+      const temp: IChatDetail = {
+        title: title,
+        type: 3,
+        operator: "",
+        userList: [myName, userName],
+        chatLogs: [],
+        banUsers: [],
+        newMsg: false,
+      };
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [title]: { ...temp },
+      });
     }
   );
 };

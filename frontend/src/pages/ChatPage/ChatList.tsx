@@ -10,26 +10,30 @@ const ChatList = ({
 }) => {
   return (
     <ChatListContainer>
-      {data.map(({ title, type, operator, count }, idx) => (
-        <Chat key={idx}>
-          <Title title={title.slice(1)}>
-            {title.slice(1, 10)}
-            {title.length > 10 ? "..." : ""}
-          </Title>
-          <Current>
-            <Private
-              private_mode={
-                type === 0 ? "public" : type === 1 ? "private" : "password"
-              }
-            />
-            <PersonIcon />
-            <div>{count}</div>
-            <Button onClick={() => joinChatRoom(title, type, operator, count)}>
-              입장
-            </Button>
-          </Current>
-        </Chat>
-      ))}
+      {data
+        .filter((room) => room.type % 2 === 0)
+        .map(({ title, type, operator, count }, idx) => (
+          <Chat key={idx}>
+            <Title title={title.slice(1)}>
+              {title.slice(1, 10)}
+              {title.length > 10 ? "..." : ""}
+            </Title>
+            <Current>
+              <Private
+                private_mode={
+                  type === 0 ? "public" : type === 1 ? "private" : "password"
+                }
+              />
+              <PersonIcon />
+              <div>{count}</div>
+              <Button
+                onClick={() => joinChatRoom(title, type, operator, count)}
+              >
+                입장
+              </Button>
+            </Current>
+          </Chat>
+        ))}
     </ChatListContainer>
   );
 };

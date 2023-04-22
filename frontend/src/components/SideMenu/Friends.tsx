@@ -1,7 +1,13 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { friendListState, sideMenuToggle } from "../../api/atom";
+import {
+  alertModalState,
+  friendListState,
+  sideMenuToggle,
+} from "../../api/atom";
+import { IFriendDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import Loading from "../Loading";
 
@@ -9,6 +15,8 @@ const Friends = ({ w }: { w: number }) => {
   const [friendsList, setFriendsList] = useRecoilState(friendListState);
   const socket = useContext(WebsocketContext);
   const setSideMenuToggle = useSetRecoilState(sideMenuToggle);
+  const setAlertInfo = useSetRecoilState(alertModalState);
+  const location = useLocation();
 
   const handleDeleteFriend = (friendName: string) => {
     socket.emit("delete-friend", friendName);
@@ -16,7 +24,24 @@ const Friends = ({ w }: { w: number }) => {
   };
 
   const handleRequestMatch = (friendName: string) => {};
-  const handleDirectMessage = (friendName: string) => {};
+  const handleDirectMessage = (friendName: string) => {
+    if (
+      friendsList.filter(
+        (friend: IFriendDto) => friend.userName === friendName
+      )[0].status === 0
+    ) {
+      setAlertInfo({
+        type: "failure",
+        header: "",
+        msg: "접속 중인 친구가 아닙니다.",
+        toggle: true,
+      });
+      return;
+    }
+    console.log(location.pathname);
+    socket.emit("send-dm", friendName);
+    //if (location.pathname)
+  };
 
   return (
     <FriendsContainer w={w}>
@@ -31,7 +56,9 @@ const Friends = ({ w }: { w: number }) => {
                 <Profile src={friend.profile} />
                 <div className="name">{friend.userName}</div>
                 <div className="buttonContainer">
-                  <Message />
+                  <Message
+                    onClick={() => handleDirectMessage(friend.userName)}
+                  />
                   <Game />
                   <Delete onClick={() => handleDeleteFriend(friend.userName)} />
                 </div>
@@ -53,15 +80,15 @@ const Friends = ({ w }: { w: number }) => {
   );
 };
 
-const Status = styled.div<{ status: "offline" | "online" | "game" }>`
+const Status = styled.div<{ status: number }>`
   width: 10px;
   height: 10px;
   margin-left: 10px !important;
   border-radius: 100%;
   background: ${({ status }) =>
-    status === "online"
+    status === 1
       ? "rgb(0, 255, 51)"
-      : status === "game"
+      : status === 2
       ? "rgb(255, 170, 13)"
       : "rgb(255, 80, 80)"};
 `;

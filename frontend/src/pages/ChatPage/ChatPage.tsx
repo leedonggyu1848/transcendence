@@ -79,6 +79,7 @@ const ChatPage = () => {
             roomName={joinnedChatList[currentChat].title}
             operator={joinnedChatList[currentChat].operator === myName}
             myName={myName}
+            type={joinnedChatList[currentChat].type}
             data={UserDtoToJoinnedUserDto(
               joinnedChatList[currentChat].userList,
               myName,
@@ -99,7 +100,11 @@ const ChatPage = () => {
         <HeaderContainer>
           <div>참여 중인 방 목록</div>
         </HeaderContainer>
-        <JoinList data={joinnedChatList} handleLeave={LeaveChatRoom} />
+        <JoinList
+          data={joinnedChatList}
+          handleLeave={LeaveChatRoom}
+          myName={myName}
+        />
       </WapperContainer>
     </ChatPageContainer>
   );
