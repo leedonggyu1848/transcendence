@@ -111,7 +111,7 @@ function UserDtoToJoinnedUserDto(
   operator: string
 ) {
   return data.map((name) => ({
-    intra_id: name,
+    userName: name,
     type:
       name === operator ? "owner" : name === myName ? "opponent" : "watcher",
   }));

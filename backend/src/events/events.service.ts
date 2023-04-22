@@ -120,7 +120,7 @@ export class EventsService {
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map((friend) => {
       return {
-        userName: friend.friendname,
+        userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
         type: FriendReqType.ACCEPT,
@@ -137,7 +137,7 @@ export class EventsService {
     );
     const sendDto = send.map((friend) => {
       return {
-        userName: friend.friendname,
+        userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
         type: FriendReqType.SEND,

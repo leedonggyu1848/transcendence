@@ -29,7 +29,7 @@ export const listenFriendConnection = ({
       console.log(message);
       setFriendList(
         friendList.map((friend: IFriendDto) =>
-          friend.intra_id === username
+          friend.userName === username
             ? { ...friend, status: "online" }
             : { ...friend }
         )
@@ -72,6 +72,7 @@ export const listenFriendList = ({
   setRequestFriendListFlag: any;
 }) => {
   socket.on("friend-list", (friends: IFriendDto[]) => {
+    console.log(friends);
     setFriendList([...friends]);
     setRequestFriendListFlag(true);
   });
@@ -108,6 +109,7 @@ export const listenRequestFriend = ({
   socket.on(
     "request-friend",
     ({ userName, profile }: { userName: string; profile: string }) => {
+      console.log(userName, profile);
       setFriendRequestList([
         ...friendRequestList,
         {
@@ -196,7 +198,7 @@ export const listenFriendResult = ({
         )
       );
       if (type) {
-        socket.emit("check-connection", username);
+        socket.emit("check-connection", userName);
         setFriendList([
           ...friendList,
           { userName: userName, profile: profile },
@@ -236,7 +238,7 @@ export const listenResponseFriend = ({
         )
       );
       if (type) {
-        socket.emit("check-connection", username);
+        socket.emit("check-connection", userName);
         setFriendList([
           ...friendList,
           { userName: userName, profile: profile },
@@ -262,7 +264,7 @@ export const listenCheckConnection = ({
       if (isConnect) {
         setFriendList(
           friendList.map((friend: IFriendDto) =>
-            friend.intra_id === userName
+            friend.userName === userName
               ? { ...friend, status: "online" }
               : { ...friend }
           )
@@ -270,7 +272,7 @@ export const listenCheckConnection = ({
       } else {
         setFriendList(
           friendList.map((friend: IFriendDto) =>
-            friend.intra_id === userName
+            friend.userName === userName
               ? { ...friend, status: "offline" }
               : { ...friend }
           )
@@ -707,7 +709,7 @@ export const listenBanUser = ({
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       if (userName === myName) {
         if (currentChat === roomName) {
-          setCurrentChat(null);
+          setCurrentChat("");
         }
         const temp: IJoinnedChat = {
           ...joinnedChatList,
