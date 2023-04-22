@@ -49,18 +49,6 @@ export const listenFriendRequestList = ({
   });
 };
 
-export const listenAllChatList = ({
-  socket,
-  setChatList,
-}: {
-  socket: any;
-  setChatList: any;
-}) => {
-  socket.on("all-chat", (chats: IChatRoom[]) => {
-    setChatList([...chats]);
-  });
-};
-
 export const listenFriendList = ({
   socket,
   setFriendList,
@@ -236,7 +224,7 @@ export const listenResponseFriend = ({
       if (type) {
         setFriendList([
           ...friendList,
-          { userName: userName, profile: profile, status: "online" },
+          { userName: userName, profile: profile, status: 1 },
         ]);
       }
     }
@@ -256,11 +244,12 @@ export const listenCheckConnection = ({
   socket.on(
     "check-connection",
     ({ userName, isConnect }: { userName: string; isConnect: boolean }) => {
+      console.log("isConnect", userName, isConnect);
       if (isConnect) {
         setFriendList(
           friendList.map((friend: IFriendDto) =>
             friend.userName === userName
-              ? { ...friend, status: "online" }
+              ? { ...friend, status: 1 }
               : { ...friend }
           )
         );

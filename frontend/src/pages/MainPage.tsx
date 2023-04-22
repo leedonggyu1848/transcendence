@@ -124,22 +124,18 @@ const MainPage = () => {
       setGetMyInfoFlag(true);
     }
 
-    listenSendDM(hooks);
-    listenReceiveDM(hooks);
-    listenCheckConnection(hooks);
-    listenFriendConnection(hooks);
-    listenRequestAllChat(hooks);
     listenFirstConnection(hooks);
+    listenFriendConnection(hooks);
     listenFriendRequestList(hooks);
     listenFriendList(hooks);
     listenCancelFriend(hooks);
+    listenRequestFriend(hooks);
+    listenNewFriend(hooks);
     listenDeleteFriend(hooks);
     listenFriendResult(hooks);
-    listenFriendFail(hooks);
     listenResponseFriend(hooks);
-    listenNewFriend(hooks);
-    listenRequestFriend(hooks);
-
+    listenCheckConnection(hooks);
+    listenFriendFail(hooks);
     listenMessage(hooks);
     listenCreateChat(hooks);
     listenRequestAllChat(hooks);
@@ -150,6 +146,8 @@ const MainPage = () => {
     listenAlert(hooks);
     listenKickUser(hooks);
     listenBanUser(hooks);
+    listenSendDM(hooks);
+    listenReceiveDM(hooks);
     listenChangeOperator(hooks);
 
     async function getMyInfo() {
@@ -163,30 +161,31 @@ const MainPage = () => {
     return () => {
       chatSocketOff(
         socket,
-        "all-chat",
-        "chat-list",
+        "first-connection",
+        "connect-user",
+        "friend-request-list",
+        "friend-list",
+        "cancel-friend",
+        "request-friend",
+        "new-friend",
+        "delete-friend",
+        "friend-result",
+        "response-friend",
+        "check-connection",
+        "friend-fail",
+        "message",
         "create-chat",
+        "all-chat",
         "join-chat",
-        "chat-success",
-        "leave-chat",
-        "chat-fail",
-        "leave-chat-success",
         "join-chat-success",
+        "leave-chat",
+        "leave-chat-success",
+        "chat-fail",
         "kick-user",
         "ban-user",
-        "chat-operator",
-        "first-connection",
-        "request-friend",
-        "friend-request-list",
-        "cancel-friend",
-        "delete-friend",
-        "friend-fail",
-        "new-friend",
-        "friend-list",
-        "message",
-        "connect-user",
         "send-dm",
-        "receive-dm"
+        "receive-dm",
+        "chat-operator"
       );
     };
   }, [myInfo, joinnedChatList, chatList, friendList, friendRequestList]);
