@@ -69,15 +69,15 @@ export class FriendRepository implements IFriendRepository {
     });
   }
 
-  async findFriendRequested(username: string) {
+  async findFriendRequested(userName: string) {
     return await this.friendRepository.find({
-      where: { friendName: username, accept: false },
+      where: { friendName: userName, accept: false },
     });
   }
 
-  async findFriendRequestedWithJoin(username: string) {
+  async findFriendRequestedWithJoin(userName: string) {
     return await this.friendRepository.find({
-      where: { friendName: username, accept: false },
+      where: { friendName: userName, accept: false },
       relations: ['user'],
     });
   }

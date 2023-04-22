@@ -126,6 +126,7 @@ export class EventsGateway
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
     const friends = await this.eventsService.getFriendList(socket.id);
+    console.log(friends);
     socket.emit('friend-list', friends);
   }
 

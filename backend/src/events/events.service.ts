@@ -120,7 +120,7 @@ export class EventsService {
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map((friend) => {
       return {
-        userName: friend.friendname,
+        userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
         type: FriendReqType.ACCEPT,
@@ -137,7 +137,7 @@ export class EventsService {
     );
     const sendDto = send.map((friend) => {
       return {
-        userName: friend.friendname,
+        userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
         type: FriendReqType.SEND,
@@ -209,7 +209,7 @@ export class EventsService {
     const user = await this.userService.getUserBySocketIdWithFriend(socketId);
     const friend = await this.userService.getUserByUserName(friendName);
     const requests = user.friends.filter(
-      (req) => req.friendname === friendName && req.accept === false,
+      (req) => req.friendName === friendName && req.accept === false,
     );
     if (requests.length === 0)
       return { success: false, msg: `${friendName}에게 보낸 요청이 없습니다.` };

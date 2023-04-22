@@ -6,13 +6,13 @@ export interface IFriendRepository {
   userToFriendDto(user: User, time: Date, type: FriendReqType);
   addFriend(user: User, friend: User, accept: boolean);
   // testcode -> TODO: delete
-  addDummyFriend(user: User, friendname: string);
+  addDummyFriend(user: User, friendName: string);
   findAll(user: User);
   findAllWithJoin(user: User);
   findFriends(user: User);
   findFriendsWithJoin(user: User);
-  findFriendRequested(username: string);
-  findFriendRequestedWithJoin(username: string);
+  findFriendRequested(userName: string);
+  findFriendRequestedWithJoin(userName: string);
   updateAccept(id: number, accept: boolean);
   deleteFriend(friend: Friend);
 }
