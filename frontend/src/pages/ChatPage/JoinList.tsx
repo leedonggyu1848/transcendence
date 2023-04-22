@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import React from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { currentChatState, joinnedChatState } from "../../api/atom";
 import { IChatRoom, IJoinnedChat, JoinListDto } from "../../api/interface";
@@ -34,7 +35,12 @@ const JoinList = ({
             {data[roomName].title.slice(1, 10)}
             {data[roomName].title.length > 10 ? "..." : ""}
           </Title>
-          <LeaveButton onClick={() => handleLeave(data[roomName].title)}>
+          <LeaveButton
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              handleLeave(data[roomName].title);
+            }}
+          >
             나가기
           </LeaveButton>
         </Room>

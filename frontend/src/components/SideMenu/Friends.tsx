@@ -27,6 +27,7 @@ const Friends = ({ w }: { w: number }) => {
           <FriendsList>
             {friendsList.map((friend, idx) => (
               <FriendInfo key={idx}>
+                <Status status={friend.status} />
                 <Profile src={friend.profile} />
                 <div className="name">{friend.userName}</div>
                 <div className="buttonContainer">
@@ -51,6 +52,19 @@ const Friends = ({ w }: { w: number }) => {
     </FriendsContainer>
   );
 };
+
+const Status = styled.div<{ status: "offline" | "online" | "game" }>`
+  width: 10px;
+  height: 10px;
+  margin-left: 10px !important;
+  border-radius: 100%;
+  background: ${({ status }) =>
+    status === "online"
+      ? "rgb(0, 255, 51)"
+      : status === "game"
+      ? "rgb(255, 170, 13)"
+      : "rgb(255, 80, 80)"};
+`;
 
 const Message = styled.div`
   width: 15px;
@@ -95,42 +109,23 @@ const FriendInfo = styled.div`
   align-items: center;
   border-radius: 10px;
   & > div {
-    margin: 0 10px;
+    margin: 0 5px;
   }
-
   & > .buttonContainer {
     display: flex;
     justify-content: center;
     align-items: center;
   }
-
   & > .buttonContainer > div {
-    margin-left: 10px;
+    margin-left: 5px;
     border-radius: 5px;
     padding: 5px 5px;
     cursor: pointer;
   }
-
   & > .name {
-    width: 70px;
+    width: 50px;
   }
 `;
-
-function createDummyData() {
-  let result = [];
-
-  const str = "abcdefghijklmnopqrstuvwxyz";
-
-  for (let i = 0; i < 100; i++) {
-    const randomLength = Math.floor(Math.random() * 3) + 6;
-    let name = "";
-    for (let j = 0; j < randomLength; j++) {
-      name += str[Math.floor(Math.random() * 26)];
-    }
-    result.push(name);
-  }
-  return result;
-}
 
 const CryingIcon = styled.div`
   width: 60px;
