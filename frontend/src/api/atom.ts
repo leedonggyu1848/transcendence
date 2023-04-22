@@ -323,8 +323,3 @@ export const sideMenuToggle = atom({
     alarm: false,
   },
 });
-
-export const muteFlagState = atom({
-  key: "muteFlagState",
-  default: false,
-});

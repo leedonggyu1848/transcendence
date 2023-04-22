@@ -115,6 +115,8 @@ export interface IChatDetail {
   chatLogs: IChatLog[];
   banUsers: string[];
   newMsg: boolean;
+  isMuted: boolean;
+  muteId: number;
 }
 
 export interface IBanUserList {

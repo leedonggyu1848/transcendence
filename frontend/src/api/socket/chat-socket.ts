@@ -307,7 +307,6 @@ export const listenMessage = ({
       userName: string;
       message: string;
     }) => {
-      console.log(blockList);
       if (blockList.includes(userName)) return;
       setJoinnedChatList({
         ...joinnedChatList,
@@ -371,6 +370,8 @@ export const listenCreateChat = ({
         chatLogs: [],
         banUsers: [],
         newMsg: false,
+        isMuted: false,
+        muteId: -1,
       };
       if (operator === myName) {
         setCurrentChat(roomName);
@@ -491,8 +492,10 @@ export const listenJoinSucces = ({
         chatLogs: [],
         banUsers: [],
         newMsg: false,
+        isMuted: false,
+        muteId: -1,
       };
-      setJoinnedChatList({ ...joinnedChatList, [roomName]: temp });
+      setJoinnedChatList({ ...joinnedChatList, [roomName]: { ...temp } });
       setCurrentChat(roomName);
       setChatList(
         chatList.map((chat) => ({
@@ -795,6 +798,8 @@ export const listenSendDM = ({
         chatLogs: [],
         banUsers: [],
         newMsg: false,
+        isMuted: false,
+        muteId: -1,
       };
       setCurrentChat(title);
       setJoinnedChatList({
@@ -827,6 +832,8 @@ export const listenReceiveDM = ({
         chatLogs: [],
         banUsers: [],
         newMsg: false,
+        isMuted: false,
+        muteId: -1,
       };
       setJoinnedChatList({
         ...joinnedChatList,
@@ -972,27 +979,43 @@ export const listenChatMuted = ({
   setJoinnedChatList: any;
   setMuteFlag: any;
 }) => {
-  socket.on(
-    "chat-muted",
-    ({ roomName }: { roomName: string; userName: string }) => {
-      console.log("chat-muted");
-      setMuteFlag(true);
-      setJoinnedChatList({
-        ...joinnedChatList,
+  socket.on("chat-muted", (roomName: string) => {
+    clearTimeout(joinnedChatList[roomName].mutedId);
+
+    const timeoutId = setTimeout(() => {
+      setJoinnedChatList((prevJoinnedChatList: IJoinnedChat) => ({
+        ...prevJoinnedChatList,
         [roomName]: {
-          ...joinnedChatList[roomName],
+          ...prevJoinnedChatList[roomName],
           chatLogs: [
-            ...joinnedChatList[roomName].chatLogs,
+            ...prevJoinnedChatList[roomName].chatLogs,
             {
               sender: "admin",
-              msg: `${roomName}에서 음소거 당했습니다.`,
+              msg: `${roomName}에서 음소거가 풀렸습니다.`,
               time: new Date(),
             },
           ],
+          isMuted: false,
         },
-      });
-    }
-  );
+      }));
+    }, 30000);
+    setJoinnedChatList({
+      ...joinnedChatList,
+      [roomName]: {
+        ...joinnedChatList[roomName],
+        chatLogs: [
+          ...joinnedChatList[roomName].chatLogs,
+          {
+            sender: "admin",
+            msg: `${roomName}에서 음소거 되었습니다.`,
+            time: new Date(),
+          },
+        ],
+        isMuted: true,
+        muteId: timeoutId,
+      },
+    });
+  });
 };
 
 export function chatSocketOff(socket: any, ...rest: string[]) {

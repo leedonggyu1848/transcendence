@@ -5,7 +5,6 @@ import {
   blockUserListState,
   currentChatState,
   joinnedChatState,
-  muteFlagState,
 } from "../../api/atom";
 import Chat from "./Chat";
 
@@ -26,14 +25,12 @@ const ChatBox = ({
   const joinChatList = useRecoilValue(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
   const blockList = useRecoilValue(blockUserListState);
-  const muteFlag = useRecoilValue(muteFlagState);
 
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-    console.log("in chatbox", muteFlag);
-  }, [currentChat, joinChatList, blockList, muteFlag]);
+  }, [currentChat, joinChatList, blockList]);
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer ref={chatBoxRef} h={height}>
@@ -45,8 +42,10 @@ const ChatBox = ({
         value={msg}
         onChange={onChange}
         onKeyUp={onSend}
-        placeholder={muteFlag ? "음소거 중입니다." : "채팅하기"}
-        disabled={muteFlag}
+        placeholder={
+          joinChatList[currentChat].isMuted ? "음소거 중입니다." : "채팅하기"
+        }
+        disabled={joinChatList[currentChat].isMuted}
       />
     </ChatBoxWrapper>
   );
