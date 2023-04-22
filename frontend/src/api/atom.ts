@@ -106,11 +106,11 @@ export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
   get: ({ get }) => {
     const data = get(currentNormalGameInfoState);
     const result = [];
-    result.push({ type: "owner", intra_id: data.ownerDto.userName });
+    result.push({ type: "owner", userName: data.ownerDto.userName });
     if (data.opponentDto)
-      result.push({ type: "opponent", intra_id: data.opponentDto.userName });
+      result.push({ type: "opponent", userName: data.opponentDto.userName });
     data.watchersDto.forEach((person) => {
-      result.push({ type: "watcher", intra_id: person.intra_id });
+      result.push({ type: "watcher", userName: person.userName });
     });
     return result;
   },

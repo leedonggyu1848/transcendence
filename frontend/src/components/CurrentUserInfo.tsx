@@ -93,9 +93,9 @@ const CurrentUserInfo = ({
         </InfoContainer>
       </HeaderContainer>
       <UserNameContainer>
-        {data.map(({ intra_id, type }, idx) => (
+        {data.map(({ userName, type }, idx) => (
           <UserName key={idx} className={type} onClick={openPersonalMenu}>
-            {intra_id}
+            {userName}
           </UserName>
         ))}
       </UserNameContainer>

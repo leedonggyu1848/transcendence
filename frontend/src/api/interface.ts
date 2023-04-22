@@ -17,7 +17,7 @@ export interface GameDto {
 }
 
 export interface JoinnedUserDto {
-  intra_id: string;
+  userName: string;
   type?: string;
 }
 
