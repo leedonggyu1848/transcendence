@@ -118,15 +118,17 @@ export class EventsService {
     }
     //return null
     const friends = user.friends.filter((friend) => friend.accept === true);
-    const result = friends.map((friend) => {
+    const result = friends.map(async (friend) => {
+      const found = await this.userService.getUserByUserName(friend.friendName);
       return {
         userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
         type: FriendReqType.ACCEPT,
+        online: found.socketId !== '',
       };
     });
-    return result;
+    return await Promise.all(result);
   }
 
   async getFriendRequestList(socketId: string) {
