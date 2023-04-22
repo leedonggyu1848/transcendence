@@ -157,9 +157,9 @@ export const listenDeleteFriend = ({
   setFriendList: any;
   friendList: any;
 }) => {
-  socket.on("delete-friend", ({ username }: { username: string }) => {
+  socket.on("delete-friend", ({ userName }: { userName: string }) => {
     setFriendList(
-      friendList.filter((friend: IFriendDto) => friend.userName !== username)
+      friendList.filter((friend: IFriendDto) => friend.userName !== userName)
     );
   });
 };
