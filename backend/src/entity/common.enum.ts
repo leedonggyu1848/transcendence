@@ -13,7 +13,6 @@ export enum GameType {
 export enum FriendReqType {
   'SEND',
   'RECEIVE',
-  'ACCEPT',
 }
 
 export enum ChatType {

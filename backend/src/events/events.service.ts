@@ -124,7 +124,6 @@ export class EventsService {
         userName: friend.friendName,
         profile: friend.friendProfile,
         time: friend.time,
-        type: FriendReqType.ACCEPT,
         online: found.socketId !== '',
       };
     });
