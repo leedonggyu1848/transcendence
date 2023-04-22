@@ -238,19 +238,18 @@ export const listenCheckConnection = ({
   setFriendList,
 }: {
   socket: any;
-  setAlertInfo: any;
   friendList: any;
   setFriendList: any;
 }) => {
   socket.on(
     "check-connection",
-    ({ userName, isConnect }: { userName: string; isConnect: boolean }) => {
+    ({ userName, isConnect }: { userName: string; isConnect: number }) => {
       console.log("isConnect", userName, isConnect);
       if (isConnect) {
         setFriendList(
           friendList.map((friend: IFriendDto) =>
             friend.userName === userName
-              ? { ...friend, status: 1 }
+              ? { ...friend, status: isConnect }
               : { ...friend }
           )
         );
@@ -308,6 +307,7 @@ export const listenMessage = ({
       userName: string;
       message: string;
     }) => {
+      console.log(blockList);
       if (blockList.includes(userName)) return;
       setJoinnedChatList({
         ...joinnedChatList,
@@ -939,6 +939,56 @@ export const listenUnBlockUser = ({
     });
     setBlockList(blockList.filter((name) => name !== userName));
   });
+};
+
+export const listenMuteUser = ({
+  socket,
+  setAlertInfo,
+}: {
+  socket: any;
+  setAlertInfo: any;
+}) => {
+  socket.on(
+    "mute-user",
+    ({ roomName, userName }: { roomName: string; userName: string }) => {
+      setAlertInfo({
+        type: "success",
+        header: "",
+        msg: `${roomName}에서 ${userName}을 음소거 했습니다.`,
+        toggle: true,
+      });
+    }
+  );
+};
+
+export const listenChatMuted = ({
+  socket,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+}) => {
+  socket.on(
+    "chat-muted",
+    ({ roomName }: { roomName: string; userName: string }) => {
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            {
+              sender: "admin",
+              msg: `${roomName}에서 음소거 당했습니다.`,
+              time: new Date(),
+            },
+          ],
+        },
+      });
+    }
+  );
 };
 
 export function chatSocketOff(socket: any, ...rest: string[]) {

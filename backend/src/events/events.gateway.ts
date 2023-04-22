@@ -82,15 +82,18 @@ export class EventsGateway
       `message: ${message}`,
     );
     let flag = true;
-    this.muteQueue.forEach((mute) => {
-      if (mute[0] === roomName && mute[1] === userName) flag = false;
+    let leftTime = 0;
+    this.muteQueue.forEach(([targetRoom, targetName, targetTime]) => {
+      const now = new Date();
+      leftTime = Math.floor((now.getTime() - targetTime.getTime()) / 1000);
+      if (targetRoom === roomName && targetName === userName) flag = false;
     });
     if (flag) {
       socket.broadcast
         .to(roomName)
         .emit('message', { userName, roomName, message });
     } else {
-      socket.emit('chat-fail', `${roomName}에서 mute 당했습니다.`);
+      socket.emit('chat-fail', `${leftTime} 후 음소거가 풀립니다.`);
     }
   }
 
@@ -383,11 +386,11 @@ export class EventsGateway
     );
     if (result.success) {
       socket.emit('mute-user', { roomName, userName });
-      this.muteQueue.push([roomName, userName]);
+      this.muteQueue.push([roomName, userName, new Date()]);
       setTimeout(() => {
         this.muteQueue.shift();
       }, 30000);
-      this.nsp.sockets.get(result.data).emit('chat-muted', roomName);
+      this.nsp.sockets.get(result.data)?.emit('chat-muted', roomName);
     } else {
       socket.emit('chat-fail', result.msg);
     }

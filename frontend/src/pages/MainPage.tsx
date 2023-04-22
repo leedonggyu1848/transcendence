@@ -48,6 +48,7 @@ import {
   listenBlockUser,
   listenCancelFriend,
   listenChangeOperator,
+  listenChatMuted,
   listenCheckConnection,
   listenCreateChat,
   listenDeleteFriend,
@@ -61,6 +62,7 @@ import {
   listenKickUser,
   listenLeaveSuccess,
   listenMessage,
+  listenMuteUser,
   listenNewFriend,
   listenReceiveDM,
   listenRequestAllChat,
@@ -160,6 +162,8 @@ const MainPage = () => {
     listenBlockList(hooks);
     listenBlockUser(hooks);
     listenUnBlockUser(hooks);
+    listenMuteUser(hooks);
+    listenChatMuted(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -200,7 +204,9 @@ const MainPage = () => {
         "chat-operator",
         "block-list",
         "block-user",
-        "block-cancel"
+        "block-cancel",
+        "mute-user",
+        "chat-muted"
       );
     };
   }, [myInfo, joinnedChatList, chatList, friendList, friendRequestList]);
