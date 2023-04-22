@@ -965,14 +965,18 @@ export const listenChatMuted = ({
   socket,
   joinnedChatList,
   setJoinnedChatList,
+  setMuteFlag,
 }: {
   socket: any;
   joinnedChatList: any;
   setJoinnedChatList: any;
+  setMuteFlag: any;
 }) => {
   socket.on(
     "chat-muted",
     ({ roomName }: { roomName: string; userName: string }) => {
+      console.log("chat-muted");
+      setMuteFlag(true);
       setJoinnedChatList({
         ...joinnedChatList,
         [roomName]: {

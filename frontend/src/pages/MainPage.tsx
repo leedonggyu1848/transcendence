@@ -21,6 +21,7 @@ import {
   joinChatToggleState,
   joinGameModalToggleState,
   joinnedChatState,
+  muteFlagState,
   myInfoState,
   myNameState,
   operatorModalToggleState,
@@ -105,6 +106,7 @@ const MainPage = () => {
   const [chatList, setChatList] = useRecoilState(chatListState);
   const confirmModalState = useRecoilValue(confirmModalToggleState);
   const [blockList, setBlockList] = useRecoilState(blockUserListState);
+  const setMuteFlag = useRecoilState(muteFlagState);
 
   const hooks: any = {
     socket,
@@ -124,6 +126,7 @@ const MainPage = () => {
     friendList,
     blockList,
     setBlockList,
+    setMuteFlag,
   };
 
   useEffect(() => {

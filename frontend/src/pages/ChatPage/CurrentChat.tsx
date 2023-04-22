@@ -1,14 +1,9 @@
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import {
-  currentChatState,
-  joinnedChatState,
-  muteCountState,
-  myNameState,
-} from "../../api/atom";
+import { currentChatState, joinnedChatState } from "../../api/atom";
 import { getRoomNameByType } from "../../api/funcs";
-import { IChatLog, JoinnedUserDto } from "../../api/interface";
+import { JoinnedUserDto } from "../../api/interface";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
@@ -30,25 +25,9 @@ const CurrentChat = ({
 }) => {
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
-  const [muteCountList, setMuteCountList] = useRecoilState(muteCountState);
   const currentChat = useRecoilValue(currentChatState);
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
-
-  useEffect(() => {
-    socket.on("chat-muted", (roomName: string) => {
-      setMuteCountList({ ...muteCountList, [roomName]: 30 });
-    });
-    let timer: NodeJS.Timeout;
-    if (muteCountList[roomName] > 0) {
-      timer = setTimeout(() => {}, 1000);
-    }
-
-    return () => {
-      socket.off("chat-muted");
-      clearTimeout(timer);
-    };
-  }, [muteCountList, joinnedChatList]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
@@ -92,7 +71,6 @@ const CurrentChat = ({
         onChange={onChange}
         onSend={onSend}
         msg={msg}
-        muteCount={muteCountList[roomName]}
       />
     </CurrentChatContainer>
   );

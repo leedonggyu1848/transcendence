@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import { useEffect, useRef } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import {
   blockUserListState,
   currentChatState,
   joinnedChatState,
-  muteCountState,
+  muteFlagState,
 } from "../../api/atom";
 import Chat from "./Chat";
 
@@ -15,25 +15,25 @@ const ChatBox = ({
   onChange,
   onSend,
   msg,
-  muteCount,
 }: {
   height: number;
   myName: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   onSend: React.KeyboardEventHandler<HTMLInputElement>;
   msg: string;
-  muteCount: number;
 }) => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const joinChatList = useRecoilValue(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
   const blockList = useRecoilValue(blockUserListState);
+  const muteFlag = useRecoilValue(muteFlagState);
 
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [currentChat, joinChatList, blockList]);
+    console.log("in chatbox", muteFlag);
+  }, [currentChat, joinChatList, blockList, muteFlag]);
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer ref={chatBoxRef} h={height}>
@@ -45,10 +45,8 @@ const ChatBox = ({
         value={msg}
         onChange={onChange}
         onKeyUp={onSend}
-        placeholder={
-          muteCount > 0 ? `${muteCount}초 뒤에 채팅 가능합니다.` : "채팅하기"
-        }
-        disabled={muteCount > 0}
+        placeholder={muteFlag ? "음소거 중입니다." : "채팅하기"}
+        disabled={muteFlag}
       />
     </ChatBoxWrapper>
   );

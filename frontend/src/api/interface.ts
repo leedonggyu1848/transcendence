@@ -121,10 +121,6 @@ export interface IBanUserList {
   [key: string]: string[];
 }
 
-export interface IMuteCountList {
-  [key: string]: number;
-}
-
 export interface IJoinnedChat {
   [key: string]: IChatDetail;
 }

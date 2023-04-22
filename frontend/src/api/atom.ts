@@ -10,7 +10,6 @@ import {
   IFriendRequest,
   IGameUserInfo,
   IJoinnedChat,
-  IMuteCountList,
   ISelectedGameRecord,
   JoinnedUserDto,
   UserDto,
@@ -288,11 +287,6 @@ export const friendListState = atom<IFriendDto[]>({
   default: [],
 });
 
-export const muteCountState = atom<IMuteCountList>({
-  key: "muteCountState",
-  default: {},
-});
-
 export const blockUserListState = atom<Array<string>>({
   key: "blockUserListState",
   default: [],
@@ -328,4 +322,9 @@ export const sideMenuToggle = atom({
     friends: false,
     alarm: false,
   },
+});
+
+export const muteFlagState = atom({
+  key: "muteFlagState",
+  default: false,
 });

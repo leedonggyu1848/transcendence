@@ -85,7 +85,8 @@ export class EventsGateway
     let leftTime = 0;
     this.muteQueue.forEach(([targetRoom, targetName, targetTime]) => {
       const now = new Date();
-      leftTime = Math.floor((now.getTime() - targetTime.getTime()) / 1000);
+      console.log(now, targetTime);
+      leftTime = Math.floor((targetTime - now.getTime()) / 1000);
       if (targetRoom === roomName && targetName === userName) flag = false;
     });
     if (flag) {
@@ -386,7 +387,7 @@ export class EventsGateway
     );
     if (result.success) {
       socket.emit('mute-user', { roomName, userName });
-      this.muteQueue.push([roomName, userName, new Date()]);
+      this.muteQueue.push([roomName, userName, new Date().getTime() + 30000]);
       setTimeout(() => {
         this.muteQueue.shift();
       }, 30000);

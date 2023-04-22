@@ -216,7 +216,6 @@ const NormalGamePage = () => {
           msg={msg}
           height={350}
           myName={myName}
-          muteCount={0}
         />
       </SubContainer>
     </NormalGamePageContainer>
