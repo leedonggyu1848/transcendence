@@ -125,6 +125,12 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async updateUserName(id: number, userName: string) {
+    await this.userRepository.update(id, {
+      userName: userName,
+    });
+  }
+
   async updateOwnGame(id: number, game: Game) {
     await this.userRepository.update(id, {
       playGame: game,

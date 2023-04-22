@@ -20,6 +20,7 @@ export interface IUserRepository {
   findBySocketIdWithJoinFriend(socketId: string);
   findBySocketIdWithJoinBlock(socketId: string);
   updateSocketId(id: number, socketId: string);
+  updateUserName(id: number, userName: string);
   updateOwnGame(id: number, game: Game);
   updatePlayGame(id: number, game: Game);
   updateWatchGame(id: number, game: Game);

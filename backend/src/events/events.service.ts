@@ -58,13 +58,13 @@ export class EventsService {
         // ];
       }
       await Promise.all(result);
-      await this.userRepository.updateSocketId(user.id, '');
+      await this.userService.updateSocketId(user, '');
     }
   }
 
   async registUser(userName: string, socketId: string) {
     const user = await this.userRepository.findByUserName(userName);
-    await this.userRepository.updateSocketId(user.id, socketId);
+    await this.userService.updateSocketId(user, socketId);
   }
 
   async isConnect(socketId: string) {

@@ -84,6 +84,10 @@ export class UserService {
     }
   }
 
+  async updateSocketId(user: User, socketId: string) {
+    await this.userRepository.updateSocketId(user.id, socketId);
+  }
+
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
     let found = await this.userRepository.findByUserId(user.userId);
     if (found.profile) {

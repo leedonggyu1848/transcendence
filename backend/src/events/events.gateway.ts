@@ -323,7 +323,7 @@ export class EventsGateway
     );
     if (result.success) {
       const room = await this.nsp.in(roomName).fetchSockets();
-      this.nsp.in(roomName).emit('kick-user', { roomName, userName });
+      this.nsp.emit('kick-user', { roomName, userName });
       await this.nsp.sockets.get(result.data)?.leave(roomName);
     } else {
       socket.emit('chat-fail', result.msg);
@@ -404,8 +404,7 @@ export class EventsGateway
         userName,
       );
       if (kickResult.success) {
-        const room = await this.nsp.in(roomName).fetchSockets();
-        this.nsp.in(roomName).emit('ban-user', { roomName, userName });
+        this.nsp.emit('ban-user', { roomName, userName });
         await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
       } else {
         socket.emit('chat-fail', kickResult.msg);
