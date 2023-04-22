@@ -10,14 +10,10 @@ import { WebsocketContext } from "../../../api/WebsocketContext";
 const BlockList = () => {
   const socket = useContext(WebsocketContext);
   const blockList = useRecoilValue(blockUserListState);
-  const [requestBlockListFlag, setRequestBlockListFlag] = useRecoilState(
-    requestBlockUserListFlagState
-  );
-  useEffect(() => {
-    if (!requestBlockListFlag) {
-      socket.emit("request-block");
-    }
-  }, []);
+
+  const clickUnblockUser = (userName: string) => {
+    socket.emit("block-cancel", userName);
+  };
   return (
     <BlockListContainer>
       <h1>차단 목록</h1>
@@ -25,7 +21,7 @@ const BlockList = () => {
         {blockList.map((name) => (
           <BlockedUser key={name}>
             <Name>{name}</Name>
-            <Button>해제</Button>
+            <Button onClick={() => clickUnblockUser(name)}>해제</Button>
           </BlockedUser>
         ))}
       </BlockedUsers>

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useEffect, useRef } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
+  blockUserListState,
   currentChatState,
   joinnedChatState,
   muteCountState,
@@ -26,12 +27,13 @@ const ChatBox = ({
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const joinChatList = useRecoilValue(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
+  const blockList = useRecoilValue(blockUserListState);
 
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [currentChat, joinChatList]);
+  }, [currentChat, joinChatList, blockList]);
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer ref={chatBoxRef} h={height}>

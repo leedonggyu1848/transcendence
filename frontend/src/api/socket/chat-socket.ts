@@ -289,11 +289,13 @@ export const listenMessage = ({
   joinnedChatList,
   setJoinnedChatList,
   currentChat,
+  blockList,
 }: {
   currentChat: any;
   socket: any;
   joinnedChatList: any;
   setJoinnedChatList: any;
+  blockList: any;
 }) => {
   socket.on(
     "message",
@@ -306,6 +308,7 @@ export const listenMessage = ({
       userName: string;
       message: string;
     }) => {
+      if (blockList.includes(userName)) return;
       setJoinnedChatList({
         ...joinnedChatList,
         [roomName]: {
@@ -866,15 +869,12 @@ export const listenChangeOperator = ({
 
 export const listenBlockList = ({
   socket,
-  blockList,
   setBlockList,
 }: {
   socket: any;
-  blockList: string[];
   setBlockList: any;
 }) => {
   socket.on("block-list", (list: string[]) => {
-    console.log("blocklist", list);
     setBlockList([...list]);
   });
 };
@@ -883,13 +883,33 @@ export const listenBlockUser = ({
   socket,
   blockList,
   setBlockList,
+  setAlertInfo,
+  currentChat,
+  joinnedChatList,
+  setJoinnedChatList,
 }: {
   socket: any;
   blockList: string[];
   setBlockList: any;
+  setAlertInfo: any;
+  currentChat: string;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
 }) => {
   socket.on("block-user", (userName: string) => {
-    console.log("userName : ", userName, "이 블락 되었습니다.");
+    setAlertInfo({
+      type: "success",
+      header: "",
+      msg: `${userName}님을 차단했습니다`,
+      toggle: true,
+    });
+    setJoinnedChatList({
+      ...joinnedChatList,
+      [currentChat]: {
+        ...joinnedChatList[currentChat],
+        chatLogs: [...joinnedChatList[currentChat].chatLogs],
+      },
+    });
     setBlockList([...blockList, userName]);
   });
 };
@@ -898,13 +918,25 @@ export const listenUnBlockUser = ({
   socket,
   blockList,
   setBlockList,
+  currentChat,
+  joinnedChatList,
+  setJoinnedChatList,
 }: {
   socket: any;
   blockList: string[];
   setBlockList: any;
+  currentChat: string;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
 }) => {
   socket.on("block-cancel", (userName: string) => {
-    console.log("userName : ", userName, "이 블락 해제되었습니다.");
+    setJoinnedChatList({
+      ...joinnedChatList,
+      [currentChat]: {
+        ...joinnedChatList[currentChat],
+        chatLogs: [...joinnedChatList[currentChat].chatLogs],
+      },
+    });
     setBlockList(blockList.filter((name) => name !== userName));
   });
 };

@@ -39,7 +39,6 @@ import SettingModal from "../components/Modals/SettingModal/SettingModal";
 import { axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
 import JoinChatModal from "../components/Modals/JoinChatModal";
-import { IFriendDto, IFriendRequest } from "../api/interface";
 import {
   chatSocketOff,
   listenAlert,
