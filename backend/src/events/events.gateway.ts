@@ -390,6 +390,7 @@ export class EventsGateway
       setTimeout(() => {
         this.muteQueue.shift();
       }, 30000);
+      console.log(this.muteQueue);
       this.nsp.sockets.get(result.data)?.emit('chat-muted', roomName);
     } else {
       socket.emit('chat-fail', result.msg);
