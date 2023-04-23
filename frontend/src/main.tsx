@@ -10,6 +10,7 @@ import { RecoilRoot } from "recoil";
 import NoAuthPage from "./pages/NoAuthPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { socket, WebsocketProvider } from "./api/WebsocketContext";
+import TFAuthPage from "./pages/TFAuthPage/TFAuthPage";
 
 const Background = styled.div`
   background-image: url("/src/assets/background.png");
@@ -32,6 +33,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Background>
             <Routes>
               <Route path="/" element={<LoginPage />} />
+              <Route path="/auth" element={<TFAuthPage />} />
               <Route path="/main/*" element={<MainPage />} />
               <Route path="/no_auth" element={<NoAuthPage />} />
               <Route path="*" element={<NotFoundPage />} />

@@ -133,3 +133,9 @@ const axiosSendFriendRequestURL = "/friend/send-request";
 export const axiosSendFriendRequest = async (friendname: string) => {
   await instance.post(axiosSendFriendRequestURL, { friendname });
 };
+
+const axiosPostAuthCodeURL = "/auth/two-factor";
+export const axiosPostAuthCode = async (code: string) => {
+  const response = await instance.post(axiosPostAuthCodeURL, { code });
+  return response.data;
+};
