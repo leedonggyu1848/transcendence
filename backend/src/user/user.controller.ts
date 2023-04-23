@@ -46,8 +46,8 @@ export class UserController {
   ) {
     this.logger.log(`Login: ${userSession.intraId}`);
     const user = await this.authService.addUserFromSession(userSession);
-    const url = user.TFAuth ? 'frontend.home' : 'frontend.auth';
-    if (!user.TFAuth) await this.authService.sendAuthMail(user);
+    const url = user.auth ? 'frontend.home' : 'frontend.auth';
+    if (!user.auth) await this.authService.sendAuthMail(user);
     return res.redirect(`${this.configService.get<string>(url)}`);
   }
 
