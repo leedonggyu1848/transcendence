@@ -21,7 +21,7 @@ export interface IUserRepository {
   findBySocketIdWithJoinBlock(socketId: string);
   updateSocketId(id: number, socketId: string);
   updateUserName(id: number, userName: string);
-  updateFTAuth(id: number, auth: boolean);
+  updateAuth(id: number, auth: boolean);
   updateOwnGame(id: number, game: Game);
   updatePlayGame(id: number, game: Game);
   updateWatchGame(id: number, game: Game);

@@ -74,6 +74,21 @@ export class UserController {
     res.status(HttpStatus.NO_CONTENT).send();
   }
 
+  @Post('/user/update-name')
+  @UseGuards(TwoFactorGuard)
+  async updateUserName(
+    @Res() res: Response,
+    @UserDeco() user: UserSessionDto,
+    @Body('userName') userName: string,
+  ) {
+    this.logger.log(`[UpdateUserName] userName: ${userName}`);
+    const result = await this.authService.updateUserName(user, userName);
+    let message: string;
+    if (result) message = '유저 이름 변경에 성공했습니다.';
+    else message = '이미 사용 중인 이름입니다.';
+    res.status(HttpStatus.OK).send(message);
+  }
+
   @Post('/user/profile')
   @UseGuards(TwoFactorGuard)
   @UseInterceptors(FileInterceptor('image'))
@@ -82,13 +97,13 @@ export class UserController {
     @UserDeco() user: UserSessionDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    this.logger.log(`Profile upadate: ${user.intraId}`);
-    const data = await this.authService.updateProfileImage(user, image);
-    if (!data.success) {
-      this.logger.log(data.data);
+    this.logger.log(`[UpdateProfile] image: ${image.filename}`);
+    const result = await this.authService.updateProfileImage(user, image);
+    if (!result.success) {
+      this.logger.log(result.data);
       throw new InternalServerErrorException('데이터 저장 실패');
     }
-    res.status(HttpStatus.OK).send(data.data);
+    res.status(HttpStatus.OK).send(result.data);
   }
 
   @Post('/user/introduce')

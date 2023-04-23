@@ -66,9 +66,9 @@ export class UserService {
         text:
           'PH18 Pong 2차 인증 코드입니다.\n' +
           '************************\n' +
-          '**       ' +
+          '**         ' +
           key +
-          '       **\n' +
+          '         **\n' +
           '************************',
       };
       transporter.sendMail(mailOptions, function (err, info) {
@@ -86,7 +86,7 @@ export class UserService {
   async checkAuthCode(userSession: UserSessionDto, code: string) {
     const user = await this.userRepository.findByUserId(userSession.userId);
     if (this.tfauthMap[user.id] === code) {
-      await this.userRepository.updateFTAuth(user.id, true);
+      await this.userRepository.updateAuth(user.id, true);
       delete this.tfauthMap[user.id];
       return true;
     }
@@ -149,8 +149,12 @@ export class UserService {
     await this.userRepository.updateSocketId(user.id, socketId);
   }
 
-  async updateUserName(user: User, userName: string) {
+  async updateUserName(userSession: UserSessionDto, userName: string) {
+    const user = await this.userRepository.findByUserId(userSession.userId);
+    const found = await this.userRepository.findByUserName(userName);
+    if (found) return false;
     await this.userRepository.updateUserName(user.id, userName);
+    return true;
   }
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {

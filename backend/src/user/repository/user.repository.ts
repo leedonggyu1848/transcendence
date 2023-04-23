@@ -135,7 +135,7 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async updateFTAuth(id: number, auth: boolean) {
+  async updateAuth(id: number, auth: boolean) {
     await this.userRepository.update(id, { auth: auth });
   }
 
