@@ -7,9 +7,11 @@ import * as bcrypt from 'bcrypt';
 import { GameService } from 'src/game/game.service';
 import { IBlockRepository } from './repository/block.interface.repository';
 import { BanService } from 'src/ban/ban.service';
+import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class EventsService {
+  private sessionMap = {};
   constructor(
     @Inject('IChatRepository')
     private chatRepository: IChatRepository,
@@ -22,39 +24,48 @@ export class EventsService {
     private banService: BanService,
   ) {}
 
+  private async leaveRooms(socketId: string, user: User) {
+    let result = [];
+    if (user.chats) {
+      result = [
+        ...user.chats.map(async (chat) => {
+          await this.leaveChat(socketId, chat.chat.title);
+        }),
+      ];
+    }
+    if (user.playGame) {
+      // result = [
+      //   ...result,
+      //   ...user.playGame.leaveGame();
+      //   }),
+      // ];
+    }
+    if (user.watchGame) {
+      // result = [
+      //   ...result,
+      //   ...user.chats.map(async (chat) => {
+      //     await this.leaveChat(socketId, chat.chat.title);
+      //   }),
+      // ];
+    }
+    await Promise.all(result);
+  }
+
   async disconnect(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithAll(socketId);
     if (user) {
-      let result = [];
-      if (user.chats) {
-        result = [
-          ...user.chats.map(async (chat) => {
-            await this.leaveChat(socketId, chat.chat.title);
-          }),
-        ];
-      }
-      if (user.playGame) {
-        // result = [
-        //   ...result,
-        //   ...user.playGame.leaveGame();
-        //   }),
-        // ];
-      }
-      if (user.watchGame) {
-        // result = [
-        //   ...result,
-        //   ...user.chats.map(async (chat) => {
-        //     await this.leaveChat(socketId, chat.chat.title);
-        //   }),
-        // ];
-      }
-      await Promise.all(result);
+      const timeId = setTimeout(() => {
+        this.leaveRooms(socketId, user);
+      }, 3000);
+      this.sessionMap[user.userName] = timeId;
       await this.userService.updateSocketId(user, '');
     }
   }
 
   async registUser(userName: string, socketId: string) {
     const user = await this.userService.getUserByUserName(userName);
+    if (this.sessionMap[user.userName])
+      clearTimeout(this.sessionMap[user.userName]);
     await this.userService.updateSocketId(user, socketId);
   }
 
@@ -133,7 +144,9 @@ export class EventsService {
       !(await bcrypt.compare(password, chat.password))
     )
       return { success: false, msg: `비밀번호가 맞지 않습니다.` };
-    const joined = chat.users.filter((usr) => usr.userName === user.userName);
+    const joined = chat.users.filter(
+      (usr) => usr.user.userName === user.userName,
+    );
     if (joined.length !== 0)
       return { success: false, msg: `${roomName}에 이미 참가 중 입니다.` };
     const ban = chat.banUsers.filter((ban) => ban.userName === user.userName);
