@@ -47,9 +47,11 @@ export class UserController {
   ) {
     this.logger.log(`Login: ${userSession.intraId}`);
     const user = await this.authService.addUserFromSession(userSession);
-    const url = user.auth ? 'frontend.home' : 'frontend.auth';
     if (!user.auth) await this.authService.sendAuthMail(user);
-    return res.redirect(`${this.configService.get<string>(url)}`);
+    const url = user.auth ? 'frontend.home' : 'frontend.auth';
+    return res.redirect(
+      `${this.configService.get<string>(url)}?request=` + user.email,
+    );
   }
 
   @Post('/two-factor')
