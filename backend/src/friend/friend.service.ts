@@ -16,15 +16,15 @@ export class FriendService {
   ) {}
 
   private async addDummyFriends(user: User) {
-    await this.userRepository.createUser(1122, 'tmp1');
-    await this.userRepository.createUser(1123, 'tmp2');
-    await this.userRepository.createUser(1124, 'tmp3');
-    await this.userRepository.createUser(1125, 'tmp4');
-    await this.userRepository.createUser(1126, 'tmp5');
-    await this.userRepository.createUser(1127, 'tmp6');
-    await this.userRepository.createUser(1128, 'tmp7');
-    await this.userRepository.createUser(1129, 'tmp8');
-    await this.userRepository.createUser(1130, 'tmp9');
+    await this.userRepository.createUser(1122, 'tmp1', '123');
+    await this.userRepository.createUser(1123, 'tmp2', '123');
+    await this.userRepository.createUser(1124, 'tmp3', '123');
+    await this.userRepository.createUser(1125, 'tmp4', '123');
+    await this.userRepository.createUser(1126, 'tmp5', '123');
+    await this.userRepository.createUser(1127, 'tmp6', '123');
+    await this.userRepository.createUser(1128, 'tmp7', '123');
+    await this.userRepository.createUser(1129, 'tmp8', '123');
+    await this.userRepository.createUser(1130, 'tmp9', '123');
     await this.friendRepository.addDummyFriend(user, 'tmp1');
     await this.friendRepository.addDummyFriend(user, 'tmp2');
     await this.friendRepository.addDummyFriend(user, 'tmp3');

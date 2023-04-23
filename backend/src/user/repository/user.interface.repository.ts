@@ -3,7 +3,7 @@ import { Game } from 'src/entity/game.entity';
 import { User } from 'src/entity/user.entity';
 
 export interface IUserRepository {
-  createUser(userId: number, userName: string);
+  createUser(userId: number, userName: string, email: string);
   findAll();
   findByUserId(userId: number);
   findByUserIdWithJoinGame(userId: number);
@@ -21,6 +21,7 @@ export interface IUserRepository {
   findBySocketIdWithJoinBlock(socketId: string);
   updateSocketId(id: number, socketId: string);
   updateUserName(id: number, userName: string);
+  updateFTAuth(id: number, auth: boolean);
   updateOwnGame(id: number, game: Game);
   updatePlayGame(id: number, game: Game);
   updateWatchGame(id: number, game: Game);

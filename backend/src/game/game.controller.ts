@@ -31,7 +31,7 @@ export class GameController {
 
   @Get('/lobby')
   @UseGuards(JwtGuard)
-  async lobby(@Res() res: Response) {
+  async lobby(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log('Request lobby info');
     let games = await this.gameService.getLobbyInfo();
     // test code => TODO: delete

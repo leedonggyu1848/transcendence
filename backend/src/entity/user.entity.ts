@@ -30,6 +30,14 @@ export class User {
   userName: string;
 
   @Column()
+  @NotEquals(null)
+  email: string;
+
+  @Column()
+  @NotEquals(null)
+  auth: boolean;
+
+  @Column()
   profile: string;
 
   @Column()

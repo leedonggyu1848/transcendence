@@ -4,10 +4,14 @@ import * as fs from 'fs';
 import { IUserRepository } from './repository/user.interface.repository';
 import { User } from 'src/entity/user.entity';
 import { UserDto } from 'src/dto/user.dto';
+import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UserService {
+  private tfauthMap = {};
   constructor(
+    private configService: ConfigService,
     @Inject('IUserRepository')
     private userRepository: IUserRepository,
   ) {}
@@ -25,6 +29,71 @@ export class UserService {
       rankLose: user.rankLose,
     };
     return userDto;
+  }
+
+  async addUserFromSession(user: UserSessionDto) {
+    const found = await this.userRepository.findByUserIdWithJoinGame(
+      user.userId,
+    );
+    if (found) return found;
+    else
+      return await this.userRepository.createUser(
+        user.userId,
+        user.intraId,
+        user.email,
+      );
+  }
+
+  async sendAuthMail(user: User) {
+    const mailer = require('nodemailer');
+    const uuid = randomUUID().toString();
+    const key = uuid.slice(0, 6);
+    console.log(user.id, key);
+    this.tfauthMap[user.id] = key;
+    const transporter = mailer.createTransport({
+      service: 'gmail',
+      host: 'smtp@gmail.com',
+      port: 465,
+      auth: {
+        user: this.configService.get<string>('tf.email.id'),
+        pass: this.configService.get<string>('tf.email.password'),
+      },
+      secure: true,
+    });
+    const sendMail = (email) => {
+      let mailOptions = {
+        to: email,
+        subject: 'PH18 Pong 로그인',
+        text:
+          'PH18 Pong 2차 인증 코드입니다.\n' +
+          '************************\n' +
+          '**       ' +
+          key +
+          '       **\n' +
+          '************************',
+      };
+      transporter.sendMail(mailOptions, function (err, info) {
+        if (err) console.log(err);
+        else console.log(email + ': ' + info.response);
+      });
+    };
+    sendMail(user.email);
+    setTimeout(() => {
+      delete this.tfauthMap[user.id];
+    }, 300000);
+  }
+
+  async checkAuthCode(userSession: UserSessionDto, code: string) {
+    const user = await this.userRepository.findByUserId(userSession.userId);
+    if (this.tfauthMap[user.userId] === code) {
+      this.userRepository.updateFTAuth(user.id, true);
+      return true;
+    }
+    return user.auth;
+  }
+
+  async getUserByUserId(userId: number) {
+    return await this.userRepository.findByUserId(userId);
   }
 
   async getUserByUserName(userName: string) {
@@ -75,21 +144,12 @@ export class UserService {
     return await this.userRepository.findBySocketIdWithJoinBlock(socketId);
   }
 
-  async addUserFromSession(user: UserSessionDto) {
-    const found = await this.userRepository.findByUserIdWithJoinGame(
-      user.userId,
-    );
-    if (!found) {
-      await this.userRepository.createUser(user.userId, user.intraId);
-    }
-  }
-
   async updateSocketId(user: User, socketId: string) {
     await this.userRepository.updateSocketId(user.id, socketId);
   }
 
   async updateUserName(user: User, userName: string) {
-    // await
+    await this.userRepository.updateUserName(user.id, userName);
   }
 
   async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {

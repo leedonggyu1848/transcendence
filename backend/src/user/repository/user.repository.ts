@@ -11,10 +11,12 @@ export class UserRepository implements IUserRepository {
     private userRepository: Repository<User>,
   ) {}
 
-  async createUser(userId: number, userName: string) {
-    await this.userRepository.save({
+  async createUser(userId: number, userName: string, email: string) {
+    const user = this.userRepository.create({
       userId: userId,
       userName: userName,
+      email: email,
+      auth: false,
       socketId: '',
       profile: '',
       introduce: '',
@@ -24,6 +26,8 @@ export class UserRepository implements IUserRepository {
       rankLose: 0,
       joinType: JoinType.NONE,
     });
+    await this.userRepository.save(user);
+    return user;
   }
 
   async findAll() {
@@ -129,6 +133,10 @@ export class UserRepository implements IUserRepository {
     await this.userRepository.update(id, {
       userName: userName,
     });
+  }
+
+  async updateFTAuth(id: number, auth: boolean) {
+    await this.userRepository.update(id, { auth: auth });
   }
 
   async updateOwnGame(id: number, game: Game) {

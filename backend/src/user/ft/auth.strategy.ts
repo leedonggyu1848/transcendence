@@ -15,6 +15,7 @@ export class PhStrategy extends PassportStrategy(Strategy, '42') {
       profileFields: {
         userId: 'id',
         login: 'login',
+        email: 'email',
       },
     });
   }
@@ -24,6 +25,7 @@ export class PhStrategy extends PassportStrategy(Strategy, '42') {
     const user: UserSessionDto = {
       userId: profile.userId,
       intraId: profile.login,
+      email: profile.email,
     };
     cb(null, user);
   }

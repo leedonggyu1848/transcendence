@@ -212,8 +212,8 @@ export class GameService {
 
   // code for test -> TODO: delete
   async addDummyData() {
-    await this.userRepository.createUser(123, 'dummy_user1');
-    await this.userRepository.createUser(456, 'dummy_user2');
+    await this.userRepository.createUser(123, 'dummy_user1', '123');
+    await this.userRepository.createUser(456, 'dummy_user2', '123');
     const user1 = await this.userRepository.findByUserName('dummy_user1');
     await this.createGame(
       {
@@ -239,8 +239,8 @@ export class GameService {
 
   // code for test -> TODO: delete
   async addDummyHistory() {
-    const user1 = await this.userRepository.createUser(123132, 'dum1');
-    const user2 = await this.userRepository.createUser(123133, 'dum2');
+    const user1 = await this.userRepository.createUser(123132, 'dum1', '123');
+    const user2 = await this.userRepository.createUser(123133, 'dum2', '123');
     let res = [];
     for (let i = 0; i < 50; i++) {
       let type = randomInt(0, 2);

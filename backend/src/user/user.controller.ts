@@ -39,11 +39,28 @@ export class UserController {
   }
 
   @Get('/logincallback')
-  @UseGuards(PhGuard, JwtSignGuard)
-  async loginCallback(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`Login: ${user.intraId}`);
-    await this.authService.addUserFromSession(user);
-    return res.redirect(`${this.configService.get<string>('frontend_home')}`);
+  @UseGuards(PhGuard)
+  async loginCallback(
+    @Res() res: Response,
+    @UserDeco() userSession: UserSessionDto,
+  ) {
+    this.logger.log(`Login: ${userSession.intraId}`);
+    const user = await this.authService.addUserFromSession(userSession);
+    const url = user.TFAuth ? 'frontend.home' : 'frontend.auth';
+    if (!user.TFAuth) await this.authService.sendAuthMail(user);
+    return res.redirect(`${this.configService.get<string>(url)}`);
+  }
+
+  @Post('/two-factor')
+  @UseGuards(JwtSignGuard)
+  async twoFactorAuth(
+    @Res() res: Response,
+    @UserDeco() userSession: UserSessionDto,
+    @Body('code') code: string,
+  ) {
+    this.logger.log(`[TwoFactorAuth] code: ${code}`);
+    const result = this.authService.checkAuthCode(userSession, code);
+    res.status(HttpStatus.OK).send(result);
   }
 
   @Get('/logout')

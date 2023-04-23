@@ -17,10 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const found = await this.authService.getUserByUserNameWithGame(
-      payload.intra_id,
-    );
-    if (!found) return false;
+    const user = await this.authService.getUserByUserId(payload.userId);
+    if (!user) return false;
+    if (!user.TFAuth) return false;
     return payload;
   }
 }
