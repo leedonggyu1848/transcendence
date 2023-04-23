@@ -60,7 +60,7 @@ export class UserController {
     @Body('code') code: string,
   ) {
     this.logger.log(`[TwoFactorAuth] code: ${code}`);
-    const result = this.authService.checkAuthCode(userSession, code);
+    const result = await this.authService.checkAuthCode(userSession, code);
     res.status(HttpStatus.OK).send(result);
   }
 

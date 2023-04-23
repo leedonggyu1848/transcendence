@@ -86,7 +86,7 @@ export class UserService {
   async checkAuthCode(userSession: UserSessionDto, code: string) {
     const user = await this.userRepository.findByUserId(userSession.userId);
     if (this.tfauthMap[user.id] === code) {
-      this.userRepository.updateFTAuth(user.id, true);
+      await this.userRepository.updateFTAuth(user.id, true);
       delete this.tfauthMap[user.id];
       return true;
     }
