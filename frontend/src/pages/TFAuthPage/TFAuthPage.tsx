@@ -38,6 +38,8 @@ const TFAuthPage = () => {
           navigate("/main/lobby");
         } else {
           setError("인증 코드가 맞지 않습니다");
+          inputs.forEach((input) => (input.current.value = ""));
+          inputs[0].current.focus();
         }
       } catch (e) {
         navigate("/");
