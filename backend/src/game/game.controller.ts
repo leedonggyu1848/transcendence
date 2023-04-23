@@ -20,6 +20,7 @@ import { GameDto } from 'src/dto/game.dto';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { Response } from 'express';
 import { GameType } from 'src/entity/common.enum';
+import TwoFactorGuard from 'src/user/jwt/guard/twofactor.guard';
 
 @Controller('/api/game')
 export class GameController {
@@ -30,7 +31,7 @@ export class GameController {
   ) {}
 
   @Get('/lobby')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async lobby(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log('Request lobby info');
     let games = await this.gameService.getLobbyInfo();
@@ -40,7 +41,7 @@ export class GameController {
   }
 
   @Get('/userinfo')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async getMyInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`User info request: ${user.intraId}`);
     const data = await this.gameService.getUserInfo(user.intraId);
@@ -48,7 +49,7 @@ export class GameController {
   }
 
   @Get('/userinfo/:userName')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async getUserInfo(@Res() res: Response, @Param('userName') userName: string) {
     this.logger.log(`User info request: ${userName}`);
     const data = await this.gameService.getUserInfo(userName);
@@ -56,7 +57,7 @@ export class GameController {
   }
 
   @Post('/new_game')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async newGame(
     @Res() res: Response,
     @Body() gameDto: GameDto,
@@ -75,7 +76,7 @@ export class GameController {
   }
 
   @Post('/join')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async joinGame(
     @Res() res: Response,
     @Body('title') title: string,
@@ -95,7 +96,7 @@ export class GameController {
   }
 
   @Post('/watch')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async watchGame(
     @Res() res: Response,
     @Body('title') title: string,
@@ -115,7 +116,7 @@ export class GameController {
   }
 
   @Post('/result')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async gameResult(
     @Res() res: Response,
     @Body('win') win: string,
@@ -132,14 +133,14 @@ export class GameController {
   }
 
   @Post('/flush') // test code => TODO: delete
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async flush(@Res() res: Response, @Body('title') title: string) {
     await this.gameService.flushGame(title);
     res.status(HttpStatus.OK).send();
   }
 
   @Get('/leave')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Leave game: ${user.intraId}`);
     const found_user = await this.userService.getUserByUserNameWithGame(
@@ -154,7 +155,7 @@ export class GameController {
   }
 
   @Get('/history')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async getHistory(@Res() res: Response, @Query('page') page: number) {
     this.logger.log(`Get history: ${page} page`);
     let data = await this.gameService.getTotalHistory(page);
@@ -167,7 +168,7 @@ export class GameController {
   }
 
   @Get('/history/:id')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async getRecord(@Res() res: Response, @Param('id') id: number) {
     this.logger.log(`Get record: ${id}`);
     const data = await this.gameService.getRecordById(id);

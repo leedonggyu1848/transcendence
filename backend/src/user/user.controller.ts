@@ -23,6 +23,7 @@ import { UserService } from './user.service';
 import { PhGuard } from './ft/guard/auth.guard';
 import JwtGuard from './jwt/guard/jwtauth.guard';
 import { JwtSignGuard } from './jwt/guard/jwtsign.guard';
+import TwoFactorGuard from './jwt/guard/twofactor.guard';
 
 @Controller('/api/auth')
 export class UserController {
@@ -39,7 +40,7 @@ export class UserController {
   }
 
   @Get('/logincallback')
-  @UseGuards(PhGuard)
+  @UseGuards(PhGuard, JwtSignGuard)
   async loginCallback(
     @Res() res: Response,
     @UserDeco() userSession: UserSessionDto,
@@ -52,7 +53,7 @@ export class UserController {
   }
 
   @Post('/two-factor')
-  @UseGuards(JwtSignGuard)
+  @UseGuards(JwtGuard)
   async twoFactorAuth(
     @Res() res: Response,
     @UserDeco() userSession: UserSessionDto,
@@ -64,7 +65,7 @@ export class UserController {
   }
 
   @Get('/logout')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
     this.logger.log(`Logout: ${user.intraId}`);
     res.clearCookie('access_token');
@@ -72,7 +73,7 @@ export class UserController {
   }
 
   @Post('/user/profile')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   @UseInterceptors(FileInterceptor('image'))
   async updateProfile(
     @Res() res: Response,
@@ -89,7 +90,7 @@ export class UserController {
   }
 
   @Post('/user/introduce')
-  @UseGuards(JwtGuard)
+  @UseGuards(TwoFactorGuard)
   async updateIntroduce(
     @Res() res: Response,
     @UserDeco() user: UserSessionDto,

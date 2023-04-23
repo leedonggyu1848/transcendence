@@ -48,7 +48,6 @@ export class UserService {
     const mailer = require('nodemailer');
     const uuid = randomUUID().toString();
     const key = uuid.slice(0, 6);
-    console.log(user.id, key);
     this.tfauthMap[user.id] = key;
     const transporter = mailer.createTransport({
       service: 'gmail',
@@ -73,11 +72,12 @@ export class UserService {
           '************************',
       };
       transporter.sendMail(mailOptions, function (err, info) {
-        if (err) console.log(err);
-        else console.log(email + ': ' + info.response);
+        if (err) this.logger.error(err);
+        else this.logger.log(email + ': ' + info.response);
       });
     };
     sendMail(user.email);
+    this.tfauthMap[user.id] = key;
     setTimeout(() => {
       delete this.tfauthMap[user.id];
     }, 300000);
@@ -85,8 +85,9 @@ export class UserService {
 
   async checkAuthCode(userSession: UserSessionDto, code: string) {
     const user = await this.userRepository.findByUserId(userSession.userId);
-    if (this.tfauthMap[user.userId] === code) {
+    if (this.tfauthMap[user.id] === code) {
       this.userRepository.updateFTAuth(user.id, true);
+      delete this.tfauthMap[user.id];
       return true;
     }
     return user.auth;

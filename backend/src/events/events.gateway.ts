@@ -85,7 +85,6 @@ export class EventsGateway
     let leftTime = 0;
     this.muteQueue.forEach(([targetRoom, targetName, targetTime]) => {
       const now = new Date();
-      console.log(now, targetTime);
       leftTime = Math.floor((targetTime - now.getTime()) / 1000);
       if (targetRoom === roomName && targetName === userName) flag = false;
     });
@@ -391,7 +390,6 @@ export class EventsGateway
       setTimeout(() => {
         this.muteQueue.shift();
       }, 30000);
-      console.log(this.muteQueue);
       this.nsp.sockets.get(result.data)?.emit('chat-muted', roomName);
     } else {
       socket.emit('chat-fail', result.msg);
