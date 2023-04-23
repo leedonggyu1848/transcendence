@@ -1,11 +1,10 @@
 import styled from "@emotion/styled";
 import { useEffect, useRef } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import {
   blockUserListState,
   currentChatState,
   joinnedChatState,
-  muteCountState,
 } from "../../api/atom";
 import Chat from "./Chat";
 
@@ -15,14 +14,12 @@ const ChatBox = ({
   onChange,
   onSend,
   msg,
-  muteCount,
 }: {
   height: number;
   myName: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   onSend: React.KeyboardEventHandler<HTMLInputElement>;
   msg: string;
-  muteCount: number;
 }) => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const joinChatList = useRecoilValue(joinnedChatState);
@@ -46,9 +43,9 @@ const ChatBox = ({
         onChange={onChange}
         onKeyUp={onSend}
         placeholder={
-          muteCount > 0 ? `${muteCount}초 뒤에 채팅 가능합니다.` : "채팅하기"
+          joinChatList[currentChat].isMuted ? "음소거 중입니다." : "채팅하기"
         }
-        disabled={muteCount > 0}
+        disabled={joinChatList[currentChat].isMuted}
       />
     </ChatBoxWrapper>
   );

@@ -235,7 +235,7 @@ export class EventsService {
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (chat.operator !== user.userName)
       return { success: false, msg: `${roomName}의 방장이 아닙니다.` };
-    const data = chat.users.filter((usr) => usr.userName === userName);
+    const data = chat.users.filter((usr) => usr.user.userName === userName);
     if (data.length === 0)
       return { success: false, msg: `${roomName}에 ${userName}가 없습니다.` };
     return {
