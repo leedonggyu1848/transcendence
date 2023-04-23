@@ -9,8 +9,9 @@ import { Record } from 'src/entity/record.entity';
 import { friendModule } from 'src/friend/friend.module';
 import { GameService } from 'src/game/game.service';
 import { GameRepository } from 'src/game/repository/game.repository';
-import { RecordRepository } from 'src/game/repository/record.repository';
-import { UserService } from 'src/user/user.service';
+import { RecordModule } from 'src/record/record.module';
+import { RecordRepository } from 'src/record/repository/record.repository';
+import { UserModule } from 'src/user/user.module';
 import { EventsGateway } from './events.gateway';
 import { EventsService } from './events.service';
 import { BlockRepository } from './repository/block.repository';
@@ -20,11 +21,6 @@ import { ChatUserRepository } from './repository/chatuser.repository';
 const gameRepo = {
   provide: 'IGameRepository',
   useClass: GameRepository,
-};
-
-const recordRepo = {
-  provide: 'IRecordRepository',
-  useClass: RecordRepository,
 };
 
 const chatRepo = {
@@ -44,16 +40,17 @@ const blockRepo = {
 
 @Module({
   imports: [
+    UserModule,
     BanModule,
     friendModule,
-    TypeOrmModule.forFeature([Game, Record, Chat, ChatUser, Block]),
+    RecordModule,
+    TypeOrmModule.forFeature([Game, Chat, ChatUser, Block]),
   ],
   providers: [
     EventsGateway,
     EventsService,
     GameService,
     gameRepo,
-    recordRepo,
     chatRepo,
     chatUserRepo,
     blockRepo,

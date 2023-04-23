@@ -32,5 +32,6 @@ const userRepo = {
   ],
   controllers: [UserController],
   providers: [PhStrategy, JwtStrategy, ConfigService, UserService, userRepo],
+  exports: [UserService, userRepo],
 })
 export class UserModule {}

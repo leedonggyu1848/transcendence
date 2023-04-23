@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,7 +10,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { GameDto } from 'src/dto/game.dto';
+import { JoinType } from 'src/entity/common.enum';
 import { FriendService } from 'src/friend/friend.service';
+import { GameService } from 'src/game/game.service';
+import TwoFactorGuard from 'src/user/jwt/guard/twofactor.guard';
 import { CreateChatPayload, MessagePayload } from './events.payload';
 import { EventsService } from './events.service';
 
@@ -28,6 +32,7 @@ export class EventsGateway
   constructor(
     private eventsService: EventsService,
     private friendService: FriendService,
+    private gameService: GameService,
   ) {}
 
   @WebSocketServer() nsp: Namespace;
@@ -98,47 +103,83 @@ export class EventsGateway
   }
 
   @SubscribeMessage('create-game')
-  handleCreateGame(
+  async handleCreateGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
+    @MessageBody()
+    { roomName, gameDto }: { roomName: string; gameDto: GameDto },
   ) {
     this.logger.log(`[CreateGame] roomName: ${roomName}`);
-    if (this.nsp.adapter.rooms.has(roomName)) {
-      return;
-    }
-    socket.join(roomName);
-    this.nsp.emit('create-game', roomName);
-    this.logger.log(`게임 ${roomName} 생성 성공`);
+    if (this.nsp.adapter.rooms.has(roomName)) return;
+    const result = await this.gameService.createGame(gameDto, socket.id);
+    if (result.success) {
+      socket.join(roomName);
+      socket.emit('create-game', result.data);
+      this.nsp.emit('new-game');
+    } else socket.emit('game-fail', result.msg);
   }
 
   @SubscribeMessage('join-game')
   async handleJoinGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, type }: { roomName: string; type: string },
+    @MessageBody()
+    { roomName, password }: { roomName: string; password: string },
   ) {
-    this.logger.log(`[JoinGame] roomName: ${roomName}, type: ${type}`);
-    const user = await this.eventsService.getUserDtoFromSocketId(socket.id);
-    socket.join(roomName);
-    socket.broadcast.to(roomName).emit('join-game', {
-      message: `${user.userName}가 들어왔습니다.`,
-      userInfo: user,
-      type: type,
-    });
+    this.logger.log(`[JoinGame] roomName: ${roomName}, password: ${password}`);
+    const result = await this.gameService.joinGame(
+      roomName,
+      password,
+      socket.id,
+    );
+    if (result.success) {
+      socket.join(roomName);
+      socket.emit('join-game', result.data);
+      socket.broadcast.to(roomName).emit('user-join-game', {
+        message: `${result.user.userName}가 들어왔습니다.`,
+        userInfo: result.user,
+        type: JoinType.PLAYER,
+      });
+    } else socket.emit('game-fail', result.msg);
+  }
+
+  @SubscribeMessage('watch-game')
+  async handleWatchGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, password }: { roomName: string; password: string },
+  ) {
+    this.logger.log(`[WatchGame] roomName: ${roomName}, password: ${password}`);
+    const result = await this.gameService.watchGame(
+      roomName,
+      password,
+      socket.id,
+    );
+    if (result.success) {
+      socket.join(roomName);
+      socket.emit('watch-game', result.data);
+      socket.broadcast.to(roomName).emit('user-watch-game', {
+        message: `${result.user.userName}가 들어왔습니다.`,
+        userInfo: result.user,
+        type: JoinType.WATCHER,
+      });
+    } else socket.emit('game-fail', result.msg);
   }
 
   @SubscribeMessage('leave-game')
   async handleLeaveGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, type }: { roomName: string; type: string },
+    @MessageBody() roomName: string,
   ) {
-    this.logger.log(`[LeaveGame] roomName: ${roomName}, type: ${type}`);
-    const user = await this.eventsService.getUserDtoFromSocketId(socket.id);
-    socket.leave(roomName);
-    socket.broadcast.to(roomName).emit('leave-game', {
-      message: `${user.userName}가 나갔습니다.`,
-      userInfo: user,
-      type: type,
-    });
+    this.logger.log(`[LeaveGame] roomName: ${roomName}`);
+    const result = await this.gameService.leaveGame(socket.id);
+    if (result.success) {
+      socket.leave(roomName);
+      socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
+      socket.broadcast.to(roomName).emit('user-leave-game', {
+        message: `${result.user.userName}가 나갔습니다.`,
+        userInfo: result.user,
+        type: result.type,
+      });
+    } else socket.emit('game-fail', result.msg);
   }
 
   @SubscribeMessage('friend-list')

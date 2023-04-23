@@ -105,6 +105,16 @@ export class UserService {
     return await this.userRepository.findBySocketId(socketId);
   }
 
+  async getUserDtoByUserName(userName: string) {
+    const user = await this.userRepository.findByUserName(userName);
+    return this.userToUserDto(user);
+  }
+
+  async getUserDtoByUserId(userId: number) {
+    const user = await this.userRepository.findByUserId(userId);
+    return this.userToUserDto(user);
+  }
+
   async getUserByUserNameWithGame(userName: string) {
     return await this.userRepository.findByUserNameWithJoinGame(userName);
   }

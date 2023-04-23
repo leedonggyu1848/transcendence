@@ -79,9 +79,9 @@ export class EventsService {
   }
 
   // testcode -> TODO: delete
-  async getUserDtoFromSocketId(socketId: string) {
-    const user = await this.userService.getUserBySocketId(socketId);
-    return this.userService.userToUserDto(user);
+  async joinGame(socketId: string, title: string, password: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    const game = await this.gameService.joinGame(title, password, user);
   }
 
   async directMessage(socketId: string, userName: string) {

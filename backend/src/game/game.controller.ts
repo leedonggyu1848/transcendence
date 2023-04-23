@@ -12,21 +12,21 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import JwtGuard from 'src/user/jwt/guard/jwtauth.guard';
 import { UserDeco } from 'src/decorator/user.decorator';
 import { GameService } from './game.service';
 import { UserService } from 'src/user/user.service';
-import { GameDto } from 'src/dto/game.dto';
 import { UserSessionDto } from 'src/dto/usersession.dto';
 import { Response } from 'express';
 import { GameType } from 'src/entity/common.enum';
 import TwoFactorGuard from 'src/user/jwt/guard/twofactor.guard';
+import { RecordService } from 'src/record/record.service';
 
 @Controller('/api/game')
 export class GameController {
   private logger = new Logger(GameController.name);
   constructor(
     private userService: UserService,
+    private recordService: RecordService,
     private gameService: GameService,
   ) {}
 
@@ -38,81 +38,6 @@ export class GameController {
     // test code => TODO: delete
     if (games.length === 0) games = await this.gameService.addDummyData();
     res.status(HttpStatus.OK).send(games);
-  }
-
-  @Get('/userinfo')
-  @UseGuards(TwoFactorGuard)
-  async getMyInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`User info request: ${user.intraId}`);
-    const data = await this.gameService.getUserInfo(user.intraId);
-    res.status(HttpStatus.OK).send(data);
-  }
-
-  @Get('/userinfo/:userName')
-  @UseGuards(TwoFactorGuard)
-  async getUserInfo(@Res() res: Response, @Param('userName') userName: string) {
-    this.logger.log(`User info request: ${userName}`);
-    const data = await this.gameService.getUserInfo(userName);
-    res.status(HttpStatus.OK).send(data);
-  }
-
-  @Post('/new_game')
-  @UseGuards(TwoFactorGuard)
-  async newGame(
-    @Res() res: Response,
-    @Body() gameDto: GameDto,
-    @UserDeco() user: UserSessionDto,
-  ) {
-    this.logger.log(`Create new game: ${user.intraId}`);
-    const found_user = await this.userService.getUserByUserNameWithGame(
-      user.intraId,
-    );
-    const data = await this.gameService.createGame(gameDto, found_user);
-    if (!data.success) {
-      this.logger.log(`Bad request: ${data.data}`);
-      throw new BadRequestException(data.data);
-    }
-    res.status(HttpStatus.OK).send(data.data);
-  }
-
-  @Post('/join')
-  @UseGuards(TwoFactorGuard)
-  async joinGame(
-    @Res() res: Response,
-    @Body('title') title: string,
-    @Body('password') password: string,
-    @UserDeco() user: UserSessionDto,
-  ) {
-    this.logger.log(`Join game: ${title} / ${user.intraId}`);
-    const found_user = await this.userService.getUserByUserNameWithGame(
-      user.intraId,
-    );
-    const data = await this.gameService.joinGame(title, password, found_user);
-    if (!data.success) {
-      this.logger.log(`Bad request: ${data.data}`);
-      throw new BadRequestException(data.data);
-    }
-    res.status(HttpStatus.OK).send(data.data);
-  }
-
-  @Post('/watch')
-  @UseGuards(TwoFactorGuard)
-  async watchGame(
-    @Res() res: Response,
-    @Body('title') title: string,
-    @Body('password') password: string,
-    @UserDeco() user: UserSessionDto,
-  ) {
-    this.logger.log(`Watch game: ${title} / ${user.intraId}`);
-    const found_user = await this.userService.getUserByUserNameWithGame(
-      user.intraId,
-    );
-    const data = await this.gameService.watchGame(title, password, found_user);
-    if (!data.success) {
-      this.logger.log(`Bad request: ${data.data}`);
-      throw new BadRequestException(data.data);
-    }
-    res.status(HttpStatus.OK).send(data.data);
   }
 
   @Post('/result')
@@ -127,7 +52,7 @@ export class GameController {
     const loser = await this.userService.getUserByUserNameWithGame(lose);
     if (!winner || !loser) throw new BadRequestException('잘못된 요청입니다.');
     this.logger.log(`Save game result: ${winner.userName} / ${loser.userName}`);
-    const data = await this.gameService.saveGameResult(winner, loser, type);
+    const data = await this.recordService.saveGameResult(winner, loser, type);
     if (!data.success) throw new BadRequestException(data.data);
     res.status(HttpStatus.OK).send();
   }
@@ -139,30 +64,15 @@ export class GameController {
     res.status(HttpStatus.OK).send();
   }
 
-  @Get('/leave')
-  @UseGuards(TwoFactorGuard)
-  async leaveGame(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`Leave game: ${user.intraId}`);
-    const found_user = await this.userService.getUserByUserNameWithGame(
-      user.intraId,
-    );
-    const data = await this.gameService.serviceLeaveGame(found_user);
-    if (!data.success) {
-      this.logger.log(`Bad request: ${data.data}`);
-      throw new BadRequestException(data.data);
-    }
-    res.status(HttpStatus.OK).send();
-  }
-
   @Get('/history')
   @UseGuards(TwoFactorGuard)
   async getHistory(@Res() res: Response, @Query('page') page: number) {
     this.logger.log(`Get history: ${page} page`);
-    let data = await this.gameService.getTotalHistory(page);
+    let data = await this.recordService.getTotalHistory(page);
     // test code -> TODO: delete
     if (data.records.length === 0) {
-      await this.gameService.addDummyHistory();
-      data = await this.gameService.getTotalHistory(page);
+      await this.recordService.addDummyHistory();
+      data = await this.recordService.getTotalHistory(page);
     }
     res.status(HttpStatus.OK).send(data);
   }
@@ -171,7 +81,7 @@ export class GameController {
   @UseGuards(TwoFactorGuard)
   async getRecord(@Res() res: Response, @Param('id') id: number) {
     this.logger.log(`Get record: ${id}`);
-    const data = await this.gameService.getRecordById(id);
+    const data = await this.recordService.getRecordById(id);
     if (!data) throw new BadRequestException('잘못된 데이터 요청입니다.');
     res.status(HttpStatus.OK).send(data);
   }

@@ -6,8 +6,6 @@ import { GameType, JoinType } from 'src/entity/common.enum';
 import { UserDto } from 'src/dto/user.dto';
 import { IGameRepository } from './repository/game.interface.repository';
 import { IUserRepository } from '../user/repository/user.interface.repository';
-import { IRecordRepository } from './repository/record.interface.repository';
-import { randomInt } from 'crypto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 
@@ -18,8 +16,6 @@ export class GameService {
     private gameRepository: IGameRepository,
     @Inject('IUserRepository')
     private userRepository: IUserRepository,
-    @Inject('IRecordRepository')
-    private recordRepository: IRecordRepository,
     private userService: UserService,
   ) {}
 
@@ -48,30 +44,36 @@ export class GameService {
     return players;
   }
 
-  async createGame(gameDto: GameDto, user: User) {
+  async createGame(gameDto: GameDto, socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (user.joinType !== JoinType.NONE)
-      return { success: false, data: '이미 다른 방에 참여 중입니다.' };
+      return { success: false, msg: '이미 다른 방에 참여 중입니다.' };
     const found = await this.gameRepository.findByTitle(gameDto.title);
     if (found)
-      return { success: false, data: '같은 이름의 방이 이미 존재합니다.' };
+      return { success: false, msg: '같은 이름의 방이 이미 존재합니다.' };
     const game = await this.gameRepository.createByGameDto(gameDto, 1);
     await this.userRepository.updateOwnGame(user.id, game);
     return {
       success: true,
-      data: { gameDto, user, opponent: null, watchers: null },
+      data: {
+        gameDto,
+        owner: this.userService.userToUserDto(user),
+        opponent: null,
+        watchers: null,
+      },
     };
   }
 
-  async joinGame(title: string, password: string, user: User) {
+  async joinGame(title: string, password: string, socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
-      return { success: false, data: '비밀번호가 맞지 않습니다.' };
+      return { success: false, msg: '비밀번호가 맞지 않습니다.' };
     if (game.count == 2)
-      return { success: false, data: '해당 방에 자리가 없습니다.' };
+      return { success: false, msg: '해당 방에 자리가 없습니다.' };
     if (user.playGame || user.watchGame)
-      return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
-
+      return { success: false, msg: '이미 다른 방에 참가 중 입니다.' };
     await this.gameRepository.updateCountById(game.id, game.count + 1);
     await this.userRepository.updatePlayGame(user.id, game);
     if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
@@ -93,19 +95,20 @@ export class GameService {
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
+      user: this.userService.userToUserDto(user),
     };
   }
 
-  async watchGame(title: string, password: string, user: User) {
+  async watchGame(title: string, password: string, socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
     const game = await this.gameRepository.findByTitleWithJoin(title);
-    if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
+    if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
     if (game.private_mode && !(await bcrypt.compare(password, game.password)))
-      return { success: false, data: '비밀번호가 맞지 않습니다.' };
+      return { success: false, msg: '비밀번호가 맞지 않습니다.' };
     if (user.playGame || user.watchGame)
-      return { success: false, data: '이미 다른 방에 참가 중 입니다.' };
-
+      return { success: false, msg: '이미 다른 방에 참가 중 입니다.' };
     await this.userRepository.updateWatchGame(user.id, game);
-    if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
+    if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
     const owner = game.players.find(
       (player) => player.join_type === JoinType.OWNER,
     );
@@ -125,28 +128,8 @@ export class GameService {
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
+      user: this.userService.userToUserDto(user),
     };
-  }
-
-  async saveGameResult(winner: User, loser: User, type: GameType) {
-    if (!winner || !loser)
-      return { success: false, data: '유저 이름이 맞지 않습니다.' };
-    if (winner.playGame.id !== loser.playGame.id)
-      return { success: false, data: '두 사람이 참가 중인 게임이 다릅니다.' };
-
-    if (type == GameType.NORMAL) {
-      await this.userRepository.updateNormalWin(winner.id, winner.normalWin);
-      await this.userRepository.updateNormalLose(loser.id, loser.normalLose);
-    } else {
-      await this.userRepository.updateRankWin(winner.id, winner.rankWin);
-      await this.userRepository.updateRankLose(loser.id, loser.rankLose);
-    }
-    await this.recordRepository.addRecord(
-      type,
-      winner.userName,
-      loser.userName,
-    );
-    return { success: true, data: null };
   }
 
   async flushGame(title: string) {
@@ -170,13 +153,13 @@ export class GameService {
     });
   }
 
-  async serviceLeaveGame(user: User) {
-    if (!user) return { success: false, data: '잘못된 유저 정보입니다.' };
+  async leaveGame(socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    if (!user) return { success: false, msg: '잘못된 유저 정보입니다.' };
     let game = await this.gameRepository.findByPlayerWithJoin(user);
     if (!game) {
       game = await this.gameRepository.findByWatcherWithJoin(user);
-      if (!game)
-        return { success: false, data: '해당 방이 존재하지 않습니다.' };
+      if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
     }
     if (user.joinType === JoinType.OWNER) {
       await this.flushGame(game.title);
@@ -186,28 +169,13 @@ export class GameService {
     } else if (user.joinType === JoinType.WATCHER) {
       await this.userRepository.updateGameNone(user.id);
     } else {
-      return { success: false, data: '데이터 저장 오류' };
+      return { success: false, msg: '데이터 저장 오류' };
     }
-    return { success: true, data: null };
-  }
-
-  async getTotalHistory(page: number) {
-    const allRecords = await this.recordRepository.findAll();
-    const pageRecords = await this.recordRepository.findPage(page, 10);
-    const tmp = pageRecords.map(
-      async (record) => await this.recordRepository.recordToRecordDto(record),
-    );
-    const records = await Promise.all(tmp);
-    const recordCount = allRecords.length;
-    return { records, recordCount };
-  }
-
-  async getRecordById(id: number) {
-    const record = await this.recordRepository.findById(id);
-    const winner = await this.userRepository.findByUserName(record.winner);
-    const loser = await this.userRepository.findByUserName(record.loser);
-    if (!record || !winner || !loser) return null;
-    return { record: record, winner: winner, loser: loser };
+    return {
+      success: true,
+      user: this.userService.userToUserDto(user),
+      type: user.joinType,
+    };
   }
 
   // code for test -> TODO: delete
@@ -235,21 +203,5 @@ export class GameService {
       user2,
     );
     return await this.getLobbyInfo();
-  }
-
-  // code for test -> TODO: delete
-  async addDummyHistory() {
-    const user1 = await this.userRepository.createUser(123132, 'dum1', '123');
-    const user2 = await this.userRepository.createUser(123133, 'dum2', '123');
-    let res = [];
-    for (let i = 0; i < 50; i++) {
-      let type = randomInt(0, 2);
-      let score = randomInt(1, 11);
-      if (score >= 5)
-        res.push(await this.recordRepository.addRecord(type, 'dum1', 'dum2'));
-      else
-        res.push(await this.recordRepository.addRecord(type, 'dum2', 'dum1'));
-    }
-    await Promise.all(res);
   }
 }

@@ -8,8 +8,9 @@ import { User } from 'src/entity/user.entity';
 import { GameRepository } from './repository/game.repository';
 import { UserService } from 'src/user/user.service';
 import { UserRepository } from 'src/user/repository/user.repository';
-import { RecordRepository } from './repository/record.repository';
 import { Record } from 'src/entity/record.entity';
+import { RecordRepository } from 'src/record/repository/record.repository';
+import { RecordService } from 'src/record/record.service';
 
 const userRepo = {
   provide: 'IUserRepository',
@@ -29,6 +30,13 @@ const recordRepo = {
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([User, Game, Record])],
   controllers: [GameController],
-  providers: [userRepo, gameRepo, recordRepo, GameService, UserService],
+  providers: [
+    userRepo,
+    gameRepo,
+    recordRepo,
+    GameService,
+    UserService,
+    RecordService,
+  ],
 })
 export class GameModule {}
