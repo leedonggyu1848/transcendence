@@ -15,7 +15,10 @@ import {
   UserDto,
 } from "./interface";
 
-const { persistAtom } = recoilPersist();
+const { persistAtom } = recoilPersist({
+  key: "myPersistAtom",
+  storage: sessionStorage,
+});
 
 export const myInfoState = atom<UserDto>({
   key: "myInfoState",
@@ -245,6 +248,7 @@ export const currentChatUserListState = atom<string[]>({
 export const joinnedChatState = atom<IJoinnedChat>({
   key: "joinnedChatState",
   default: {},
+  effects_UNSTABLE: [persistAtom],
 });
 
 export const chatListState = atom<IChatRoom[]>({

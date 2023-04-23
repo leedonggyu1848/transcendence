@@ -168,7 +168,6 @@ const MainPage = () => {
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
       setMyInfo({ ...myInfo });
-      localStorage.setItem("info", JSON.stringify(myInfo));
 
       socket.emit("first-connection", myInfo.userName);
     }
