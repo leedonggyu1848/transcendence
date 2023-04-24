@@ -23,9 +23,7 @@ import { EventsService } from './events.service';
     origin: ['http://localhost:5173'],
   },
 })
-export class EventsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger(EventsGateway.name);
   private muteQueue = [];
   constructor(
@@ -36,17 +34,19 @@ export class EventsGateway
 
   @WebSocketServer() nsp: Namespace;
 
-  afterInit() {
-    this.logger.log('AfterInit');
-  }
-
   handleConnection(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[Connection] socketId: ${socket.id}`);
   }
 
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[Disconnect] socketId: ${socket.id}`);
-    await this.eventsService.disconnect(socket.id);
+    const userName = await this.eventsService.disconnect(socket.id);
+    if (userName) {
+      socket.broadcast.emit('disconnect-user', {
+        userName,
+        message: `${userName}가 접속을 종료했습니다.`,
+      });
+    }
   }
 
   @SubscribeMessage('first-connection')
@@ -55,7 +55,12 @@ export class EventsGateway
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
-    await this.eventsService.registUser(userName, socket.id);
+    const rooms = await this.eventsService.registUser(userName, socket.id);
+    if (rooms.length !== 0) {
+      rooms.forEach((room) => {
+        socket.join(room);
+      });
+    }
     socket.emit('first-connection');
     socket.broadcast.emit('connect-user', {
       userName,
