@@ -85,7 +85,6 @@ export const currentGameInfoState = atom<ICurrentGame>({
       password: "",
       private_mode: false,
       title: "",
-      type: 0,
     },
     opponentDto: null,
     ownerDto: {
@@ -241,6 +240,7 @@ export const createChatModalToggleState = atom({
 export const currentChatState = atom({
   key: "currentChatState",
   default: "",
+  effects_UNSTABLE: [persistAtom],
 });
 
 export const currentChatUserListState = atom<string[]>({

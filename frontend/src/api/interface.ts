@@ -38,7 +38,6 @@ export interface IGameRoomInfo {
   password: string;
   private_mode: boolean;
   title: string;
-  type: number;
 }
 
 export interface IGameUserInfo {
