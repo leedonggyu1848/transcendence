@@ -1,4 +1,3 @@
-import { NotEquals } from 'class-validator';
 import {
   Column,
   Entity,
@@ -6,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { Block } from './block.entity';
 import { ChatUser } from './chatuser.entity';
@@ -60,7 +58,7 @@ export class User {
   @JoinColumn({ name: 'watchGameId' })
   watchGame: Game;
 
-  @Column({ type: 'enum', name: 'join_type', enum: JoinType })
+  @Column()
   joinType: JoinType;
 
   @OneToMany(() => Friend, (friend) => friend.user, { cascade: true })

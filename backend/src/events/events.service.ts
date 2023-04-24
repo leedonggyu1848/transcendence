@@ -78,12 +78,6 @@ export class EventsService {
     return status;
   }
 
-  // testcode -> TODO: delete
-  async joinGame(socketId: string, title: string, password: string) {
-    const user = await this.userService.getUserBySocketIdWithGame(socketId);
-    const game = await this.gameService.joinGame(title, password, user);
-  }
-
   async directMessage(socketId: string, userName: string) {
     const sender = await this.userService.getUserBySocketId(socketId);
     const receiver = await this.userService.getUserByUserName(userName);

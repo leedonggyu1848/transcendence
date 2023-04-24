@@ -1,4 +1,3 @@
-import { NotEquals } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { GameType } from './common.enum';
 
