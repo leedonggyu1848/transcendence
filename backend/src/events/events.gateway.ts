@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -14,7 +14,6 @@ import { GameDto } from 'src/dto/game.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { FriendService } from 'src/friend/friend.service';
 import { GameService } from 'src/game/game.service';
-import TwoFactorGuard from 'src/user/jwt/guard/twofactor.guard';
 import { CreateChatPayload, MessagePayload } from './events.payload';
 import { EventsService } from './events.service';
 
@@ -102,6 +101,15 @@ export class EventsGateway
     }
   }
 
+  @SubscribeMessage('game-list')
+  async handleGameList(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[GameList]`);
+    let games = await this.gameService.getLobbyInfo();
+    // test code => TODO: delete
+    if (games.length === 0) games = await this.gameService.addDummyData();
+    socket.emit('game-list', games);
+  }
+
   @SubscribeMessage('create-game')
   async handleCreateGame(
     @ConnectedSocket() socket: Socket,
@@ -109,7 +117,6 @@ export class EventsGateway
     { roomName, gameDto }: { roomName: string; gameDto: GameDto },
   ) {
     this.logger.log(`[CreateGame] roomName: ${roomName}`);
-    if (this.nsp.adapter.rooms.has(roomName)) return;
     const result = await this.gameService.createGame(gameDto, socket.id);
     if (result.success) {
       socket.join(roomName);

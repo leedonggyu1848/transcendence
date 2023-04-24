@@ -1,6 +1,6 @@
 export class GameDto {
   title: string;
-  interrupt_mode: boolean;
-  private_mode: boolean;
+  interruptMode: boolean;
+  privateMode: boolean;
   password: string;
 }

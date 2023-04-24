@@ -18,17 +18,14 @@ export class Friend {
   user: User;
 
   @Column()
-  @NotEquals(null)
   friendName: string;
 
   @Column()
   friendProfile: string;
 
   @Column()
-  @NotEquals(null)
   accept: boolean;
 
   @Column()
-  @NotEquals(null)
   time: Date;
 }

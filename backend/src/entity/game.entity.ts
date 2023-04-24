@@ -15,20 +15,16 @@ export class Game {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @NotEquals(null)
+  @Column({ unique: true })
   title: string;
 
   @Column()
-  @NotEquals(null)
   interruptMode: boolean;
 
   @Column()
-  @NotEquals(null)
   privateMode: boolean;
 
   @Column()
-  @NotEquals(null)
   password: string;
 
   @BeforeInsert()
@@ -39,7 +35,6 @@ export class Game {
   }
 
   @Column()
-  @NotEquals(null)
   count: number;
 
   @OneToMany(() => User, (user) => user.playGame, { cascade: true })

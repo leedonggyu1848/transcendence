@@ -13,8 +13,8 @@ export class GameRepository implements IGameRepository {
   gameToGameDto(game: Game) {
     const gameDto: GameDto = {
       title: game.title,
-      interrupt_mode: game.interruptMode,
-      private_mode: game.privateMode,
+      interruptMode: game.interruptMode,
+      privateMode: game.privateMode,
       password: game.password,
     };
     return gameDto;
@@ -23,8 +23,8 @@ export class GameRepository implements IGameRepository {
   async createByGameDto(gameDto: GameDto, count: number) {
     const game = this.gameRepository.create({
       title: gameDto.title,
-      interruptMode: gameDto.interrupt_mode,
-      privateMode: gameDto.private_mode,
+      interruptMode: gameDto.interruptMode,
+      privateMode: gameDto.privateMode,
       password: gameDto.password,
       count: count,
     });

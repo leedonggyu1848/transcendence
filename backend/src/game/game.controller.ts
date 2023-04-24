@@ -5,7 +5,6 @@ import {
   Get,
   HttpStatus,
   Logger,
-  NotFoundException,
   Param,
   Post,
   Query,
@@ -29,16 +28,6 @@ export class GameController {
     private recordService: RecordService,
     private gameService: GameService,
   ) {}
-
-  @Get('/lobby')
-  @UseGuards(TwoFactorGuard)
-  async lobby(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log('Request lobby info');
-    let games = await this.gameService.getLobbyInfo();
-    // test code => TODO: delete
-    if (games.length === 0) games = await this.gameService.addDummyData();
-    res.status(HttpStatus.OK).send(games);
-  }
 
   @Post('/result')
   @UseGuards(TwoFactorGuard)

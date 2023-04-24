@@ -8,18 +8,14 @@ export class Record {
   id: number;
 
   @Column()
-  @NotEquals(null)
   gameType: GameType;
 
   @Column()
-  @NotEquals(null)
   winner: string;
 
   @Column()
-  @NotEquals(null)
   loser: string;
 
   @Column()
-  @NotEquals(null)
   time: Date;
 }

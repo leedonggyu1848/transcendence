@@ -1,6 +1,6 @@
 export class LobbyDto {
   title: string;
-  interrupt_mode: boolean;
-  private_mode: boolean;
+  interruptMode: boolean;
+  privateMode: boolean;
   cur: number;
 }

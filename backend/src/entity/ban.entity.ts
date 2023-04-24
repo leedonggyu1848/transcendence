@@ -11,6 +11,5 @@ export class Ban {
   channel: Chat;
 
   @Column()
-  @NotEquals(null)
   userName: string;
 }

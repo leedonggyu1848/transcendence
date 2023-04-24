@@ -11,6 +11,5 @@ export class Block {
   user: User;
 
   @Column()
-  @NotEquals(null)
   blockUser: string;
 }

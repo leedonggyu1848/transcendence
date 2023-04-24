@@ -29,8 +29,8 @@ export class GameService {
     if (!founds) return null;
     const games: LobbyDto[] = founds.map((game) => ({
       title: game.title,
-      interrupt_mode: game.interrupt_mode,
-      private_mode: game.private_mode,
+      interruptMode: game.interrupt_mode,
+      privateMode: game.private_mode,
       cur: game.count,
     }));
     return games;
@@ -186,8 +186,8 @@ export class GameService {
     await this.createGame(
       {
         title: 'game1',
-        interrupt_mode: false,
-        private_mode: true,
+        interruptMode: false,
+        privateMode: true,
         password: 'asdf',
       },
       user1,
@@ -196,8 +196,8 @@ export class GameService {
     await this.createGame(
       {
         title: 'game2',
-        interrupt_mode: true,
-        private_mode: false,
+        interruptMode: true,
+        privateMode: false,
         password: '',
       },
       user2,

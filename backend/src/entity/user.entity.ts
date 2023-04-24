@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { Block } from './block.entity';
 import { ChatUser } from './chatuser.entity';
@@ -18,23 +19,19 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @NotEquals(null)
+  @Column({ unique: true })
   userId: number;
 
-  @Column()
+  @Column({ unique: true, default: '' })
   socketId: string;
 
-  @Column()
-  @NotEquals(null)
+  @Column({ unique: true })
   userName: string;
 
   @Column()
-  @NotEquals(null)
   email: string;
 
   @Column()
-  @NotEquals(null)
   auth: boolean;
 
   @Column()
@@ -44,19 +41,15 @@ export class User {
   introduce: string;
 
   @Column()
-  @NotEquals(null)
   normalWin: number;
 
   @Column()
-  @NotEquals(null)
   normalLose: number;
 
   @Column()
-  @NotEquals(null)
   rankWin: number;
 
   @Column()
-  @NotEquals(null)
   rankLose: number;
 
   @ManyToOne(() => Game, (game) => game.players)
@@ -68,7 +61,6 @@ export class User {
   watchGame: Game;
 
   @Column({ type: 'enum', name: 'join_type', enum: JoinType })
-  @NotEquals(null)
   joinType: JoinType;
 
   @OneToMany(() => Friend, (friend) => friend.user, { cascade: true })

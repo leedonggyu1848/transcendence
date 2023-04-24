@@ -17,16 +17,13 @@ export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @NotEquals(null)
+  @Column({ unique: true })
   title: string;
 
   @Column()
-  @NotEquals(null)
   type: ChatType;
 
   @Column()
-  @NotEquals(null)
   password: string;
 
   @BeforeInsert()
@@ -37,11 +34,9 @@ export class Chat {
   }
 
   @Column()
-  @NotEquals(null)
   operator: string;
 
   @Column()
-  @NotEquals(null)
   count: number;
 
   @OneToMany(() => ChatUser, (user) => user.chat, { cascade: true })
