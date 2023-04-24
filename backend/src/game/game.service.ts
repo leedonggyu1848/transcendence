@@ -26,7 +26,7 @@ export class GameService {
 
   async getLobbyInfo() {
     const founds = await this.gameRepository.findAll();
-    if (!founds) return null;
+    if (!founds) return [];
     const games: LobbyDto[] = founds.map((game) => ({
       title: game.title,
       interruptMode: game.interrupt_mode,

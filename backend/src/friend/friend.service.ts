@@ -17,7 +17,7 @@ export class FriendService {
 
   async getFriendList(socketId: string) {
     let user = await this.userService.getUserBySocketIdWithFriend(socketId);
-    if (user.friends.length === 0) return null;
+    if (user.friends.length === 0) return [];
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map(async (friend) => {
       const found = await this.userService.getUserByUserNameWithGame(
