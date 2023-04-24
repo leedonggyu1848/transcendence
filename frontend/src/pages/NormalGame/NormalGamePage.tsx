@@ -86,32 +86,32 @@ const NormalGamePage = () => {
   };
 
   useEffect(() => {
-    if (gameInfo.ownerDto.userName === myName) {
-      socket.emit("create-game", gameInfo.gameDto.title);
-    } else {
-      if (!firstJoin) {
-        socket.emit("join-game", {
-          roomName: gameInfo.gameDto.title,
-          userInfo: myInfo,
-          type: normalJoinType,
-        });
-        setJoinSocketState(true);
-      }
-    }
-    socket.on("join-game", ({ userInfo, message, type }) => {
-      setChatLogs([
-        ...chatLogs,
-        { sender: "admin", msg: message, time: new Date() },
-      ]);
-      if (type === "join") {
-        setGameInfo({ ...gameInfo, opponentDto: { ...userInfo } });
-      } else {
-        setGameInfo({
-          ...gameInfo,
-          watchersDto: [...gameInfo.watchersDto, userInfo],
-        });
-      }
-    });
+    //if (gameInfo.ownerDto.userName === myName) {
+    //  socket.emit("create-game", gameInfo.gameDto.title);
+    //} else {
+    //  if (!firstJoin) {
+    //    socket.emit("join-game", {
+    //      roomName: gameInfo.gameDto.title,
+    //      userInfo: myInfo,
+    //      type: normalJoinType,
+    //    });
+    //    setJoinSocketState(true);
+    //  }
+    //}
+    //socket.on("join-game", ({ userInfo, message, type }) => {
+    //  setChatLogs([
+    //    ...chatLogs,
+    //    { sender: "admin", msg: message, time: new Date() },
+    //  ]);
+    //  if (type === "join") {
+    //    setGameInfo({ ...gameInfo, opponentDto: { ...userInfo } });
+    //  } else {
+    //    setGameInfo({
+    //      ...gameInfo,
+    //      watchersDto: [...gameInfo.watchersDto, userInfo],
+    //    });
+    //  }
+    //});
 
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {
@@ -122,50 +122,50 @@ const NormalGamePage = () => {
       timer = setTimeout(() => setCount(count - 1), 1000);
     }
 
-    socket.on(
-      "leave-game",
-      ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
-        if (userInfo.userName === gameInfo.ownerDto.userName) {
-          navigate("/main/lobby");
-        } else if (
-          gameInfo.opponentDto &&
-          userInfo.userName === gameInfo.opponentDto.userName
-        ) {
-          setChatLogs([
-            ...chatLogs,
-            { sender: "admin", msg: message, time: new Date() },
-          ]);
-          setGameInfo({ ...gameInfo, opponentDto: null });
-        } else {
-          setChatLogs([
-            ...chatLogs,
-            { sender: "admin", msg: message, time: new Date() },
-          ]);
-          setGameInfo({
-            ...gameInfo,
-            watchersDto: gameInfo.watchersDto.filter(
-              (watcher) => watcher.userName !== userInfo.userName
-            ),
-          });
-        }
-      }
-    );
+    //socket.on(
+    //  "leave-game",
+    //  ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
+    //    if (userInfo.userName === gameInfo.ownerDto.userName) {
+    //      navigate("/main/lobby");
+    //    } else if (
+    //      gameInfo.opponentDto &&
+    //      userInfo.userName === gameInfo.opponentDto.userName
+    //    ) {
+    //      setChatLogs([
+    //        ...chatLogs,
+    //        { sender: "admin", msg: message, time: new Date() },
+    //      ]);
+    //      setGameInfo({ ...gameInfo, opponentDto: null });
+    //    } else {
+    //      setChatLogs([
+    //        ...chatLogs,
+    //        { sender: "admin", msg: message, time: new Date() },
+    //      ]);
+    //      setGameInfo({
+    //        ...gameInfo,
+    //        watchersDto: gameInfo.watchersDto.filter(
+    //          (watcher) => watcher.userName !== userInfo.userName
+    //        ),
+    //      });
+    //    }
+    //  }
+    //);
 
-    socket.on("start-game", () => {
-      setStartCount(() => true);
-      setCount((prev) => prev - 1);
-    });
+    //socket.on("start-game", () => {
+    //  setStartCount(() => true);
+    //  setCount((prev) => prev - 1);
+    //});
 
-    socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
-      setObstaclePos([leftPos, rightPos]);
-    });
+    //socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
+    //  setObstaclePos([leftPos, rightPos]);
+    //});
 
     return () => {
-      socket.off("join-game");
-      socket.off("message");
-      socket.off("leave-game");
-      socket.off("start-game");
-      socket.off("obstacle-info");
+      //socket.off("join-game");
+      //socket.off("message");
+      //socket.off("leave-game");
+      //socket.off("start-game");
+      //socket.off("obstacle-info");
       if (timer) clearInterval(timer);
     };
   }, [chatLogs, startCount, count]);

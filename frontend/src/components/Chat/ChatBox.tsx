@@ -25,11 +25,11 @@ const ChatBox = ({
   const joinChatList = useRecoilValue(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
   const blockList = useRecoilValue(blockUserListState);
-
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
+    console.log(currentChat, joinChatList);
   }, [currentChat, joinChatList, blockList]);
   return (
     <ChatBoxWrapper h={height}>

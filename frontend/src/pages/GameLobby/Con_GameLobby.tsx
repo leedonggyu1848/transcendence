@@ -97,8 +97,9 @@ const GameLobbyContainer = () => {
     setSelectedNormalGameTitle(title);
   };
 
-  const onCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("hi");
     const formElement = e.target as HTMLFormElement;
     if (!formElement) return;
 
@@ -120,7 +121,7 @@ const GameLobbyContainer = () => {
     }
 
     socket.emit("create-game", {
-      roomName: nameInput.value,
+      roomName: nameInput.value || `${myName}의 일반 게임`,
       gameDto: {
         title: nameInput.value || `${myName}의 일반 게임`,
         interruptMode: modeInput.checked,
@@ -153,11 +154,6 @@ const GameLobbyContainer = () => {
     typeInput.checked = false;
     passwordInput.value = "";
   };
-
-  useEffect(() => {
-    async function getData() {}
-    getData();
-  }, []);
 
   return (
     <GameLobby
