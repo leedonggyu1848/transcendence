@@ -121,9 +121,9 @@ const GameLobbyContainer = () => {
     socket.emit("create-game", {
       roomName: nameInput.value,
       gameDto: {
-        title: nameInput.value,
-        interrupt_mode: modeInput.checked,
-        private_mode: typeInput.checked,
+        title: nameInput.value || `${myName}의 일반 게임`,
+        interruptMode: modeInput.checked,
+        privateMode: typeInput.checked,
         password: passwordInput.value,
       },
     });
