@@ -55,7 +55,7 @@ export const axiosPostFlush = async (title: string) => {
   });
 };
 
-const axiosGetMyInfoURL = "/game/userinfo/";
+const axiosGetMyInfoURL = "/auth/userinfo/";
 export const axiosGetMyInfo = async (): Promise<UserDto> => {
   const response = await instance.get(axiosGetMyInfoURL);
   return response.data;
@@ -137,5 +137,11 @@ export const axiosSendFriendRequest = async (friendname: string) => {
 const axiosPostAuthCodeURL = "/auth/two-factor";
 export const axiosPostAuthCode = async (code: string) => {
   const response = await instance.post(axiosPostAuthCodeURL, { code });
+  return response.data;
+};
+
+const axiosChangeNickNameURL = "/auth/user/name";
+export const axiosChangeNickName = async (userName: string) => {
+  const response = await instance.post(axiosChangeNickNameURL, { userName });
   return response.data;
 };

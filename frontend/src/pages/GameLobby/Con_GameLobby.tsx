@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
-  currentNormalGameInfoState,
+  currentGameInfoState,
   joinGameModalToggleState,
   modalBackToggleState,
   myInfoState,
@@ -35,15 +35,13 @@ const GameLobbyContainer = () => {
     selectedNormalGameTitleState
   );
   const setAlertInfo = useSetRecoilState(alertModalState);
+  const socket = useContext(WebsocketContext);
 
   useInitHook();
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
-  const setCurrentNormalGameInfoState = useSetRecoilState(
-    currentNormalGameInfoState
-  );
+  const setCurrentGameInfoState = useSetRecoilState(currentGameInfoState);
   const [gameList, setGameList] = useState<GameDto[]>([]);
   const navigator = useNavigate();
-  const socket = useContext(WebsocketContext);
 
   const clickRankGame = () => {
     setModalBack(true);
@@ -54,7 +52,7 @@ const GameLobbyContainer = () => {
     if (!private_mode) {
       try {
         const data = await axiosJoinGame(title, "");
-        setCurrentNormalGameInfoState({ ...data });
+        setCurrentGameInfoState({ ...data });
         setNormalJoinType("join");
         navigator("/main/game/normal");
       } catch (e) {
@@ -77,7 +75,7 @@ const GameLobbyContainer = () => {
     if (!private_mode) {
       try {
         const data = await axiosWatchGame(title, "");
-        setCurrentNormalGameInfoState({
+        setCurrentGameInfoState({
           ...data,
         });
         setNormalJoinType("watch");
@@ -120,24 +118,35 @@ const GameLobbyContainer = () => {
       return;
     }
 
-    try {
-      const data = await axiosCreateGame(
-        nameInput.value || `${myName}의 일반 게임`,
-        modeInput.checked,
-        typeInput.checked,
-        passwordInput.value
-      );
-      setCurrentNormalGameInfoState({
-        gameDto: data.gameDto,
-        opponentDto: data.opponent,
-        ownerDto: data.user,
-        watchersDto: data.watchers ?? [],
-      });
-      navigator("/main/game/normal");
-    } catch (e) {
-      alert("게임생성실패");
-      console.error(e);
-    }
+    socket.emit("create-game", {
+      roomName: nameInput.value,
+      gameDto: {
+        title: nameInput.value,
+        interrupt_mode: modeInput.checked,
+        private_mode: typeInput.checked,
+        password: passwordInput.checked,
+        type: 0,
+      },
+    });
+
+    //try {
+    //  const data = await axiosCreateGame(
+    //    nameInput.value || `${myName}의 일반 게임`,
+    //    modeInput.checked,
+    //    typeInput.checked,
+    //    passwordInput.value
+    //  );
+    //  setCurrentNormalGameInfoState({
+    //    gameDto: data.gameDto,
+    //    opponentDto: data.opponent,
+    //    ownerDto: data.user,
+    //    watchersDto: data.watchers ?? [],
+    //  });
+    //  navigator("/main/game/normal");
+    //} catch (e) {
+    //  alert("게임생성실패");
+    //  console.error(e);
+    //}
 
     nameInput.value = "";
     modeInput.checked = false;
@@ -146,12 +155,7 @@ const GameLobbyContainer = () => {
   };
 
   useEffect(() => {
-    async function getData() {
-      const gameList = await axiosGetGameList();
-      const myInfo = await axiosGetMyInfo();
-      setMyInfo(myInfo);
-      setGameList(gameList);
-    }
+    async function getData() {}
     getData();
   }, []);
 
@@ -166,22 +170,5 @@ const GameLobbyContainer = () => {
     />
   );
 };
-
-function createDummyData(): GameDto[] {
-  let list = [];
-
-  for (let i = 0; i < 20; i++) {
-    let ran = Math.floor(Math.random() * 2);
-    list.push({
-      private_mode: ran ? true : false,
-      title: `열심히 하겠습니다. 한수 알려주시면 감사하겠습니다 선생님, 당장 옥상으로 올라오시죠 ${
-        i + 1
-      }`,
-      interrupt_mode: ran ? true : false,
-      cur: ran ? 1 : 2,
-    });
-  }
-  return list;
-}
 
 export default GameLobbyContainer;

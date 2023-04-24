@@ -3,8 +3,8 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
-  currentNormaGameUsersState,
-  currentNormalGameInfoState,
+  currentGameUsersState,
+  currentGameInfoState,
   joinSocketState,
   myInfoState,
   myNameState,
@@ -21,8 +21,8 @@ import WaitRoom from "./WaitRoom";
 const NormalGamePage = () => {
   const [startCount, setStartCount] = useState(false);
   const [start, setStart] = useState(false);
-  const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
-  const usersInfo = useRecoilValue(currentNormaGameUsersState);
+  const [gameInfo, setGameInfo] = useRecoilState(currentGameInfoState);
+  const usersInfo = useRecoilValue(currentGameUsersState);
   const [chatLogs, setChatLogs] = useState<IChatLog[]>([]);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
@@ -144,7 +144,7 @@ const NormalGamePage = () => {
           setGameInfo({
             ...gameInfo,
             watchersDto: gameInfo.watchersDto.filter(
-              (watcher) => watcher.intra_id !== userInfo.userName
+              (watcher) => watcher.userName !== userInfo.userName
             ),
           });
         }

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
-  currentNormalGameInfoState,
+  currentGameInfoState,
   joinGameModalToggleState,
   modalBackToggleState,
   normalJoinTypeState,
@@ -18,9 +18,7 @@ const JoinGameModal = () => {
   const [errMsg, setErrMsg] = useState("");
   const setBackgroundModal = useSetRecoilState(modalBackToggleState);
   const [joinModal, setJoinModal] = useRecoilState(joinGameModalToggleState);
-  const setCurrentNormalGameInfo = useSetRecoilState(
-    currentNormalGameInfoState
-  );
+  const setCurrentNormalGameInfo = useSetRecoilState(currentGameInfoState);
   const setNormalJoinType = useSetRecoilState(normalJoinTypeState);
   const navigator = useNavigate();
 

@@ -1,13 +1,9 @@
 import styled from "@emotion/styled";
 import React from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  currentChatState,
-  joinnedChatState,
-  myNameState,
-} from "../../api/atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { currentChatState, joinnedChatState } from "../../api/atom";
 import { getRoomNameByType } from "../../api/funcs";
-import { IChatRoom, IJoinnedChat, JoinListDto } from "../../api/interface";
+import { IJoinnedChat } from "../../api/interface";
 
 const JoinList = ({
   data,
@@ -54,7 +50,9 @@ const JoinList = ({
               data[roomName].type,
               data[roomName].title,
               myName
-            ).length > 10 ? "..." : ""}
+            ).length > 10
+              ? "..."
+              : ""}
           </Title>
           <LeaveButton
             onClick={(e: React.MouseEvent) => {

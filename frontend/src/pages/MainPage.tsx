@@ -9,12 +9,12 @@ import GameLobbyContainer from "./GameLobby/Con_GameLobby";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
-  allChatFlagState,
   blockUserListState,
   chatListState,
   confirmModalToggleState,
   createChatModalToggleState,
   currentChatState,
+  currentGameInfoState,
   friendListState,
   friendRequestListState,
   getMyInfoFlagState,
@@ -36,44 +36,59 @@ import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
-import { axiosGetMyInfo } from "../api/request";
+import { axiosGetGameList, axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
 import JoinChatModal from "../components/Modals/JoinChatModal";
+import ConfirmModal from "../components/Modals/ConfirmModal";
 import {
   chatSocketOff,
   listenAlert,
-  listenBanCancel,
-  listenBanUser,
   listenBlockList,
-  listenBlockUser,
-  listenCancelFriend,
-  listenChangeOperator,
-  listenChatMuted,
   listenCheckConnection,
-  listenCreateChat,
-  listenDeleteFriend,
   listenFirstConnection,
   listenFriendConnection,
-  listenFriendFail,
   listenFriendList,
   listenFriendRequestList,
+  listenRequestAllChat,
+} from "../api/socket/connect";
+import {
+  listenCancelFriend,
+  listenDeleteFriend,
+  listenFriendFail,
   listenFriendResult,
+  listenNewFriend,
+  listenReceiveDM,
+  listenRequestFriend,
+  listenResponseFriend,
+  listenSendDM,
+} from "../api/socket/friend";
+import {
+  listenBanCancel,
+  listenBanUser,
+  listenBlockUser,
+  listenChangeOperator,
+  listenChatMuted,
+  listenCreateChat,
   listenJoinSucces,
   listenKickUser,
   listenLeaveSuccess,
   listenMessage,
   listenMuteUser,
-  listenNewFriend,
-  listenReceiveDM,
-  listenRequestAllChat,
-  listenRequestFriend,
-  listenResponseFriend,
-  listenSendDM,
   listenSomeoneJoinned,
   listenSomeoneLeave,
   listenUnBlockUser,
-} from "../api/socket/chat-socket";
-import ConfirmModal from "../components/Modals/ConfirmModal";
+} from "../api/socket/chat";
+import {
+  listenCreateGame,
+  listenGameFail,
+  listenJoinGame,
+  listenLeaveGame,
+  listenNewGame,
+  listenUserJoinGame,
+  listenUserLeaveGame,
+  listenUserWatchGame,
+  listenWatchGame,
+} from "../api/socket/game";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -105,6 +120,7 @@ const MainPage = () => {
   const [chatList, setChatList] = useRecoilState(chatListState);
   const confirmModalState = useRecoilValue(confirmModalToggleState);
   const [blockList, setBlockList] = useRecoilState(blockUserListState);
+  const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
 
   const hooks: any = {
     socket,
@@ -124,6 +140,9 @@ const MainPage = () => {
     friendList,
     blockList,
     setBlockList,
+    myInfo,
+    currentGame,
+    setCurrentGame,
   };
 
   useEffect(() => {
@@ -133,10 +152,15 @@ const MainPage = () => {
       setGetMyInfoFlag(true);
     }
 
+    //Connection apis
     listenFirstConnection(hooks);
     listenFriendConnection(hooks);
     listenFriendRequestList(hooks);
     listenFriendList(hooks);
+    listenRequestAllChat(hooks);
+    listenBlockList(hooks);
+
+    //friends apis
     listenCancelFriend(hooks);
     listenRequestFriend(hooks);
     listenNewFriend(hooks);
@@ -145,9 +169,10 @@ const MainPage = () => {
     listenResponseFriend(hooks);
     listenCheckConnection(hooks);
     listenFriendFail(hooks);
+
+    //chat apis
     listenMessage(hooks);
     listenCreateChat(hooks);
-    listenRequestAllChat(hooks);
     listenSomeoneJoinned(hooks);
     listenJoinSucces(hooks);
     listenSomeoneLeave(hooks);
@@ -159,15 +184,27 @@ const MainPage = () => {
     listenSendDM(hooks);
     listenReceiveDM(hooks);
     listenChangeOperator(hooks);
-    listenBlockList(hooks);
     listenBlockUser(hooks);
     listenUnBlockUser(hooks);
     listenMuteUser(hooks);
     listenChatMuted(hooks);
 
+    //game apis
+    listenCreateGame(hooks);
+    listenNewGame(hooks);
+    listenJoinGame(hooks);
+    listenUserJoinGame(hooks);
+    listenWatchGame(hooks);
+    listenUserWatchGame(hooks);
+    listenLeaveGame(hooks);
+    listenUserLeaveGame(hooks);
+    listenGameFail(hooks);
+
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
       setMyInfo({ ...myInfo });
+      //const gameList = await axiosGetGameList();
+      //setGameList(gameList);
 
       socket.emit("first-connection", myInfo.userName);
     }
@@ -205,7 +242,16 @@ const MainPage = () => {
         "block-user",
         "block-cancel",
         "mute-user",
-        "chat-muted"
+        "chat-muted",
+        "game-fail",
+        "new-game",
+        "create-game",
+        "join-game",
+        "user-join-game",
+        "watch-game",
+        "user-watch-game",
+        "leave-game",
+        "user-leave-game"
       );
     };
   }, [myInfo, joinnedChatList, chatList, friendList, friendRequestList]);

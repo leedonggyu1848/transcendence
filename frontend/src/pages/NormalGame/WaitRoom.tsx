@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
 import {
-  currentNormalGameInfoState,
+  currentGameInfoState,
   myInfoState,
   opponentInfoState,
 } from "../../api/atom";
 import UserInfo from "./UserInfo";
 
 const WaitRoom = ({ count }: { count: number }) => {
-  const gameInfo = useRecoilValue(currentNormalGameInfoState);
+  const gameInfo = useRecoilValue(currentGameInfoState);
 
   return (
     <WaitRoomContainer>

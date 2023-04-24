@@ -5,7 +5,7 @@ import {
   IBanUserList,
   IChatLog,
   IChatRoom,
-  ICurrentNormalGame,
+  ICurrentGame,
   IFriendDto,
   IFriendRequest,
   IGameUserInfo,
@@ -77,7 +77,7 @@ export const joinGameModalToggleState = atom({
   default: { toggle: false, type: "" },
 });
 
-export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
+export const currentGameInfoState = atom<ICurrentGame>({
   key: "currentNormalGameInfoState",
   default: {
     gameDto: {
@@ -85,6 +85,7 @@ export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
       password: "",
       private_mode: false,
       title: "",
+      type: 0,
     },
     opponentDto: null,
     ownerDto: {
@@ -100,13 +101,15 @@ export const currentNormalGameInfoState = atom<ICurrentNormalGame>({
       userId: 131546,
     },
     watchersDto: [],
+    chatLogs: [],
   },
+  effects_UNSTABLE: [persistAtom],
 });
 
-export const currentNormaGameUsersState = selector<JoinnedUserDto[]>({
+export const currentGameUsersState = selector<JoinnedUserDto[]>({
   key: "currentNormaGameUsersState",
   get: ({ get }) => {
-    const data = get(currentNormalGameInfoState);
+    const data = get(currentGameInfoState);
     const result = [];
     result.push({ type: "owner", userName: data.ownerDto.userName });
     if (data.opponentDto)
@@ -126,7 +129,7 @@ export const chatLogState = atom<IChatLog[]>({
 export const opponentInfoState = selector<IGameUserInfo | null>({
   key: "opponentInfoState",
   get: ({ get }) => {
-    const { opponentDto, ownerDto } = get(currentNormalGameInfoState);
+    const { opponentDto, ownerDto } = get(currentGameInfoState);
     const myName = get(myNameState);
 
     if (!opponentDto) return null;
@@ -138,7 +141,7 @@ export const isWatcherState = selector({
   key: "isWatcherState",
   get: ({ get }) => {
     const myName = get(myNameState);
-    const gameInfo = get(currentNormalGameInfoState);
+    const gameInfo = get(currentGameInfoState);
     if (
       gameInfo.opponentDto &&
       gameInfo.opponentDto.userName !== myName &&
@@ -254,6 +257,7 @@ export const joinnedChatState = atom<IJoinnedChat>({
 export const chatListState = atom<IChatRoom[]>({
   key: "chatListState",
   default: [],
+  effects_UNSTABLE: [persistAtom],
 });
 
 export const allChatFlagState = atom({

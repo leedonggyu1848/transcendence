@@ -1,17 +1,8 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  alertModalState,
-  getMyProfileInfoState,
-  myInfoState,
-  myNameState,
-  settingModalState,
-} from "../../../api/atom";
-import {
-  axiosUpdateIntroduce,
-  axiosUpdateProfileImage,
-} from "../../../api/request";
+import React, { useEffect, useRef, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { myNameState, settingModalState } from "../../../api/atom";
+import { axiosChangeNickName } from "../../../api/request";
 import ModalBackground from "../../ModalBackground";
 import BlockList from "./BlockList";
 import SettingProfile from "./SettingProfile";
@@ -24,13 +15,45 @@ const SettingModal = () => {
     setSettingModalToggle(false);
   };
 
+  const [editName, setEditName] = useState(false);
+  const nameInput = useRef<HTMLInputElement>(null);
+
+  const handleClickName = () => {
+    setEditName(true);
+  };
+
+  const onSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (!e.currentTarget.value) {
+        setEditName(false);
+        return;
+      }
+      console.log(e.currentTarget.value);
+      try {
+        const response = await axiosChangeNickName(e.currentTarget.value);
+        console.log(response);
+      } catch(e){
+        console.error(e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (editName) {
+      if (nameInput.current) nameInput.current.focus();
+    }
+  }, [editName, nameInput]);
+
   return (
     <>
       <ModalBackground onClick={onClickBackground} />
       <SettingModalContainer>
         <Container>
           <SettingProfile />
-          <Name>{myName}</Name>
+          {!editName && <Name onClick={handleClickName}>{myName}</Name>}
+          {editName && (
+            <Input onKeyUp={onSubmit} ref={nameInput} placeholder={myName} />
+          )}
           <SettingTextArea />
         </Container>
         <Container>
@@ -41,10 +64,22 @@ const SettingModal = () => {
   );
 };
 
+const Input = styled.input`
+  color: white;
+  font-size: 1.5rem;
+  margin: 20px;
+  border-radius: 10px;
+  background: #333333;
+  text-align: center;
+  outline: none;
+  border: none;
+`;
+
 const Name = styled.div`
   color: white;
   font-size: 1.5rem;
   margin: 20px;
+  cursor: pointer;
 `;
 
 const Container = styled.div`

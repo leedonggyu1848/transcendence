@@ -5,7 +5,7 @@ import { axiosRecordGameResult } from "../../api/request";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
-  currentNormalGameInfoState,
+  currentGameInfoState,
   isWatcherState,
   myNameState,
 } from "../../api/atom";
@@ -31,7 +31,7 @@ const PongGame = ({
   hard: boolean;
   obstaclePos: Array<number>;
 }) => {
-  const [gameInfo, setGameInfo] = useRecoilState(currentNormalGameInfoState);
+  const [gameInfo, setGameInfo] = useRecoilState(currentGameInfoState);
   const isWatcher = useRecoilValue(isWatcherState);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const myName = useRecoilValue(myNameState);

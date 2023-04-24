@@ -33,11 +33,12 @@ export interface JoinListDto {
   newMessage: number;
 }
 
-interface INormalRoomInfo {
+export interface IGameRoomInfo {
   interrupt_mode: boolean;
   password: string;
   private_mode: boolean;
   title: string;
+  type: number;
 }
 
 export interface IGameUserInfo {
@@ -53,11 +54,12 @@ export interface IGameUserInfo {
   userId: number;
 }
 
-export interface ICurrentNormalGame {
-  gameDto: INormalRoomInfo;
+export interface ICurrentGame {
+  gameDto: IGameRoomInfo;
   opponentDto: IGameUserInfo | null;
   ownerDto: IGameUserInfo;
-  watchersDto: Array<any>;
+  watchersDto: Array<UserDto>;
+  chatLogs: string[];
 }
 
 export interface IChatLog {
