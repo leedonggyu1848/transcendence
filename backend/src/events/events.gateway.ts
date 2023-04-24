@@ -146,6 +146,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.broadcast.to(roomName).emit('user-join-game', {
         message: `${result.user.userName}가 들어왔습니다.`,
         userInfo: result.user,
+        roomName,
         type: JoinType.PLAYER,
       });
     } else socket.emit('game-fail', result.msg);

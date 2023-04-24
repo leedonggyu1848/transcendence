@@ -29,7 +29,6 @@ const ChatBox = ({
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-    console.log(currentChat, joinChatList);
   }, [currentChat, joinChatList, blockList]);
   return (
     <ChatBoxWrapper h={height}>

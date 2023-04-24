@@ -158,18 +158,56 @@ export const listenJoinGame = ({
   );
 };
 
-export const listenUserJoinGame = ({ socket }: { socket: any }) => {
+export const listenUserJoinGame = ({
+  socket,
+  currentGame,
+  setCurrentGame,
+  setCurrentChat,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  currentGame: any;
+  setCurrentGame: any;
+  setCurrentChat: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+}) => {
   socket.on(
     "user-join-game",
     ({
       message,
       userInfo,
       type,
+      roomName,
     }: {
       message: string;
       userInfo: UserDto;
       type: number;
-    }) => {}
+      roomName: string;
+    }) => {
+      setCurrentGame({
+        ...currentGame,
+        opponentDto: { ...userInfo },
+      });
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          title: roomName,
+          type: 0,
+          operator: "",
+          userList: [...joinnedChatList[roomName].userList, userInfo.userName],
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            { sender: "admin", msg: message, time: new Date() },
+          ],
+          banUsers: [],
+          newMsg: false,
+          isMuted: false,
+          muteId: -1,
+        },
+      });
+    }
   );
 };
 

@@ -9,6 +9,8 @@ import {
   myInfoState,
   myNameState,
   normalJoinTypeState,
+  currentChatState,
+  joinnedChatState,
 } from "../../api/atom";
 import { IChatLog, UserDto } from "../../api/interface";
 import { axiosLeaveNormalGame } from "../../api/request";
@@ -32,6 +34,9 @@ const NormalGamePage = () => {
   const [obstaclePos, setObstaclePos] = useState([0, 0]);
   const [normalJoinType, setNormalJoinType] =
     useRecoilState(normalJoinTypeState);
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
+  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [firstJoin, setJoinSocketState] = useRecoilState(joinSocketState);
   const [count, setCount] = useState(4);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -39,7 +44,20 @@ const NormalGamePage = () => {
 
   const onSend = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && msg) {
-      setChatLogs([...chatLogs, { sender: myName, msg, time: new Date() }]);
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [currentChat]: {
+          ...joinnedChatList[currentChat],
+          chatLogs: [
+            ...joinnedChatList[currentChat].chatLogs,
+            {
+              sender: myName,
+              msg,
+              time: new Date(),
+            },
+          ],
+        },
+      });
       socket.emit("message", {
         roomName: gameInfo.gameDto.title,
         userName: myName,
@@ -151,21 +169,21 @@ const NormalGamePage = () => {
     //  }
     //);
 
-    //socket.on("start-game", () => {
-    //  setStartCount(() => true);
-    //  setCount((prev) => prev - 1);
-    //});
+    socket.on("start-game", () => {
+      setStartCount(() => true);
+      setCount((prev) => prev - 1);
+    });
 
-    //socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
-    //  setObstaclePos([leftPos, rightPos]);
-    //});
+    socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
+      setObstaclePos([leftPos, rightPos]);
+    });
 
     return () => {
       //socket.off("join-game");
       //socket.off("message");
       //socket.off("leave-game");
-      //socket.off("start-game");
-      //socket.off("obstacle-info");
+      socket.off("start-game");
+      socket.off("obstacle-info");
       if (timer) clearInterval(timer);
     };
   }, [chatLogs, startCount, count]);
