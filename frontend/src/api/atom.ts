@@ -89,7 +89,7 @@ export const currentGameInfoState = atom<ICurrentGame>({
   default: {
     gameDto: {
       interruptMode: false,
-      password: "",
+      cur: 0,
       privateMode: false,
       title: "",
     },
@@ -107,7 +107,6 @@ export const currentGameInfoState = atom<ICurrentGame>({
       userId: 131546,
     },
     watchersDto: [],
-    chatLogs: [],
   },
   effects_UNSTABLE: [persistAtom],
 });

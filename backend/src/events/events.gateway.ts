@@ -124,7 +124,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (result.success) {
       socket.join(roomName);
       socket.emit('create-game', result.data);
-      this.nsp.emit('new-game');
+      this.nsp.emit('new-game', result.data.gameDto);
     } else socket.emit('game-fail', result.msg);
   }
 

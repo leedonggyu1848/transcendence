@@ -54,11 +54,10 @@ export interface IGameUserInfo {
 }
 
 export interface ICurrentGame {
-  gameDto: IGameRoomInfo;
+  gameDto: GameDto;
   opponentDto: IGameUserInfo | null;
   ownerDto: IGameUserInfo;
   watchersDto: Array<UserDto>;
-  chatLogs: string[];
 }
 
 export interface IChatLog {

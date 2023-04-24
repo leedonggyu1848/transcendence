@@ -49,27 +49,14 @@ const GameLobbyContainer = () => {
     setRankWaitModal(true);
   };
 
-  const clickJoin = async (title: string, private_mode: boolean) => {
-    if (!private_mode) {
-      try {
-        const data = await axiosJoinGame(title, "");
-        setCurrentGameInfoState({ ...data });
-        setNormalJoinType("join");
-        navigator("/main/game/normal");
-      } catch (e) {
-        console.error(e);
-        setAlertInfo({
-          type: "failure",
-          header: "게임 참가 실패",
-          msg: "게임 참가에 실패 했습니다...",
-          toggle: true,
-        });
-      }
+  const clickJoin = (title: string, private_mode: boolean) => {
+    if (private_mode) {
+      setJoinGameModal({ toggle: true, type: "join" });
+      setSelectedNormalGameTitle(title);
       return;
     }
-    setBackgroundModal(true);
-    setJoinGameModal({ toggle: true, type: "join" });
-    setSelectedNormalGameTitle(title);
+
+    socket.emit("join-game", { roomName: title, password: "" });
   };
 
   const clickWatch = async (title: string, private_mode: boolean) => {
@@ -99,7 +86,6 @@ const GameLobbyContainer = () => {
 
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("hi");
     const formElement = e.target as HTMLFormElement;
     if (!formElement) return;
 
@@ -129,25 +115,6 @@ const GameLobbyContainer = () => {
         password: passwordInput.value,
       },
     });
-
-    //try {
-    //  const data = await axiosCreateGame(
-    //    nameInput.value || `${myName}의 일반 게임`,
-    //    modeInput.checked,
-    //    typeInput.checked,
-    //    passwordInput.value
-    //  );
-    //  setCurrentNormalGameInfoState({
-    //    gameDto: data.gameDto,
-    //    opponentDto: data.opponent,
-    //    ownerDto: data.user,
-    //    watchersDto: data.watchers ?? [],
-    //  });
-    //  navigator("/main/game/normal");
-    //} catch (e) {
-    //  alert("게임생성실패");
-    //  console.error(e);
-    //}
 
     nameInput.value = "";
     modeInput.checked = false;

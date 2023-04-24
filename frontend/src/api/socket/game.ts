@@ -1,6 +1,12 @@
 import { SetterOrUpdater } from "recoil";
 import GameDetailInfo from "../../pages/HistoryPage/GameDetailInfo";
-import { GameDto, IGameRoomInfo, IJoinnedChat, UserDto } from "../interface";
+import {
+  GameDto,
+  ICurrentGame,
+  IGameRoomInfo,
+  IJoinnedChat,
+  UserDto,
+} from "../interface";
 
 export const listenCreateGame = ({
   socket,
@@ -23,22 +29,21 @@ export const listenCreateGame = ({
     "create-game",
     ({
       gameDto,
-      owner,
-      opponent,
-      watchers,
+      ownerDto,
+      opponentDto,
+      watchersDto,
     }: {
       gameDto: IGameRoomInfo;
-      owner: UserDto;
-      opponent: null;
-      watchers: UserDto[];
+      ownerDto: UserDto;
+      opponentDto: null;
+      watchersDto: null;
     }) => {
-      console.log("on create-game", owner);
+      console.log("on create-game", ownerDto);
       setCurrentGame({
         gameDto: { ...gameDto },
         ownerDto: { ...myInfo },
         opponentDto: null,
         watchersDto: [],
-        chatLogs: [],
       });
       setCurrentChat(gameDto.title);
       setJoinnedChatList({
@@ -47,7 +52,7 @@ export const listenCreateGame = ({
           title: gameDto.title,
           type: 0,
           operator: "",
-          userList: [owner.userName],
+          userList: [ownerDto.userName],
           chatLogs: [],
           banUsers: [],
           newMsg: false,
@@ -62,12 +67,18 @@ export const listenCreateGame = ({
 
 export const listenNewGame = ({
   socket,
+  gameList,
+  setGameList,
 }: {
   socket: any;
-  setFriendRequestList: any;
-  friendRequestList: any;
+  gameList: any;
+  setGameList: any;
 }) => {
-  socket.on("new-game", (game: GameDto) => {});
+  socket.on("new-game", (game: GameDto) => {
+    delete game["password"];
+    game.cur = 1;
+    setGameList([...gameList, { ...game }]);
+  });
 };
 
 export const listenGameFail = ({
@@ -90,9 +101,23 @@ export const listenGameFail = ({
 export const listenJoinGame = ({
   socket,
   setAlertInfo,
+  currentGame,
+  setCurrentGame,
+  myInfo,
+  setCurrentChat,
+  joinnedChatList,
+  setJoinnedChatList,
+  navigate,
 }: {
   socket: any;
   setAlertInfo: any;
+  currentGame: ICurrentGame;
+  setCurrentGame: any;
+  myInfo: UserDto;
+  setCurrentChat: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+  navigate: any;
 }) => {
   socket.on(
     "join-game",
@@ -106,7 +131,30 @@ export const listenJoinGame = ({
       ownerDto: UserDto;
       opponentDto: UserDto;
       watchersDto: UserDto[];
-    }) => {}
+    }) => {
+      setCurrentGame({
+        gameDto: { ...gameDto },
+        ownerDto: { ...ownerDto },
+        watchersDto: [...watchersDto],
+        opponentDto: { ...myInfo },
+      });
+      setCurrentChat(gameDto.title);
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [gameDto.title]: {
+          title: gameDto.title,
+          type: 0,
+          operator: "",
+          userList: [ownerDto.userName],
+          chatLogs: [],
+          banUsers: [],
+          newMsg: false,
+          isMuted: false,
+          muteId: -1,
+        },
+      });
+      navigate("/main/game/normal");
+    }
   );
 };
 

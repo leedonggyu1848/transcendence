@@ -57,9 +57,9 @@ export class GameService {
       success: true,
       data: {
         gameDto,
-        owner: this.userService.userToUserDto(user),
-        opponent: null,
-        watchers: null,
+        ownerDto: this.userService.userToUserDto(user),
+        opponentDto: null,
+        watchersDto: null,
       },
     };
   }
@@ -78,7 +78,7 @@ export class GameService {
     await this.userRepository.updatePlayGame(user.id, game);
     if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
     const owner = game.players.find(
-      (player) => player.join_type === JoinType.OWNER,
+      (player) => player.joinType === JoinType.OWNER,
     );
     let watchersDto: UserDto[];
     if (game.watchers) {
