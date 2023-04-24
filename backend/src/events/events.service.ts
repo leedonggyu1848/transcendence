@@ -56,17 +56,23 @@ export class EventsService {
     if (user) {
       const timeId = setTimeout(() => {
         this.leaveRooms(socketId, user);
-      }, 3000);
-      this.sessionMap[user.userName] = timeId;
+      }, 1000);
       await this.userService.updateSocketId(user, '');
+      return { userName: user.userName };
     }
+    return null;
   }
 
   async registUser(userName: string, socketId: string) {
     const user = await this.userService.getUserByUserName(userName);
-    if (this.sessionMap[user.userName])
-      clearTimeout(this.sessionMap[user.userName]);
     await this.userService.updateSocketId(user, socketId);
+    if (this.sessionMap[user.userName]) {
+      const [timeId, rooms] = this.sessionMap[user.userName];
+      clearTimeout(timeId);
+      delete this.sessionMap[user.userName];
+      return rooms;
+    }
+    return [];
   }
 
   async isConnect(userName: string) {
