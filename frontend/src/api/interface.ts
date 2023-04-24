@@ -34,9 +34,9 @@ export interface JoinListDto {
 }
 
 export interface IGameRoomInfo {
-  interrupt_mode: boolean;
+  interruptMode: boolean;
   password: string;
-  private_mode: boolean;
+  privateMode: boolean;
   title: string;
 }
 

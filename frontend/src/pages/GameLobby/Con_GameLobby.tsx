@@ -4,6 +4,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   currentGameInfoState,
+  gameListState,
   joinGameModalToggleState,
   modalBackToggleState,
   myInfoState,
@@ -40,7 +41,7 @@ const GameLobbyContainer = () => {
   useInitHook();
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const setCurrentGameInfoState = useSetRecoilState(currentGameInfoState);
-  const [gameList, setGameList] = useState<GameDto[]>([]);
+  const [gameList, setGameList] = useRecoilState(gameListState);
   const navigator = useNavigate();
 
   const clickRankGame = () => {

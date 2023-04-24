@@ -59,7 +59,7 @@ const NormalGamePage = () => {
     setStartCount(() => true);
     setCount((prev) => prev - 1);
     socket.emit("start-game", gameInfo.gameDto.title);
-    if (gameInfo.gameDto.interrupt_mode) {
+    if (gameInfo.gameDto.interruptMode) {
       const leftPos = Math.floor(Math.random() * 30) / 100;
       const rightPos = (Math.floor(Math.random() * 30) + 50) / 100;
       setObstaclePos([leftPos, rightPos]);
@@ -184,7 +184,7 @@ const NormalGamePage = () => {
             type="normal"
             resetGame={setStart}
             setCount={setCount}
-            hard={gameInfo.gameDto.interrupt_mode}
+            hard={gameInfo.gameDto.interruptMode}
             obstaclePos={obstaclePos}
           />
         )}

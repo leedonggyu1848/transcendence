@@ -5,10 +5,12 @@ export const listenCreateGame = ({
   socket,
   myInfo,
   setCurrentGame,
+  navigate,
 }: {
   socket: any;
   setCurrentGame: any;
   myInfo: any;
+  navigate: any;
 }) => {
   socket.on(
     "create-game",
@@ -23,6 +25,9 @@ export const listenCreateGame = ({
       opponentDto: UserDto;
       watchersDto: UserDto[];
     }) => {
+      console.log("on create-game");
+      console.log(navigate);
+      navigate("/main/game/normal");
       setCurrentGame({
         gameDto: { ...gameDto },
         ownerDto: { ...myInfo },

@@ -2,12 +2,14 @@ import { atom, DefaultValue, selector } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { Socket } from "socket.io-client";
 import {
+  GameDto,
   IBanUserList,
   IChatLog,
   IChatRoom,
   ICurrentGame,
   IFriendDto,
   IFriendRequest,
+  IGameRoomInfo,
   IGameUserInfo,
   IJoinnedChat,
   ISelectedGameRecord,
@@ -72,6 +74,11 @@ export const socketState = atom<Socket | null>({
   default: null,
 });
 
+export const gameListState = atom<GameDto[]>({
+  key: "gameListState",
+  default: [],
+});
+
 export const joinGameModalToggleState = atom({
   key: "joinGameModalToggleState",
   default: { toggle: false, type: "" },
@@ -81,9 +88,9 @@ export const currentGameInfoState = atom<ICurrentGame>({
   key: "currentNormalGameInfoState",
   default: {
     gameDto: {
-      interrupt_mode: false,
+      interruptMode: false,
       password: "",
-      private_mode: false,
+      privateMode: false,
       title: "",
     },
     opponentDto: null,

@@ -17,6 +17,7 @@ import {
   currentGameInfoState,
   friendListState,
   friendRequestListState,
+  gameListState,
   getMyInfoFlagState,
   joinChatToggleState,
   joinGameModalToggleState,
@@ -49,6 +50,7 @@ import {
   listenFriendConnection,
   listenFriendList,
   listenFriendRequestList,
+  listenGameList,
   listenRequestAllChat,
 } from "../api/socket/connect";
 import {
@@ -121,6 +123,7 @@ const MainPage = () => {
   const confirmModalState = useRecoilValue(confirmModalToggleState);
   const [blockList, setBlockList] = useRecoilState(blockUserListState);
   const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
+  const [gameList, setGameList] = useRecoilState(gameListState);
 
   const hooks: any = {
     socket,
@@ -143,6 +146,9 @@ const MainPage = () => {
     myInfo,
     currentGame,
     setCurrentGame,
+    gameList,
+    setGameList,
+    navigate,
   };
 
   useEffect(() => {
@@ -159,6 +165,7 @@ const MainPage = () => {
     listenFriendList(hooks);
     listenRequestAllChat(hooks);
     listenBlockList(hooks);
+    listenGameList(hooks);
 
     //friends apis
     listenCancelFriend(hooks);
@@ -216,6 +223,7 @@ const MainPage = () => {
         "connect-user",
         "friend-request-list",
         "friend-list",
+        "game-list",
         "cancel-friend",
         "request-friend",
         "new-friend",

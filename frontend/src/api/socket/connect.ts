@@ -1,4 +1,10 @@
-import { IChatRoom, IFriendDto, IFriendRequest } from "../interface";
+import {
+  GameDto,
+  IChatRoom,
+  IFriendDto,
+  IFriendRequest,
+  IGameRoomInfo,
+} from "../interface";
 
 export const listenFirstConnection = ({ socket }: { socket: any }) => {
   socket.on("first-connection", () => {
@@ -6,6 +12,7 @@ export const listenFirstConnection = ({ socket }: { socket: any }) => {
     socket.emit("friend-list");
     socket.emit("all-chat");
     socket.emit("block-list");
+    socket.emit("game-list");
   });
 };
 
@@ -49,6 +56,7 @@ export const listenFriendList = ({
   setRequestFriendListFlag: any;
 }) => {
   socket.on("friend-list", (friends: IFriendDto[]) => {
+    console.log(friends);
     setFriendList([...friends]);
     setRequestFriendListFlag(true);
   });
@@ -126,6 +134,19 @@ export const listenBlockList = ({
 }) => {
   socket.on("block-list", (list: string[]) => {
     setBlockList([...list]);
+  });
+};
+
+export const listenGameList = ({
+  socket,
+  setGameList,
+}: {
+  socket: any;
+  setGameList: any;
+}) => {
+  socket.on("game-list", (games: GameDto[]) => {
+    console.log("on game-list", games);
+    setGameList([...games]);
   });
 };
 
