@@ -105,8 +105,6 @@ export class EventsGateway
   async handleGameList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[GameList]`);
     let games = await this.gameService.getLobbyInfo();
-    // test code => TODO: delete
-    if (games.length === 0) games = await this.gameService.addDummyData();
     socket.emit('game-list', games);
   }
 

@@ -15,41 +15,9 @@ export class FriendService {
     private userService: UserService,
   ) {}
 
-  private async addDummyFriends(user: User) {
-    await this.userRepository.createUser(1122, 'tmp1', '123');
-    await this.userRepository.createUser(1123, 'tmp2', '123');
-    await this.userRepository.createUser(1124, 'tmp3', '123');
-    await this.userRepository.createUser(1125, 'tmp4', '123');
-    await this.userRepository.createUser(1126, 'tmp5', '123');
-    await this.userRepository.createUser(1127, 'tmp6', '123');
-    await this.userRepository.createUser(1128, 'tmp7', '123');
-    await this.userRepository.createUser(1129, 'tmp8', '123');
-    await this.userRepository.createUser(1130, 'tmp9', '123');
-    await this.friendRepository.addDummyFriend(user, 'tmp1');
-    await this.friendRepository.addDummyFriend(user, 'tmp2');
-    await this.friendRepository.addDummyFriend(user, 'tmp3');
-    const user1 = await this.userRepository.findByUserName('tmp4');
-    const user2 = await this.userRepository.findByUserName('tmp5');
-    const user3 = await this.userRepository.findByUserName('tmp6');
-    const user4 = await this.userRepository.findByUserName('tmp7');
-    const user5 = await this.userRepository.findByUserName('tmp8');
-    const user6 = await this.userRepository.findByUserName('tmp9');
-    await this.friendRepository.addFriend(user, user1, false);
-    await this.friendRepository.addFriend(user, user2, false);
-    await this.friendRepository.addFriend(user, user3, false);
-    await this.friendRepository.addFriend(user4, user, false);
-    await this.friendRepository.addFriend(user5, user, false);
-    await this.friendRepository.addFriend(user6, user, false);
-  }
-
   async getFriendList(socketId: string) {
     let user = await this.userService.getUserBySocketIdWithFriend(socketId);
-    if (user.friends.length === 0) {
-      // testcode -> TODO: delete
-      await this.addDummyFriends(user);
-      user = await this.userService.getUserBySocketIdWithFriend(socketId);
-    }
-    //return null
+    if (user.friends.length === 0) return null;
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map(async (friend) => {
       const found = await this.userService.getUserByUserNameWithGame(

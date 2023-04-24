@@ -5,8 +5,6 @@ import { User } from 'src/entity/user.entity';
 export interface IFriendRepository {
   userToFriendDto(user: User, time: Date, type: FriendReqType);
   addFriend(user: User, friend: User, accept: boolean);
-  // testcode -> TODO: delete
-  addDummyFriend(user: User, friendName: string);
   findAll(user: User);
   findAllWithJoin(user: User);
   findFriends(user: User);

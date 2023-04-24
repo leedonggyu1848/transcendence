@@ -58,11 +58,6 @@ export class GameController {
   async getHistory(@Res() res: Response, @Query('page') page: number) {
     this.logger.log(`Get history: ${page} page`);
     let data = await this.recordService.getTotalHistory(page);
-    // test code -> TODO: delete
-    if (data.records.length === 0) {
-      await this.recordService.addDummyHistory();
-      data = await this.recordService.getTotalHistory(page);
-    }
     res.status(HttpStatus.OK).send(data);
   }
 

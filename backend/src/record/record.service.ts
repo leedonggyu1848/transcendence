@@ -53,20 +53,4 @@ export class RecordService {
     if (!record || !winner || !loser) return null;
     return { record: record, winner: winner, loser: loser };
   }
-
-  // code for test -> TODO: delete
-  async addDummyHistory() {
-    const user1 = await this.userRepository.createUser(123132, 'dum1', '123');
-    const user2 = await this.userRepository.createUser(123133, 'dum2', '123');
-    let res = [];
-    for (let i = 0; i < 50; i++) {
-      let type = randomInt(0, 2);
-      let score = randomInt(1, 11);
-      if (score >= 5)
-        res.push(await this.recordRepository.addRecord(type, 'dum1', 'dum2'));
-      else
-        res.push(await this.recordRepository.addRecord(type, 'dum2', 'dum1'));
-    }
-    await Promise.all(res);
-  }
 }

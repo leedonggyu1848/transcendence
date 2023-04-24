@@ -22,7 +22,7 @@ export class User {
   @Column({ unique: true })
   userId: number;
 
-  @Column({ unique: true, default: '' })
+  @Column({ default: '' })
   socketId: string;
 
   @Column({ unique: true })

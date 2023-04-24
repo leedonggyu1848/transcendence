@@ -177,31 +177,4 @@ export class GameService {
       type: user.joinType,
     };
   }
-
-  // code for test -> TODO: delete
-  async addDummyData() {
-    await this.userRepository.createUser(123, 'dummy_user1', '123');
-    await this.userRepository.createUser(456, 'dummy_user2', '123');
-    const user1 = await this.userRepository.findByUserName('dummy_user1');
-    await this.createGame(
-      {
-        title: 'game1',
-        interruptMode: false,
-        privateMode: true,
-        password: 'asdf',
-      },
-      user1,
-    );
-    const user2 = await this.userRepository.findByUserName('dummy_user2');
-    await this.createGame(
-      {
-        title: 'game2',
-        interruptMode: true,
-        privateMode: false,
-        password: '',
-      },
-      user2,
-    );
-    return await this.getLobbyInfo();
-  }
 }

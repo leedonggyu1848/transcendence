@@ -32,17 +32,6 @@ export class FriendRepository implements IFriendRepository {
     });
   }
 
-  // testcode -> TODO: delete
-  async addDummyFriend(user: User, friendName: string) {
-    await this.friendRepository.save({
-      user: user,
-      friendName: friendName,
-      friendProfile: '',
-      accept: true,
-      time: new Date(Date.now()),
-    });
-  }
-
   async findAll(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id } },
