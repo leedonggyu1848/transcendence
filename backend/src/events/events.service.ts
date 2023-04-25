@@ -186,14 +186,14 @@ export class EventsService {
       this.rankQueue = socketId;
       return null;
     }
-    const user = await this.userService.getUserBySocketId(socketId);
-    const opponent = await this.userService.getUserBySocketId(this.rankQueue);
+    const opponent = await this.userService.getUserBySocketId(socketId);
+    const owner = await this.userService.getUserBySocketId(this.rankQueue);
     this.rankQueue = '';
     return {
-      roomName: `${opponent.userName} vs ${user.userName} rank game`,
-      user: this.userService.userToUserDto(user),
+      roomName: `${owner.userName} vs ${opponent.userName} rank game`,
+      owner: this.userService.userToUserDto(owner),
       opponent: this.userService.userToUserDto(opponent),
-      socketId: opponent.socketId,
+      socketId: owner.socketId,
     };
   }
 

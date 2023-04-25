@@ -29,23 +29,6 @@ export class GameController {
     private gameService: GameService,
   ) {}
 
-  @Post('/result')
-  @UseGuards(TwoFactorGuard)
-  async gameResult(
-    @Res() res: Response,
-    @Body('win') win: string,
-    @Body('lose') lose: string,
-    @Body('type') type: GameType,
-  ) {
-    const winner = await this.userService.getUserByUserNameWithGame(win);
-    const loser = await this.userService.getUserByUserNameWithGame(lose);
-    if (!winner || !loser) throw new BadRequestException('잘못된 요청입니다.');
-    this.logger.log(`Save game result: ${winner.userName} / ${loser.userName}`);
-    const data = await this.recordService.saveGameResult(winner, loser, type);
-    if (!data.success) throw new BadRequestException(data.data);
-    res.status(HttpStatus.OK).send();
-  }
-
   @Post('/flush') // test code => TODO: delete
   @UseGuards(TwoFactorGuard)
   async flush(@Res() res: Response, @Body('title') title: string) {

@@ -13,8 +13,12 @@ import { GameDto } from 'src/dto/game.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { FriendService } from 'src/friend/friend.service';
 import { GameService } from 'src/game/game.service';
-import { UserService } from 'src/user/user.service';
-import { CreateChatPayload, MessagePayload } from './events.payload';
+import { RecordService } from 'src/record/record.service';
+import {
+  CreateChatPayload,
+  GameResultPayload,
+  MessagePayload,
+} from './events.payload';
 import { EventsService } from './events.service';
 
 @WebSocketGateway({
@@ -31,6 +35,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private eventsService: EventsService,
     private friendService: FriendService,
     private gameService: GameService,
+    private recordService: RecordService,
   ) {}
 
   @WebSocketServer() nsp: Namespace;
@@ -216,14 +221,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.join(data.roomName);
       socket.emit('match-rank', {
         roomName: data.roomName,
-        userDto: data.user,
+        ownerDto: data.owner,
         opponentDto: data.opponent,
       });
       this.nsp.sockets.get(data.socketId)?.join(data.roomName);
       this.nsp.sockets.get(data.socketId)?.emit('match-rank', {
         roomName: data.roomName,
-        userDto: data.opponent,
-        opponentDto: data.user,
+        ownerDto: data.owner,
+        opponentDto: data.opponent,
       });
     }
   }
@@ -232,6 +237,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleCancelRank(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[CancelRank]`);
     this.eventsService.cancelRankGame(socket.id);
+  }
+
+  @SubscribeMessage('game-result')
+  async handleGameResult(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, winner, loser, type }: GameResultPayload,
+  ) {
+    this.logger.log(`[GameResult]`);
+    const result = await this.recordService.saveGameResult(winner, loser, type);
+    if (result.success)
+      socket.to(roomName).emit('game-result', `게임이 끝났습니다.`);
+    else socket.emit('game-fail', result.msg);
   }
 
   @SubscribeMessage('friend-list')

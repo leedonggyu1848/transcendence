@@ -13,5 +13,6 @@ const recordRepo = {
 @Module({
   imports: [UserModule, TypeOrmModule.forFeature([Record])],
   providers: [RecordService, recordRepo],
+  exports: [RecordService, recordRepo],
 })
 export class RecordModule {}
