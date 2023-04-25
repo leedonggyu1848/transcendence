@@ -216,14 +216,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.join(data.roomName);
       socket.emit('match-rank', {
         roomName: data.roomName,
-        userInfo: data.user,
-        opponentInfo: data.opponent,
+        userDto: data.user,
+        opponentDto: data.opponent,
       });
       this.nsp.sockets.get(data.socketId)?.join(data.roomName);
       this.nsp.sockets.get(data.socketId)?.emit('match-rank', {
         roomName: data.roomName,
-        userInfo: data.opponent,
-        opponentInfo: data.user,
+        userDto: data.opponent,
+        opponentDto: data.user,
       });
     }
   }
