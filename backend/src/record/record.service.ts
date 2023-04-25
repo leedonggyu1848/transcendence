@@ -4,6 +4,7 @@ import { GameType } from 'src/entity/common.enum';
 import { IUserRepository } from 'src/user/repository/user.interface.repository';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { randomInt } from 'crypto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class RecordService {
@@ -12,14 +13,14 @@ export class RecordService {
     private userRepository: IUserRepository,
     @Inject('IRecordRepository')
     private recordRepository: IRecordRepository,
+    private userService: UserService,
   ) {}
 
-  async saveGameResult(winner: User, loser: User, type: GameType) {
+  async saveGameResult(winnerName: string, loserName: string, type: GameType) {
+    const winner = await this.userService.getUserByUserNameWithGame(winnerName);
+    const loser = await this.userService.getUserByUserNameWithGame(loserName);
     if (!winner || !loser)
-      return { success: false, data: '유저 이름이 맞지 않습니다.' };
-    if (winner.playGame.id !== loser.playGame.id)
-      return { success: false, data: '두 사람이 참가 중인 게임이 다릅니다.' };
-
+      return { success: false, msg: '유저 이름이 맞지 않습니다.' };
     if (type == GameType.NORMAL) {
       await this.userRepository.updateNormalWin(winner.id, winner.normalWin);
       await this.userRepository.updateNormalLose(loser.id, loser.normalLose);
@@ -32,7 +33,7 @@ export class RecordService {
       winner.userName,
       loser.userName,
     );
-    return { success: true, data: null };
+    return { success: true };
   }
 
   async getTotalHistory(page: number) {
