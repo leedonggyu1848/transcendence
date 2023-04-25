@@ -212,7 +212,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleMatchRank(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[MatchRank]`);
     const data = await this.eventsService.matchRankGame(socket.id);
-    if (!data) {
+    if (data) {
       socket.join(data.roomName);
       socket.emit('match-rank', {
         roomName: data.roomName,
