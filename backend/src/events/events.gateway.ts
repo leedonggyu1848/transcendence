@@ -47,7 +47,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.chatRooms.forEach((room) => {
         this.handleLeaveChat(socket, room);
       });
-      data.gameRoom.forEach((room) => {
+      data.gameRooms.forEach((room) => {
         this.handleLeaveGame(socket, room);
       });
       this.nsp.emit('disconnect-user', {
@@ -64,11 +64,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
-    await this.eventsService.registUser(userName, socket.id);
+    const rooms = await this.eventsService.registUser(userName, socket.id);
     if (this.sessionMap[userName]) {
       const timeId = this.sessionMap[userName];
       clearTimeout(timeId);
       delete this.sessionMap[userName];
+      rooms.forEach((room) => {
+        socket.join(room);
+      });
     } else {
       socket.emit('first-connection');
       socket.broadcast.emit('connect-user', {

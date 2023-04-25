@@ -23,24 +23,35 @@ export class EventsService {
     private banService: BanService,
   ) {}
 
-  async getSocketInfo(socketId: string) {
-    const user = await this.userService.getUserBySocketIdWithAll(socketId);
-    if (!user) return null;
+  private getSocketRooms(user: User) {
     let chatRooms = [];
     if (user.chats) {
       chatRooms = user.chats.map((chat) => {
         return chat.chat.title;
       });
     }
-    let gameRoom = [];
-    if (user.playGame) gameRoom.push(user.playGame.title);
-    if (user.watchGame) gameRoom.push(user.watchGame.title);
-    return { userName: user.userName, chatRooms, gameRoom };
+    let gameRooms = [];
+    if (user.playGame) gameRooms.push(user.playGame.title);
+    if (user.watchGame) gameRooms.push(user.watchGame.title);
+    return { chatRooms, gameRooms };
+  }
+
+  async getSocketInfo(socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithAll(socketId);
+    if (!user) return null;
+    const rooms = this.getSocketRooms(user);
+    return {
+      userName: user.userName,
+      chatRooms: rooms.chatRooms,
+      gameRooms: rooms.gameRooms,
+    };
   }
 
   async registUser(userName: string, socketId: string) {
     const user = await this.userService.getUserByUserNameWithAll(userName);
     await this.userService.updateSocketId(user, socketId);
+    const rooms = this.getSocketRooms(user);
+    return [...rooms.chatRooms, ...rooms.gameRooms];
   }
 
   async isConnect(userName: string) {
