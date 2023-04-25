@@ -49,17 +49,28 @@ export class EventsService {
     return null;
   }
 
+  private getSocketRooms(user: User) {
+    let chatRooms = [];
+    if (user.chats) {
+      chatRooms = user.chats.map((chat) => {
+        return chat.chat.title;
+      });
+    }
+    let gameRoom = [];
+    if (user.playGame) gameRoom.push(user.playGame.title);
+    if (user.watchGame) gameRoom.push(user.watchGame.title);
+    return [...chatRooms, ...gameRoom];
+  }
+
   async registUser(userName: string, socketId: string) {
-    const user = await this.userService.getUserByUserNameWithChat(userName);
+    const user = await this.userService.getUserByUserNameWithAll(userName);
     await this.userService.updateSocketId(user, socketId);
     if (this.sessionMap[user.userId]) {
       const timeId = this.sessionMap[user.userId];
       clearTimeout(timeId);
       delete this.sessionMap[user.userId];
-      const rooms = user.chats.map((chat) => {
-        return chat.chat.title;
-      });
-      return rooms;
+      console.log(this.sessionMap);
+      return this.getSocketRooms(user);
     }
     return [];
   }
@@ -105,6 +116,7 @@ export class EventsService {
     password: string,
   ) {
     const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
     const exist = await this.chatRepository.findByTitle(roomName);
     if (exist)
       return { success: false, msg: `${roomName} 방이 이미 존재합니다.` };
@@ -127,6 +139,7 @@ export class EventsService {
 
   async joinChat(socketId: string, roomName: string, password: string) {
     const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (
       chat.type === ChatType.PASSWORD &&
@@ -162,7 +175,9 @@ export class EventsService {
 
   async leaveChat(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    if (!chat) return { success: false, msg: `맞는 채팅방이 없습니다.` };
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0)
       return { success: false, msg: `참여 중인 방이 없습니다.` };
