@@ -79,7 +79,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('message')
-  handleMessage(
+  async handleMessage(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
     { roomName, userName, message }: MessagePayload,
@@ -418,7 +418,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userName,
     );
     if (result.success) {
-      const room = await this.nsp.in(roomName).fetchSockets();
       this.nsp.emit('kick-user', { roomName, userName });
       await this.nsp.sockets.get(result.data)?.leave(roomName);
     } else {

@@ -24,7 +24,7 @@ export class EventsService {
     private banService: BanService,
   ) {}
 
-  private async leaveRooms(socketId: string, user: User) {
+  private async leaveChatRooms(socketId: string, user: User) {
     let result = [];
     if (user.chats) {
       result = [
@@ -33,21 +33,6 @@ export class EventsService {
         }),
       ];
     }
-    if (user.playGame) {
-      // result = [
-      //   ...result,
-      //   ...user.playGame.leaveGame();
-      //   }),
-      // ];
-    }
-    if (user.watchGame) {
-      // result = [
-      //   ...result,
-      //   ...user.chats.map(async (chat) => {
-      //     await this.leaveChat(socketId, chat.chat.title);
-      //   }),
-      // ];
-    }
     await Promise.all(result);
   }
 
@@ -55,8 +40,9 @@ export class EventsService {
     const user = await this.userService.getUserBySocketIdWithAll(socketId);
     if (user) {
       const timeId = setTimeout(() => {
-        this.leaveRooms(socketId, user);
+        this.leaveChatRooms(socketId, user);
       }, 1000);
+      this.sessionMap[user.userId] = timeId;
       await this.userService.updateSocketId(user, '');
       return { userName: user.userName };
     }
@@ -64,12 +50,15 @@ export class EventsService {
   }
 
   async registUser(userName: string, socketId: string) {
-    const user = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserByUserNameWithChat(userName);
     await this.userService.updateSocketId(user, socketId);
-    if (this.sessionMap[user.userName]) {
-      const [timeId, rooms] = this.sessionMap[user.userName];
+    if (this.sessionMap[user.userId]) {
+      const timeId = this.sessionMap[user.userId];
       clearTimeout(timeId);
-      delete this.sessionMap[user.userName];
+      delete this.sessionMap[user.userId];
+      const rooms = user.chats.map((chat) => {
+        return chat.chat.title;
+      });
       return rooms;
     }
     return [];
