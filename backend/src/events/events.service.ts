@@ -190,7 +190,7 @@ export class EventsService {
     const owner = await this.userService.getUserBySocketId(this.rankQueue);
     this.rankQueue = '';
     return {
-      roomName: `${owner.userName} vs ${opponent.userName} rank game`,
+      roomName: `${owner.userName} vs ${opponent.userName}`,
       owner: this.userService.userToUserDto(owner),
       opponent: this.userService.userToUserDto(opponent),
       socketId: owner.socketId,

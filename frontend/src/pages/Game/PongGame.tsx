@@ -9,6 +9,7 @@ import {
   isWatcherState,
   myNameState,
 } from "../../api/atom";
+import { useNavigate } from "react-router-dom";
 
 const PongGame = ({
   roomName,
@@ -35,7 +36,7 @@ const PongGame = ({
   const isWatcher = useRecoilValue(isWatcherState);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const myName = useRecoilValue(myNameState);
-
+  const navigate = useNavigate();
   const socket = useContext(WebsocketContext);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const paddleWidth = 150;
@@ -143,36 +144,19 @@ const PongGame = ({
 
       // 윗 벽에 닿았을 때
       if (ball.y + ball.dy < ball.radius) {
+        console.log(gameInfo.gameDto.type);
+        if (myName === gameInfo.ownerDto.userName) {
+          socket.emit("game-result", {
+            roomName: gameInfo.gameDto.title,
+            winner: gameInfo.ownerDto.userName,
+            loser: gameInfo.opponentDto.userName,
+            type: gameInfo.gameDto.type,
+          });
+        }
         gameState = "win";
-        axiosRecordGameResult(owner, opponent, type === "normal" ? 0 : 1).then(
-          () => {
-            setAlertInfo({
-              type: "success",
-              header: "Victory!",
-              msg: `${opponent}님을 이겼습니다!`,
-              toggle: true,
-            });
-            if (gameInfo.opponentDto) {
-              setGameInfo({
-                ...gameInfo,
-                ownerDto: {
-                  ...gameInfo.ownerDto,
-                  normalWin: gameInfo.ownerDto.normalWin + 1,
-                },
-                opponentDto: {
-                  ...gameInfo.opponentDto,
-                  normalLose: gameInfo.opponentDto.normalLose + 1,
-                },
-              });
-            }
-            socket.emit("normal-game-over", {
-              roomName,
-              winner: gameInfo.ownerDto.userName,
-            });
-            setCount(4);
-            resetGame(false);
-          }
-        );
+        setCount(4);
+        if (gameInfo.gameDto.type) navigate("/main/lobby");
+        else resetGame(false);
       } else if (myPaddleCollision) {
         // 내 패들에 닿았을 때
         const relativeIntersectX = myPaddle.x + myPaddle.width / 2 - ball.x;
@@ -193,36 +177,20 @@ const PongGame = ({
         ball.dy = speed * Math.cos(bounceAngle);
       } else if (ball.y + ball.dy > canvasSize - ball.radius) {
         // 바닥에 닿았을 때
+        console.log(gameInfo.gameDto.type);
+        if (myName === gameInfo.ownerDto.userName) {
+          socket.emit("game-result", {
+            roomName: gameInfo.gameDto.title,
+            winner: gameInfo.opponentDto.userName,
+            loser: gameInfo.ownerDto.userName,
+            type: gameInfo.gameDto.type,
+          });
+        }
         gameState = "lose";
-        axiosRecordGameResult(opponent, owner, type === "normal" ? 0 : 1).then(
-          () => {
-            setAlertInfo({
-              type: "failure",
-              header: "Lose...",
-              msg: `${opponent}님에게 졌습니다...`,
-              toggle: true,
-            });
-            if (gameInfo.opponentDto) {
-              setGameInfo({
-                ...gameInfo,
-                ownerDto: {
-                  ...gameInfo.ownerDto,
-                  normalLose: gameInfo.ownerDto.normalLose + 1,
-                },
-                opponentDto: {
-                  ...gameInfo.opponentDto,
-                  normalWin: gameInfo.opponentDto.normalWin + 1,
-                },
-              });
-              socket.emit("normal-game-over", {
-                roomName,
-                winner: gameInfo.opponentDto.userName,
-              });
-              setCount(4);
-              resetGame(false);
-            }
-          }
-        );
+        setCount(4);
+        if (gameInfo.gameDto.type) navigate("/main/lobby");
+        else resetGame(false);
+        console.log("good");
       }
 
       // 좌우 벽에 닿았을 때
@@ -329,7 +297,7 @@ const PongGame = ({
         socket.emit("mouse-move", {
           roomName,
           x: myPaddle.x,
-          type:myType
+          type: myType,
         });
       }
     }
@@ -361,55 +329,57 @@ const PongGame = ({
       }
     });
 
-    socket.on("normal-game-over", ({ winner }) => {
-      if (myName === gameInfo.opponentDto?.userName) {
-        setAlertInfo({
-          type: winner === myName ? "success" : "failure",
-          header: winner === myName ? "Victory!" : "Lose...",
-          msg:
-            winner === myName
-              ? `${gameInfo.ownerDto.userName}님을 이겼습니다!`
-              : `${gameInfo.ownerDto.userName}님에게 졌습니다...!`,
-          toggle: true,
-        });
-      } else {
-        setAlertInfo({
-          type: "success",
-          header: "Victory!",
-          msg: `${winner}님이 이겼습니다!`,
-          toggle: true,
-        });
-      }
-      if (gameInfo.opponentDto) {
-        if (winner === gameInfo.ownerDto.userName) {
-          setGameInfo({
-            ...gameInfo,
-            ownerDto: {
-              ...gameInfo.ownerDto,
-              normalWin: gameInfo.ownerDto.normalWin + 1,
-            },
-            opponentDto: {
-              ...gameInfo.opponentDto,
-              normalLose: gameInfo.opponentDto.normalLose + 1,
-            },
+    if (gameInfo.gameDto.type === 0) {
+      socket.on("normal-game-over", ({ winner }) => {
+        if (myName === gameInfo.opponentDto?.userName) {
+          setAlertInfo({
+            type: winner === myName ? "success" : "failure",
+            header: winner === myName ? "Victory!" : "Lose...",
+            msg:
+              winner === myName
+                ? `${gameInfo.ownerDto.userName}님을 이겼습니다!`
+                : `${gameInfo.ownerDto.userName}님에게 졌습니다...!`,
+            toggle: true,
           });
         } else {
-          setGameInfo({
-            ...gameInfo,
-            ownerDto: {
-              ...gameInfo.ownerDto,
-              normalLose: gameInfo.ownerDto.normalLose + 1,
-            },
-            opponentDto: {
-              ...gameInfo.opponentDto,
-              normalWin: gameInfo.opponentDto.normalWin + 1,
-            },
+          setAlertInfo({
+            type: "success",
+            header: "Victory!",
+            msg: `${winner}님이 이겼습니다!`,
+            toggle: true,
           });
         }
-        setCount(4);
-        resetGame(false);
-      }
-    });
+        if (gameInfo.opponentDto) {
+          if (winner === gameInfo.ownerDto.userName) {
+            setGameInfo({
+              ...gameInfo,
+              ownerDto: {
+                ...gameInfo.ownerDto,
+                normalWin: gameInfo.ownerDto.normalWin + 1,
+              },
+              opponentDto: {
+                ...gameInfo.opponentDto,
+                normalLose: gameInfo.opponentDto.normalLose + 1,
+              },
+            });
+          } else {
+            setGameInfo({
+              ...gameInfo,
+              ownerDto: {
+                ...gameInfo.ownerDto,
+                normalLose: gameInfo.ownerDto.normalLose + 1,
+              },
+              opponentDto: {
+                ...gameInfo.opponentDto,
+                normalWin: gameInfo.opponentDto.normalWin + 1,
+              },
+            });
+          }
+          setCount(4);
+          resetGame(false);
+        }
+      });
+    }
 
     if (myType === "opponent" || myType === "owner")
       canvas.current?.addEventListener("mousemove", handleMouseMove);

@@ -14,6 +14,7 @@ export interface GameDto {
   interruptMode: boolean;
   privateMode: boolean;
   cur: number;
+  type?: number;
 }
 
 export interface JoinnedUserDto {

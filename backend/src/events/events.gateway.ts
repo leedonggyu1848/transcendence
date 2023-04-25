@@ -248,7 +248,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`[GameResult]`);
     const result = await this.recordService.saveGameResult(winner, loser, type);
     if (result.success)
-      socket.to(roomName).emit('game-result', `게임이 끝났습니다.`);
+      socket.to(roomName).emit('game-result', { winner, loser });
     else socket.emit('game-fail', result.msg);
   }
 
@@ -432,7 +432,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName: roomName,
         operator: result.operator,
       });
-      console.log(result);
       socket.emit('leave-chat-success', roomName);
     } else {
       socket.emit('chat-fail', result.msg);

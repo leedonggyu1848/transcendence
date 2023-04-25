@@ -21,12 +21,11 @@ import CurrentUserInfo from "../../components/CurrentUserInfo";
 import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
 
-const NormalGamePage = () => {
+const GamePage = () => {
   const [startCount, setStartCount] = useState(false);
   const [start, setStart] = useState(false);
   const [gameInfo, setGameInfo] = useRecoilState(currentGameInfoState);
   const usersInfo = useRecoilValue(currentGameUsersState);
-  const [chatLogs, setChatLogs] = useState<IChatLog[]>([]);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
@@ -41,6 +40,7 @@ const NormalGamePage = () => {
   const [firstJoin, setJoinSocketState] = useRecoilState(joinSocketState);
   const [count, setCount] = useState(4);
   const [gameList, setGameList] = useRecoilState(gameListState);
+  const [rankGameFlag, setRankGameFlag] = useState(false);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
@@ -93,7 +93,6 @@ const NormalGamePage = () => {
   const clickExit = () => {
     socket.emit("leave-game", gameInfo.gameDto.title);
   };
-  console.log(gameInfo);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
@@ -103,6 +102,13 @@ const NormalGamePage = () => {
     }
     if (startCount) {
       timer = setTimeout(() => setCount(count - 1), 1000);
+    }
+    if (!rankGameFlag && gameInfo && gameInfo.gameDto.type) {
+      setRankGameFlag(true);
+      setStartCount(() => true);
+      setCount((prev) => prev - 1);
+      //if (gameInfo.ownerDto.userName === myName)
+      //  socket.emit("start-game", gameInfo.gameDto.title);
     }
 
     socket.on("start-game", () => {
@@ -119,12 +125,12 @@ const NormalGamePage = () => {
       socket.off("obstacle-info");
       if (timer) clearInterval(timer);
     };
-  }, [gameList, chatLogs, startCount, count]);
+  }, [gameList, startCount, count]);
   return (
     gameInfo && (
-      <NormalGamePageContainer>
+      <GamePageContainer>
         <GameContainer>
-          <h1>일반 게임</h1>
+          <h1>{gameInfo.gameDto.type ? "랭크 게임" : "일반 게임"}</h1>
           <h2>{gameInfo && gameInfo.gameDto.title}</h2>
           {!start && <WaitRoom count={count} />}
           {start && (
@@ -170,7 +176,7 @@ const NormalGamePage = () => {
             myName={myName}
           />
         </SubContainer>
-      </NormalGamePageContainer>
+      </GamePageContainer>
     )
   );
 };
@@ -230,11 +236,11 @@ const SubContainer = styled.div`
   justify-content: space-between;
 `;
 
-const NormalGamePageContainer = styled.div`
+const GamePageContainer = styled.div`
   height: 95%;
   display: flex;
   color: white;
   width: 90%;
 `;
 
-export default NormalGamePage;
+export default GamePage;
