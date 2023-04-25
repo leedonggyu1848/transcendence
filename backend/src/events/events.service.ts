@@ -197,6 +197,10 @@ export class EventsService {
     };
   }
 
+  cancelRankGame(socketId: string) {
+    if (this.rankQueue === socketId) this.rankQueue = '';
+  }
+
   async getAllChatList(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithChat(socketId);
     const chats = await this.chatRepository.findAll();

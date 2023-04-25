@@ -228,6 +228,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('cancel-rank')
+  handleCancelRank(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[CancelRank]`);
+    this.eventsService.cancelRankGame(socket.id);
+  }
+
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
