@@ -125,6 +125,9 @@ const MainPage = () => {
   const [blockList, setBlockList] = useRecoilState(blockUserListState);
   const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
   const [gameList, setGameList] = useRecoilState(gameListState);
+  const [rankWaitModal, setRankWaitModal] = useRecoilState(
+    rankWaitModalToggleState
+  );
 
   interface PerformanceEntryWithOptionalType extends PerformanceEntry {
     type?: string;
@@ -153,6 +156,7 @@ const MainPage = () => {
     gameList,
     setGameList,
     navigate,
+    setRankWaitModal,
   };
 
   useEffect(() => {
@@ -318,7 +322,7 @@ const MainPage = () => {
         <Menu />
         <Routes>
           <Route path="lobby" element={<GameLobbyContainer />} />
-          <Route path="/game" element={<GamePage />} />
+          {/*<Route path="/game" element={<GamePage />} />*/}
           <Route path="/game" element={<NormalGamePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/history" element={<HistoryPage />} />

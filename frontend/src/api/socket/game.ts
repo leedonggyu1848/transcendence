@@ -534,6 +534,7 @@ export const listenMatchRank = ({
   joinnedChatList,
   setJoinnedChatList,
   navigate,
+  setRankWaitModal,
 }: {
   socket: any;
   setAlertInfo: any;
@@ -544,6 +545,7 @@ export const listenMatchRank = ({
   joinnedChatList: any;
   setJoinnedChatList: any;
   navigate: any;
+  setRankWaitModal: any;
 }) => {
   socket.on(
     "match-rank",
@@ -556,7 +558,9 @@ export const listenMatchRank = ({
       userDto: UserDto;
       opponentDto: UserDto;
     }) => {
-      console.log("in rankGame");
+      console.log("in rankGame", roomName);
+
+      setRankWaitModal(false);
       setCurrentGame({
         gameDto: {
           title: roomName,

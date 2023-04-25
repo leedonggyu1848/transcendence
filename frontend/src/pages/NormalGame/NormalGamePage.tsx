@@ -93,6 +93,7 @@ const NormalGamePage = () => {
   const clickExit = () => {
     socket.emit("leave-game", gameInfo.gameDto.title);
   };
+  console.log(gameInfo);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
