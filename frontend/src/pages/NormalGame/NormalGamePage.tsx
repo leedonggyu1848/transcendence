@@ -11,6 +11,7 @@ import {
   normalJoinTypeState,
   currentChatState,
   joinnedChatState,
+  gameListState,
 } from "../../api/atom";
 import { IChatLog, UserDto } from "../../api/interface";
 import { axiosLeaveNormalGame } from "../../api/request";
@@ -39,6 +40,7 @@ const NormalGamePage = () => {
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [firstJoin, setJoinSocketState] = useRecoilState(joinSocketState);
   const [count, setCount] = useState(4);
+  const [gameList, setGameList] = useRecoilState(gameListState);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
@@ -187,57 +189,59 @@ const NormalGamePage = () => {
       socket.off("obstacle-info");
       if (timer) clearInterval(timer);
     };
-  }, [chatLogs, startCount, count]);
+  }, [gameList, chatLogs, startCount, count]);
   return (
-    <NormalGamePageContainer>
-      <GameContainer>
-        <h1>일반 게임</h1>
-        <h2>{gameInfo.gameDto.title}</h2>
-        {!start && <WaitRoom count={count} />}
-        {start && (
-          <PongGame
-            roomName={gameInfo.gameDto.title}
-            isOwner={gameInfo.ownerDto.userName === myName}
-            owner={gameInfo.ownerDto.userName}
-            opponent={gameInfo.opponentDto?.userName || ""}
-            type="normal"
-            resetGame={setStart}
-            setCount={setCount}
-            hard={gameInfo.gameDto.interruptMode}
-            obstaclePos={obstaclePos}
+    gameInfo && (
+      <NormalGamePageContainer>
+        <GameContainer>
+          <h1>일반 게임</h1>
+          <h2>{gameInfo && gameInfo.gameDto.title}</h2>
+          {!start && <WaitRoom count={count} />}
+          {start && (
+            <PongGame
+              roomName={gameInfo && gameInfo.gameDto.title}
+              isOwner={gameInfo.ownerDto.userName === myName}
+              owner={gameInfo.ownerDto.userName}
+              opponent={gameInfo.opponentDto?.userName || ""}
+              type="normal"
+              resetGame={setStart}
+              setCount={setCount}
+              hard={gameInfo.gameDto.interruptMode}
+              obstaclePos={obstaclePos}
+            />
+          )}
+        </GameContainer>
+        <SubContainer>
+          <Options>
+            {" "}
+            <Button
+              className={
+                myName === gameInfo.ownerDto.userName ? "active" : "notActive"
+              }
+              onClick={clickStart}
+            >
+              시작하기
+            </Button>
+            <Button className="active" onClick={clickExit}>
+              나가기
+            </Button>
+          </Options>
+          <CurrentUserInfo
+            data={usersInfo}
+            title={gameInfo.gameDto.title}
+            operator={false}
+            clickOperatorButton={() => {}}
           />
-        )}
-      </GameContainer>
-      <SubContainer>
-        <Options>
-          {" "}
-          <Button
-            className={
-              myName === gameInfo.ownerDto.userName ? "active" : "notActive"
-            }
-            onClick={clickStart}
-          >
-            시작하기
-          </Button>
-          <Button className="active" onClick={clickExit}>
-            나가기
-          </Button>
-        </Options>
-        <CurrentUserInfo
-          data={usersInfo}
-          title={gameInfo.gameDto.title}
-          operator={false}
-          clickOperatorButton={() => {}}
-        />
-        <ChatBox
-          onSend={onSend}
-          onChange={onChange}
-          msg={msg}
-          height={350}
-          myName={myName}
-        />
-      </SubContainer>
-    </NormalGamePageContainer>
+          <ChatBox
+            onSend={onSend}
+            onChange={onChange}
+            msg={msg}
+            height={350}
+            myName={myName}
+          />
+        </SubContainer>
+      </NormalGamePageContainer>
+    )
   );
 };
 
