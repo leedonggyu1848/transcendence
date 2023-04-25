@@ -170,6 +170,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.broadcast.emit('user-watch-game', {
         message: `${result.user.userName}가 들어왔습니다.`,
         userInfo: result.user,
+        roomName,
         type: JoinType.WATCHER,
       });
     } else socket.emit('game-fail', result.msg);
@@ -188,6 +189,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.broadcast.emit('user-leave-game', {
         message: `${result.user.userName}가 나갔습니다.`,
         userInfo: result.user,
+        roomName,
         type: result.type,
       });
     } else socket.emit('game-fail', result.msg);
