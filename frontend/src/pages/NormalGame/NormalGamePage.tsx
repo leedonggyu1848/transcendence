@@ -88,19 +88,20 @@ const NormalGamePage = () => {
     }
   };
 
-  const clickExit = async () => {
-    try {
-      await axiosLeaveNormalGame();
-      socket.emit("leave-game", {
-        roomName: gameInfo.gameDto.title,
-        userInfo: myInfo,
-      });
-      setJoinSocketState(false);
-      navigate("/main/lobby");
-    } catch (e) {
-      console.error(e);
-      alert(e);
-    }
+  const clickExit = () => {
+    socket.emit("leave-game", gameInfo.gameDto.title);
+    //try {
+    //  await axiosLeaveNormalGame();
+    //  socket.emit("leave-game", {
+    //    roomName: gameInfo.gameDto.title,
+    //    userInfo: myInfo,
+    //  });
+    //  setJoinSocketState(false);
+    //  navigate("/main/lobby");
+    //} catch (e) {
+    //  console.error(e);
+    //  alert(e);
+    //}
   };
 
   useEffect(() => {

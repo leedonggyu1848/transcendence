@@ -243,8 +243,40 @@ export const listenUserWatchGame = ({ socket }: { socket: any }) => {
   );
 };
 
-export const listenLeaveGame = ({ socket }: { socket: any }) => {
-  socket.on("leave-game", (message: string) => {});
+export const listenLeaveGame = ({
+  socket,
+  navigate,
+  joinnedChatList,
+  setJoinnedChatList,
+  setCurrentChat,
+  currentChat,
+  setChatList,
+  chatList,
+}: {
+  socket: any;
+  navigate: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+  setCurrentChat: any;
+  currentChat: any;
+  setChatList: any;
+  chatList: any;
+}) => {
+  socket.on("leave-game", (message: string) => {
+    console.log("in leave-game", message);
+    const temp = { ...joinnedChatList };
+    delete temp[currentChat];
+    setChatList(
+      chatList.map((chat: GameDto) =>
+        chat.title === currentChat
+          ? { ...chat, cur: chat.cur - 1 }
+          : { ...chat }
+      )
+    );
+    setJoinnedChatList({ ...temp });
+    setCurrentChat("");
+    navigate("/main/lobby");
+  });
 };
 
 export const listenUserLeaveGame = ({ socket }: { socket: any }) => {
