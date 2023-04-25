@@ -11,6 +11,7 @@ import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class EventsService {
+  private rankQueue: string;
   constructor(
     @Inject('IChatRepository')
     private chatRepository: IChatRepository,
@@ -177,6 +178,22 @@ export class EventsService {
       msg: `${user.userName}가 나갔습니다.`,
       userName: user.userName,
       operator: chat.users[0].user.userName,
+    };
+  }
+
+  async matchRankGame(socketId: string) {
+    if (this.rankQueue !== '') {
+      this.rankQueue = socketId;
+      return null;
+    }
+    const user = await this.userService.getUserBySocketId(socketId);
+    const opponent = await this.userService.getUserBySocketId(this.rankQueue);
+    this.rankQueue = '';
+    return {
+      roomName: `${opponent.userName} vs ${user.userName} rank game`,
+      user: this.userService.userToUserDto(user),
+      opponent: this.userService.userToUserDto(opponent),
+      socketId: opponent.socketId,
     };
   }
 

@@ -208,6 +208,26 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('game-fail', result.msg);
   }
 
+  @SubscribeMessage('match-rank')
+  async handleMatchRank(@ConnectedSocket() socket: Socket) {
+    this.logger.log(`[MatchRank]`);
+    const data = await this.eventsService.matchRankGame(socket.id);
+    if (!data) {
+      socket.join(data.roomName);
+      socket.emit('match-rank', {
+        roomName: data.roomName,
+        userInfo: data.user,
+        opponentInfo: data.opponent,
+      });
+      this.nsp.sockets.get(data.socketId)?.join(data.roomName);
+      this.nsp.sockets.get(data.socketId)?.emit('match-rank', {
+        roomName: data.roomName,
+        userInfo: data.opponent,
+        opponentInfo: data.user,
+      });
+    }
+  }
+
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
