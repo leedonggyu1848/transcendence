@@ -11,7 +11,6 @@ import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class EventsService {
-  private sessionMap = {};
   constructor(
     @Inject('IChatRepository')
     private chatRepository: IChatRepository,
@@ -24,32 +23,9 @@ export class EventsService {
     private banService: BanService,
   ) {}
 
-  private async leaveChatRooms(socketId: string, user: User) {
-    let result = [];
-    if (user.chats) {
-      result = [
-        ...user.chats.map(async (chat) => {
-          await this.leaveChat(socketId, chat.chat.title);
-        }),
-      ];
-    }
-    await Promise.all(result);
-  }
-
-  async disconnect(socketId: string) {
+  async getSocketInfo(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithAll(socketId);
-    if (user) {
-      const timeId = setTimeout(() => {
-        this.leaveChatRooms(socketId, user);
-      }, 1000);
-      this.sessionMap[user.userId] = timeId;
-      await this.userService.updateSocketId(user, '');
-      return { userName: user.userName };
-    }
-    return null;
-  }
-
-  private getSocketRooms(user: User) {
+    if (!user) return null;
     let chatRooms = [];
     if (user.chats) {
       chatRooms = user.chats.map((chat) => {
@@ -59,20 +35,12 @@ export class EventsService {
     let gameRoom = [];
     if (user.playGame) gameRoom.push(user.playGame.title);
     if (user.watchGame) gameRoom.push(user.watchGame.title);
-    return [...chatRooms, ...gameRoom];
+    return { userName: user.userName, chatRooms, gameRoom };
   }
 
   async registUser(userName: string, socketId: string) {
     const user = await this.userService.getUserByUserNameWithAll(userName);
     await this.userService.updateSocketId(user, socketId);
-    if (this.sessionMap[user.userId]) {
-      const timeId = this.sessionMap[user.userId];
-      clearTimeout(timeId);
-      delete this.sessionMap[user.userId];
-      console.log(this.sessionMap);
-      return this.getSocketRooms(user);
-    }
-    return [];
   }
 
   async isConnect(userName: string) {
@@ -176,7 +144,7 @@ export class EventsService {
   async leaveChat(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
-    const chat = await this.chatRepository.findByTitleWithJoin(roomName);
+    let chat = await this.chatRepository.findByTitleWithJoin(roomName);
     if (!chat) return { success: false, msg: `맞는 채팅방이 없습니다.` };
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0)
@@ -185,6 +153,7 @@ export class EventsService {
     if (chat.count <= 1) await this.chatRepository.deleteChat(chat);
     else {
       await this.chatRepository.updateCount(chat.id, chat.count - 1);
+      chat = await this.chatRepository.findByTitleWithJoin(roomName);
       if (chat.operator === user.userName) {
         await this.chatRepository.updateOperator(
           chat.id,
@@ -195,7 +164,8 @@ export class EventsService {
     return {
       success: true,
       msg: `${user.userName}가 나갔습니다.`,
-      data: user.userName,
+      userName: user.userName,
+      operator: chat.users[0].user.userName,
     };
   }
 

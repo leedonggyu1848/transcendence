@@ -4,7 +4,6 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -14,6 +13,7 @@ import { GameDto } from 'src/dto/game.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { FriendService } from 'src/friend/friend.service';
 import { GameService } from 'src/game/game.service';
+import { UserService } from 'src/user/user.service';
 import { CreateChatPayload, MessagePayload } from './events.payload';
 import { EventsService } from './events.service';
 
@@ -26,6 +26,7 @@ import { EventsService } from './events.service';
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger(EventsGateway.name);
   private muteQueue = [];
+  private sessionMap = {};
   constructor(
     private eventsService: EventsService,
     private friendService: FriendService,
@@ -40,13 +41,21 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[Disconnect] socketId: ${socket.id}`);
-    const userName = await this.eventsService.disconnect(socket.id);
-    if (userName) {
-      socket.broadcast.emit('disconnect-user', {
-        userName,
-        message: `${userName}가 접속을 종료했습니다.`,
+    const data = await this.eventsService.getSocketInfo(socket.id);
+    if (!data) return;
+    const timeId = setTimeout(async () => {
+      data.chatRooms.forEach((room) => {
+        this.handleLeaveChat(socket, room);
       });
-    }
+      data.gameRoom.forEach((room) => {
+        this.handleLeaveGame(socket, room);
+      });
+      this.nsp.emit('disconnect-user', {
+        userName: data.userName,
+        message: `${data.userName}가 접속을 해제했습니다.`,
+      });
+    }, 1000);
+    this.sessionMap[data.userName] = timeId;
   }
 
   @SubscribeMessage('first-connection')
@@ -55,17 +64,18 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
-    const rooms = await this.eventsService.registUser(userName, socket.id);
-    if (rooms.length !== 0) {
-      rooms.forEach((room) => {
-        socket.join(room);
+    await this.eventsService.registUser(userName, socket.id);
+    if (this.sessionMap[userName]) {
+      const timeId = this.sessionMap[userName];
+      clearTimeout(timeId);
+      delete this.sessionMap[userName];
+    } else {
+      socket.emit('first-connection');
+      socket.broadcast.emit('connect-user', {
+        userName,
+        message: `${userName}가 접속했습니다.`,
       });
     }
-    socket.emit('first-connection');
-    socket.broadcast.emit('connect-user', {
-      userName,
-      message: `${userName}가 접속했습니다.`,
-    });
   }
 
   @SubscribeMessage('check-connection')
@@ -371,9 +381,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.leave(roomName);
       socket.broadcast.emit('leave-chat', {
         message: result.msg,
-        userName: result.data,
+        userName: result.userName,
         roomName: roomName,
+        operator: result.operator,
       });
+      console.log(result);
       socket.emit('leave-chat-success', roomName);
     } else {
       socket.emit('chat-fail', result.msg);
