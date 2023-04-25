@@ -84,30 +84,9 @@ export const joinGameModalToggleState = atom({
   default: { toggle: false, type: "" },
 });
 
-export const currentGameInfoState = atom<ICurrentGame>({
+export const currentGameInfoState = atom<ICurrentGame | null>({
   key: "currentNormalGameInfoState",
-  default: {
-    gameDto: {
-      interruptMode: false,
-      cur: 0,
-      privateMode: false,
-      title: "",
-    },
-    opponentDto: null,
-    ownerDto: {
-      id: 4,
-      userName: "jpark2",
-      introduce: "",
-      joinType: 0,
-      normalLose: 0,
-      normalWin: 0,
-      profile: "",
-      rankLose: 0,
-      rankWin: 0,
-      userId: 131546,
-    },
-    watchersDto: [],
-  },
+  default: null,
   effects_UNSTABLE: [persistAtom],
 });
 
@@ -115,6 +94,7 @@ export const currentGameUsersState = selector<JoinnedUserDto[]>({
   key: "currentNormaGameUsersState",
   get: ({ get }) => {
     const data = get(currentGameInfoState);
+    if (!data) return [];
     const result = [];
     result.push({ type: "owner", userName: data.ownerDto.userName });
     if (data.opponentDto)

@@ -33,18 +33,23 @@ const ChatBox = ({
   return (
     <ChatBoxWrapper h={height}>
       <ChatBoxContainer ref={chatBoxRef} h={height}>
-        {joinChatList[currentChat].chatLogs.map((info, idx) => (
-          <Chat key={idx} {...info} myName={myName} />
-        ))}
+        {joinChatList[currentChat] &&
+          joinChatList[currentChat].chatLogs.map((info, idx) => (
+            <Chat key={idx} {...info} myName={myName} />
+          ))}
       </ChatBoxContainer>
       <ChatInput
         value={msg}
         onChange={onChange}
         onKeyUp={onSend}
         placeholder={
-          joinChatList[currentChat].isMuted ? "음소거 중입니다." : "채팅하기"
+          joinChatList[currentChat] && joinChatList[currentChat].isMuted
+            ? "음소거 중입니다."
+            : "채팅하기"
         }
-        disabled={joinChatList[currentChat].isMuted}
+        disabled={
+          joinChatList[currentChat] && joinChatList[currentChat].isMuted
+        }
       />
     </ChatBoxWrapper>
   );

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
@@ -60,28 +60,13 @@ const GameLobbyContainer = () => {
   };
 
   const clickWatch = async (title: string, private_mode: boolean) => {
-    if (!private_mode) {
-      try {
-        const data = await axiosWatchGame(title, "");
-        setCurrentGameInfoState({
-          ...data,
-        });
-        setNormalJoinType("watch");
-        navigator("/main/game/normal");
-      } catch (e) {
-        console.error(e);
-        setAlertInfo({
-          type: "failure",
-          header: "게임 참가 실패",
-          msg: "게임 참가에 실패 했습니다...",
-          toggle: true,
-        });
-      }
+    if (private_mode) {
+      setJoinGameModal({ toggle: true, type: "watch" });
+      setSelectedNormalGameTitle(title);
       return;
     }
-    setBackgroundModal(true);
-    setJoinGameModal({ toggle: true, type: "watch" });
-    setSelectedNormalGameTitle(title);
+
+    socket.emit("watch-game", { roomName: title, password: "" });
   };
 
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {

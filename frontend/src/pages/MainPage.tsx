@@ -262,7 +262,14 @@ const MainPage = () => {
         "user-leave-game"
       );
     };
-  }, [myInfo, joinnedChatList, chatList, friendList, friendRequestList]);
+  }, [
+    myInfo,
+    gameList,
+    joinnedChatList,
+    chatList,
+    friendList,
+    friendRequestList,
+  ]);
   return (
     token.access_token && (
       <MainPageContainer>
