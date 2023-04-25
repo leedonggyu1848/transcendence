@@ -124,7 +124,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (result.success) {
       socket.join(roomName);
       socket.emit('create-game', result.data);
-      this.nsp.emit('new-game', result.data.gameDto);
+      socket.broadcast.emit('new-game', result.data.gameDto);
     } else socket.emit('game-fail', result.msg);
   }
 
@@ -143,7 +143,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (result.success) {
       socket.join(roomName);
       socket.emit('join-game', result.data);
-      socket.broadcast.to(roomName).emit('user-join-game', {
+      socket.broadcast.emit('user-join-game', {
         message: `${result.user.userName}가 들어왔습니다.`,
         userInfo: result.user,
         roomName,
@@ -167,7 +167,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (result.success) {
       socket.join(roomName);
       socket.emit('watch-game', result.data);
-      socket.broadcast.to(roomName).emit('user-watch-game', {
+      socket.broadcast.emit('user-watch-game', {
         message: `${result.user.userName}가 들어왔습니다.`,
         userInfo: result.user,
         type: JoinType.WATCHER,
@@ -185,7 +185,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (result.success) {
       socket.leave(roomName);
       socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
-      socket.broadcast.to(roomName).emit('user-leave-game', {
+      socket.broadcast.emit('user-leave-game', {
         message: `${result.user.userName}가 나갔습니다.`,
         userInfo: result.user,
         type: result.type,
@@ -325,8 +325,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (result.success) {
       socket.join(roomName);
-      this.nsp.emit('create-chat', { roomName, type, operator: result.data });
       socket.emit('create-success', { roomName, type, operator: result.data });
+      this.nsp.emit('create-chat', { roomName, type, operator: result.data });
     } else {
       socket.emit('chat-fail', result.msg);
     }

@@ -29,8 +29,8 @@ export class GameService {
     if (!founds) return [];
     const games: LobbyDto[] = founds.map((game) => ({
       title: game.title,
-      interruptMode: game.interrupt_mode,
-      privateMode: game.private_mode,
+      interruptMode: game.interruptMode,
+      privateMode: game.privateMode,
       cur: game.count,
     }));
     return games;
@@ -68,7 +68,7 @@ export class GameService {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
-    if (game.private_mode && !(await bcrypt.compare(password, game.password)))
+    if (game.privateMode && !(await bcrypt.compare(password, game.password)))
       return { success: false, msg: '비밀번호가 맞지 않습니다.' };
     if (game.count == 2)
       return { success: false, msg: '해당 방에 자리가 없습니다.' };
@@ -83,7 +83,7 @@ export class GameService {
     let watchersDto: UserDto[];
     if (game.watchers) {
       const watchers = game.watchers.filter(
-        (user) => user.join_type === JoinType.WATCHER,
+        (user) => user.joinType === JoinType.WATCHER,
       );
       watchersDto = watchers.map((element) =>
         this.userService.userToUserDto(element),
@@ -103,17 +103,17 @@ export class GameService {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     const game = await this.gameRepository.findByTitleWithJoin(title);
     if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
-    if (game.private_mode && !(await bcrypt.compare(password, game.password)))
+    if (game.privateMode && !(await bcrypt.compare(password, game.password)))
       return { success: false, msg: '비밀번호가 맞지 않습니다.' };
     if (user.playGame || user.watchGame)
       return { success: false, msg: '이미 다른 방에 참가 중 입니다.' };
     await this.userRepository.updateWatchGame(user.id, game);
     if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
     const owner = game.players.find(
-      (player) => player.join_type === JoinType.OWNER,
+      (player) => player.joinType === JoinType.OWNER,
     );
     const player = game.players.find(
-      (player) => player.join_type === JoinType.PLAYER,
+      (player) => player.joinType === JoinType.PLAYER,
     );
     let watchersDto: UserDto[];
     if (game.watchers) {
