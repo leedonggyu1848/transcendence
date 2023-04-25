@@ -11,7 +11,7 @@ import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class EventsService {
-  private rankQueue: string;
+  private rankQueue = '';
   constructor(
     @Inject('IChatRepository')
     private chatRepository: IChatRepository,
@@ -182,7 +182,7 @@ export class EventsService {
   }
 
   async matchRankGame(socketId: string) {
-    if (this.rankQueue !== '') {
+    if (this.rankQueue === '') {
       this.rankQueue = socketId;
       return null;
     }
