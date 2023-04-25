@@ -78,9 +78,9 @@ const CreateChatModal = () => {
             />
           </div>
           <div>
-            <label htmlFor="password">비밀번호</label>
+            <label htmlFor="pw">비밀번호</label>
             <input
-              id="password"
+              id="pw"
               name="type"
               type="radio"
               value="password"

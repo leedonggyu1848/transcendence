@@ -60,7 +60,7 @@ export const listenCreateGame = ({
           muteId: -1,
         },
       });
-      navigate("/main/game/normal");
+      navigate("/main/game");
     }
   );
 };
@@ -154,7 +154,7 @@ export const listenJoinGame = ({
           muteId: -1,
         },
       });
-      navigate("/main/game/normal");
+      navigate("/main/game");
     }
   );
 };
@@ -238,6 +238,8 @@ export const listenWatchGame = ({
   joinnedChatList,
   setJoinnedChatList,
   navigate,
+  gameList,
+  setGameList,
 }: {
   socket: any;
   setAlertInfo: any;
@@ -248,6 +250,8 @@ export const listenWatchGame = ({
   joinnedChatList: any;
   setJoinnedChatList: any;
   navigate: any;
+  gameList: GameDto[];
+  setGameList: any;
 }) => {
   socket.on(
     "watch-game",
@@ -289,22 +293,55 @@ export const listenWatchGame = ({
           muteId: -1,
         },
       });
+      navigate("/main/game");
     }
   );
 };
 
-export const listenUserWatchGame = ({ socket }: { socket: any }) => {
+export const listenUserWatchGame = ({
+  socket,
+  currentGame,
+  setCurrentGame,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  currentGame: ICurrentGame;
+  setCurrentGame: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+}) => {
   socket.on(
     "user-watch-game",
     ({
       message,
       userInfo,
       type,
+      roomName,
     }: {
       message: string;
       userInfo: UserDto;
       type: number;
-    }) => {}
+      roomName: string;
+    }) => {
+      console.log("in user-watch-game");
+      if (!currentGame || currentGame.gameDto.title !== roomName) return;
+      setCurrentGame({
+        ...currentGame,
+        watchersDto: [...currentGame.watchersDto, { ...userInfo }],
+      });
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          userList: [...joinnedChatList[roomName].userList, userInfo.userName],
+          chatLogs: [
+            ...joinnedChatList[roomName].chatLogs,
+            { sender: "admin", msg: message, time: new Date() },
+          ],
+        },
+      });
+    }
   );
 };
 
@@ -350,6 +387,16 @@ export const listenLeaveGame = ({
     //    )
     //  );
     //}
+    if (
+      currentGame.opponentDto &&
+      currentGame.opponentDto.userName === myName
+    ) {
+      setGameList(
+        gameList.map((game: GameDto) =>
+          game.title === currentChat ? { ...game, cur: 1 } : { ...game }
+        )
+      );
+    }
     setCurrentGame(null);
     setJoinnedChatList({ ...temp });
     setCurrentChat("");
@@ -433,10 +480,38 @@ export const listenUserLeaveGame = ({
             ...currentGame,
             opponentDto: null,
           });
+          setGameList(
+            gameList.map((game: GameDto) =>
+              game.title === roomName ? { ...game, cur: 1 } : { ...game }
+            )
+          );
           setJoinnedChatList({
             ...joinnedChatList,
             [roomName]: {
               ...joinnedChatList[roomName],
+              userList: joinnedChatList[roomName].userList.filter(
+                (name) => name !== userInfo.userName
+              ),
+              chatLogs: [
+                ...joinnedChatList[roomName].chatLogs,
+                { sender: "admin", msg: message, time: new Date() },
+              ],
+            },
+          });
+        } else if (type === 3) {
+          setCurrentGame({
+            ...currentGame,
+            watchersDto: currentGame.watchersDto.filter(
+              (person: UserDto) => person.userName !== userInfo.userName
+            ),
+          });
+          setJoinnedChatList({
+            ...joinnedChatList,
+            [roomName]: {
+              ...joinnedChatList[roomName],
+              userList: joinnedChatList[roomName].userList.filter(
+                (name) => name !== userInfo.userName
+              ),
               chatLogs: [
                 ...joinnedChatList[roomName].chatLogs,
                 { sender: "admin", msg: message, time: new Date() },
@@ -445,6 +520,70 @@ export const listenUserLeaveGame = ({
           });
         }
       }
+    }
+  );
+};
+
+export const listenMatchRank = ({
+  socket,
+  setAlertInfo,
+  currentGame,
+  setCurrentGame,
+  myInfo,
+  setCurrentChat,
+  joinnedChatList,
+  setJoinnedChatList,
+  navigate,
+}: {
+  socket: any;
+  setAlertInfo: any;
+  currentGame: ICurrentGame;
+  setCurrentGame: any;
+  myInfo: UserDto;
+  setCurrentChat: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+  navigate: any;
+}) => {
+  socket.on(
+    "match-rank",
+    ({
+      roomName,
+      userDto,
+      opponentDto,
+    }: {
+      roomName: string;
+      userDto: UserDto;
+      opponentDto: UserDto;
+    }) => {
+      console.log("in rankGame");
+      setCurrentGame({
+        gameDto: {
+          title: roomName,
+          interruptMode: false,
+          privateMode: false,
+          cur: 1,
+        },
+        ownerDto: { ...userDto },
+        opponentDto: { ...opponentDto },
+        watchersDto: [],
+      });
+      setCurrentChat(roomName);
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          title: roomName,
+          type: 0,
+          operator: "",
+          userList: [userDto.userName, opponentDto.userName],
+          chatLogs: [],
+          banUsers: [],
+          newMsg: false,
+          isMuted: false,
+          muteId: -1,
+        },
+      });
+      navigate("/main/game");
     }
   );
 };

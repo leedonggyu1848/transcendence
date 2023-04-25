@@ -37,7 +37,7 @@ const JoinGameModal = () => {
           ? await axiosJoinGame(gameTitle, password)
           : await axiosWatchGame(gameTitle, password);
       setCurrentNormalGameInfo({ ...data });
-      navigator("/main/game/normal");
+      navigator("/main/game");
       setJoinModal({ toggle: false, type: "" });
       setNormalJoinType(joinModal.type === "join" ? "join" : "watch");
     } catch (e: any) {

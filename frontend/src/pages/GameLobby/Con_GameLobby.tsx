@@ -47,6 +47,7 @@ const GameLobbyContainer = () => {
   const clickRankGame = () => {
     setModalBack(true);
     setRankWaitModal(true);
+    socket.emit("match-rank");
   };
 
   const clickJoin = (title: string, private_mode: boolean) => {

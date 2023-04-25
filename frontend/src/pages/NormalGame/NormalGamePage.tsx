@@ -92,48 +92,9 @@ const NormalGamePage = () => {
 
   const clickExit = () => {
     socket.emit("leave-game", gameInfo.gameDto.title);
-    //try {
-    //  await axiosLeaveNormalGame();
-    //  socket.emit("leave-game", {
-    //    roomName: gameInfo.gameDto.title,
-    //    userInfo: myInfo,
-    //  });
-    //  setJoinSocketState(false);
-    //  navigate("/main/lobby");
-    //} catch (e) {
-    //  console.error(e);
-    //  alert(e);
-    //}
   };
 
   useEffect(() => {
-    //if (gameInfo.ownerDto.userName === myName) {
-    //  socket.emit("create-game", gameInfo.gameDto.title);
-    //} else {
-    //  if (!firstJoin) {
-    //    socket.emit("join-game", {
-    //      roomName: gameInfo.gameDto.title,
-    //      userInfo: myInfo,
-    //      type: normalJoinType,
-    //    });
-    //    setJoinSocketState(true);
-    //  }
-    //}
-    //socket.on("join-game", ({ userInfo, message, type }) => {
-    //  setChatLogs([
-    //    ...chatLogs,
-    //    { sender: "admin", msg: message, time: new Date() },
-    //  ]);
-    //  if (type === "join") {
-    //    setGameInfo({ ...gameInfo, opponentDto: { ...userInfo } });
-    //  } else {
-    //    setGameInfo({
-    //      ...gameInfo,
-    //      watchersDto: [...gameInfo.watchersDto, userInfo],
-    //    });
-    //  }
-    //});
-
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {
       setStartCount(() => false);
@@ -142,35 +103,6 @@ const NormalGamePage = () => {
     if (startCount) {
       timer = setTimeout(() => setCount(count - 1), 1000);
     }
-
-    //socket.on(
-    //  "leave-game",
-    //  ({ message, userInfo }: { message: string; userInfo: UserDto }) => {
-    //    if (userInfo.userName === gameInfo.ownerDto.userName) {
-    //      navigate("/main/lobby");
-    //    } else if (
-    //      gameInfo.opponentDto &&
-    //      userInfo.userName === gameInfo.opponentDto.userName
-    //    ) {
-    //      setChatLogs([
-    //        ...chatLogs,
-    //        { sender: "admin", msg: message, time: new Date() },
-    //      ]);
-    //      setGameInfo({ ...gameInfo, opponentDto: null });
-    //    } else {
-    //      setChatLogs([
-    //        ...chatLogs,
-    //        { sender: "admin", msg: message, time: new Date() },
-    //      ]);
-    //      setGameInfo({
-    //        ...gameInfo,
-    //        watchersDto: gameInfo.watchersDto.filter(
-    //          (watcher) => watcher.userName !== userInfo.userName
-    //        ),
-    //      });
-    //    }
-    //  }
-    //);
 
     socket.on("start-game", () => {
       setStartCount(() => true);
@@ -182,9 +114,6 @@ const NormalGamePage = () => {
     });
 
     return () => {
-      //socket.off("join-game");
-      //socket.off("message");
-      //socket.off("leave-game");
       socket.off("start-game");
       socket.off("obstacle-info");
       if (timer) clearInterval(timer);

@@ -231,10 +231,12 @@ export const listenSomeoneLeave = ({
       message,
       userName,
       roomName,
+      operator,
     }: {
       message: string;
       userName: string;
       roomName: string;
+      operator: string;
     }) => {
       setChatList(
         chatList
@@ -252,6 +254,7 @@ export const listenSomeoneLeave = ({
             userList: joinnedChatList[roomName].userList.filter(
               (name) => name != userName
             ),
+            operator,
             chatLogs: [
               ...joinnedChatList[roomName].chatLogs,
               {

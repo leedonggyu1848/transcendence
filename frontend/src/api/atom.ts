@@ -34,7 +34,7 @@ export const myInfoState = atom<UserDto>({
     rankWin: 17,
     rankLose: 2,
   },
-  effects_UNSTABLE: [persistAtom],
+  //effects_UNSTABLE: [persistAtom],
 });
 
 export const friendRequestListState = atom<IFriendRequest[]>({
@@ -87,7 +87,7 @@ export const joinGameModalToggleState = atom({
 export const currentGameInfoState = atom<ICurrentGame | null>({
   key: "currentNormalGameInfoState",
   default: null,
-  effects_UNSTABLE: [persistAtom],
+  //effects_UNSTABLE: [persistAtom],
 });
 
 export const currentGameUsersState = selector<JoinnedUserDto[]>({
@@ -226,7 +226,7 @@ export const createChatModalToggleState = atom({
 export const currentChatState = atom({
   key: "currentChatState",
   default: "",
-  effects_UNSTABLE: [persistAtom],
+  //effects_UNSTABLE: [persistAtom],
 });
 
 export const currentChatUserListState = atom<string[]>({
@@ -237,13 +237,13 @@ export const currentChatUserListState = atom<string[]>({
 export const joinnedChatState = atom<IJoinnedChat>({
   key: "joinnedChatState",
   default: {},
-  effects_UNSTABLE: [persistAtom],
+  //effects_UNSTABLE: [persistAtom],
 });
 
 export const chatListState = atom<IChatRoom[]>({
   key: "chatListState",
   default: [],
-  effects_UNSTABLE: [persistAtom],
+  //effects_UNSTABLE: [persistAtom],
 });
 
 export const allChatFlagState = atom({

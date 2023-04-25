@@ -51,6 +51,12 @@ const PongGame = ({
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
+    const myType =
+      myName === gameInfo.ownerDto.userName
+        ? "owner"
+        : myName === gameInfo.opponentDto.userName
+        ? "opponent"
+        : "watcher";
 
     const ball = {
       x: canvasSize / 2,
@@ -320,11 +326,15 @@ const PongGame = ({
         myPaddle.x = mouseX - myPaddle.width / 2;
         drawMyPaddle();
         drawOtherPaddle();
-        socket.emit("mouse-move", { roomName, x: myPaddle.x });
+        socket.emit("mouse-move", {
+          roomName,
+          x: myPaddle.x,
+          type:myType
+        });
       }
     }
 
-    socket.on("mouse-move", ({ x }) => {
+    socket.on("mouse-move", ({ x, type }: { x: number; type: string }) => {
       if (ctx) {
         ctx.clearRect(
           myPaddle.x,
@@ -401,7 +411,8 @@ const PongGame = ({
       }
     });
 
-    canvas.current?.addEventListener("mousemove", handleMouseMove);
+    if (myType === "opponent" || myType === "owner")
+      canvas.current?.addEventListener("mousemove", handleMouseMove);
 
     function initGame() {
       if (!ctx) return;
@@ -416,7 +427,8 @@ const PongGame = ({
     if (isOwner) gameLoop();
 
     return () => {
-      canvas.current?.removeEventListener("mousemove", handleMouseMove);
+      if (myType === "opponent" || myType === "owner")
+        canvas.current?.removeEventListener("mousemove", handleMouseMove);
       socket.off("move-ball");
       socket.off("mouse-move");
       socket.off("normal-game-over");

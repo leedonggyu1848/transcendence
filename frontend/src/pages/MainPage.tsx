@@ -30,7 +30,6 @@ import {
   settingModalState,
 } from "../api/atom";
 import RankWaitModal from "../components/Modals/RankWaitModal";
-import NormalGamePage from "./NormalGame/NormalGamePage";
 import { WebsocketContext } from "../api/WebsocketContext";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
@@ -85,12 +84,14 @@ import {
   listenGameFail,
   listenJoinGame,
   listenLeaveGame,
+  listenMatchRank,
   listenNewGame,
   listenUserJoinGame,
   listenUserLeaveGame,
   listenUserWatchGame,
   listenWatchGame,
 } from "../api/socket/game";
+import NormalGamePage from "./NormalGame/NormalGamePage";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -125,6 +126,9 @@ const MainPage = () => {
   const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
   const [gameList, setGameList] = useRecoilState(gameListState);
 
+  interface PerformanceEntryWithOptionalType extends PerformanceEntry {
+    type?: string;
+  }
   const hooks: any = {
     socket,
     myName,
@@ -157,6 +161,42 @@ const MainPage = () => {
       getMyInfo();
       setGetMyInfoFlag(true);
     }
+    if (sessionStorage.getItem("myInfo")) {
+      setMyInfo(JSON.parse(sessionStorage.getItem("myInfo")));
+      sessionStorage.removeItem("myInfo");
+    }
+    if (sessionStorage.getItem("currentChat")) {
+      setCurrentChat(sessionStorage.getItem("currentChat"));
+      sessionStorage.removeItem("currentChat");
+    }
+    if (sessionStorage.getItem("joinnedChat")) {
+      setJoinnedChatList(JSON.parse(sessionStorage.getItem("joinnedChat")));
+      sessionStorage.removeItem("joinnedChat");
+    }
+    if (sessionStorage.getItem("chatList")) {
+      setChatList(JSON.parse(sessionStorage.getItem("chatList")));
+      sessionStorage.removeItem("chatList");
+    }
+    if (sessionStorage.getItem("currentGame")) {
+      setCurrentGame(JSON.parse(sessionStorage.getItem("currentGame")));
+      sessionStorage.removeItem("currentGame");
+    }
+
+    const navigationEntry = performance.getEntriesByType(
+      "navigation"
+    )[0] as PerformanceEntryWithOptionalType;
+    if (navigationEntry?.type === "navigate") {
+      sessionStorage.clear();
+    }
+
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.setItem("myInfo", JSON.stringify(myInfo));
+      sessionStorage.setItem("currentChat", currentChat);
+      sessionStorage.setItem("joinnedChat", JSON.stringify(joinnedChatList));
+      sessionStorage.setItem("chatList", JSON.stringify(chatList));
+      if (currentGame)
+        sessionStorage.setItem("currentGame", JSON.stringify(currentGame));
+    });
 
     //Connection apis
     listenFirstConnection(hooks);
@@ -205,6 +245,7 @@ const MainPage = () => {
     listenUserWatchGame(hooks);
     listenLeaveGame(hooks);
     listenUserLeaveGame(hooks);
+    listenMatchRank(hooks);
     listenGameFail(hooks);
 
     async function getMyInfo() {
@@ -259,7 +300,8 @@ const MainPage = () => {
         "watch-game",
         "user-watch-game",
         "leave-game",
-        "user-leave-game"
+        "user-leave-game",
+        "match-rank"
       );
     };
   }, [
@@ -277,7 +319,7 @@ const MainPage = () => {
         <Routes>
           <Route path="lobby" element={<GameLobbyContainer />} />
           <Route path="/game" element={<GamePage />} />
-          <Route path="/game/normal" element={<NormalGamePage />} />
+          <Route path="/game" element={<NormalGamePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="*" element={<Navigate to="/not_found" />} />
