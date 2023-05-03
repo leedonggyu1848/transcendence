@@ -173,10 +173,10 @@ export class UserService {
     const timeValue = new Date().getTime().toString();
     const imagePath = `./uploads/${user.userId}-${timeValue}.png`;
     fs.writeFile(imagePath, image.buffer, function () {});
-    const findPath = user.userId + timeValue.toString() + '.png';
+    const findPath = `${user.userId}-${timeValue.toString()}.png`;
     await this.userRepository.updateProfileImage(user.id, findPath);
     const data = await this.getUserByUserName(user.userName);
-    return { userInfo: this.userToUserDto(data), imagePath };
+    return { userInfo: this.userToUserDto(data), findPath };
   }
 
   async updateUserIntroduce(user: UserSessionDto, introduce: string) {
