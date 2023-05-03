@@ -271,10 +271,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[GameResult]`);
     const result = await this.eventsService.saveGameResult(winner, loser, type);
-    if (result.success) {
-      this.nsp.sockets.get(result.winSock)?.emit('game-result', result.data);
-      this.nsp.sockets.get(result.loseSock)?.emit('game-result', result.data);
-    } else socket.emit('game-fail', result.msg);
+    if (result.success)
+      this.nsp.to(result.roomName).emit('game-result', result.data);
+    else socket.emit('game-fail', result.msg);
   }
 
   @SubscribeMessage('friend-list')
@@ -695,22 +694,5 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, x }: { roomName: string; x: number },
   ) {
     socket.broadcast.to(roomName).emit('mouse-move', { x });
-  }
-
-  @SubscribeMessage('normal-game-over')
-  async handleGameOver(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody()
-    { roomName, winner }: { roomName: string; winner: string },
-  ) {
-    this.logger.log(`[GameOver] roomName: ${roomName}, winner: ${winner}`);
-    socket.broadcast.to(roomName).emit('normal-game-over', { winner });
-    const result = await this.eventsService.gameAlert(
-      roomName,
-      '의 게임이 끝났습니다.',
-    );
-    result.forEach((data) => {
-      socket.broadcast.emit('user-gameout', data);
-    });
   }
 }
