@@ -7,6 +7,7 @@ import { UserDto } from 'src/dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { Game } from 'src/entity/game.entity';
+import { GameType } from 'src/entity/common.enum';
 
 @Injectable()
 export class UserService {
@@ -160,8 +161,7 @@ export class UserService {
     await this.userRepository.updateSocketId(user.id, socketId);
   }
 
-  async updateUserName(userSession: UserSessionDto, userName: string) {
-    const user = await this.userRepository.findByUserId(userSession.userId);
+  async updateUserName(user: User, userName: string) {
     const found = await this.userRepository.findByUserName(userName);
     if (found) return false;
     await this.userRepository.updateUserName(user.id, userName);
@@ -203,5 +203,17 @@ export class UserService {
 
   async updateWatchGame(user: User, game: Game) {
     await this.userRepository.updateWatchGame(user.id, game);
+  }
+
+  async updateGameWin(user: User, type: GameType) {
+    if (type === GameType.NORMAL)
+      await this.userRepository.updateNormalWin(user.id, user.normalWin);
+    else await this.userRepository.updateRankWin(user.id, user.normalLose);
+  }
+
+  async updateGameLose(user: User, type: GameType) {
+    if (type === GameType.NORMAL)
+      await this.userRepository.updateNormalLose(user.id, user.normalWin);
+    else await this.userRepository.updateRankLose(user.id, user.normalLose);
   }
 }

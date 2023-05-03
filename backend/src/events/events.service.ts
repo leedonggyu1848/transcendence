@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ChatType, UserStatusType } from 'src/entity/common.enum';
+import { ChatType, GameType, UserStatusType } from 'src/entity/common.enum';
 import { UserService } from 'src/user/user.service';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
@@ -8,6 +8,7 @@ import { GameService } from 'src/game/game.service';
 import { IBlockRepository } from './repository/block.interface.repository';
 import { BanService } from 'src/ban/ban.service';
 import { User } from 'src/entity/user.entity';
+import { RecordService } from 'src/record/record.service';
 
 @Injectable()
 export class EventsService {
@@ -22,6 +23,7 @@ export class EventsService {
     private userService: UserService,
     private gameService: GameService,
     private banService: BanService,
+    private recordService: RecordService,
   ) {}
 
   private getSocketRooms(user: User) {
@@ -87,6 +89,23 @@ export class EventsService {
       receiverName: receiver.userName,
       receiverSocket: receiver.socketId,
     };
+  }
+
+  async changeUserName(socketId: string, userName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: '없는 유저입니다.' };
+    const result = await this.userService.updateUserName(user, userName);
+    if (result) {
+      return {
+        success: true,
+        data: {
+          before: user.userName,
+          after: userName,
+        },
+      };
+    } else {
+      return { success: false, msg: '이미 사용 중인 이름입니다.' };
+    }
   }
 
   async creatChat(
@@ -199,6 +218,20 @@ export class EventsService {
 
   cancelRankGame(socketId: string) {
     if (this.rankQueue === socketId) this.rankQueue = '';
+  }
+
+  async saveGameResult(win: string, lose: string, type: GameType) {
+    const winner = await this.userService.getUserByUserNameWithGame(win);
+    const loser = await this.userService.getUserByUserNameWithGame(lose);
+    if (!winner || !loser)
+      return { success: false, msg: '유저 이름이 맞지 않습니다.' };
+    await this.recordService.saveGameResult(winner, loser, type);
+    return {
+      success: true,
+      winSock: winner.socketId,
+      loseSock: loser.socketId,
+      data: { winner: win, loser: lose, type: type },
+    };
   }
 
   async getAllChatList(socketId: string) {

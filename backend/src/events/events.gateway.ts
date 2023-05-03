@@ -13,7 +13,6 @@ import { GameDto } from 'src/dto/game.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { FriendService } from 'src/friend/friend.service';
 import { GameService } from 'src/game/game.service';
-import { RecordService } from 'src/record/record.service';
 import {
   CreateChatPayload,
   GameResultPayload,
@@ -35,7 +34,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private eventsService: EventsService,
     private friendService: FriendService,
     private gameService: GameService,
-    private recordService: RecordService,
   ) {}
 
   @WebSocketServer() nsp: Namespace;
@@ -124,6 +122,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else {
       socket.emit('chat-fail', `${leftTime} 후 음소거가 풀립니다.`);
     }
+  }
+
+  @SubscribeMessage('user-name')
+  async handleChangeUserName(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() userName: string,
+  ) {
+    this.logger.log(`[ChangeUserName] userName: ${userName}`);
+    const result = await this.eventsService.changeUserName(socket.id, userName);
+    if (result.success) this.nsp.emit('user-name', result.data);
+    else socket.emit('user-fail', result.msg);
   }
 
   @SubscribeMessage('game-list')
@@ -248,14 +257,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { winner, loser, type }: GameResultPayload,
   ) {
     this.logger.log(`[GameResult]`);
-    const result = await this.recordService.saveGameResult(winner, loser, type);
+    const result = await this.eventsService.saveGameResult(winner, loser, type);
     if (result.success) {
-      this.nsp.sockets
-        .get(result.win)
-        ?.emit('game-result', { winner, loser, type });
-      this.nsp.sockets
-        .get(result.lose)
-        ?.emit('game-result', { winner, loser, type });
+      this.nsp.sockets.get(result.winSock)?.emit('game-result', result.data);
+      this.nsp.sockets.get(result.loseSock)?.emit('game-result', result.data);
     } else socket.emit('game-fail', result.msg);
   }
 

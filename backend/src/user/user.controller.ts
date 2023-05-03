@@ -74,20 +74,6 @@ export class UserController {
     res.status(HttpStatus.NO_CONTENT).send();
   }
 
-  @Post('/user/name')
-  @UseGuards(TwoFactorGuard)
-  async updateUserName(
-    @Res() res: Response,
-    @UserDeco() user: UserSessionDto,
-    @Body('userName') userName: string,
-  ) {
-    this.logger.log(`[UpdateUserName] userName: ${userName}`);
-    const result = await this.authService.updateUserName(user, userName);
-    if (result)
-      res.status(HttpStatus.OK).send('유저 이름 변경에 성공했습니다.');
-    else throw new BadRequestException('이미 사용 중인 이름입니다.');
-  }
-
   @Get('/userinfo')
   @UseGuards(TwoFactorGuard)
   async getMyInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
