@@ -25,6 +25,8 @@ const WaitRoom = ({ count }: { count: number }) => {
         setOpponent({ ...gameInfo.opponentDto });
         setOwner({ ...gameInfo.ownerDto });
       }
+    } else {
+      setOpponent(null);
     }
   }, [gameInfo]);
   return (
