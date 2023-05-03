@@ -3,7 +3,6 @@ import { Game } from 'src/entity/game.entity';
 import { User } from 'src/entity/user.entity';
 
 export interface IGameRepository {
-  gameToGameDto(game: Game);
   createByGameDto(gameDto: GameDto, count: number);
   findAll();
   findByTitle(title: string);
@@ -11,5 +10,9 @@ export interface IGameRepository {
   findByPlayerWithJoin(player: User);
   findByWatcherWithJoin(watcher: User);
   updateCountById(id: number, count: number);
+  addPlayer(game: Game, player: User);
+  addWatcher(game: Game, watcher: User);
+  subtractPlayer(game: Game, player: User);
+  subtractWatcher(game: Game, watcher: User);
   deleteById(game: Game);
 }

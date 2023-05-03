@@ -21,13 +21,6 @@ export class GameController {
   private logger = new Logger(GameController.name);
   constructor(private gameService: GameService) {}
 
-  @Post('/flush') // test code => TODO: delete
-  @UseGuards(TwoFactorGuard)
-  async flush(@Res() res: Response, @Body('title') title: string) {
-    await this.gameService.flushGame(title);
-    res.status(HttpStatus.OK).send();
-  }
-
   @Get('/history')
   @UseGuards(TwoFactorGuard)
   async getHistory(@Res() res: Response, @Query('page') page: number) {

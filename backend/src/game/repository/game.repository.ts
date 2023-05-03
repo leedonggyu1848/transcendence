@@ -10,16 +10,6 @@ export class GameRepository implements IGameRepository {
     @InjectRepository(Game) private gameRepository: Repository<Game>,
   ) {}
 
-  gameToGameDto(game: Game) {
-    const gameDto: GameDto = {
-      title: game.title,
-      interruptMode: game.interruptMode,
-      privateMode: game.privateMode,
-      password: game.password,
-    };
-    return gameDto;
-  }
-
   async createByGameDto(gameDto: GameDto, count: number) {
     const game = this.gameRepository.create({
       title: gameDto.title,
@@ -63,6 +53,26 @@ export class GameRepository implements IGameRepository {
 
   async updateCountById(id: number, count: number) {
     await this.gameRepository.update(id, { count: count });
+  }
+
+  async addPlayer(game: Game, player: User) {
+    game.players.push(player);
+    await this.gameRepository.save(game);
+  }
+
+  async addWatcher(game: Game, watcher: User) {
+    game.watchers.push(watcher);
+    await this.gameRepository.save(game);
+  }
+
+  async subtractPlayer(game: Game, player: User) {
+    game.players = game.players.filter((elem) => elem !== player);
+    await this.gameRepository.update(game.id, game);
+  }
+
+  async subtractWatcher(game: Game, watcher: User) {
+    game.watchers = game.watchers.filter((elem) => elem !== watcher);
+    await this.gameRepository.update(game.id, game);
   }
 
   async deleteById(game: Game) {

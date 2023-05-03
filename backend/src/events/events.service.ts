@@ -1,5 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ChatType, GameType, UserStatusType } from 'src/entity/common.enum';
+import {
+  ChatType,
+  GameType,
+  JoinType,
+  UserStatusType,
+} from 'src/entity/common.enum';
 import { UserService } from 'src/user/user.service';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
@@ -9,6 +14,8 @@ import { IBlockRepository } from './repository/block.interface.repository';
 import { BanService } from 'src/ban/ban.service';
 import { User } from 'src/entity/user.entity';
 import { RecordService } from 'src/record/record.service';
+import { GameDto } from 'src/dto/game.dto';
+import { UserDto } from 'src/dto/user.dto';
 
 @Injectable()
 export class EventsService {
@@ -103,12 +110,132 @@ export class EventsService {
           after: userName,
         },
       };
-    } else {
-      return { success: false, msg: '이미 사용 중인 이름입니다.' };
-    }
+    } else return { success: false, msg: '이미 사용 중인 이름입니다.' };
   }
 
-  async creatChat(
+  async createGame(gameDto: GameDto, socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    if (user.joinType != JoinType.NONE)
+      return { success: false, msg: '이미 다른 방에 참여 중입니다.' };
+    const game = await this.gameService.createGame(gameDto, user);
+    if (!game)
+      return { success: false, msg: '같은 이름의 방이 이미 존재합니다.' };
+
+    await this.userService.updateOwnGame(user, game);
+
+    return {
+      success: true,
+      data: {
+        gameDto,
+        ownerDto: this.userService.userToUserDto(user),
+        opponentDto: null,
+        watchersDto: null,
+      },
+    };
+  }
+
+  async joinGame(title: string, password: string, socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    if (user.joinType != JoinType.NONE || user.playGame || user.watchGame)
+      return { success: false, msg: '이미 다른 방에 참여 중입니다.' };
+    const game = await this.gameService.getGameByTitleWithUsers(title);
+    if (!game) return { success: false, data: '해당 방이 존재하지 않습니다.' };
+    if (game.privateMode && !(await bcrypt.compare(password, game.password)))
+      return { success: false, msg: '비밀번호가 맞지 않습니다.' };
+    if (game.count == 2)
+      return { success: false, msg: '해당 방에 자리가 없습니다.' };
+    if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
+
+    await this.gameService.joinGame(user, game);
+    await this.userService.updatePlayGame(user, game);
+
+    const gameDto: GameDto = this.gameService.gameToGameDto(game);
+    const owner = game.players.find(
+      (player) => player.joinType === JoinType.OWNER,
+    );
+    const ownerDto: UserDto = this.userService.userToUserDto(owner);
+    const opponentDto: UserDto = this.userService.userToUserDto(user);
+    let watchersDto: UserDto[];
+    if (game.watchers) {
+      const watchers = game.watchers.filter(
+        (user) => user.joinType === JoinType.WATCHER,
+      );
+      watchersDto = watchers.map((element) =>
+        this.userService.userToUserDto(element),
+      );
+    } else watchersDto = null;
+    return {
+      success: true,
+      data: { gameDto, ownerDto, opponentDto, watchersDto },
+      user: this.userService.userToUserDto(user),
+    };
+  }
+
+  async watchGame(title: string, password: string, socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    if (user.joinType != JoinType.NONE || user.playGame || user.watchGame)
+      return { success: false, msg: '이미 다른 방에 참여 중입니다.' };
+    const game = await this.gameService.getGameByTitleWithUsers(title);
+    if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
+    if (game.privateMode && !(await bcrypt.compare(password, game.password)))
+      return { success: false, msg: '비밀번호가 맞지 않습니다.' };
+    if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
+
+    await this.gameService.watchGame(user, game);
+    await this.userService.updateWatchGame(user, game);
+
+    const owner = game.players.find(
+      (player) => player.joinType === JoinType.OWNER,
+    );
+    const player = game.players.find(
+      (player) => player.joinType === JoinType.PLAYER,
+    );
+    let watchersDto: UserDto[];
+    if (game.watchers) {
+      watchersDto = game.watchers.map((watcher) =>
+        this.userService.userToUserDto(watcher),
+      );
+    } else watchersDto = null;
+    watchersDto.push(this.userService.userToUserDto(user));
+    const gameDto: GameDto = this.gameService.gameToGameDto(game);
+    const ownerDto: UserDto = this.userService.userToUserDto(owner);
+    const opponentDto: UserDto = this.userService.userToUserDto(player);
+    return {
+      success: true,
+      data: { gameDto, ownerDto, opponentDto, watchersDto },
+      user: this.userService.userToUserDto(user),
+    };
+  }
+
+  async leaveGame(socketId: string) {
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    if (!user) return { success: false, msg: '잘못된 유저 정보입니다.' };
+    if (user.joinType === JoinType.NONE)
+      return { success: false, msg: '참여 중인 방이 존재하지 않습니다.' };
+
+    if (user.joinType === JoinType.OWNER) {
+      const game = await this.gameService.getGameByTitleWithUsers(
+        user.playGame.title,
+      );
+      await game.players.map(async (player) => {
+        await this.userService.updateGameNone(player);
+      });
+      await game.watchers.map(async (watcher) => {
+        await this.userService.updateGameNone(watcher);
+      });
+      await this.gameService.leaveGame(user);
+    } else {
+      await this.userService.updateGameNone(user.id);
+      await this.gameService.leaveGame(user);
+    }
+    return {
+      success: true,
+      user: this.userService.userToUserDto(user),
+      type: user.joinType,
+    };
+  }
+
+  async createChat(
     socketId: string,
     roomName: string,
     type: ChatType,
@@ -393,7 +520,10 @@ export class EventsService {
   }
 
   async gameAlert(roomName: string, message: string) {
-    const players = await this.gameService.getGamePlayers(roomName);
+    const game = await this.gameService.getGameByTitleWithUsers(roomName);
+    const players = game.players.map((player) => {
+      return this.userService.userToUserDto(player);
+    });
     const data = players.map((player) => {
       return {
         userName: player.userName,

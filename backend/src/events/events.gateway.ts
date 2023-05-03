@@ -69,7 +69,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
     const rooms = await this.eventsService.registUser(userName, socket.id);
-    console.log(this.sessionMap);
     if (this.sessionMap[userName]) {
       const timeId = this.sessionMap[userName];
       clearTimeout(timeId);
@@ -149,7 +148,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, gameDto }: { roomName: string; gameDto: GameDto },
   ) {
     this.logger.log(`[CreateGame] roomName: ${roomName}`);
-    const result = await this.gameService.createGame(gameDto, socket.id);
+    const result = await this.eventsService.createGame(gameDto, socket.id);
     if (result.success) {
       socket.join(roomName);
       socket.emit('create-game', result.data);
@@ -164,7 +163,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, password }: { roomName: string; password: string },
   ) {
     this.logger.log(`[JoinGame] roomName: ${roomName}, password: ${password}`);
-    const result = await this.gameService.joinGame(
+    const result = await this.eventsService.joinGame(
       roomName,
       password,
       socket.id,
@@ -188,7 +187,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, password }: { roomName: string; password: string },
   ) {
     this.logger.log(`[WatchGame] roomName: ${roomName}, password: ${password}`);
-    const result = await this.gameService.watchGame(
+    const result = await this.eventsService.watchGame(
       roomName,
       password,
       socket.id,
@@ -211,7 +210,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() roomName: string,
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
-    const result = await this.gameService.leaveGame(socket.id);
+    const result = await this.eventsService.leaveGame(socket.id);
     if (result.success) {
       socket.leave(roomName);
       socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
@@ -388,7 +387,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(
       `[CreateChat] roomName: ${roomName}, type: ${type}, password: ${password}`,
     );
-    const result = await this.eventsService.creatChat(
+    const result = await this.eventsService.createChat(
       socket.id,
       roomName,
       type,

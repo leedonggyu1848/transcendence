@@ -36,9 +36,9 @@ export class Game {
   @Column()
   count: number;
 
-  @OneToMany(() => User, (user) => user.playGame, { cascade: true })
+  @OneToMany(() => User, (user) => user.playGame, { onDelete: 'CASCADE' })
   players: User[];
 
-  @OneToMany(() => User, (user) => user.watchGame, { cascade: true })
+  @OneToMany(() => User, (user) => user.watchGame, { onDelete: 'CASCADE' })
   watchers: User[];
 }
