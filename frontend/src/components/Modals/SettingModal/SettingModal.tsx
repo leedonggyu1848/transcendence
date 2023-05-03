@@ -28,11 +28,9 @@ const SettingModal = () => {
         setEditName(false);
         return;
       }
-      console.log(e.currentTarget.value);
       try {
-        const response = await axiosChangeNickName(e.currentTarget.value);
-        console.log(response);
-      } catch(e){
+        await axiosChangeNickName(e.currentTarget.value);
+      } catch (e) {
         console.error(e);
       }
     }

@@ -56,7 +56,6 @@ export const listenFriendList = ({
   setRequestFriendListFlag: any;
 }) => {
   socket.on("friend-list", (friends: IFriendDto[]) => {
-    console.log(friends);
     setFriendList([...friends]);
     setRequestFriendListFlag(true);
   });
@@ -74,7 +73,6 @@ export const listenCheckConnection = ({
   socket.on(
     "check-connection",
     ({ userName, isConnect }: { userName: string; isConnect: number }) => {
-      console.log("isConnect", userName, isConnect);
       if (isConnect) {
         setFriendList(
           friendList.map((friend: IFriendDto) =>
@@ -145,7 +143,6 @@ export const listenGameList = ({
   setGameList: any;
 }) => {
   socket.on("game-list", (games: GameDto[]) => {
-    console.log("on game-list", games);
     setGameList([...games]);
   });
 };

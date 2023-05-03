@@ -248,7 +248,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`[GameResult]`);
     const result = await this.recordService.saveGameResult(winner, loser, type);
     if (result.success)
-      socket.to(roomName).emit('game-result', { winner, loser });
+      socket.to(roomName).emit('game-result', { winner, loser, type });
     else socket.emit('game-fail', result.msg);
   }
 
