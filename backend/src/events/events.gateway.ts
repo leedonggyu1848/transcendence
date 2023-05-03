@@ -1,4 +1,5 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ConnectedSocket,
   MessageBody,
@@ -132,6 +133,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const result = await this.eventsService.changeUserName(socket.id, userName);
     if (result.success) this.nsp.emit('user-name', result.data);
     else socket.emit('user-fail', result.msg);
+  }
+
+  @SubscribeMessage('user-profile')
+  @UseInterceptors(FileInterceptor('image'))
+  async handleChangeUserProfile(
+    @ConnectedSocket() socket: Socket,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    this.logger.log(`[ChangeProfile] image: ${image.filename}`);
+    const result = await this.eventsService.changeUserProfile(socket.id, image);
+    if (result.success) {
+      this.nsp.emit('user-profile', result.data);
+    } else socket.emit('user-fail', result.msg);
   }
 
   @SubscribeMessage('game-list')

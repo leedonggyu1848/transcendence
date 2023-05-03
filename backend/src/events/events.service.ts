@@ -9,6 +9,7 @@ import { UserService } from 'src/user/user.service';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
 import * as bcrypt from 'bcrypt';
+import * as fs from 'fs';
 import { GameService } from 'src/game/game.service';
 import { IBlockRepository } from './repository/block.interface.repository';
 import { BanService } from 'src/ban/ban.service';
@@ -113,6 +114,13 @@ export class EventsService {
     } else return { success: false, msg: '이미 사용 중인 이름입니다.' };
   }
 
+  async changeUserProfile(socketId: string, image: Express.Multer.File) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: '없는 유저입니다.' };
+    const data = await this.userService.updateProfileImage(user, image);
+    return { success: true, data: data };
+  }
+
   async createGame(gameDto: GameDto, socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (user.joinType != JoinType.NONE)
@@ -196,7 +204,6 @@ export class EventsService {
         this.userService.userToUserDto(watcher),
       );
     } else watchersDto = null;
-    watchersDto.push(this.userService.userToUserDto(user));
     const gameDto: GameDto = this.gameService.gameToGameDto(game);
     const ownerDto: UserDto = this.userService.userToUserDto(owner);
     const opponentDto: UserDto = this.userService.userToUserDto(player);

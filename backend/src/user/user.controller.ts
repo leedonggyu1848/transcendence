@@ -90,23 +90,6 @@ export class UserController {
     res.status(HttpStatus.OK).send(data);
   }
 
-  @Post('/user/profile')
-  @UseGuards(TwoFactorGuard)
-  @UseInterceptors(FileInterceptor('image'))
-  async updateProfile(
-    @Res() res: Response,
-    @UserDeco() user: UserSessionDto,
-    @UploadedFile() image: Express.Multer.File,
-  ) {
-    this.logger.log(`[UpdateProfile] image: ${image.filename}`);
-    const result = await this.authService.updateProfileImage(user, image);
-    if (!result.success) {
-      this.logger.log(result.data);
-      throw new InternalServerErrorException('데이터 저장 실패');
-    }
-    res.status(HttpStatus.OK).send(result.data);
-  }
-
   @Post('/user/introduce')
   @UseGuards(TwoFactorGuard)
   async updateIntroduce(

@@ -168,21 +168,15 @@ export class UserService {
     return true;
   }
 
-  async updateProfileImage(user: UserSessionDto, image: Express.Multer.File) {
-    let found = await this.userRepository.findByUserId(user.userId);
-    if (found.profile) {
-      fs.unlinkSync('./uploads/' + found.profile);
-    }
-    const timeVal = new Date().getTime();
-    const imagePath =
-      './uploads/' + user.userId + '-' + timeVal.toString() + '.png';
-    fs.writeFile(imagePath, image.buffer, function (err) {
-      if (err) return { success: false, data: err };
-    });
-    const findPath = user.intraId + timeVal.toString() + '.png';
-    await this.userRepository.updateProfileImage(found.id, findPath);
-    found = await this.getUserByUserName(user.intraId);
-    return { success: true, data: found };
+  async updateProfileImage(user: User, image: Express.Multer.File) {
+    if (user.profile) fs.unlinkSync('./uploads/' + user.profile);
+    const timeValue = new Date().getTime().toString();
+    const imagePath = `./uploads/${user.userId}-${timeValue}.png`;
+    fs.writeFile(imagePath, image.buffer, function () {});
+    const findPath = user.userId + timeValue.toString() + '.png';
+    await this.userRepository.updateProfileImage(user.id, findPath);
+    const data = await this.getUserByUserName(user.userName);
+    return { userInfo: this.userToUserDto(data), imagePath };
   }
 
   async updateUserIntroduce(user: UserSessionDto, introduce: string) {

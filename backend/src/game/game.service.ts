@@ -45,14 +45,6 @@ export class GameService {
     return await this.gameRepository.findByTitleWithJoin(title);
   }
 
-  async getGameHistory(page: number) {
-    return await this.recordService.getTotalHistory(page);
-  }
-
-  async getGameRecord(id: number) {
-    return await this.recordService.getRecordById(id);
-  }
-
   async createGame(gameDto: GameDto, user: User) {
     const found = await this.gameRepository.findByTitle(gameDto.title);
     if (found) return null;
