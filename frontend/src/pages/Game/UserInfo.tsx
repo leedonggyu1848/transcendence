@@ -1,4 +1,12 @@
 import styled from "@emotion/styled";
+import { useEffect, useMemo, useState } from "react";
+
+const ProfileImage = ({ userName }: { userName: string }) => {
+  const [name, setName] = useState("");
+  console.log("in ProfileImage");
+  useEffect(() => {}, []);
+  return <Profile profile={name} />;
+};
 
 const UserInfo = ({
   profile,
@@ -19,9 +27,15 @@ const UserInfo = ({
 }) => {
   const normalRate = (normalWin / (normalLose + normalWin)) * 100;
   const rankRate = (rankWin / (rankLose + rankWin)) * 100;
+  console.log(profile);
   return (
     <UserInfoContainer>
-      <Profile profile={profile} />
+      {useMemo(
+        () => (
+          <Profile profile={profile} />
+        ),
+        [profile]
+      )}
       <Info>
         <div>{userName}</div>
         <div>

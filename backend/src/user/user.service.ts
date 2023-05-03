@@ -174,7 +174,8 @@ export class UserService {
       fs.unlinkSync('./uploads/' + found.profile);
     }
     const timeVal = new Date().getTime();
-    const imagePath = './uploads/' + user.intraId + timeVal.toString() + '.png';
+    const imagePath =
+      './uploads/' + user.userId + '-' + timeVal.toString() + '.png';
     fs.writeFile(imagePath, image.buffer, function (err) {
       if (err) return { success: false, data: err };
     });

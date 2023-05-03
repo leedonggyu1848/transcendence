@@ -20,7 +20,6 @@ const SettingProfile = () => {
         formData.append("image", file);
         const response = await axiosUpdateProfileImage(formData);
         setMyInfo({ ...response });
-        // 응답으로 myInfo  업데이트 해야함
       } catch (e) {
         console.error(e);
         setAlertModal({
