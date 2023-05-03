@@ -433,7 +433,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName: roomName,
         operator: result.operator,
       });
-      console.log(result);
       socket.emit('leave-chat-success', roomName);
     } else {
       socket.emit('chat-fail', result.msg);

@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Menu from "../components/Menu";
-import GamePage from "./GamePage";
 import ChatPage from "./ChatPage/ChatPage";
+import GamePage from "./Game/GamePage";
 import { useCookies } from "react-cookie";
 import { useContext, useEffect } from "react";
 import GameLobbyContainer from "./GameLobby/Con_GameLobby";
@@ -82,6 +82,7 @@ import {
 import {
   listenCreateGame,
   listenGameFail,
+  listenGameResult,
   listenJoinGame,
   listenLeaveGame,
   listenMatchRank,
@@ -91,7 +92,7 @@ import {
   listenUserWatchGame,
   listenWatchGame,
 } from "../api/socket/game";
-import NormalGamePage from "./NormalGame/NormalGamePage";
+import NormalGamePage from "./Game/GamePage";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -125,6 +126,9 @@ const MainPage = () => {
   const [blockList, setBlockList] = useRecoilState(blockUserListState);
   const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
   const [gameList, setGameList] = useRecoilState(gameListState);
+  const [rankWaitModal, setRankWaitModal] = useRecoilState(
+    rankWaitModalToggleState
+  );
 
   interface PerformanceEntryWithOptionalType extends PerformanceEntry {
     type?: string;
@@ -153,6 +157,7 @@ const MainPage = () => {
     gameList,
     setGameList,
     navigate,
+    setRankWaitModal,
   };
 
   useEffect(() => {
@@ -247,6 +252,7 @@ const MainPage = () => {
     listenUserLeaveGame(hooks);
     listenMatchRank(hooks);
     listenGameFail(hooks);
+    listenGameResult(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -301,7 +307,8 @@ const MainPage = () => {
         "user-watch-game",
         "leave-game",
         "user-leave-game",
-        "match-rank"
+        "match-rank",
+        "game-result"
       );
     };
   }, [
@@ -318,8 +325,8 @@ const MainPage = () => {
         <Menu />
         <Routes>
           <Route path="lobby" element={<GameLobbyContainer />} />
+          {/*<Route path="/game" element={<GamePage />} />*/}
           <Route path="/game" element={<GamePage />} />
-          <Route path="/game" element={<NormalGamePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="*" element={<Navigate to="/not_found" />} />

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { modalBackToggleState, rankWaitModalToggleState } from "../../api/atom";
+import { socket } from "../../api/WebsocketContext";
 import ModalBackground from "../ModalBackground";
 
 const RankWaitModal = () => {
@@ -22,8 +23,7 @@ const RankWaitModal = () => {
   }, [timer]);
 
   const onCloseModal = () => {
-    // 서버에 대기열 취소 요청 보내야함
-
+    socket.emit("cancel-rank");
     setModalBack(false);
     setRankWaitModal(false);
   };

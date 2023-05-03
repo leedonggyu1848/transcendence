@@ -40,7 +40,7 @@ export const listenCreateGame = ({
     }) => {
       console.log("on create-game", ownerDto);
       setCurrentGame({
-        gameDto: { ...gameDto },
+        gameDto: { ...gameDto, type: 0 },
         ownerDto: { ...myInfo },
         opponentDto: null,
         watchersDto: [],
@@ -134,7 +134,7 @@ export const listenJoinGame = ({
       watchersDto: UserDto[];
     }) => {
       setCurrentGame({
-        gameDto: { ...gameDto },
+        gameDto: { ...gameDto, type: 0 },
         ownerDto: { ...ownerDto },
         watchersDto: [...watchersDto],
         opponentDto: { ...myInfo },
@@ -269,7 +269,7 @@ export const listenWatchGame = ({
       console.log("in watch-game");
       console.log(gameDto, ownerDto, opponentDto, watchersDto);
       setCurrentGame({
-        gameDto,
+        gameDto: { ...gameDto, type: 0 },
         ownerDto,
         opponentDto,
         watchersDto,
@@ -444,10 +444,8 @@ export const listenUserLeaveGame = ({
     }) => {
       console.log("in user-leave-game", type);
       if (type === 1) {
-        if (
-          currentGame &&
-          currentGame.ownerDto.userName === userInfo.userName
-        ) {
+        if (currentGame && currentGame.gameDto.title === roomName) {
+          console.log("방장 나감");
           const temp = { ...joinnedChatList };
           delete temp[currentChat];
           setJoinnedChatList({ ...temp });
@@ -534,6 +532,7 @@ export const listenMatchRank = ({
   joinnedChatList,
   setJoinnedChatList,
   navigate,
+  setRankWaitModal,
 }: {
   socket: any;
   setAlertInfo: any;
@@ -544,27 +543,31 @@ export const listenMatchRank = ({
   joinnedChatList: any;
   setJoinnedChatList: any;
   navigate: any;
+  setRankWaitModal: any;
 }) => {
   socket.on(
     "match-rank",
     ({
       roomName,
-      userDto,
+      ownerDto,
       opponentDto,
     }: {
       roomName: string;
-      userDto: UserDto;
+      ownerDto: UserDto;
       opponentDto: UserDto;
     }) => {
-      console.log("in rankGame");
+      console.log("in rankGame", roomName);
+
+      setRankWaitModal(false);
       setCurrentGame({
         gameDto: {
           title: roomName,
           interruptMode: false,
           privateMode: false,
           cur: 1,
+          type: 1,
         },
-        ownerDto: { ...userDto },
+        ownerDto: { ...ownerDto },
         opponentDto: { ...opponentDto },
         watchersDto: [],
       });
@@ -575,7 +578,7 @@ export const listenMatchRank = ({
           title: roomName,
           type: 0,
           operator: "",
-          userList: [userDto.userName, opponentDto.userName],
+          userList: [ownerDto.userName, opponentDto.userName],
           chatLogs: [],
           banUsers: [],
           newMsg: false,
@@ -584,6 +587,37 @@ export const listenMatchRank = ({
         },
       });
       navigate("/main/game");
+    }
+  );
+};
+
+export const listenGameResult = ({
+  socket,
+  setAlertInfo,
+  currentGame,
+  setCurrentGame,
+  myInfo,
+  setCurrentChat,
+  joinnedChatList,
+  setJoinnedChatList,
+  navigate,
+  setRankWaitModal,
+}: {
+  socket: any;
+  setAlertInfo: any;
+  currentGame: ICurrentGame;
+  setCurrentGame: any;
+  myInfo: UserDto;
+  setCurrentChat: any;
+  joinnedChatList: any;
+  setJoinnedChatList: any;
+  navigate: any;
+  setRankWaitModal: any;
+}) => {
+  socket.on(
+    "game-result",
+    ({ winner, loser }: { winner: string; loser: string }) => {
+      console.log("in game-result", winner, loser);
     }
   );
 };
