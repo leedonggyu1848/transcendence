@@ -38,7 +38,6 @@ export const listenCreateGame = ({
       opponentDto: null;
       watchersDto: null;
     }) => {
-      console.log("on create-game", ownerDto);
       setCurrentGame({
         gameDto: { ...gameDto, type: 0 },
         ownerDto: { ...myInfo },
@@ -75,7 +74,6 @@ export const listenNewGame = ({
   setGameList: any;
 }) => {
   socket.on("new-game", (game: GameDto) => {
-    console.log("in new-game", game);
     delete game["password"];
     game["cur"] = 1;
     setGameList([...gameList, { ...game }]);
@@ -191,7 +189,6 @@ export const listenUserJoinGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("in user-join-game", gameList);
       if (currentGame && currentGame.gameDto.title === roomName) {
         setCurrentGame({
           ...currentGame,
@@ -218,7 +215,6 @@ export const listenUserJoinGame = ({
           },
         });
       }
-      console.log("in user-join-game", gameList);
       setGameList(
         gameList.map((game: GameDto) =>
           game.title === roomName ? { ...game, cur: game.cur + 1 } : { ...game }
@@ -266,8 +262,6 @@ export const listenWatchGame = ({
       opponentDto: UserDto;
       watchersDto: UserDto[];
     }) => {
-      console.log("in watch-game");
-      console.log(gameDto, ownerDto, opponentDto, watchersDto);
       setCurrentGame({
         gameDto: { ...gameDto, type: 0 },
         ownerDto,
@@ -324,7 +318,6 @@ export const listenUserWatchGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("in user-watch-game");
       if (!currentGame || currentGame.gameDto.title !== roomName) return;
       setCurrentGame({
         ...currentGame,
@@ -371,7 +364,6 @@ export const listenLeaveGame = ({
   myName: any;
 }) => {
   socket.on("leave-game", (message: string) => {
-    console.log("in leave-game", message);
     const temp = { ...joinnedChatList };
     delete temp[currentChat];
     //if (currentGame.ownerDto.userName === myName) {
@@ -445,7 +437,6 @@ export const listenUserLeaveGame = ({
       console.log("in user-leave-game", type);
       if (type === 1) {
         if (currentGame && currentGame.gameDto.title === roomName) {
-          console.log("방장 나감");
           const temp = { ...joinnedChatList };
           delete temp[currentChat];
           setJoinnedChatList({ ...temp });
@@ -556,8 +547,6 @@ export const listenMatchRank = ({
       ownerDto: UserDto;
       opponentDto: UserDto;
     }) => {
-      console.log("in rankGame", roomName);
-
       setRankWaitModal(false);
       setCurrentGame({
         gameDto: {
@@ -613,11 +602,4 @@ export const listenGameResult = ({
   setJoinnedChatList: any;
   navigate: any;
   setRankWaitModal: any;
-}) => {
-  socket.on(
-    "game-result",
-    ({ winner, loser }: { winner: string; loser: string }) => {
-      console.log("in game-result", winner, loser);
-    }
-  );
-};
+}) => {};

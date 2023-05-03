@@ -1,19 +1,38 @@
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import {
   currentGameInfoState,
   myInfoState,
+  myNameState,
   opponentInfoState,
 } from "../../api/atom";
+import { UserDto } from "../../api/interface";
 import UserInfo from "./UserInfo";
 
 const WaitRoom = ({ count }: { count: number }) => {
   const gameInfo = useRecoilValue(currentGameInfoState);
-
+  const myInfo = useRecoilValue(myInfoState);
+  const myName = useRecoilValue(myNameState);
+  const [owner, setOwner] = useState<UserDto>(myInfo);
+  const [opponent, setOpponent] = useState<UserDto | null>(null);
+  useEffect(() => {
+    if (gameInfo.opponentDto) {
+      if (myName === gameInfo.opponentDto.userName) {
+        setOpponent({ ...gameInfo.ownerDto });
+        setOwner({ ...gameInfo.opponentDto });
+      } else {
+        setOpponent({ ...gameInfo.opponentDto });
+        setOwner({ ...gameInfo.ownerDto });
+      }
+    } else {
+      setOpponent(null);
+    }
+  }, [gameInfo]);
   return (
     <WaitRoomContainer>
-      {gameInfo.opponentDto ? (
-        <UserInfo {...gameInfo.opponentDto} />
+      {opponent ? (
+        <UserInfo {...opponent} />
       ) : (
         <NoUser>
           <span>상대방을 기다리는 중입니다</span>
@@ -21,7 +40,7 @@ const WaitRoom = ({ count }: { count: number }) => {
         </NoUser>
       )}
       <OptionContainer>{count === 4 ? "VS" : count}</OptionContainer>
-      <UserInfo {...gameInfo.ownerDto} />
+      <UserInfo {...owner} />
     </WaitRoomContainer>
   );
 };
