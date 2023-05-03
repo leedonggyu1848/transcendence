@@ -71,6 +71,8 @@ const ChatContainer = styled.div`
   & .admin {
     text-align: center;
     color: lightgray;
+    width: 70%;
+    margin: 10px auto;
   }
 `;
 

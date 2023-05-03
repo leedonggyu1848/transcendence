@@ -1,9 +1,13 @@
+import { useRecoilState } from "recoil";
 import {
   GameDto,
   IChatRoom,
+  ICurrentGame,
   IFriendDto,
   IFriendRequest,
   IGameRoomInfo,
+  IJoinnedChat,
+  UserDto,
 } from "../interface";
 
 export const listenFirstConnection = ({ socket }: { socket: any }) => {
@@ -146,6 +150,111 @@ export const listenGameList = ({
     setGameList([...games]);
   });
 };
+
+export function listenNameChange({
+  socket,
+  myName,
+  myInfo,
+  setMyInfo,
+  friendList,
+  setFriendList,
+  friendRequestList,
+  setFriendRequestList,
+  joinnedChatList,
+  setJoinnedChatList,
+  blockList,
+  setBlockList,
+  currentGame,
+  setCurrentGame,
+}: {
+  socket: any;
+  myName: string;
+  myInfo: UserDto;
+  setMyInfo: any;
+  friendList: IFriendDto[];
+  setFriendList: any;
+  friendRequestList: IFriendRequest[];
+  setFriendRequestList: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+  blockList: string[];
+  setBlockList: any;
+  currentGame: ICurrentGame | null;
+  setCurrentGame: any;
+}) {
+  socket.on(
+    "user-name",
+    ({ before, after }: { before: string; after: string }) => {
+      if (myName === before) {
+        setMyInfo({
+          ...myInfo,
+          userName: after,
+        });
+      }
+      setFriendList([
+        ...friendList.map((friend) =>
+          friend.userName === before
+            ? { ...friend, userName: after }
+            : { ...friend }
+        ),
+      ]);
+      setFriendRequestList([
+        ...friendRequestList.map((request) =>
+          request.userName === before
+            ? { ...request, userName: after }
+            : { ...request }
+        ),
+      ]);
+      setBlockList([
+        ...blockList.map((name) => (name === before ? after : name)),
+      ]);
+      const temp = { ...joinnedChatList };
+      Object.keys(temp).forEach((room) => {
+        temp[room] = {
+          ...temp[room],
+          operator:
+            temp[room].operator === before ? after : temp[room].operator,
+          userList: temp[room].userList.map((name) =>
+            name === before ? after : name
+          ),
+          chatLogs: temp[room].userList.includes(before)
+            ? [
+                ...temp[room].chatLogs,
+                {
+                  sender: "admin",
+                  msg:
+                    `${before}님의 닉네임이 ${after}로` +
+                    "\n" +
+                    `변경 되었습니다.`,
+                  time: new Date(),
+                },
+              ]
+            : [...temp[room].chatLogs],
+        };
+      });
+      setJoinnedChatList({ ...temp });
+      if (currentGame) {
+        setCurrentGame({
+          ...currentGame,
+          ownerDto:
+            currentGame.ownerDto.userName === before
+              ? { ...currentGame.ownerDto, userName: after }
+              : { ...currentGame.ownerDto },
+          opponentDto: !currentGame.opponentDto
+            ? null
+            : currentGame.opponentDto.userName === before
+            ? { ...currentGame.opponentDto, userName: after }
+            : { ...currentGame.opponentDto },
+          watchersDto: currentGame.watchersDto.map((user) =>
+            user.userName === before
+              ? { ...user, userName: after }
+              : { ...user }
+          ),
+        });
+      }
+    }
+  );
+}
 
 export function chatSocketOff(socket: any, ...rest: string[]) {
   for (let api of rest) {

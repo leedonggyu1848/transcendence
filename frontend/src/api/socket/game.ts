@@ -434,7 +434,6 @@ export const listenUserLeaveGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("in user-leave-game", type);
       if (type === 1) {
         if (currentGame && currentGame.gameDto.title === roomName) {
           const temp = { ...joinnedChatList };

@@ -50,6 +50,7 @@ import {
   listenFriendList,
   listenFriendRequestList,
   listenGameList,
+  listenNameChange,
   listenRequestAllChat,
 } from "../api/socket/connect";
 import {
@@ -139,6 +140,7 @@ const MainPage = () => {
     setAlertInfo,
     setJoinChatToggle,
     currentChat,
+    setMyInfo,
     setCurrentChat,
     chatList,
     setChatList,
@@ -253,6 +255,7 @@ const MainPage = () => {
     listenMatchRank(hooks);
     listenGameFail(hooks);
     listenGameResult(hooks);
+    listenNameChange(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -308,6 +311,7 @@ const MainPage = () => {
         "leave-game",
         "user-leave-game",
         "match-rank",
+        "user-name",
         "game-result"
       );
     };
