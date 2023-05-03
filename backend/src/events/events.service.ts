@@ -9,7 +9,6 @@ import { UserService } from 'src/user/user.service';
 import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
 import * as bcrypt from 'bcrypt';
-import * as fs from 'fs';
 import { GameService } from 'src/game/game.service';
 import { IBlockRepository } from './repository/block.interface.repository';
 import { BanService } from 'src/ban/ban.service';
@@ -362,8 +361,7 @@ export class EventsService {
     await this.recordService.saveGameResult(winner, loser, type);
     return {
       success: true,
-      winSock: winner.socketId,
-      loseSock: loser.socketId,
+      roomName: winner.playGame.title,
       data: { winner: win, loser: lose, type: type },
     };
   }
