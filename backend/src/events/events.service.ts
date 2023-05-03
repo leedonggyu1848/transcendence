@@ -225,8 +225,8 @@ export class EventsService {
       });
       await this.gameService.leaveGame(user);
     } else {
-      await this.userService.updateGameNone(user.id);
       await this.gameService.leaveGame(user);
+      await this.userService.updateGameNone(user);
     }
     return {
       success: true,

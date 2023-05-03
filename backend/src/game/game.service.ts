@@ -63,8 +63,8 @@ export class GameService {
   }
 
   async joinGame(user: User, game: Game) {
-    await this.gameRepository.updateCountById(game.id, game.count + 1);
     await this.gameRepository.addPlayer(game, user);
+    await this.gameRepository.updateCountById(game.id, game.count + 1);
   }
 
   async watchGame(user: User, game: Game) {
@@ -75,9 +75,11 @@ export class GameService {
     if (user.joinType === JoinType.OWNER) {
       this.gameRepository.deleteById(user.playGame);
     } else if (user.joinType === JoinType.PLAYER) {
-      const game = await this.gameRepository.findByPlayerWithJoin(user);
-      await this.gameRepository.updateCountById(game.id, game.count - 1);
+      const game = await this.gameRepository.findByTitleWithJoin(
+        user.playGame.title,
+      );
       await this.gameRepository.subtractPlayer(game, user);
+      await this.gameRepository.updateCountById(game.id, game.count - 1);
     } else if (user.joinType === JoinType.WATCHER) {
       const game = await this.gameRepository.findByWatcherWithJoin(user);
       await this.gameRepository.subtractWatcher(game, user);

@@ -66,13 +66,13 @@ export class GameRepository implements IGameRepository {
   }
 
   async subtractPlayer(game: Game, player: User) {
-    game.players = game.players.filter((elem) => elem !== player);
-    await this.gameRepository.update(game.id, game);
+    game.players = game.players.filter((elem) => elem.id !== player.id);
+    await this.gameRepository.save(game);
   }
 
   async subtractWatcher(game: Game, watcher: User) {
     game.watchers = game.watchers.filter((elem) => elem !== watcher);
-    await this.gameRepository.update(game.id, game);
+    await this.gameRepository.save(game);
   }
 
   async deleteById(game: Game) {
