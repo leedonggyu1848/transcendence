@@ -695,21 +695,4 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     socket.broadcast.to(roomName).emit('mouse-move', { x });
   }
-
-  @SubscribeMessage('normal-game-over')
-  async handleGameOver(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody()
-    { roomName, winner }: { roomName: string; winner: string },
-  ) {
-    this.logger.log(`[GameOver] roomName: ${roomName}, winner: ${winner}`);
-    socket.broadcast.to(roomName).emit('normal-game-over', { winner });
-    const result = await this.eventsService.gameAlert(
-      roomName,
-      '의 게임이 끝났습니다.',
-    );
-    result.forEach((data) => {
-      socket.broadcast.emit('user-gameout', data);
-    });
-  }
 }
