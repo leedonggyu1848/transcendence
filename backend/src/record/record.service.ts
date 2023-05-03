@@ -33,7 +33,7 @@ export class RecordService {
       winner.userName,
       loser.userName,
     );
-    return { success: true };
+    return { success: true, win: winner.socketId, lose: loser.socketId };
   }
 
   async getTotalHistory(page: number) {

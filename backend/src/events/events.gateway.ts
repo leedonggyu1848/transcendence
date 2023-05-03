@@ -243,13 +243,18 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleGameResult(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, winner, loser, type }: GameResultPayload,
+    { winner, loser, type }: GameResultPayload,
   ) {
     this.logger.log(`[GameResult]`);
     const result = await this.recordService.saveGameResult(winner, loser, type);
-    if (result.success)
-      socket.to(roomName).emit('game-result', { winner, loser, type });
-    else socket.emit('game-fail', result.msg);
+    if (result.success) {
+      this.nsp.sockets
+        .get(result.win)
+        ?.emit('game-result', { winner, loser, type });
+      this.nsp.sockets
+        .get(result.lose)
+        ?.emit('game-result', { winner, loser, type });
+    } else socket.emit('game-fail', result.msg);
   }
 
   @SubscribeMessage('friend-list')
