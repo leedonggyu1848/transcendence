@@ -1,26 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LobbyDto } from 'src/dto/lobby.dto';
 import { GameDto } from 'src/dto/game.dto';
-import { User } from 'src/entity/user.entity';
-import { GameType, JoinType } from 'src/entity/common.enum';
+import { JoinType } from 'src/entity/common.enum';
 import { UserDto } from 'src/dto/user.dto';
 import { IGameRepository } from './repository/game.interface.repository';
-import { IUserRepository } from '../user/repository/user.interface.repository';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
+import { RecordService } from 'src/record/record.service';
 
 @Injectable()
 export class GameService {
   constructor(
     @Inject('IGameRepository')
     private gameRepository: IGameRepository,
-    @Inject('IUserRepository')
-    private userRepository: IUserRepository,
     private userService: UserService,
+    private recordService: RecordService,
   ) {}
 
   async getUserInfo(userName: string) {
-    const found_user = await this.userRepository.findByUserName(userName);
+    const found_user = await this.userService.getUserByUserName(userName);
     return this.userService.userToUserDto(found_user);
   }
 
@@ -52,7 +50,7 @@ export class GameService {
     if (found)
       return { success: false, msg: '같은 이름의 방이 이미 존재합니다.' };
     const game = await this.gameRepository.createByGameDto(gameDto, 1);
-    await this.userRepository.updateOwnGame(user.id, game);
+    await this.userService.updateOwnGame(user, game);
     return {
       success: true,
       data: {
@@ -74,12 +72,15 @@ export class GameService {
       return { success: false, msg: '해당 방에 자리가 없습니다.' };
     if (user.playGame || user.watchGame)
       return { success: false, msg: '이미 다른 방에 참가 중 입니다.' };
-    await this.gameRepository.updateCountById(game.id, game.count + 1);
-    await this.userRepository.updatePlayGame(user.id, game);
     if (!game.players) return { success: false, data: '잘못된 방 입니다.' };
+    await this.gameRepository.updateCountById(game.id, game.count + 1);
+    await this.userService.updatePlayGame(user, game);
     const owner = game.players.find(
       (player) => player.joinType === JoinType.OWNER,
     );
+    const gameDto: GameDto = this.gameRepository.gameToGameDto(game);
+    const ownerDto: UserDto = this.userService.userToUserDto(owner);
+    const opponentDto: UserDto = this.userService.userToUserDto(user);
     let watchersDto: UserDto[];
     if (game.watchers) {
       const watchers = game.watchers.filter(
@@ -89,9 +90,6 @@ export class GameService {
         this.userService.userToUserDto(element),
       );
     } else watchersDto = null;
-    const gameDto: GameDto = this.gameRepository.gameToGameDto(game);
-    const ownerDto: UserDto = this.userService.userToUserDto(owner);
-    const opponentDto: UserDto = this.userService.userToUserDto(user);
     return {
       success: true,
       data: { gameDto, ownerDto, opponentDto, watchersDto },
@@ -107,8 +105,8 @@ export class GameService {
       return { success: false, msg: '비밀번호가 맞지 않습니다.' };
     if (user.playGame || user.watchGame)
       return { success: false, msg: '이미 다른 방에 참가 중 입니다.' };
-    await this.userRepository.updateWatchGame(user.id, game);
     if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
+    await this.userService.updateWatchGame(user, game);
     const owner = game.players.find(
       (player) => player.joinType === JoinType.OWNER,
     );
@@ -138,13 +136,13 @@ export class GameService {
     const result: Array<any> = [];
     if (game.players) {
       const list = game.players.map(async (player) => {
-        await this.userRepository.updateGameNone(player.id);
+        await this.userService.updateGameNone(player);
       });
       result.push(...list);
     }
     if (game.watchers) {
       const list = game.watchers.map(async (watcher) => {
-        await this.userRepository.updateGameNone(watcher.id);
+        await this.userService.updateGameNone(watcher);
       });
       result.push(...list);
     }
@@ -164,10 +162,10 @@ export class GameService {
     if (user.joinType === JoinType.OWNER) {
       await this.flushGame(game.title);
     } else if (user.joinType === JoinType.PLAYER) {
-      await this.userRepository.updateGameNone(user.id);
+      await this.userService.updateGameNone(user.id);
       await this.gameRepository.updateCountById(game.id, game.count - 1);
     } else if (user.joinType === JoinType.WATCHER) {
-      await this.userRepository.updateGameNone(user.id);
+      await this.userService.updateGameNone(user.id);
     } else {
       return { success: false, msg: '데이터 저장 오류' };
     }
@@ -176,5 +174,13 @@ export class GameService {
       user: this.userService.userToUserDto(user),
       type: user.joinType,
     };
+  }
+
+  async getGameHistory(page: number) {
+    return await this.recordService.getTotalHistory(page);
+  }
+
+  async getGameRecord(id: number) {
+    return await this.recordService.getRecordById(id);
   }
 }

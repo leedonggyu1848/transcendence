@@ -6,37 +6,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Game } from 'src/entity/game.entity';
 import { User } from 'src/entity/user.entity';
 import { GameRepository } from './repository/game.repository';
-import { UserService } from 'src/user/user.service';
-import { UserRepository } from 'src/user/repository/user.repository';
 import { Record } from 'src/entity/record.entity';
-import { RecordRepository } from 'src/record/repository/record.repository';
-import { RecordService } from 'src/record/record.service';
-
-const userRepo = {
-  provide: 'IUserRepository',
-  useClass: UserRepository,
-};
+import { RecordModule } from 'src/record/record.module';
+import { UserModule } from 'src/user/user.module';
 
 const gameRepo = {
   provide: 'IGameRepository',
   useClass: GameRepository,
 };
 
-const recordRepo = {
-  provide: 'IRecordRepository',
-  useClass: RecordRepository,
-};
-
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Game, Record])],
-  controllers: [GameController],
-  providers: [
-    userRepo,
-    gameRepo,
-    recordRepo,
-    GameService,
-    UserService,
-    RecordService,
+  imports: [
+    HttpModule,
+    UserModule,
+    RecordModule,
+    TypeOrmModule.forFeature([Game]),
   ],
+  controllers: [GameController],
+  providers: [gameRepo, GameService],
+  exports: [gameRepo, GameService],
 })
 export class GameModule {}

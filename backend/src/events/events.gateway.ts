@@ -59,6 +59,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         userName: data.userName,
         message: `${data.userName}가 접속을 해제했습니다.`,
       });
+      delete this.sessionMap[data.userName];
     }, 1000);
     this.sessionMap[data.userName] = timeId;
   }
@@ -70,6 +71,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
     const rooms = await this.eventsService.registUser(userName, socket.id);
+    console.log(this.sessionMap);
     if (this.sessionMap[userName]) {
       const timeId = this.sessionMap[userName];
       clearTimeout(timeId);

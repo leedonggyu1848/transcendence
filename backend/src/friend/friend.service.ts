@@ -1,15 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FriendReqType, UserStatusType } from 'src/entity/common.enum';
-import { User } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
-import { IUserRepository } from 'src/user/repository/user.interface.repository';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class FriendService {
   constructor(
-    @Inject('IUserRepository')
-    private userRepository: IUserRepository,
     @Inject('IFriendRepository')
     private friendRepository: IFriendRepository,
     private userService: UserService,
@@ -20,12 +16,9 @@ export class FriendService {
     if (user.friends.length === 0) return [];
     const friends = user.friends.filter((friend) => friend.accept === true);
     const result = friends.map(async (friend) => {
-      const found = await this.userService.getUserByUserNameWithGame(
-        friend.friendName,
-      );
       let status: UserStatusType;
-      if (found.socketId === '') status = UserStatusType.OFFLINE;
-      else if (!found.playGame) status = UserStatusType.ONLINE;
+      if (friend.user.socketId === '') status = UserStatusType.OFFLINE;
+      else if (!friend.user.playGame) status = UserStatusType.ONLINE;
       else status = UserStatusType.PLAYING;
       return {
         userName: friend.friendName,

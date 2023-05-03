@@ -6,6 +6,7 @@ import { User } from 'src/entity/user.entity';
 import { UserDto } from 'src/dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
+import { Game } from 'src/entity/game.entity';
 
 @Injectable()
 export class UserService {
@@ -186,5 +187,21 @@ export class UserService {
   async updateUserIntroduce(user: UserSessionDto, introduce: string) {
     let found = await this.userRepository.findByUserId(user.userId);
     await this.userRepository.updateUserIntroduce(found.id, introduce);
+  }
+
+  async updateGameNone(user: User) {
+    await this.userRepository.updateGameNone(user.id);
+  }
+
+  async updateOwnGame(user: User, game: Game) {
+    await this.userRepository.updateOwnGame(user.id, game);
+  }
+
+  async updatePlayGame(user: User, game: Game) {
+    await this.userRepository.updatePlayGame(user.id, game);
+  }
+
+  async updateWatchGame(user: User, game: Game) {
+    await this.userRepository.updateWatchGame(user.id, game);
   }
 }
