@@ -55,7 +55,6 @@ const PongGame = ({
     socket.on(
       "game-result",
       ({ winner, loser }: { winner: string; loser: string }) => {
-        console.log("in game-result", winner, loser, type);
         if (winner === myName) {
           setAlertInfo({
             type: "success",
@@ -232,7 +231,6 @@ const PongGame = ({
         });
         if (gameInfo.gameDto.type) navigate("/main/lobby");
         else {
-          console.log("good");
           resetGame(false);
           setGameInfo({
             ...gameInfo,
@@ -288,7 +286,6 @@ const PongGame = ({
         setCount(4);
         if (gameInfo.gameDto.type) navigate("/main/lobby");
         else {
-          console.log("not good");
           setGameInfo({
             ...gameInfo,
             ownerDto: {

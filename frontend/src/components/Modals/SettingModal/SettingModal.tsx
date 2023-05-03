@@ -1,8 +1,13 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { myNameState, settingModalState } from "../../../api/atom";
+import {
+  alertModalState,
+  myNameState,
+  settingModalState,
+} from "../../../api/atom";
 import { axiosChangeNickName } from "../../../api/request";
+import { socket, WebsocketContext } from "../../../api/WebsocketContext";
 import ModalBackground from "../../ModalBackground";
 import BlockList from "./BlockList";
 import SettingProfile from "./SettingProfile";
@@ -14,7 +19,8 @@ const SettingModal = () => {
   const onClickBackground = () => {
     setSettingModalToggle(false);
   };
-
+  const setAlertInfo = useSetRecoilState(alertModalState);
+  const socket = useContext(WebsocketContext);
   const [editName, setEditName] = useState(false);
   const nameInput = useRef<HTMLInputElement>(null);
 
@@ -24,15 +30,11 @@ const SettingModal = () => {
 
   const onSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      setEditName(false);
       if (!e.currentTarget.value) {
-        setEditName(false);
         return;
       }
-      try {
-        await axiosChangeNickName(e.currentTarget.value);
-      } catch (e) {
-        console.error(e);
-      }
+      socket.emit("user-name", e.currentTarget.value);
     }
   };
 
