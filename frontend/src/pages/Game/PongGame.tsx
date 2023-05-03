@@ -7,6 +7,7 @@ import {
   alertModalState,
   currentGameInfoState,
   isWatcherState,
+  joinnedChatState,
   myInfoState,
   myNameState,
 } from "../../api/atom";
@@ -34,6 +35,8 @@ const PongGame = ({
   obstaclePos: Array<number>;
 }) => {
   const [gameInfo, setGameInfo] = useRecoilState(currentGameInfoState);
+  const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
+  const [joinChatList, setJoinChatList] = useRecoilState(joinnedChatState);
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const isWatcher = useRecoilValue(isWatcherState);
   const setAlertInfo = useSetRecoilState(alertModalState);
@@ -54,7 +57,15 @@ const PongGame = ({
   useEffect(() => {
     socket.on(
       "game-result",
-      ({ winner, loser }: { winner: string; loser: string }) => {
+      ({
+        winner,
+        loser,
+        type,
+      }: {
+        winner: string;
+        loser: string;
+        type: number;
+      }) => {
         if (winner === myName) {
           setAlertInfo({
             type: "success",
@@ -111,8 +122,13 @@ const PongGame = ({
               loser === myName ? myInfo.normalLose + 1 : myInfo.normalLose,
           });
         }
-        if (gameInfo.gameDto.type) navigate("/main/lobby");
-        else {
+        if (gameInfo.gameDto.type) {
+          const temp = { ...joinChatList };
+          delete temp[currentGame.gameDto.title];
+          setJoinChatList(temp);
+          setCurrentGame(null);
+          navigate("/main/lobby");
+        } else {
           setCount(4);
           resetGame(false);
         }
@@ -229,8 +245,13 @@ const PongGame = ({
           msg: `${gameInfo.opponentDto.userName}님을 이겼습니다!`,
           toggle: true,
         });
-        if (gameInfo.gameDto.type) navigate("/main/lobby");
-        else {
+        if (gameInfo.gameDto.type) {
+          const temp = { ...joinChatList };
+          delete temp[currentGame.gameDto.title];
+          setJoinChatList(temp);
+          setCurrentGame(null);
+          navigate("/main/lobby");
+        } else {
           resetGame(false);
           setGameInfo({
             ...gameInfo,
@@ -284,8 +305,13 @@ const PongGame = ({
         });
         gameState = "lose";
         setCount(4);
-        if (gameInfo.gameDto.type) navigate("/main/lobby");
-        else {
+        if (gameInfo.gameDto.type) {
+          const temp = { ...joinChatList };
+          delete temp[currentGame.gameDto.title];
+          setJoinChatList(temp);
+          setCurrentGame(null);
+          navigate("/main/lobby");
+        } else {
           setGameInfo({
             ...gameInfo,
             ownerDto: {
