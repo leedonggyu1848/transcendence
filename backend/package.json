@@ -50,7 +50,7 @@
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "typeorm": "^0.3.15",
-    "typeorm-transactional-cls-hooked": "^0.1.21"
+    "typeorm-transactional": "^0.4.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

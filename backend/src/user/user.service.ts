@@ -8,10 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { Game } from 'src/entity/game.entity';
 import { GameType } from 'src/entity/common.enum';
-import {
-  IsolationLevel,
-  Transactional,
-} from 'typeorm-transactional-cls-hooked';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class UserService {

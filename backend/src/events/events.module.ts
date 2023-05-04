@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BanModule } from 'src/ban/ban.module';
+import { BlockModule } from 'src/block/block.module';
 import { Block } from 'src/entity/block.entity';
 import { Chat } from 'src/entity/chat.entity';
 import { ChatUser } from 'src/entity/chatuser.entity';
-import { friendModule } from 'src/friend/friend.module';
+import { FriendModule } from 'src/friend/friend.module';
 import { GameModule } from 'src/game/game.module';
 import { RecordModule } from 'src/record/record.module';
 import { UserModule } from 'src/user/user.module';
@@ -24,20 +25,16 @@ const chatUserRepo = {
   useClass: ChatUserRepository,
 };
 
-const blockRepo = {
-  provide: 'IBlockRepository',
-  useClass: BlockRepository,
-};
-
 @Module({
   imports: [
     UserModule,
     BanModule,
-    friendModule,
+    BlockModule,
+    FriendModule,
     RecordModule,
     GameModule,
-    TypeOrmModule.forFeature([Chat, ChatUser, Block]),
+    TypeOrmModule.forFeature([Chat, ChatUser]),
   ],
-  providers: [EventsGateway, EventsService, chatRepo, chatUserRepo, blockRepo],
+  providers: [EventsGateway, EventsService, chatRepo, chatUserRepo],
 })
 export class EventsModule {}

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Ban } from 'src/entity/ban.entity';
 import { Chat } from 'src/entity/chat.entity';
-import { Repository } from 'typeorm';
 import { IBanRepository } from './repository/ban.interface.repository';
 
 @Injectable()

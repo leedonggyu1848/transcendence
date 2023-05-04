@@ -1,20 +1,14 @@
 import {
-  BadRequestException,
-  Bind,
   Body,
   Controller,
   Get,
   HttpStatus,
-  InternalServerErrorException,
   Logger,
   Param,
   Post,
   Res,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { UserDeco } from 'src/decorator/user.decorator';

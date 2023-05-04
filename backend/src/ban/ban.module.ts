@@ -12,6 +12,6 @@ const banRepo = {
 @Module({
   imports: [TypeOrmModule.forFeature([Ban])],
   providers: [BanService, banRepo],
-  exports: [banRepo, BanService],
+  exports: [BanService, banRepo],
 })
 export class BanModule {}

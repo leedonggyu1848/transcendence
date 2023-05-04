@@ -10,12 +10,13 @@ import { IChatRepository } from './repository/chat.interface.repository';
 import { IChatUserRepository } from './repository/chatuser.interface.repository';
 import * as bcrypt from 'bcrypt';
 import { GameService } from 'src/game/game.service';
-import { IBlockRepository } from './repository/block.interface.repository';
 import { BanService } from 'src/ban/ban.service';
 import { User } from 'src/entity/user.entity';
 import { RecordService } from 'src/record/record.service';
 import { GameDto } from 'src/dto/game.dto';
 import { UserDto } from 'src/dto/user.dto';
+import { BlockService } from 'src/block/block.service';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class EventsService {
@@ -25,11 +26,10 @@ export class EventsService {
     private chatRepository: IChatRepository,
     @Inject('IChatUserRepository')
     private chatUserRepository: IChatUserRepository,
-    @Inject('IBlockRepository')
-    private blockRepository: IBlockRepository,
     private userService: UserService,
     private gameService: GameService,
     private banService: BanService,
+    private blockService: BlockService,
     private recordService: RecordService,
   ) {}
 
@@ -46,6 +46,7 @@ export class EventsService {
     return { chatRooms, gameRooms };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getSocketInfo(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithAll(socketId);
     if (!user) return null;
@@ -57,6 +58,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async registUser(userName: string, socketId: string) {
     const user = await this.userService.getUserByUserNameWithAll(userName);
     await this.userService.updateSocketId(user, socketId);
@@ -64,6 +66,7 @@ export class EventsService {
     return [...rooms.chatRooms, ...rooms.gameRooms];
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async isConnect(userName: string) {
     const user = await this.userService.getUserByUserName(userName);
     let status: UserStatusType;
@@ -73,6 +76,7 @@ export class EventsService {
     return status;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async directMessage(socketId: string, userName: string) {
     const sender = await this.userService.getUserBySocketId(socketId);
     const receiver = await this.userService.getUserByUserName(userName);
@@ -98,6 +102,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async changeUserName(socketId: string, userName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: '없는 유저입니다.' };
@@ -113,6 +118,7 @@ export class EventsService {
     } else return { success: false, msg: '이미 사용 중인 이름입니다.' };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async changeUserProfile(socketId: string, image: Express.Multer.File) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: '없는 유저입니다.' };
@@ -120,6 +126,7 @@ export class EventsService {
     return { success: true, data: data };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createGame(gameDto: GameDto, socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (user.joinType != JoinType.NONE)
@@ -141,6 +148,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async joinGame(title: string, password: string, socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (user.joinType != JoinType.NONE || user.playGame || user.watchGame)
@@ -178,6 +186,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async watchGame(title: string, password: string, socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (user.joinType != JoinType.NONE || user.playGame || user.watchGame)
@@ -213,6 +222,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async leaveGame(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (!user) return { success: false, msg: '잘못된 유저 정보입니다.' };
@@ -241,6 +251,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createChat(
     socketId: string,
     roomName: string,
@@ -269,6 +280,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async joinChat(socketId: string, roomName: string, password: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
@@ -305,6 +317,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async leaveChat(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
@@ -333,6 +346,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async matchRankGame(socketId: string) {
     if (this.rankQueue === '') {
       this.rankQueue = socketId;
@@ -353,6 +367,7 @@ export class EventsService {
     if (this.rankQueue === socketId) this.rankQueue = '';
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async saveGameResult(win: string, lose: string, type: GameType) {
     const winner = await this.userService.getUserByUserNameWithGame(win);
     const loser = await this.userService.getUserByUserNameWithGame(lose);
@@ -366,6 +381,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getAllChatList(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithChat(socketId);
     const chats = await this.chatRepository.findAll();
@@ -375,6 +391,7 @@ export class EventsService {
     return { user: user.userName, chats: chatsDto };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getChatList(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithChat(socketId);
     if (user.chats.length === 0) return { user: user.userName, chats: [] };
@@ -384,6 +401,7 @@ export class EventsService {
     return { user: user.userName, chats: chatsDto };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getUserList(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -393,6 +411,7 @@ export class EventsService {
     return { user: user.userName, users: usersDto };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async kickUser(socketId: string, roomName: string, userName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -412,6 +431,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async muteUser(socketId: string, roomName: string, userName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const muted = await this.userService.getUserByUserName(userName);
@@ -428,6 +448,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async changePassword(socketId: string, roomName: string, password: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -440,6 +461,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async changeOperator(socketId: string, roomName: string, operator: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -455,6 +477,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getBanList(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -470,6 +493,7 @@ export class EventsService {
     };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async banUser(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -482,6 +506,7 @@ export class EventsService {
     return { success: true, msg: `${banUser}가 밴 되었습니다.` };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async banCancel(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const chat = await this.chatRepository.findByTitleWithJoin(roomName);
@@ -494,36 +519,31 @@ export class EventsService {
     return { success: true, msg: `${banUser}의 밴이 취소되었습니다.` };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getBlockList(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithBlock(socketId);
-    const blockUsers = user.blockUsers.map((usr) => {
-      return usr.user.blockuser;
-    });
-    return blockUsers;
+    return this.blockService.getBlockList(user);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async blockUser(socketId: string, blockUser: string) {
     const user = await this.userService.getUserBySocketIdWithBlock(socketId);
-    const isBan = user.blockUsers.filter(
-      (block) => block.blockUser === blockUser,
-    );
-    if (isBan.length !== 0)
+    const result = await this.blockService.blockUser(user, blockUser);
+    if (result)
       return { success: false, msg: `${blockUser}는 이미 차단 되어있습니다.` };
-    await this.blockRepository.addBlockUser(user, blockUser);
     return { success: true, msg: `${blockUser}가 차단 되었습니다.` };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async blockCancel(socketId: string, blockUser: string) {
     const user = await this.userService.getUserBySocketIdWithBlock(socketId);
-    const block = user.blockUsers.filter(
-      (block) => block.blockUser === blockUser,
-    );
-    if (block.length === 0)
+    const result = await this.blockService.blockCancel(user, blockUser);
+    if (result)
       return { success: false, msg: `${blockUser}는 차단 되어있지 않습니다.` };
-    await this.blockRepository.deleteBlockUser(block);
     return { success: true, msg: `${blockUser}의 차단이 해제되었습니다.` };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async gameAlert(roomName: string, message: string) {
     const game = await this.gameService.getGameByTitleWithUsers(roomName);
     const players = game.players.map((player) => {

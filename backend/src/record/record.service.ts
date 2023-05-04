@@ -3,10 +3,7 @@ import { User } from 'src/entity/user.entity';
 import { GameType } from 'src/entity/common.enum';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { UserService } from 'src/user/user.service';
-import {
-  IsolationLevel,
-  Transactional,
-} from 'typeorm-transactional-cls-hooked';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class RecordService {

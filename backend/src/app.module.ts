@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { GameModule } from './game/game.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeORMConfig } from './configs/typeorm.config';
+import TypeOrmConfigService from './configs/typeorm.config';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import configurations from './configs/configurations';
 import { EventsModule } from './events/events.module';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -16,7 +18,16 @@ import { EventsModule } from './events/events.module';
       load: [configurations],
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot(typeORMConfig),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService,
+      async dataSourceFactory(options) {
+        if (!options) {
+          throw new Error('No options');
+        }
+        return addTransactionalDataSource(new DataSource(options));
+      },
+    }),
   ],
 })
 export class AppModule {}

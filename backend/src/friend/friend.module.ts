@@ -17,4 +17,4 @@ const friendRepo = {
   providers: [UserService, FriendService, friendRepo],
   exports: [FriendService, friendRepo],
 })
-export class friendModule {}
+export class FriendModule {}

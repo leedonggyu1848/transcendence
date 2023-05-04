@@ -15,10 +15,6 @@ import { JoinType } from 'src/entity/common.enum';
 import { FriendService } from 'src/friend/friend.service';
 import { GameService } from 'src/game/game.service';
 import {
-  IsolationLevel,
-  Transactional,
-} from 'typeorm-transactional-cls-hooked';
-import {
   CreateChatPayload,
   GameResultPayload,
   MessagePayload,
@@ -47,7 +43,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`[Connection] socketId: ${socket.id}`);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[Disconnect] socketId: ${socket.id}`);
     this.eventsService.cancelRankGame(socket.id);
@@ -69,7 +64,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.sessionMap[data.userName] = timeId;
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('first-connection')
   async handleSocketConnect(
     @ConnectedSocket() socket: Socket,
@@ -93,7 +87,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('check-connection')
   async handleCheckConnect(
     @ConnectedSocket() socket: Socket,
@@ -132,7 +125,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('user-name')
   async handleChangeUserName(
     @ConnectedSocket() socket: Socket,
@@ -144,7 +136,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else socket.emit('user-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('user-profile')
   @UseInterceptors(FileInterceptor('image'))
   async handleChangeUserProfile(
@@ -158,7 +149,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('user-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('game-list')
   async handleGameList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[GameList]`);
@@ -166,7 +156,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('game-list', games);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('create-game')
   async handleCreateGame(
     @ConnectedSocket() socket: Socket,
@@ -182,7 +171,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('game-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('join-game')
   async handleJoinGame(
     @ConnectedSocket() socket: Socket,
@@ -207,7 +195,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('game-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('watch-game')
   async handleWatchGame(
     @ConnectedSocket() socket: Socket,
@@ -232,7 +219,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('game-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('leave-game')
   async handleLeaveGame(
     @ConnectedSocket() socket: Socket,
@@ -252,7 +238,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('game-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('match-rank')
   async handleMatchRank(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[MatchRank]`);
@@ -273,14 +258,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('cancel-rank')
   handleCancelRank(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[CancelRank]`);
     this.eventsService.cancelRankGame(socket.id);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('game-result')
   async handleGameResult(
     @ConnectedSocket() socket: Socket,
@@ -294,7 +277,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else socket.emit('game-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
@@ -302,7 +284,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('friend-list', friends);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendRequestList]`);
@@ -310,7 +291,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('friend-request-list', requests);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('request-friend')
   async handleFriendRequest(
     @ConnectedSocket() socket: Socket,
@@ -336,7 +316,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('response-friend')
   async handleAcceptFriend(
     @ConnectedSocket() socket: Socket,
@@ -356,7 +335,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('cancel-friend')
   async handleCancelFriend(
     @ConnectedSocket() socket: Socket,
@@ -374,7 +352,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('delete-friend')
   async handleDeleteFriend(
     @ConnectedSocket() socket: Socket,
@@ -392,7 +369,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('send-dm')
   async handleDirectMessage(
     @ConnectedSocket() socket: Socket,
@@ -416,7 +392,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('create-chat')
   async handleCreateChat(
     @ConnectedSocket() socket: Socket,
@@ -441,7 +416,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('join-chat')
   async handleJoinChat(
     @ConnectedSocket() socket: Socket,
@@ -468,7 +442,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('leave-chat')
   async handleLeaveChat(
     @ConnectedSocket() socket: Socket,
@@ -491,7 +464,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('all-chat')
   async handleAllChatList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[AllChatList]`);
@@ -499,7 +471,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('all-chat', { chats: data.chats });
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('chat-list')
   async handleChatList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[ChatList]`);
@@ -507,7 +478,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('chat-list', { chats: data.chats });
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('user-list')
   async handleUserList(
     @ConnectedSocket() socket: Socket,
@@ -518,7 +488,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('user-list', { users: data.users });
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('kick-user')
   async handleKickUser(
     @ConnectedSocket() socket: Socket,
@@ -539,7 +508,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('mute-user')
   async handleMuteUser(
     @ConnectedSocket() socket: Socket,
@@ -564,7 +532,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('chat-password')
   async handleChatChangePassword(
     @ConnectedSocket() socket: Socket,
@@ -583,7 +550,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else socket.emit('chat-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('chat-operator')
   async handleChatChangeOperator(
     @ConnectedSocket() socket: Socket,
@@ -603,7 +569,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else socket.emit('chat-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('ban-user')
   async handleBanUser(
     @ConnectedSocket() socket: Socket,
@@ -631,7 +596,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('chat-fail', banResult.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('ban-cancel')
   async handleBanCancel(
     @ConnectedSocket() socket: Socket,
@@ -648,7 +612,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else socket.emit('chat-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('ban-list')
   async handleBanList(
     @ConnectedSocket() socket: Socket,
@@ -660,7 +623,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else socket.emit('chat-fail', result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('block-list')
   async handleBlockList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[BlockList]`);
@@ -668,7 +630,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('block-list', result);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('block-user')
   async handleBlockUser(
     @ConnectedSocket() socket: Socket,
@@ -681,7 +642,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('block-cancel')
   async handleBlockCancel(
     @ConnectedSocket() socket: Socket,
@@ -694,7 +654,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(result.msg);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   @SubscribeMessage('start-game')
   async handleStartGame(
     @ConnectedSocket() socket: Socket,
