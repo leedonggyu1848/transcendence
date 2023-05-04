@@ -311,8 +311,7 @@ const MainPage = () => {
         "leave-game",
         "user-leave-game",
         "match-rank",
-        "user-name",
-        "game-result"
+        "user-name"
       );
     };
   }, [
