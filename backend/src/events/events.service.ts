@@ -276,10 +276,8 @@ export class EventsService {
     if (!winner || !loser)
       return { success: false, msg: '유저 이름이 맞지 않습니다.' };
     await this.recordService.saveGameResult(winner, loser, type);
-    const title = type === GameType.NORMAL ? winner.playGame.title : '';
     return {
       success: true,
-      roomName: title,
       data: { winner: win, loser: lose, type: type },
     };
   }
