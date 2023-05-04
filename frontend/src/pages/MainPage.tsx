@@ -88,6 +88,8 @@ import {
   listenLeaveGame,
   listenMatchRank,
   listenNewGame,
+  listenUserGameOut,
+  listenUserInGame,
   listenUserJoinGame,
   listenUserLeaveGame,
   listenUserWatchGame,
@@ -110,13 +112,12 @@ const MainPage = () => {
     friendRequestListState
   );
   const [friendList, setFriendList] = useRecoilState(friendListState);
-  const [requestFriendListFlag, setRequestFriendListFlag] = useRecoilState(
-    requestFriendListFlagState
-  );
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
   const [getMyInfoFlag, setGetMyInfoFlag] = useRecoilState(getMyInfoFlagState);
-
+  const [requestFriendListFlag, setRequestFriendListFlag] = useRecoilState(
+    requestFriendListFlagState
+  );
   const navigate = useNavigate();
 
   const myName = useRecoilValue(myNameState);
@@ -148,7 +149,6 @@ const MainPage = () => {
     setJoinnedChatList,
     setFriendRequestList,
     setFriendList,
-    setRequestFriendListFlag,
     friendRequestList,
     friendList,
     blockList,
@@ -160,6 +160,8 @@ const MainPage = () => {
     setGameList,
     navigate,
     setRankWaitModal,
+    requestFriendListFlag,
+    setRequestFriendListFlag,
   };
 
   useEffect(() => {
@@ -188,6 +190,16 @@ const MainPage = () => {
       setCurrentGame(JSON.parse(sessionStorage.getItem("currentGame")));
       sessionStorage.removeItem("currentGame");
     }
+    if (sessionStorage.getItem("friendList")) {
+      setFriendList(JSON.parse(sessionStorage.getItem("friendList")));
+      sessionStorage.removeItem("friendList");
+    }
+    if (sessionStorage.getItem("friendRequestList")) {
+      setFriendRequestList(
+        JSON.parse(sessionStorage.getItem("friendRequestList"))
+      );
+      sessionStorage.removeItem("friendRequestList");
+    }
 
     const navigationEntry = performance.getEntriesByType(
       "navigation"
@@ -200,6 +212,11 @@ const MainPage = () => {
       sessionStorage.setItem("myInfo", JSON.stringify(myInfo));
       sessionStorage.setItem("currentChat", currentChat);
       sessionStorage.setItem("joinnedChat", JSON.stringify(joinnedChatList));
+      sessionStorage.setItem("friendList", JSON.stringify(friendList));
+      sessionStorage.setItem(
+        "friendRequestList",
+        JSON.stringify(friendRequestList)
+      );
       sessionStorage.setItem("chatList", JSON.stringify(chatList));
       if (currentGame)
         sessionStorage.setItem("currentGame", JSON.stringify(currentGame));
@@ -256,6 +273,8 @@ const MainPage = () => {
     listenGameFail(hooks);
     listenGameResult(hooks);
     listenNameChange(hooks);
+    listenUserInGame(hooks);
+    listenUserGameOut(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -311,7 +330,10 @@ const MainPage = () => {
         "leave-game",
         "user-leave-game",
         "match-rank",
-        "user-name"
+        "user-name",
+        "game-result",
+        "user-ingame",
+        "user-gameout"
       );
     };
   }, [
