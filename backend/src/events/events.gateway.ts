@@ -12,7 +12,6 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { GameDto } from 'src/dto/game.dto';
 import { JoinType } from 'src/entity/common.enum';
-import { FriendService } from 'src/friend/friend.service';
 import { GameService } from 'src/game/game.service';
 import {
   CreateChatPayload,
@@ -29,11 +28,9 @@ import { EventsService } from './events.service';
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger(EventsGateway.name);
-  private muteQueue = [];
   private sessionMap = {};
   constructor(
     private eventsService: EventsService,
-    private friendService: FriendService,
     private gameService: GameService,
   ) {}
 
@@ -109,19 +106,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `userName: ${userName},`,
       `message: ${message}`,
     );
-    let flag = true;
-    let leftTime = 0;
-    this.muteQueue.forEach(([targetRoom, targetName, targetTime]) => {
-      const now = new Date();
-      leftTime = Math.floor((targetTime - now.getTime()) / 1000);
-      if (targetRoom === roomName && targetName === userName) flag = false;
-    });
-    if (flag) {
+    const check = this.eventsService.checkMuteQueue(roomName, userName);
+    if (check.flag) {
       socket.broadcast
         .to(roomName)
         .emit('message', { userName, roomName, message });
     } else {
-      socket.emit('chat-fail', `${leftTime} 후 음소거가 풀립니다.`);
+      socket.emit('chat-fail', `${check.leftTime} 후 음소거가 풀립니다.`);
     }
   }
 
@@ -270,7 +261,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     { winner, loser, type }: GameResultPayload,
   ) {
-    this.logger.log(`[GameResult]`);
+    this.logger.log(
+      `[GameResult] ` +
+        `winner: ${winner}` +
+        ` loser: ${loser}` +
+        ` type: ${type}`,
+    );
     const result = await this.eventsService.saveGameResult(winner, loser, type);
     if (result.success)
       this.nsp.to(result.roomName).emit('game-result', result.data);
@@ -280,14 +276,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
-    const friends = await this.friendService.getFriendList(socket.id);
+    const friends = await this.eventsService.getFriendList(socket.id);
     socket.emit('friend-list', friends);
   }
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendRequestList]`);
-    const requests = await this.friendService.getFriendRequestList(socket.id);
+    const requests = await this.eventsService.getFriendRequestList(socket.id);
     socket.emit('friend-request-list', requests);
   }
 
@@ -297,7 +293,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`[FriendRequest] friendName: ${friendName}`);
-    const result = await this.friendService.friendRequest(
+    const result = await this.eventsService.friendRequest(
       socket.id,
       friendName,
     );
@@ -322,7 +318,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() { friendName, type }: { friendName: string; type: boolean },
   ) {
     this.logger.log(`[AcceptFriend] friendName: ${friendName}, type: ${type}`);
-    const result = await this.friendService.friendResponse(
+    const result = await this.eventsService.friendResponse(
       socket.id,
       friendName,
       type,
@@ -341,11 +337,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`[CancelFriend] friendName: ${friendName}`);
-    const result = await this.friendService.cancelFriend(socket.id, friendName);
+    const result = await this.eventsService.cancelFriend(socket.id, friendName);
     if (result.success) {
       socket.emit('cancel-friend', { userName: friendName });
       this.nsp.sockets
-        .get(result.data)
+        .get(result.sock)
         ?.emit('cancel-friend', { userName: result.userName });
     } else {
       socket.emit('friend-fail', result.msg);
@@ -358,11 +354,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`DeleteFriend / friendName: ${friendName}`);
-    const result = await this.friendService.deleteFriend(socket.id, friendName);
+    const result = await this.eventsService.deleteFriend(socket.id, friendName);
     if (result.success) {
       socket.emit('delete-friend', { userName: friendName });
       this.nsp.sockets
-        .get(result.data)
+        .get(result.sock)
         ?.emit('delete-friend', { userName: result.userName });
     } else {
       socket.emit('friend-fail', result.msg);
@@ -474,8 +470,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('chat-list')
   async handleChatList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[ChatList]`);
-    const data = await this.eventsService.getChatList(socket.id);
-    socket.emit('chat-list', { chats: data.chats });
+    const result = await this.eventsService.getChatList(socket.id);
+    if (result.success) socket.emit('chat-list', { chats: result.chats });
+    else socket.emit('chat-fail', { message: result.msg });
   }
 
   @SubscribeMessage('user-list')
@@ -522,10 +519,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (result.success) {
       socket.emit('mute-user', { roomName, userName });
-      this.muteQueue.push([roomName, userName, new Date().getTime() + 30000]);
-      setTimeout(() => {
-        this.muteQueue.shift();
-      }, 30000);
       this.nsp.sockets.get(result.data)?.emit('chat-muted', roomName);
     } else {
       socket.emit('chat-fail', result.msg);

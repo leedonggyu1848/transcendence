@@ -9,16 +9,6 @@ export class ChatRepository implements IChatRepository {
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
   ) {}
 
-  chatToChatDto(chat: Chat) {
-    const chatDto: ChatDto = {
-      title: chat.title,
-      type: chat.type,
-      operator: chat.operator,
-      count: chat.count,
-    };
-    return chatDto;
-  }
-
   async createByChatDto(chatDto: ChatDto, password: string) {
     const chat = this.chatRepository.create({ ...chatDto, password: password });
     await this.chatRepository.save(chat);

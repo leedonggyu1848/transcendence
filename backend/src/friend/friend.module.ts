@@ -13,8 +13,8 @@ const friendRepo = {
 };
 
 @Module({
-  imports: [UserModule, TypeOrmModule.forFeature([User, Friend])],
-  providers: [UserService, FriendService, friendRepo],
+  imports: [TypeOrmModule.forFeature([Friend])],
+  providers: [FriendService, friendRepo],
   exports: [FriendService, friendRepo],
 })
 export class FriendModule {}

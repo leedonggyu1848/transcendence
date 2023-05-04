@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from 'src/entity/user.entity';
-import { IBlockRepository } from 'src/events/repository/block.interface.repository';
-import { UserService } from 'src/user/user.service';
+import { IBlockRepository } from 'src/block/repository/block.interface.repository';
 
 @Injectable()
 export class BlockService {

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Block } from 'src/entity/block.entity';
-import { BlockRepository } from 'src/events/repository/block.repository';
+import { BlockRepository } from './repository/block.repository';
 import { BlockService } from './block.service';
 
 const blockRepo = {
