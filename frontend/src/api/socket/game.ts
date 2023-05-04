@@ -3,6 +3,7 @@ import GameDetailInfo from "../../pages/HistoryPage/GameDetailInfo";
 import {
   GameDto,
   ICurrentGame,
+  IFriendDto,
   IGameRoomInfo,
   IJoinnedChat,
   UserDto,
@@ -577,6 +578,42 @@ export const listenMatchRank = ({
       navigate("/main/game");
     }
   );
+};
+
+export const listenUserInGame = ({
+  socket,
+  friendList,
+  setFriendList,
+}: {
+  socket: any;
+  friendList: IFriendDto[];
+  setFriendList: any;
+}) => {
+  socket.on("user-ingame", ({ userName }: { userName: string }) => {
+    setFriendList(
+      friendList.map((friend) =>
+        friend.userName === userName ? { ...friend, status: 2 } : { ...friend }
+      )
+    );
+  });
+};
+
+export const listenUserGameOut = ({
+  socket,
+  friendList,
+  setFriendList,
+}: {
+  socket: any;
+  friendList: IFriendDto[];
+  setFriendList: any;
+}) => {
+  socket.on("user-gameout", ({ userName }: { userName: string }) => {
+    setFriendList(
+      friendList.map((friend) =>
+        friend.userName === userName ? { ...friend, status: 1 } : { ...friend }
+      )
+    );
+  });
 };
 
 export const listenGameResult = ({
