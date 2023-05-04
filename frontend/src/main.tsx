@@ -9,8 +9,8 @@ import { CookiesProvider } from "react-cookie";
 import { RecoilRoot } from "recoil";
 import NoAuthPage from "./pages/NoAuthPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import { socket, WebsocketProvider } from "./api/WebsocketContext";
 import TFAuthPage from "./pages/TFAuthPage/TFAuthPage";
+import WrappedMainPage from "./pages/WrapMainPage";
 
 const Background = styled.div`
   background-image: url("/src/assets/background.png");
@@ -26,21 +26,19 @@ const Background = styled.div`
 `;
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <WebsocketProvider value={socket}>
-    <BrowserRouter>
-      <CookiesProvider>
-        <RecoilRoot>
-          <Background>
-            <Routes>
-              <Route path="/" element={<LoginPage />} />
-              <Route path="/auth" element={<TFAuthPage />} />
-              <Route path="/main/*" element={<MainPage />} />
-              <Route path="/no_auth" element={<NoAuthPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Background>
-        </RecoilRoot>
-      </CookiesProvider>
-    </BrowserRouter>
-  </WebsocketProvider>
+  <BrowserRouter>
+    <CookiesProvider>
+      <RecoilRoot>
+        <Background>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/auth" element={<TFAuthPage />} />
+            <Route path="/main/*" element={<WrappedMainPage />} />
+            <Route path="/no_auth" element={<NoAuthPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Background>
+      </RecoilRoot>
+    </CookiesProvider>
+  </BrowserRouter>
 );
