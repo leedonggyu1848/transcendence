@@ -1,10 +1,8 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import styled from "@emotion/styled";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import MainPage from "./pages/MainPage";
 import { CookiesProvider } from "react-cookie";
 import { RecoilRoot } from "recoil";
 import NoAuthPage from "./pages/NoAuthPage";

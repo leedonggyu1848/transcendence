@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useContext } from "react";
 import styled from "@emotion/styled";
 import { WebsocketContext } from "../../api/WebsocketContext";
-import { axiosRecordGameResult } from "../../api/request";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
@@ -16,9 +15,6 @@ import { useNavigate } from "react-router-dom";
 const PongGame = ({
   roomName,
   isOwner,
-  owner,
-  opponent,
-  type,
   resetGame,
   setCount,
   hard,

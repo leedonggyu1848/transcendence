@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
@@ -13,14 +13,6 @@ import {
   rankWaitModalToggleState,
   selectedNormalGameTitleState,
 } from "../../api/atom";
-import { GameDto } from "../../api/interface";
-import {
-  axiosCreateGame,
-  axiosGetGameList,
-  axiosGetMyInfo,
-  axiosJoinGame,
-  axiosWatchGame,
-} from "../../api/request";
 import useInitHook from "../../api/useInitHook";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import GameLobby from "./GameLobby";
@@ -30,8 +22,6 @@ const GameLobbyContainer = () => {
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const setJoinGameModal = useSetRecoilState(joinGameModalToggleState);
-  const setBackgroundModal = useSetRecoilState(modalBackToggleState);
-  const setNormalJoinType = useSetRecoilState(normalJoinTypeState);
   const setSelectedNormalGameTitle = useSetRecoilState(
     selectedNormalGameTitleState
   );
@@ -39,10 +29,7 @@ const GameLobbyContainer = () => {
   const socket = useContext(WebsocketContext);
 
   useInitHook();
-  const [myInfo, setMyInfo] = useRecoilState(myInfoState);
-  const setCurrentGameInfoState = useSetRecoilState(currentGameInfoState);
-  const [gameList, setGameList] = useRecoilState(gameListState);
-  const navigator = useNavigate();
+  const gameList = useRecoilValue(gameListState);
 
   const clickRankGame = () => {
     setModalBack(true);

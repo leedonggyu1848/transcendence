@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 const UserInfo = ({
   profile,

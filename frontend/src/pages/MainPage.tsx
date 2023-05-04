@@ -37,7 +37,7 @@ import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
 import OperatorModal from "../components/Modals/OperatorModal/OperatorModal";
 import SettingModal from "../components/Modals/SettingModal/SettingModal";
-import { axiosGetGameList, axiosGetMyInfo } from "../api/request";
+import { axiosGetMyInfo } from "../api/request";
 import CreateChatModal from "../components/Modals/CreateChatModal";
 import JoinChatModal from "../components/Modals/JoinChatModal";
 import ConfirmModal from "../components/Modals/ConfirmModal";
@@ -95,7 +95,6 @@ import {
   listenUserWatchGame,
   listenWatchGame,
 } from "../api/socket/game";
-import NormalGamePage from "./Game/GamePage";
 import InviteModal from "../components/Modals/InviteModal";
 
 const MainPage = () => {
@@ -355,7 +354,6 @@ const MainPage = () => {
         <Menu />
         <Routes>
           <Route path="lobby" element={<GameLobbyContainer />} />
-          {/*<Route path="/game" element={<GamePage />} />*/}
           <Route path="/game" element={<GamePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/history" element={<HistoryPage />} />

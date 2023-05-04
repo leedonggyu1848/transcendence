@@ -1,8 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
-import { alertModalState } from "../../api/atom";
 import { axiosPostAuthCode } from "../../api/request";
 import Counter from "./Counter";
 

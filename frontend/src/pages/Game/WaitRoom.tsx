@@ -1,12 +1,7 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import {
-  currentGameInfoState,
-  myInfoState,
-  myNameState,
-  opponentInfoState,
-} from "../../api/atom";
+import { currentGameInfoState, myInfoState, myNameState } from "../../api/atom";
 import { UserDto } from "../../api/interface";
 import UserInfo from "./UserInfo";
 

@@ -13,8 +13,6 @@ import {
   joinnedChatState,
   gameListState,
 } from "../../api/atom";
-import { IChatLog, UserDto } from "../../api/interface";
-import { axiosLeaveNormalGame } from "../../api/request";
 import { WebsocketContext } from "../../api/WebsocketContext";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
@@ -30,16 +28,12 @@ const GamePage = () => {
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
-  const navigate = useNavigate();
   const [obstaclePos, setObstaclePos] = useState([0, 0]);
-  const [normalJoinType, setNormalJoinType] =
-    useRecoilState(normalJoinTypeState);
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
-  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
-  const [firstJoin, setJoinSocketState] = useRecoilState(joinSocketState);
+  const currentChat = useRecoilValue(currentChatState);
   const [count, setCount] = useState(4);
-  const [gameList, setGameList] = useRecoilState(gameListState);
+  const gameList = useRecoilValue(gameListState);
   const [rankGameFlag, setRankGameFlag] = useState(false);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
