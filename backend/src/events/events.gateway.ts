@@ -128,12 +128,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('user-profile')
-  @UseInterceptors(FileInterceptor('image'))
   async handleChangeUserProfile(
     @ConnectedSocket() socket: Socket,
-    @UploadedFile() image: Express.Multer.File,
+    @MessageBody() image: Buffer,
   ) {
-    this.logger.log(`[ChangeProfile] image: ${image.filename}`);
+    this.logger.log(`[ChangeProfile] image: ${socket.id}`);
     const result = await this.eventsService.changeUserProfile(socket.id, image);
     if (result.success) {
       this.nsp.emit('user-profile', result.data);

@@ -92,7 +92,7 @@ export class EventsService {
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async changeUserProfile(socketId: string, image: Express.Multer.File) {
+  async changeUserProfile(socketId: string, image: Buffer) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: '없는 유저입니다.' };
     const data = await this.userService.updateProfileImage(user, image);

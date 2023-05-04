@@ -45,6 +45,7 @@ import {
   chatSocketOff,
   listenAlert,
   listenBlockList,
+  listenChangeProfile,
   listenCheckConnection,
   listenFirstConnection,
   listenFriendConnection,
@@ -279,6 +280,7 @@ const MainPage = () => {
     listenGameFail(hooks);
     listenNameChange(hooks);
     listenUserInGame(hooks);
+    listenChangeProfile(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -335,7 +337,8 @@ const MainPage = () => {
         "user-leave-game",
         "match-rank",
         "user-name",
-        "user-ingame"
+        "user-ingame",
+        "user-profile"
       );
     };
   }, [

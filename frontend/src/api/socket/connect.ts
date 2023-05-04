@@ -256,6 +256,62 @@ export function listenNameChange({
   );
 }
 
+export function listenChangeProfile({
+  socket,
+  myName,
+  myInfo,
+  setMyInfo,
+  friendList,
+  setFriendList,
+  friendRequestList,
+  setFriendRequestList,
+  joinnedChatList,
+  setJoinnedChatList,
+  blockList,
+  setBlockList,
+  currentGame,
+  setCurrentGame,
+}: {
+  socket: any;
+  myName: string;
+  myInfo: UserDto;
+  setMyInfo: any;
+  friendList: IFriendDto[];
+  setFriendList: any;
+  friendRequestList: IFriendRequest[];
+  setFriendRequestList: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+  blockList: string[];
+  setBlockList: any;
+  currentGame: ICurrentGame | null;
+  setCurrentGame: any;
+}) {
+  socket.on(
+    "user-profile",
+    ({ userName, profile }: { userName: string; profile: string }) => {
+      if (myName === userName) {
+        setMyInfo({
+          ...myInfo,
+          profile,
+        });
+      }
+      setFriendList([
+        ...friendList.map((friend) =>
+          friend.userName === userName ? { ...friend, profile } : { ...friend }
+        ),
+      ]);
+      setFriendRequestList([
+        ...friendRequestList.map((request) =>
+          request.userName === userName
+            ? { ...request, profile }
+            : { ...request }
+        ),
+      ]);
+    }
+  );
+}
+
 export function chatSocketOff(socket: any, ...rest: string[]) {
   for (let api of rest) {
     socket.off(api);

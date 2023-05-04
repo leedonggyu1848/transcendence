@@ -171,15 +171,14 @@ export class UserService {
     return true;
   }
 
-  async updateProfileImage(user: User, image: Express.Multer.File) {
+  async updateProfileImage(user: User, image: Buffer) {
     if (user.profile) fs.unlinkSync('./uploads/' + user.profile);
     const timeValue = new Date().getTime().toString();
     const imagePath = `./uploads/${user.userId}-${timeValue}.png`;
-    fs.writeFile(imagePath, image.buffer, function () {});
+    fs.writeFile(imagePath, image, function () {});
     const findPath = `${user.userId}-${timeValue.toString()}.png`;
     await this.userRepository.updateProfileImage(user.id, findPath);
-    const data = await this.getUserByUserName(user.userName);
-    return { userInfo: this.userToUserDto(data), findPath };
+    return { userName: user.userName, profile: findPath };
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })

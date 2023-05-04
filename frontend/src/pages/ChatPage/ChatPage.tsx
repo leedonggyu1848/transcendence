@@ -55,7 +55,6 @@ const ChatPage = () => {
     }
     if (type === 2) {
       // password type 대응
-      console.log("password");
       setJoinChatToggle({ roomName, toggle: true });
     } else {
       socket.emit("join-chat", { roomName, password: "" });

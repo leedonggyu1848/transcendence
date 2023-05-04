@@ -1,13 +1,8 @@
 import styled from "@emotion/styled";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  alertModalState,
-  myNameState,
-  settingModalState,
-} from "../../../api/atom";
-import { axiosChangeNickName } from "../../../api/request";
-import { socket, WebsocketContext } from "../../../api/WebsocketContext";
+import { myNameState, settingModalState } from "../../../api/atom";
+import { WebsocketContext } from "../../../api/WebsocketContext";
 import ModalBackground from "../../ModalBackground";
 import BlockList from "./BlockList";
 import SettingProfile from "./SettingProfile";
@@ -19,7 +14,6 @@ const SettingModal = () => {
   const onClickBackground = () => {
     setSettingModalToggle(false);
   };
-  const setAlertInfo = useSetRecoilState(alertModalState);
   const socket = useContext(WebsocketContext);
   const [editName, setEditName] = useState(false);
   const nameInput = useRef<HTMLInputElement>(null);

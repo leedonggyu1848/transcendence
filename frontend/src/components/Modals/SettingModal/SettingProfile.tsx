@@ -1,42 +1,22 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { alertModalState, myInfoState } from "../../../api/atom";
 import { axiosUpdateProfileImage } from "../../../api/request";
+import { WebsocketContext } from "../../../api/WebsocketContext";
 
 const SettingProfile = () => {
   const setAlertModal = useSetRecoilState(alertModalState);
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
-  const [profileImage, setProfileImage] = useState("");
+  const socket = useContext(WebsocketContext);
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
     const file = event.target.files[0];
     if (file && file.type === "image/png") {
-      try {
-        const formData = new FormData();
-        formData.append("image", file);
-        const response = await axiosUpdateProfileImage(formData);
-        setMyInfo({ ...response });
-      } catch (e) {
-        console.error(e);
-        setAlertModal({
-          type: "failure",
-          header: "프로필 변경 실패",
-          msg: "프로필 변경에 실패했습니다.",
-          toggle: true,
-        });
-      }
-    } else {
-      alert("file type error");
-      setAlertModal({
-        type: "failure",
-        header: "프로필 확장자 확인!",
-        msg: "png 이미지만 가능합니다.",
-        toggle: true,
-      });
+      const formData = new FormData();
+      formData.append("image", file);
+      socket.emit("user-profile", file);
     }
   };
 
