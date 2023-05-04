@@ -60,7 +60,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.handleLeaveGame(socket, room);
       });
       delete this.sessionMap[data.userName];
-    }, 300);
+    }, 1000);
     this.sessionMap[data.userName] = timeId;
   }
 

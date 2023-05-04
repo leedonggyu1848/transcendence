@@ -48,7 +48,6 @@ export class UserService {
       );
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async sendAuthMail(user: User) {
     const mailer = require('nodemailer');
     const uuid = randomUUID().toString();
