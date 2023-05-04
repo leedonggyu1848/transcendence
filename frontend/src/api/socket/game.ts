@@ -615,27 +615,3 @@ export const listenUserGameOut = ({
     );
   });
 };
-
-export const listenGameResult = ({
-  socket,
-  setAlertInfo,
-  currentGame,
-  setCurrentGame,
-  myInfo,
-  setCurrentChat,
-  joinnedChatList,
-  setJoinnedChatList,
-  navigate,
-  setRankWaitModal,
-}: {
-  socket: any;
-  setAlertInfo: any;
-  currentGame: ICurrentGame;
-  setCurrentGame: any;
-  myInfo: UserDto;
-  setCurrentChat: any;
-  joinnedChatList: any;
-  setJoinnedChatList: any;
-  navigate: any;
-  setRankWaitModal: any;
-}) => {};

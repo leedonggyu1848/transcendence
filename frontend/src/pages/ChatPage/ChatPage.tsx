@@ -6,6 +6,7 @@ import {
   createChatModalToggleState,
   currentChatState,
   currentChatUserListState,
+  inviteModalToggleState,
   joinChatToggleState,
   joinnedChatState,
   myNameState,
@@ -29,9 +30,14 @@ const ChatPage = () => {
   const [joinnedChatList, setJoinChatList] = useRecoilState(joinnedChatState);
   const myName = useRecoilValue(myNameState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
+  const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
 
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
+  };
+
+  const openInviteModal = () => {
+    setInviteModalToggle(true);
   };
 
   const joinChatRoom = (roomName: string, type: number) => {
@@ -49,6 +55,7 @@ const ChatPage = () => {
     }
     if (type === 2) {
       // password type 대응
+      console.log("password");
       setJoinChatToggle({ roomName, toggle: true });
     } else {
       socket.emit("join-chat", { roomName, password: "" });
@@ -68,12 +75,17 @@ const ChatPage = () => {
       {currentChat.length > 0 && joinnedChatList[currentChat] && (
         <WapperContainer>
           <HeaderContainer>
-            <div>현재 참가 중인 방</div>
-            <Leave
-              onClick={() => LeaveChatRoom(joinnedChatList[currentChat].title)}
-            >
-              나가기
-            </Leave>
+            <div>현재 채팅</div>
+            <ButtonContainer>
+              <Button onClick={openInviteModal}>초대하기</Button>
+              <Button
+                onClick={() =>
+                  LeaveChatRoom(joinnedChatList[currentChat].title)
+                }
+              >
+                나가기
+              </Button>
+            </ButtonContainer>
           </HeaderContainer>
           <CurrentChat
             roomName={joinnedChatList[currentChat].title}
@@ -122,13 +134,22 @@ function UserDtoToJoinnedUserDto(
   }));
 }
 
-const Leave = styled.div`
+const Button = styled.div`
   font-size: 1rem !important;
   background: white;
   color: var(--dark-bg-color) !important;
   border-radius: 5px;
   padding: 3px 7px;
   cursor: pointer;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & > div:first-of-type {
+    margin-right: 15px;
+  }
 `;
 const NotInChatRoom = styled.div`
   width: 100%;

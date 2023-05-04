@@ -19,6 +19,7 @@ import {
   friendRequestListState,
   gameListState,
   getMyInfoFlagState,
+  inviteModalToggleState,
   joinChatToggleState,
   joinGameModalToggleState,
   joinnedChatState,
@@ -83,12 +84,10 @@ import {
 import {
   listenCreateGame,
   listenGameFail,
-  listenGameResult,
   listenJoinGame,
   listenLeaveGame,
   listenMatchRank,
   listenNewGame,
-  listenUserGameOut,
   listenUserInGame,
   listenUserJoinGame,
   listenUserLeaveGame,
@@ -96,6 +95,7 @@ import {
   listenWatchGame,
 } from "../api/socket/game";
 import NormalGamePage from "./Game/GamePage";
+import InviteModal from "../components/Modals/InviteModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -128,6 +128,7 @@ const MainPage = () => {
   const [blockList, setBlockList] = useRecoilState(blockUserListState);
   const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
   const [gameList, setGameList] = useRecoilState(gameListState);
+  const inviteModalToggle = useRecoilValue(inviteModalToggleState);
   const [rankWaitModal, setRankWaitModal] = useRecoilState(
     rankWaitModalToggleState
   );
@@ -271,10 +272,8 @@ const MainPage = () => {
     listenUserLeaveGame(hooks);
     listenMatchRank(hooks);
     listenGameFail(hooks);
-    listenGameResult(hooks);
     listenNameChange(hooks);
     listenUserInGame(hooks);
-    listenUserGameOut(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -331,9 +330,7 @@ const MainPage = () => {
         "user-leave-game",
         "match-rank",
         "user-name",
-        "game-result",
-        "user-ingame",
-        "user-gameout"
+        "user-ingame"
       );
     };
   }, [
@@ -364,6 +361,7 @@ const MainPage = () => {
         {createChatModalToggle && <CreateChatModal />}
         {joinChatToggle.toggle && <JoinChatModal />}
         {confirmModalState.toggle && <ConfirmModal />}
+        {inviteModalToggle && <InviteModal />}
       </MainPageContainer>
     )
   );

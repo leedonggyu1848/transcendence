@@ -9,7 +9,6 @@ import {
   ICurrentGame,
   IFriendDto,
   IFriendRequest,
-  IGameRoomInfo,
   IGameUserInfo,
   IJoinnedChat,
   ISelectedGameRecord,
@@ -316,4 +315,9 @@ export const sideMenuToggle = atom({
     friends: false,
     alarm: false,
   },
+});
+
+export const inviteModalToggleState = atom({
+  key: "inviteModalToggle",
+  default: false,
 });
