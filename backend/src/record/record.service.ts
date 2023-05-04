@@ -3,6 +3,10 @@ import { User } from 'src/entity/user.entity';
 import { GameType } from 'src/entity/common.enum';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { UserService } from 'src/user/user.service';
+import {
+  IsolationLevel,
+  Transactional,
+} from 'typeorm-transactional-cls-hooked';
 
 @Injectable()
 export class RecordService {
@@ -22,6 +26,7 @@ export class RecordService {
     );
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getTotalHistory(page: number) {
     const allRecords = await this.recordRepository.findAll();
     const pageRecords = await this.recordRepository.findPage(page, 10);
@@ -33,6 +38,7 @@ export class RecordService {
     return { records, recordCount };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getRecordById(id: number) {
     const record = await this.recordRepository.findById(id);
     const winner = await this.userService.getUserByUserName(record.winner);

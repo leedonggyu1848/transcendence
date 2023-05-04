@@ -8,6 +8,10 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { Game } from 'src/entity/game.entity';
 import { GameType } from 'src/entity/common.enum';
+import {
+  IsolationLevel,
+  Transactional,
+} from 'typeorm-transactional-cls-hooked';
 
 @Injectable()
 export class UserService {
@@ -33,6 +37,7 @@ export class UserService {
     return userDto;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async addUserFromSession(user: UserSessionDto) {
     const found = await this.userRepository.findByUserIdWithJoinGame(
       user.userId,
@@ -46,6 +51,7 @@ export class UserService {
       );
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async sendAuthMail(user: User) {
     const mailer = require('nodemailer');
     const uuid = randomUUID().toString();
@@ -85,6 +91,7 @@ export class UserService {
     }, 300000);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async checkAuthCode(userSession: UserSessionDto, code: string) {
     const user = await this.userRepository.findByUserId(userSession.userId);
     if (this.tfauthMap[user.id] === code) {
@@ -179,6 +186,7 @@ export class UserService {
     return { userInfo: this.userToUserDto(data), findPath };
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateUserIntroduce(user: UserSessionDto, introduce: string) {
     let found = await this.userRepository.findByUserId(user.userId);
     await this.userRepository.updateUserIntroduce(found.id, introduce);
