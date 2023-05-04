@@ -90,7 +90,7 @@ const GamePage = () => {
     }
   };
 
-  const clickExit = () => {
+  const handleExit = () => {
     socket.emit("leave-game", gameInfo.gameDto.title);
   };
 
@@ -120,10 +120,13 @@ const GamePage = () => {
       setObstaclePos([leftPos, rightPos]);
     });
 
+    window.addEventListener("beforeunload", handleExit);
+
     return () => {
       socket.off("start-game");
       socket.off("obstacle-info");
       if (timer) clearInterval(timer);
+      window.removeEventListener("beforeunload", handleExit);
     };
   }, [gameList, startCount, count]);
   return (
@@ -158,7 +161,7 @@ const GamePage = () => {
             >
               시작하기
             </Button>
-            <Button className="active" onClick={clickExit}>
+            <Button className="active" onClick={handleExit}>
               나가기
             </Button>
           </Options>

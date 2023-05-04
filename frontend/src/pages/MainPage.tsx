@@ -195,6 +195,10 @@ const MainPage = () => {
       setFriendList(JSON.parse(sessionStorage.getItem("friendList")));
       sessionStorage.removeItem("friendList");
     }
+    if (sessionStorage.getItem("gameList")) {
+      setGameList(JSON.parse(sessionStorage.getItem("gameList")));
+      sessionStorage.removeItem("gameList");
+    }
     if (sessionStorage.getItem("friendRequestList")) {
       setFriendRequestList(
         JSON.parse(sessionStorage.getItem("friendRequestList"))
@@ -214,6 +218,7 @@ const MainPage = () => {
       sessionStorage.setItem("currentChat", currentChat);
       sessionStorage.setItem("joinnedChat", JSON.stringify(joinnedChatList));
       sessionStorage.setItem("friendList", JSON.stringify(friendList));
+      sessionStorage.setItem("gameList", JSON.stringify(gameList));
       sessionStorage.setItem(
         "friendRequestList",
         JSON.stringify(friendRequestList)
