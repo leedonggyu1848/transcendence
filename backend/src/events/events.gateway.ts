@@ -276,15 +276,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
-    const friends = await this.eventsService.getFriendList(socket.id);
-    socket.emit('friend-list', friends);
+    const result = await this.eventsService.getFriendList(socket.id);
+    if (result.success) socket.emit('friend-list', result.data);
+    else socket.emit('friend-fail', result.msg);
   }
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendRequestList]`);
-    const requests = await this.eventsService.getFriendRequestList(socket.id);
-    socket.emit('friend-request-list', requests);
+    const result = await this.eventsService.getFriendRequestList(socket.id);
+    if (result.success) socket.emit('friend-request-list', result.data);
+    else socket.emit('friend-fail', result.msg);
   }
 
   @SubscribeMessage('request-friend')
