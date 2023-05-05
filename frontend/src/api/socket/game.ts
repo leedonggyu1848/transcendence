@@ -351,6 +351,7 @@ export const listenLeaveGame = ({
   currentGame,
   myName,
   setCurrentGame,
+  location,
 }: {
   socket: any;
   navigate: any;
@@ -363,6 +364,7 @@ export const listenLeaveGame = ({
   currentGame: ICurrentGame;
   setCurrentGame: any;
   myName: any;
+  location: Location;
 }) => {
   socket.on("leave-game", (message: string) => {
     const temp = { ...joinnedChatList };
@@ -393,7 +395,7 @@ export const listenLeaveGame = ({
     setCurrentGame(null);
     setJoinnedChatList({ ...temp });
     setCurrentChat("");
-    navigate("/main/lobby");
+    if (location.pathname === "/main/game") navigate("/main/lobby");
   });
 };
 

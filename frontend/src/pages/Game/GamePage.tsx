@@ -25,7 +25,6 @@ const GamePage = () => {
   const [start, setStart] = useState(false);
   const [gameInfo, setGameInfo] = useRecoilState(currentGameInfoState);
   const usersInfo = useRecoilValue(currentGameUsersState);
-  const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
@@ -36,6 +35,7 @@ const GamePage = () => {
   const [count, setCount] = useState(4);
   const gameList = useRecoilValue(gameListState);
   const [rankGameFlag, setRankGameFlag] = useState(false);
+  const navigate = useNavigate();
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
@@ -86,6 +86,7 @@ const GamePage = () => {
   };
 
   const handleExit = () => {
+    navigate("/main/lobby");
     socket.emit("leave-game", gameInfo.gameDto.title);
   };
 
@@ -126,7 +127,27 @@ const GamePage = () => {
         roomName: string;
         type: number;
       }) => {
-        console.log("in gamepage", userInfo, roomName, type);
+        console.log("in gamepage", userInfo, roomName, type, start, gameInfo);
+        if (
+          (count < 4 || start) &&
+          gameInfo.opponentDto &&
+          gameInfo.opponentDto.userName === userInfo.userName
+        ) {
+          console.log("now");
+
+          socket.emit("game-result", {
+            roomName: gameInfo.gameDto.title,
+            winner: gameInfo.ownerDto.userName,
+            lower: gameInfo.opponentDto.userName,
+            type: gameInfo.gameDto.type,
+          });
+          setStartCount(() => false);
+          setCount(() => 4);
+          setGameInfo({
+            ...gameInfo,
+            opponentDto: null,
+          });
+        }
       }
     );
 
@@ -139,7 +160,7 @@ const GamePage = () => {
       if (timer) clearInterval(timer);
       window.removeEventListener("beforeunload", handleExit);
     };
-  }, [gameList, startCount, count]);
+  }, [gameList, gameInfo, startCount, count]);
   return (
     gameInfo && (
       <GamePageContainer>

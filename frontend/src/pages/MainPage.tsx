@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import Menu from "../components/Menu";
 import ChatPage from "./ChatPage/ChatPage";
 import GamePage from "./Game/GamePage";
@@ -129,6 +135,7 @@ const MainPage = () => {
   const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
   const [gameList, setGameList] = useRecoilState(gameListState);
   const inviteModalToggle = useRecoilValue(inviteModalToggleState);
+  const location = useLocation();
   const [rankWaitModal, setRankWaitModal] = useRecoilState(
     rankWaitModalToggleState
   );
@@ -164,6 +171,7 @@ const MainPage = () => {
     setRankWaitModal,
     requestFriendListFlag,
     setRequestFriendListFlag,
+    location,
   };
 
   useEffect(() => {
