@@ -128,25 +128,28 @@ const GamePage = () => {
         type: number;
       }) => {
         console.log("in gamepage", userInfo, roomName, type, start, gameInfo);
-        if (
-          (count < 4 || start) &&
-          gameInfo.opponentDto &&
-          gameInfo.opponentDto.userName === userInfo.userName
-        ) {
-          console.log("now");
+        if (userInfo.userName === myName) {
+        } else {
+          if (
+            (count < 4 || start) &&
+            gameInfo.opponentDto &&
+            gameInfo.opponentDto.userName === userInfo.userName
+          ) {
+            console.log("now");
 
-          socket.emit("game-result", {
-            roomName: gameInfo.gameDto.title,
-            winner: gameInfo.ownerDto.userName,
-            lower: gameInfo.opponentDto.userName,
-            type: gameInfo.gameDto.type,
-          });
-          setStartCount(() => false);
-          setCount(() => 4);
-          setGameInfo({
-            ...gameInfo,
-            opponentDto: null,
-          });
+            socket.emit("game-result", {
+              roomName: gameInfo.gameDto.title,
+              winner: gameInfo.ownerDto.userName,
+              lower: gameInfo.opponentDto.userName,
+              type: gameInfo.gameDto.type,
+            });
+            setStartCount(() => false);
+            setCount(() => 4);
+            setGameInfo({
+              ...gameInfo,
+              opponentDto: null,
+            });
+          }
         }
       }
     );

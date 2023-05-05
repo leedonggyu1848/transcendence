@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
 import useInitHook from "../api/useInitHook";
+import { socket } from "./WrapMainPage";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
@@ -9,7 +10,7 @@ const LoginPage = () => {
     setLoading(true);
     window.location.replace(loginURL);
   };
-  useInitHook();
+  socket.disconnect();
   return (
     <LoginPageContainer>
       <h1>PH18 PONG</h1>

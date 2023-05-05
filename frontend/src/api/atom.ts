@@ -1,6 +1,5 @@
 import { atom, DefaultValue, selector } from "recoil";
 import { recoilPersist } from "recoil-persist";
-import { Socket } from "socket.io-client";
 import {
   GameDto,
   IBanUserList,
@@ -66,11 +65,6 @@ export const modalBackToggleState = atom({
 export const rankWaitModalToggleState = atom({
   key: "rankWaitModalToggleState",
   default: false,
-});
-
-export const socketState = atom<Socket | null>({
-  key: "socketState",
-  default: null,
 });
 
 export const gameListState = atom<GameDto[]>({

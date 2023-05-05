@@ -404,6 +404,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       type,
       password,
     );
+    console.log(result);
     if (result.success) {
       socket.join(roomName);
       socket.emit('create-success', { roomName, type, operator: result.data });

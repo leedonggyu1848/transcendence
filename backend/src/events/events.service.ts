@@ -396,6 +396,7 @@ export class EventsService {
       type,
       password,
     );
+    console.log('in createChat', result);
     if (!result)
       return { success: false, msg: `${roomName} 방이 이미 존재합니다.` };
     return {
