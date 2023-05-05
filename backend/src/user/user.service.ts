@@ -203,15 +203,25 @@ export class UserService {
     await this.userRepository.updateWatchGame(user.id, game);
   }
 
+  async updateMatchRank(user: User) {
+    await this.userRepository.updateGameRank(user.id);
+  }
+
   async updateGameWin(user: User, type: GameType) {
     if (type === GameType.NORMAL)
       await this.userRepository.updateNormalWin(user.id, user.normalWin);
-    else await this.userRepository.updateRankWin(user.id, user.normalLose);
+    else {
+      await this.userRepository.updateRankWin(user.id, user.normalLose);
+      await this.userRepository.updateGameNone(user.id);
+    }
   }
 
   async updateGameLose(user: User, type: GameType) {
     if (type === GameType.NORMAL)
       await this.userRepository.updateNormalLose(user.id, user.normalWin);
-    else await this.userRepository.updateRankLose(user.id, user.normalLose);
+    else {
+      await this.userRepository.updateRankLose(user.id, user.normalLose);
+      await this.userRepository.updateGameNone(user.id);
+    }
   }
 }

@@ -228,6 +228,96 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else socket.emit('game-fail', result.msg);
   }
 
+  @SubscribeMessage('invite-game')
+  async handleInviteGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, userName }: { roomName: string; userName: string },
+  ) {
+    this.logger.log(`[InviteGame] roomName: ${roomName} userName: ${userName}`);
+    const result = await this.eventsService.inviteGame(
+      socket.id,
+      userName,
+      roomName,
+    );
+    if (result.success) {
+      socket.emit('invite-game', {
+        roomName,
+        userName,
+      });
+      this.nsp.sockets.get(result.invitedSocektId)?.emit('invite-game', {
+        roomName,
+        userName: result.invitorUserName,
+      });
+    } else socket.emit('game-fail', result.msg);
+  }
+
+  @SubscribeMessage('accept-invite')
+  async handleAcceptGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.logger.log(`[AcceptGame] roomName: ${roomName}`);
+    const result = await this.eventsService.acceptInvite(socket.id, roomName);
+    if (result.success) {
+      const joinResult = await this.eventsService.joinGame(
+        roomName,
+        '',
+        socket.id,
+      );
+      if (joinResult.success) {
+        socket.join(roomName);
+        socket.emit('join-game', joinResult.data);
+        socket.broadcast.emit('user-join-game', {
+          message: `${joinResult.user.userName}가 들어왔습니다.`,
+          userInfo: joinResult.user,
+          roomName,
+          type: JoinType.PLAYER,
+        });
+      } else socket.emit('game-fail', joinResult.msg);
+    } else socket.emit('game-fail', result.msg);
+  }
+
+  @SubscribeMessage('reject-invite')
+  async handleRejectGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { userName, roomName }: { userName: string; roomName: string },
+  ) {
+    this.logger.log(`[AcceptGame] roomName: ${roomName}`);
+    const result = await this.eventsService.getInviteInfo(
+      socket.id,
+      userName,
+      roomName,
+    );
+    if (result.success) {
+      socket.emit('reject-invite', { roomName, userName });
+      this.nsp.sockets
+        .get(result.socket)
+        ?.emit('reject-invite', { roomName, userName: result.userName });
+    } else socket.emit('game-fail', result.msg);
+  }
+
+  @SubscribeMessage('cancel-invite')
+  async handleCancelInvite(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { userName, roomName }: { userName: string; roomName: string },
+  ) {
+    this.logger.log(`[AcceptGame] roomName: ${roomName}`);
+    const result = await this.eventsService.getInviteInfo(
+      socket.id,
+      userName,
+      roomName,
+    );
+    if (result.success) {
+      socket.emit('cancel-invite', { roomName, userName });
+      this.nsp.sockets
+        .get(result.socket)
+        ?.emit('cancel-invite', { roomName, userName: result.userName });
+    } else socket.emit('game-fail', result.msg);
+  }
+
   @SubscribeMessage('match-rank')
   async handleMatchRank(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[MatchRank]`);
