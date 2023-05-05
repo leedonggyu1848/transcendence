@@ -59,6 +59,7 @@ const CreateChatModal = () => {
           <div>
             <label htmlFor="public">공개</label>
             <input
+              maxLength={20}
               id="public"
               name="type"
               type="radio"
@@ -70,6 +71,7 @@ const CreateChatModal = () => {
           <div>
             <label htmlFor="private">비공개</label>
             <input
+              maxLength={15}
               id="private"
               name="type"
               type="radio"
@@ -80,6 +82,7 @@ const CreateChatModal = () => {
           <div>
             <label htmlFor="pw">비밀번호</label>
             <input
+              maxLength={15}
               id="pw"
               name="type"
               type="radio"
@@ -91,6 +94,7 @@ const CreateChatModal = () => {
         <InputContainer>
           <label htmlFor="roomName">방 제목</label>
           <input
+            maxLength={15}
             type="text"
             id="roomName"
             name="roomName"
@@ -101,6 +105,7 @@ const CreateChatModal = () => {
         <InputContainer>
           <label htmlFor="password">비밀번호</label>
           <input
+            maxLength={15}
             disabled={pwToggle}
             type="password"
             id="password"

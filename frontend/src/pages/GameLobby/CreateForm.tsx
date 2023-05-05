@@ -27,6 +27,7 @@ const CreateForm = ({
       <InputContainer>
         <label htmlFor="roomName">방 제목</label>
         <input
+          maxLength={20}
           type="text"
           id="roomName"
           placeholder={myName + "님의 일반 게임"}
@@ -34,7 +35,12 @@ const CreateForm = ({
       </InputContainer>
       <InputContainer>
         <label htmlFor="password">비밀번호</label>
-        <input disabled={pwToggle} type="password" id="password" />
+        <input
+          maxLength={15}
+          disabled={pwToggle}
+          type="password"
+          id="password"
+        />
       </InputContainer>
       <CreateButton type="submit">생성하기</CreateButton>
     </CreateFormContainer>

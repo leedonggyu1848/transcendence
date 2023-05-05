@@ -100,7 +100,12 @@ const Main = () => {
             <span>비밀번호 변경</span>
             <span className="button" onClick={() => changePasswod(password)} />
           </div>
-          <Input type="password" onChange={onChange} value={password} />
+          <Input
+            maxLength={15}
+            type="password"
+            onChange={onChange}
+            value={password}
+          />
         </div>
       </HeaderContainer>
       <UsersContainer>

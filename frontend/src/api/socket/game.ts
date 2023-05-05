@@ -367,6 +367,7 @@ export const listenLeaveGame = ({
   location: Location;
 }) => {
   socket.on("leave-game", (message: string) => {
+    console.log("in leave-game", message);
     const temp = { ...joinnedChatList };
     delete temp[currentChat];
     //if (currentGame.ownerDto.userName === myName) {

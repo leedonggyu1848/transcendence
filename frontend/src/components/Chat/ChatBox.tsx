@@ -39,6 +39,7 @@ const ChatBox = ({
           ))}
       </ChatBoxContainer>
       <ChatInput
+        maxLength={50}
         value={msg}
         onChange={onChange}
         onKeyUp={onSend}

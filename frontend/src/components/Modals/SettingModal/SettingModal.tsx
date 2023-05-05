@@ -46,7 +46,12 @@ const SettingModal = () => {
           <SettingProfile />
           {!editName && <Name onClick={handleClickName}>{myName}</Name>}
           {editName && (
-            <Input onKeyUp={onSubmit} ref={nameInput} placeholder={myName} />
+            <Input
+              maxLength={15}
+              onKeyUp={onSubmit}
+              ref={nameInput}
+              placeholder={myName}
+            />
           )}
           <SettingTextArea />
         </Container>

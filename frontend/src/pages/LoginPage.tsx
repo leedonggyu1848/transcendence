@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
-import useInitHook from "../api/useInitHook";
 import { socket } from "./WrapMainPage";
 
 const LoginPage = () => {
