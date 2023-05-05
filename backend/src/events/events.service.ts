@@ -247,11 +247,13 @@ export class EventsService {
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async inviteGame(socketId: string, userName: string, roomName: string) {
+  async gameInvite(socketId: string, userName: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const invited = await this.userService.getUserByUserName(userName);
     if (!user || !invited)
       return { success: false, msg: '잘못된 유저 정보입니다.' };
+    if (user.joinType !== JoinType.OWNER)
+      return { success: false, msg: '게임의 방장이 아닙니다.' };
     if (invited.socketId === '')
       return { success: false, msg: '유저가 접속 중이 아닙니다.' };
     if (invited.JoinType !== JoinType.NONE)
@@ -267,7 +269,7 @@ export class EventsService {
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async acceptInvite(socketId: string, roomName: string) {
+  async gameAccept(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: '잘못된 유저 정보입니다.' };
     if (user.JoinType !== JoinType.NONE)
@@ -277,11 +279,11 @@ export class EventsService {
     if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
     if (game.players.length > 1)
       return { success: false, msg: '방에 빈 자리가 없습니다.' };
-    return { success: true, userName: user.userName };
+    return { success: true, userName: user.userName, password: game.password };
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async getInviteInfo(socketId: string, userName: string, roomName: string) {
+  async gameInviteInfo(socketId: string, userName: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const opponent = await this.userService.getUserByUserName(userName);
     if (!user || !opponent)
@@ -489,7 +491,7 @@ export class EventsService {
   async leaveChat(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
-    let chat = await this.chatService.getChatByTitleWithUser(roomName);
+    const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) return { success: false, msg: `맞는 채팅방이 없습니다.` };
     const result = await this.chatService.leaveChat(user, chat);
     if (!result) return { success: false, msg: `참여 중인 방이 없습니다.` };
@@ -498,6 +500,49 @@ export class EventsService {
       msg: `${user.userName}가 나갔습니다.`,
       userName: user.userName,
       operator: chat.users[0].user.userName,
+    };
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async chatInvite(socketId: string, roomName: string, userName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    const invited = await this.userService.getUserByUserName(userName);
+    if (!user || !invited)
+      return { success: false, msg: `맞는 유저가 없습니다.` };
+    const chat = await this.chatService.getChatByTitleWithUser(roomName);
+    if (!chat) return { success: false, msg: `맞는 채팅방이 없습니다.` };
+    const data = chat.users.filter((usr) => usr.user.userName === userName);
+    if (data.length !== 0)
+      return { success: false, msg: `${roomName}에 이미 참여 중입니다.` };
+    return { success: true, userName: user.userName, socket: invited.socketId };
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async chatAccept(socketId: string, roomName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: `맞는 유저가 없습니다.` };
+    const chat = await this.chatService.getChatByTitleWithUser(roomName);
+    if (!chat) return { success: false, msg: `맞는 채팅방이 없습니다.` };
+    const data = chat.users.filter(
+      (usr) => usr.user.userName === user.userName,
+    );
+    if (data.length !== 0)
+      return { success: false, msg: `${roomName}에 이미 참여 중입니다.` };
+    return { success: true, userName: user.userName, password: chat.password };
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async chatInviteInfo(socketId: string, roomName: string, userName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    const opponent = await this.userService.getUserByUserName(userName);
+    if (!user || !opponent)
+      return { success: false, msg: `맞는 유저가 없습니다.` };
+    const chat = await this.chatService.getChatByTitleWithUser(roomName);
+    if (!chat) return { success: false, msg: `맞는 채팅방이 없습니다.` };
+    return {
+      success: true,
+      userName: user.userName,
+      socket: opponent.socketId,
     };
   }
 
