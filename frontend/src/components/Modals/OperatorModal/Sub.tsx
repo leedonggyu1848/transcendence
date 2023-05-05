@@ -7,7 +7,7 @@ import {
   currentChatState,
   joinnedChatState,
 } from "../../../api/atom";
-import { WebsocketContext } from "../../../api/WebsocketContext";
+import { WebsocketContext } from "../../../pages/WrapMainPage";
 
 const Sub = () => {
   const socket = useContext(WebsocketContext);

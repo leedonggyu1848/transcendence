@@ -4,7 +4,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { currentChatState, joinnedChatState } from "../../api/atom";
 import { getRoomNameByType } from "../../api/funcs";
 import { JoinnedUserDto } from "../../api/interface";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
 

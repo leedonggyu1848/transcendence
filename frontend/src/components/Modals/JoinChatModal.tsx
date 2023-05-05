@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { ChangeEvent, useContext, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { joinChatToggleState } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import ModalBackground from "../ModalBackground";
 
 const JoinChatModal = () => {

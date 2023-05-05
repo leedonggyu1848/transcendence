@@ -8,7 +8,7 @@ import {
   sideMenuToggle,
 } from "../../api/atom";
 import { IFriendDto } from "../../api/interface";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import Loading from "../Loading";
 
 const Friends = ({ w }: { w: number }) => {

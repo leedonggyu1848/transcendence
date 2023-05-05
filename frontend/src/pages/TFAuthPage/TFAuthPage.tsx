@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { axiosPostAuthCode } from "../../api/request";
+import useInitHook from "../../api/useInitHook";
 import Counter from "./Counter";
 
 const TFAuthPage = () => {
@@ -47,6 +48,7 @@ const TFAuthPage = () => {
       nextInput.current?.focus();
     }
   };
+  useInitHook();
 
   const onPaste = async (
     index: number,

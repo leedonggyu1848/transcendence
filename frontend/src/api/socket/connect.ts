@@ -308,6 +308,20 @@ export function listenChangeProfile({
             : { ...request }
         ),
       ]);
+      if (currentGame) {
+        setCurrentGame({
+          ...currentGame,
+          ownerDto:
+            currentGame.ownerDto.userName === userName
+              ? { ...currentGame.ownerDto, profile }
+              : { ...currentGame.ownerDto },
+          opponentDto: !currentGame.opponentDto
+            ? null
+            : currentGame.opponentDto.userName === userName
+            ? { ...currentGame.opponentDto, profile }
+            : { ...currentGame.opponentDto },
+        });
+      }
     }
   );
 }

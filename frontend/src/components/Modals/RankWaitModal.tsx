@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { modalBackToggleState, rankWaitModalToggleState } from "../../api/atom";
-import { socket } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import ModalBackground from "../ModalBackground";
 
 const RankWaitModal = () => {
@@ -14,6 +14,8 @@ const RankWaitModal = () => {
     setBackgroundModal(false);
     setRankWaitModal(false);
   };
+
+  const socket = useContext(WebsocketContext);
 
   useEffect(() => {
     const timeout = setTimeout(() => {

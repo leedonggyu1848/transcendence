@@ -14,7 +14,7 @@ import {
   selectedNormalGameTitleState,
 } from "../../api/atom";
 import useInitHook from "../../api/useInitHook";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import GameLobby from "./GameLobby";
 
 const GameLobbyContainer = () => {

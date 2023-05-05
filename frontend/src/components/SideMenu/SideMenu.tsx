@@ -7,7 +7,7 @@ import {
   requestAlarmListState,
   sideMenuToggle,
 } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
 

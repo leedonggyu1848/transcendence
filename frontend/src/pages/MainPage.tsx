@@ -31,7 +31,7 @@ import {
   settingModalState,
 } from "../api/atom";
 import RankWaitModal from "../components/Modals/RankWaitModal";
-import { WebsocketContext } from "../api/WebsocketContext";
+import { WebsocketContext } from "../pages/WrapMainPage";
 import JoinGameModal from "../components/Modals/JoinGameModal";
 import HistoryPage from "./HistoryPage/HistoryPage";
 import AlertModal from "../components/Modals/AlertModal";
@@ -136,6 +136,7 @@ const MainPage = () => {
   interface PerformanceEntryWithOptionalType extends PerformanceEntry {
     type?: string;
   }
+
   const hooks: any = {
     socket,
     myName,

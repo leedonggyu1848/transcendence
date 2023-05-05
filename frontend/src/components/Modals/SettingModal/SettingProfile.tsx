@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { alertModalState, myInfoState } from "../../../api/atom";
 import { axiosUpdateProfileImage } from "../../../api/request";
-import { WebsocketContext } from "../../../api/WebsocketContext";
+import { WebsocketContext } from "../../../pages/WrapMainPage";
 
 const SettingProfile = () => {
   const setAlertModal = useSetRecoilState(alertModalState);

@@ -9,7 +9,7 @@ import {
   currentChatUserListState,
   myNameState,
 } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 
 const CreateChatModal = () => {
   const socket = useContext(WebsocketContext);

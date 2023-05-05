@@ -9,7 +9,7 @@ import {
   myNameState,
   operatorModalToggleState,
 } from "../../../api/atom";
-import { WebsocketContext } from "../../../api/WebsocketContext";
+import { WebsocketContext } from "../../../pages/WrapMainPage";
 
 const Main = () => {
   const [currentChatUserList, setCurrentChatUserList] = useRecoilState(

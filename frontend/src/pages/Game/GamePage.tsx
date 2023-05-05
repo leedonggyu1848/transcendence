@@ -13,7 +13,7 @@ import {
   joinnedChatState,
   gameListState,
 } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
 import PongGame from "./PongGame";

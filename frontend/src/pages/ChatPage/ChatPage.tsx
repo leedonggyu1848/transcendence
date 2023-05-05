@@ -5,14 +5,14 @@ import {
   chatListState,
   createChatModalToggleState,
   currentChatState,
-  currentChatUserListState,
   inviteModalToggleState,
   joinChatToggleState,
   joinnedChatState,
   myNameState,
   operatorModalToggleState,
 } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import useInitHook from "../../api/useInitHook";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import ChatList from "./ChatList";
 import CurrentChat from "./CurrentChat";
@@ -31,6 +31,8 @@ const ChatPage = () => {
   const myName = useRecoilValue(myNameState);
   const setJoinChatToggle = useSetRecoilState(joinChatToggleState);
   const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
+
+  useInitHook();
 
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);

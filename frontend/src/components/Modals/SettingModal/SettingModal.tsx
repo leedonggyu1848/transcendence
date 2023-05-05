@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { myNameState, settingModalState } from "../../../api/atom";
-import { WebsocketContext } from "../../../api/WebsocketContext";
+import { WebsocketContext } from "../../../pages/WrapMainPage";
 import ModalBackground from "../../ModalBackground";
 import BlockList from "./BlockList";
 import SettingProfile from "./SettingProfile";

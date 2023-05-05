@@ -6,7 +6,7 @@ import {
   friendRequestListState,
   sideMenuToggle,
 } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 
 const Alarm = ({ w }: { w: number }) => {
   const friendRequestList = useRecoilValue(friendRequestListState);

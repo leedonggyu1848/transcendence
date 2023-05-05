@@ -6,7 +6,7 @@ import {
   inviteModalToggleState,
   joinChatToggleState,
 } from "../../api/atom";
-import { WebsocketContext } from "../../api/WebsocketContext";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import ModalBackground from "../ModalBackground";
 
 const InviteModal = () => {

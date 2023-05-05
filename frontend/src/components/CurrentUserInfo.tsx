@@ -3,15 +3,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
-  alertModalState,
   confirmModalToggleState,
   currentChatState,
   friendListState,
   myNameState,
 } from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
-import { axiosSendFriendRequest } from "../api/request";
-import { WebsocketContext } from "../api/WebsocketContext";
+import { WebsocketContext } from "../pages/WrapMainPage";
 
 const CurrentUserInfo = ({
   data,
