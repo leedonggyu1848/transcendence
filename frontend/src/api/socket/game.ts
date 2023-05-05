@@ -601,7 +601,7 @@ export const listenUserInGame = ({
   });
 };
 
-export const listenUserGameOut = ({
+export const listenDisconnectUser = ({
   socket,
   friendList,
   setFriendList,
@@ -610,11 +610,16 @@ export const listenUserGameOut = ({
   friendList: IFriendDto[];
   setFriendList: any;
 }) => {
-  socket.on("user-gameout", ({ userName }: { userName: string }) => {
-    setFriendList(
-      friendList.map((friend) =>
-        friend.userName === userName ? { ...friend, status: 1 } : { ...friend }
-      )
-    );
-  });
+  socket.on(
+    "disconnect-user",
+    ({ userName, message }: { userName: string; message: string }) => {
+      setFriendList(
+        friendList.map((friend) =>
+          friend.userName === userName
+            ? { ...friend, status: 0 }
+            : { ...friend }
+        )
+      );
+    }
+  );
 };
