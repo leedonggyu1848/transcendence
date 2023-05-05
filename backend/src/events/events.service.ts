@@ -226,6 +226,7 @@ export class EventsService {
     if (user.joinType === JoinType.NONE)
       return { success: false, msg: '참여 중인 방이 존재하지 않습니다.' };
 
+    await this.gameService.leaveGame(user);
     if (user.joinType === JoinType.OWNER) {
       const game = await this.gameService.getGameByTitleWithUsers(
         user.playGame.title,
@@ -236,15 +237,61 @@ export class EventsService {
       await game.watchers.map(async (watcher) => {
         await this.userService.updateGameNone(watcher);
       });
-      await this.gameService.leaveGame(user);
-    } else {
-      await this.gameService.leaveGame(user);
-      await this.userService.updateGameNone(user);
-    }
+    } else await this.userService.updateGameNone(user);
+
     return {
       success: true,
       user: this.userService.userToUserDto(user),
       type: user.joinType,
+    };
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async inviteGame(socketId: string, userName: string, roomName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    const invited = await this.userService.getUserByUserName(userName);
+    if (!user || !invited)
+      return { success: false, msg: '잘못된 유저 정보입니다.' };
+    if (invited.socketId === '')
+      return { success: false, msg: '유저가 접속 중이 아닙니다.' };
+    if (invited.JoinType !== JoinType.NONE)
+      return { success: false, msg: '이미 다른 게임에 참가 중입니다.' };
+    const game = await this.gameService.getGameByTitleWithUsers(roomName);
+    if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
+    if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
+    return {
+      success: true,
+      invitedSocektId: invited.socketId,
+      invitorUserName: user.userName,
+    };
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async acceptInvite(socketId: string, roomName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    if (!user) return { success: false, msg: '잘못된 유저 정보입니다.' };
+    if (user.JoinType !== JoinType.NONE)
+      return { success: false, msg: '이미 다른 게임에 참가 중입니다.' };
+    const game = await this.gameService.getGameByTitleWithUsers(roomName);
+    if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
+    if (!game.players) return { success: false, msg: '잘못된 방 입니다.' };
+    if (game.players.length > 1)
+      return { success: false, msg: '방에 빈 자리가 없습니다.' };
+    return { success: true, userName: user.userName };
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async getInviteInfo(socketId: string, userName: string, roomName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    const opponent = await this.userService.getUserByUserName(userName);
+    if (!user || !opponent)
+      return { success: false, msg: '잘못된 유저 정보입니다.' };
+    const game = await this.gameService.getGameByTitleWithUsers(roomName);
+    if (!game) return { success: false, msg: '해당 방이 존재하지 않습니다.' };
+    return {
+      success: true,
+      userName: user.userName,
+      socket: opponent.socketId,
     };
   }
 
@@ -256,6 +303,8 @@ export class EventsService {
     }
     const opponent = await this.userService.getUserBySocketId(socketId);
     const owner = await this.userService.getUserBySocketId(this.rankQueue);
+    await this.userService.updateMatchRank(opponent);
+    await this.userService.updateMatchRank(owner);
     this.rankQueue = '';
     return {
       roomName: `${owner.userName} vs ${opponent.userName}`,

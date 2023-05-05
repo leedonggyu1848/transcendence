@@ -160,6 +160,12 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async updateGameRank(id: number) {
+    await this.userRepository.update(id, {
+      joinType: JoinType.RANK,
+    });
+  }
+
   async updateGameNone(id: number) {
     await this.userRepository.update(id, {
       playGame: null,
