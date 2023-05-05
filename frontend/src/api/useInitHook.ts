@@ -1,25 +1,18 @@
 import { useContext, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useLocation } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 import { WebsocketContext } from "../pages/WrapMainPage";
-import {
-  currentGameInfoState,
-  joinnedChatState,
-  joinSocketState,
-} from "./atom";
+import { currentGameInfoState } from "./atom";
 
 const useInitHook = () => {
-  const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
-  const [joinChat, setJoinChatList] = useRecoilState(joinnedChatState);
-  const navigate = useNavigate();
+  const currentGame = useRecoilValue(currentGameInfoState);
   const location = useLocation();
-  const socket = useContext(WebsocketContext)
+  const socket = useContext(WebsocketContext);
   useEffect(() => {
-    if(location.pathname !== '/main/game' && currentGame) {
-      socket
+    if (location.pathname !== "/main/game" && currentGame) {
+      socket.emit("leave-game", currentGame.gameDto.title);
     }
-    console.log(navigate, location);
-  }, []);
+  }, [location]);
 };
 
 export default useInitHook;
