@@ -77,7 +77,9 @@ import {
   listenBanUser,
   listenBlockUser,
   listenChangeOperator,
+  listenChatInvite,
   listenChatMuted,
+  listenChatReject,
   listenCreateChat,
   listenJoinSucces,
   listenKickUser,
@@ -276,6 +278,8 @@ const MainPage = () => {
     listenUnBlockUser(hooks);
     listenMuteUser(hooks);
     listenChatMuted(hooks);
+    listenChatInvite(hooks);
+    listenChatReject(hooks);
 
     //game apis
     listenCreateGame(hooks);
@@ -325,6 +329,8 @@ const MainPage = () => {
         "join-chat-success",
         "leave-chat",
         "leave-chat-success",
+        "chat-invite",
+        "chat-reject",
         "chat-fail",
         "kick-user",
         "ban-user",

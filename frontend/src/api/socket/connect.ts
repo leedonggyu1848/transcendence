@@ -2,10 +2,9 @@ import { useRecoilState } from "recoil";
 import {
   GameDto,
   IChatRoom,
+  ICombinedRequestAndInvite,
   ICurrentGame,
   IFriendDto,
-  IFriendRequest,
-  IGameRoomInfo,
   IJoinnedChat,
   UserDto,
 } from "../interface";
@@ -45,7 +44,7 @@ export const listenFriendRequestList = ({
   socket: any;
   setFriendRequestList: any;
 }) => {
-  socket.on("friend-request-list", (request: IFriendRequest[]) => {
+  socket.on("friend-request-list", (request: ICombinedRequestAndInvite[]) => {
     setFriendRequestList([...request]);
   });
 };
@@ -173,7 +172,7 @@ export function listenNameChange({
   setMyInfo: any;
   friendList: IFriendDto[];
   setFriendList: any;
-  friendRequestList: IFriendRequest[];
+  friendRequestList: ICombinedRequestAndInvite[];
   setFriendRequestList: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
@@ -278,7 +277,7 @@ export function listenChangeProfile({
   setMyInfo: any;
   friendList: IFriendDto[];
   setFriendList: any;
-  friendRequestList: IFriendRequest[];
+  friendRequestList: ICombinedRequestAndInvite[];
   setFriendRequestList: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;

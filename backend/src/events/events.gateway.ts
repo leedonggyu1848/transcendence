@@ -558,7 +558,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     { userName, roomName }: { userName: string; roomName: string },
   ) {
-    this.logger.log(`[LeaveChat] userName: ${userName}, roomName: ${roomName}`);
+    this.logger.log(
+      `[ChatInvite] userName: ${userName}, roomName: ${roomName}`,
+    );
     const result = await this.eventsService.chatInvite(
       socket.id,
       roomName,

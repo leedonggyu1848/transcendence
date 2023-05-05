@@ -9,7 +9,9 @@ import {
 import { WebsocketContext } from "../../pages/WrapMainPage";
 
 const Alarm = ({ w }: { w: number }) => {
-  const friendRequestList = useRecoilValue(friendRequestListState);
+  const [friendRequestList, setFriendRequestList] = useRecoilState(
+    friendRequestListState
+  );
   const socket = useContext(WebsocketContext);
   const setSideMenuToggle = useSetRecoilState(sideMenuToggle);
 
@@ -27,6 +29,15 @@ const Alarm = ({ w }: { w: number }) => {
     socket.emit("cancel-friend", friendName);
   };
 
+  const acceptChatInvite = (roomName: string) => {
+    socket.emit("chat-accept", roomName);
+    setFriendRequestList(
+      friendRequestList.filter(
+        (friendRequest) => friendRequest.roomName !== roomName
+      )
+    );
+  };
+
   return (
     <AlarmContainer w={w}>
       <Background />
@@ -35,39 +46,56 @@ const Alarm = ({ w }: { w: number }) => {
         {friendRequestList.length > 0 ? (
           <AlarmList>
             {friendRequestList.map(
-              ({ userName: intra_id, time, type }, idx) => (
-                <FriendRequest key={idx}>
-                  <Container>
+              ({ userName: intra_id, time, type, roomName }, idx) =>
+                type !== undefined ? (
+                  <FriendRequest key={idx}>
+                    <Container>
+                      <div>
+                        <Icon type={type ? "recv" : "send"} />
+                        <Name>{intra_id}</Name>
+                      </div>
+                      {type ? (
+                        <div>
+                          <Button
+                            className="margin"
+                            onClick={() => acceptFriendRequest(intra_id)}
+                          >
+                            수락
+                          </Button>
+                          <Button onClick={() => refuseFriendRequest(intra_id)}>
+                            거절
+                          </Button>
+                        </div>
+                      ) : (
+                        <div>
+                          <Button onClick={() => cancelFriendRequest(intra_id)}>
+                            취소
+                          </Button>
+                        </div>
+                      )}
+                    </Container>
+                    <Container className="time">
+                      <div />
+                      <div>{convertDate(new Date(time))}</div>
+                    </Container>
+                  </FriendRequest>
+                ) : (
+                  <ChatInviteContainer key={idx}>
                     <div>
-                      <Icon type={type ? "recv" : "send"} />
-                      <Name>{intra_id}</Name>
+                      <Invite>{intra_id}님의 채팅 초대</Invite>
+                      <RoomName>{roomName.slice(1)}</RoomName>
                     </div>
-                    {type ? (
-                      <div>
-                        <Button
-                          className="margin"
-                          onClick={() => acceptFriendRequest(intra_id)}
-                        >
-                          수락
-                        </Button>
-                        <Button onClick={() => refuseFriendRequest(intra_id)}>
-                          거절
-                        </Button>
-                      </div>
-                    ) : (
-                      <div>
-                        <Button onClick={() => cancelFriendRequest(intra_id)}>
-                          취소
-                        </Button>
-                      </div>
-                    )}
-                  </Container>
-                  <Container className="time">
-                    <div />
-                    <div>{convertDate(new Date(time))}</div>
-                  </Container>
-                </FriendRequest>
-              )
+                    <InviteButtons>
+                      <Button
+                        onClick={() => acceptChatInvite(roomName)}
+                        className="invite"
+                      >
+                        수락
+                      </Button>
+                      <Button className="invite">거절</Button>
+                    </InviteButtons>
+                  </ChatInviteContainer>
+                )
             )}
           </AlarmList>
         ) : (
@@ -117,6 +145,36 @@ const Icon = styled.div<{ type: string }>`
     `url('/src/assets/${type === "send" ? "sendIcon.png" : "recvIcon.png"}')`};
   background-size: 100% 100%;
   margin-right: 10px;
+`;
+
+const InviteButtons = styled.div`
+  margin-left: 10px;
+  & > .invite {
+    margin: 10px;
+  }
+`;
+
+const Invite = styled.div`
+  font-size: 0.8rem;
+  color: lightgray;
+`;
+
+const RoomName = styled.div`
+  font-size: 1.25rem;
+  margin-top: 15px;
+`;
+
+const ChatInviteContainer = styled.div`
+  width: 100%;
+  background: var(--dark-bg-color);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 110px;
+  & > div:first-of-type {
+    width: 60%;
+  }
 `;
 
 const Name = styled.div``;

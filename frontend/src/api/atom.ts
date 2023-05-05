@@ -5,9 +5,9 @@ import {
   IBanUserList,
   IChatLog,
   IChatRoom,
+  ICombinedRequestAndInvite,
   ICurrentGame,
   IFriendDto,
-  IFriendRequest,
   IGameUserInfo,
   IJoinnedChat,
   ISelectedGameRecord,
@@ -35,7 +35,7 @@ export const myInfoState = atom<UserDto>({
   //effects_UNSTABLE: [persistAtom],
 });
 
-export const friendRequestListState = atom<IFriendRequest[]>({
+export const friendRequestListState = atom<ICombinedRequestAndInvite[]>({
   key: "friendRequestListState",
   default: [],
 });

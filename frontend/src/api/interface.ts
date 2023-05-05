@@ -101,6 +101,15 @@ export interface IFriendRequest {
   type: number;
 }
 
+export interface IChatInvite {
+  userName: string;
+  roomName: string;
+}
+
+export interface ICombinedRequestAndInvite extends IFriendRequest, IChatInvite {
+  timeStamp: number;
+}
+
 export interface IChatRoom {
   title: string;
   type: number;

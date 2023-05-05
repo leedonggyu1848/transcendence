@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { ChangeEvent, useContext, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  currentChatState,
   friendListState,
   inviteModalToggleState,
   joinChatToggleState,
@@ -13,9 +14,15 @@ const InviteModal = () => {
   const socket = useContext(WebsocketContext);
   const friendList = useRecoilValue(friendListState);
   const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
+  const currentChat = useRecoilValue(currentChatState);
+  console.log(currentChat);
 
   const onCancel = () => {
     setInviteModalToggle(false);
+  };
+
+  const handleInvite = (userName: string) => {
+    socket.emit("chat-invite", { userName, roomName: currentChat });
   };
 
   return (
@@ -30,7 +37,10 @@ const InviteModal = () => {
                 <Status status={friend.status} />
                 <Profile src={friend.profile} />
                 <div className="name">{friend.userName}</div>
-                <Button className={friend.status ? "enable" : "disabled"}>
+                <Button
+                  onClick={() => handleInvite(friend.userName)}
+                  className={friend.status ? "enable" : "disabled"}
+                >
                   초대하기
                 </Button>
               </FriendInfo>

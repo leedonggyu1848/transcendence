@@ -1,5 +1,6 @@
 import {
   IChatDetail,
+  ICombinedRequestAndInvite,
   IFriendDto,
   IFriendRequest,
   IJoinnedChat,
@@ -115,7 +116,7 @@ export const listenFriendResult = ({
     }) => {
       setFriendRequestList(
         friendRequestList.filter(
-          (request: IFriendRequest) => request.userName !== userName
+          (request: ICombinedRequestAndInvite) => request.userName !== userName
         )
       );
       if (type) {
@@ -155,7 +156,7 @@ export const listenResponseFriend = ({
     }) => {
       setFriendRequestList(
         friendRequestList.filter(
-          (request: IFriendRequest) => request.userName !== userName
+          (request: ICombinedRequestAndInvite) => request.userName !== userName
         )
       );
       if (type) {

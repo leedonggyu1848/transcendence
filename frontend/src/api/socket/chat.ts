@@ -1,4 +1,10 @@
-import { IChatDetail, IChatRoom, IJoinnedChat } from "../interface";
+import {
+  IChatDetail,
+  IChatRoom,
+  ICombinedRequestAndInvite,
+  IFriendRequest,
+  IJoinnedChat,
+} from "../interface";
 
 export const listenMessage = ({
   socket,
@@ -183,11 +189,15 @@ export const listenJoinSucces = ({
       type,
       operator,
       users,
+      navigate,
+      location,
     }: {
       roomName: string;
       type: number;
       operator: string;
       users: string[];
+      navigate: any;
+      location: Location;
     }) => {
       const temp: IChatDetail = {
         title: roomName,
@@ -208,6 +218,7 @@ export const listenJoinSucces = ({
           count: chat.title === roomName ? chat.count + 1 : chat.count,
         }))
       );
+      if (location.pathname !== "/main/chat") navigate("/main/chat");
     }
   );
 };
@@ -626,4 +637,39 @@ export const listenChatMuted = ({
       },
     });
   });
+};
+
+export const listenChatInvite = ({
+  socket,
+  friendRequestList,
+  setFriendRequestList,
+}: {
+  socket: any;
+  friendRequestList: ICombinedRequestAndInvite[];
+  setFriendRequestList: any;
+}) => {
+  socket.on(
+    "chat-invite",
+    ({ userName, roomName }: { userName: string; roomName: string }) => {
+      console.log("in chat-invite", userName, roomName);
+      setFriendRequestList([...friendRequestList, { userName, roomName }]);
+    }
+  );
+};
+
+export const listenChatReject = ({
+  socket,
+  setFriendList,
+  setRequestFriendListFlag,
+}: {
+  socket: any;
+  setFriendList: IFriendRequest[];
+  setRequestFriendListFlag: any;
+}) => {
+  socket.on(
+    "chat-reject",
+    ({ userName, roomName }: { userName: string; roomName: string }) => {
+      console.log("in chat-reject", userName, roomName);
+    }
+  );
 };
