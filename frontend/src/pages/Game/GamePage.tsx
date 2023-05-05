@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useRevalidator } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   currentGameUsersState,
@@ -18,6 +18,7 @@ import ChatBox from "../../components/Chat/ChatBox";
 import CurrentUserInfo from "../../components/CurrentUserInfo";
 import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
+import { UserDto } from "../../api/interface";
 
 const GamePage = () => {
   const [startCount, setStartCount] = useState(false);
@@ -114,11 +115,27 @@ const GamePage = () => {
       setObstaclePos([leftPos, rightPos]);
     });
 
+    socket.on(
+      "user-leave-game",
+      ({
+        userInfo,
+        roomName,
+        type,
+      }: {
+        userInfo: UserDto;
+        roomName: string;
+        type: number;
+      }) => {
+        console.log("in gamepage", userInfo, roomName, type);
+      }
+    );
+
     window.addEventListener("beforeunload", handleExit);
 
     return () => {
       socket.off("start-game");
       socket.off("obstacle-info");
+      socket.off("user-leave-game");
       if (timer) clearInterval(timer);
       window.removeEventListener("beforeunload", handleExit);
     };

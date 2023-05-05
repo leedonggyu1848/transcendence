@@ -10,10 +10,6 @@ const RankWaitModal = () => {
   const setModalBack = useSetRecoilState(modalBackToggleState);
   const setRankWaitModal = useSetRecoilState(rankWaitModalToggleState);
   const setBackgroundModal = useSetRecoilState(modalBackToggleState);
-  const onCancel = () => {
-    setBackgroundModal(false);
-    setRankWaitModal(false);
-  };
 
   const socket = useContext(WebsocketContext);
 
@@ -32,7 +28,7 @@ const RankWaitModal = () => {
 
   return (
     <>
-      <ModalBackground onClick={onCancel} />
+      <ModalBackground onClick={onCloseModal} />
       <RankWaitModalContainer>
         <Count>
           {timer}
