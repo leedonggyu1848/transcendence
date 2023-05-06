@@ -15,7 +15,6 @@ const InviteModal = () => {
   const friendList = useRecoilValue(friendListState);
   const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
   const currentChat = useRecoilValue(currentChatState);
-  console.log(currentChat);
 
   const onCancel = () => {
     setInviteModalToggle(false);

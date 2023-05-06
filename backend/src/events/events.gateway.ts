@@ -538,7 +538,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         type,
         password,
       );
-      console.log(result);
       socket.join(roomName);
       socket.emit('create-success', { roomName, type, operator: result.data });
       this.nsp.emit('create-chat', { roomName, type, operator: result.data });

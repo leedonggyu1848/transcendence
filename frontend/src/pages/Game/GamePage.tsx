@@ -20,6 +20,8 @@ import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
 import { UserDto } from "../../api/interface";
 
+let renderingCount = 0;
+
 const GamePage = () => {
   const [startCount, setStartCount] = useState(false);
   const [start, setStart] = useState(false);
@@ -92,8 +94,9 @@ const GamePage = () => {
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {
-      setStartCount(() => false);
-      setStart(() => true);
+      setStartCount(false);
+      setStart(true);
+      setCount(4);
     }
     if (startCount) {
       timer = setTimeout(() => setCount(count - 1), 1000);
@@ -114,7 +117,6 @@ const GamePage = () => {
     socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
       setObstaclePos([leftPos, rightPos]);
     });
-
     socket.on(
       "user-leave-game",
       ({
@@ -126,7 +128,6 @@ const GamePage = () => {
         roomName: string;
         type: number;
       }) => {
-        console.log("in gamepage", userInfo, roomName, type, start, gameInfo);
         if (userInfo.userName === myName) {
         } else {
           if (
@@ -134,8 +135,6 @@ const GamePage = () => {
             gameInfo.opponentDto &&
             gameInfo.opponentDto.userName === userInfo.userName
           ) {
-            console.log("now");
-
             socket.emit("game-result", {
               roomName: gameInfo.gameDto.title,
               winner: gameInfo.ownerDto.userName,
@@ -158,11 +157,10 @@ const GamePage = () => {
     return () => {
       socket.off("start-game");
       socket.off("obstacle-info");
-      socket.off("user-leave-game");
       if (timer) clearInterval(timer);
       window.removeEventListener("beforeunload", handleExit);
     };
-  }, [gameList, gameInfo, startCount, count]);
+  }, [gameList, gameInfo, start, startCount, count]);
   return (
     gameInfo && (
       <GamePageContainer>
@@ -172,6 +170,7 @@ const GamePage = () => {
           {!start && <WaitRoom count={count} />}
           {start && (
             <PongGame
+              setStartCount={setStartCount}
               roomName={gameInfo && gameInfo.gameDto.title}
               isOwner={gameInfo.ownerDto.userName === myName}
               owner={gameInfo.ownerDto.userName}

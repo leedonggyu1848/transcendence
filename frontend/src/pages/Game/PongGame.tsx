@@ -19,6 +19,7 @@ const PongGame = ({
   setCount,
   hard,
   obstaclePos,
+  setStartCount,
 }: {
   roomName: string;
   isOwner: boolean;
@@ -27,6 +28,7 @@ const PongGame = ({
   type: string;
   resetGame: React.Dispatch<React.SetStateAction<boolean>>;
   setCount: React.Dispatch<React.SetStateAction<number>>;
+  setStartCount: React.Dispatch<React.SetStateAction<boolean>>;
   hard: boolean;
   obstaclePos: Array<number>;
 }) => {
@@ -62,7 +64,6 @@ const PongGame = ({
         loser: string;
         type: number;
       }) => {
-        console.log("in game-result", gameInfo.gameDto.type);
         if (winner === myName) {
           setAlertInfo({
             type: "success",
@@ -126,8 +127,9 @@ const PongGame = ({
           setCurrentGame(null);
           navigate("/main/lobby");
         } else {
-          setCount(() => 4);
-          resetGame(() => false);
+          setStartCount(false);
+          setCount(4);
+          resetGame(false);
         }
       }
     );
@@ -539,7 +541,7 @@ const PongGame = ({
       socket.off("normal-game-over");
       socket.off("game-result");
     };
-  }, []);
+  }, [setCount]);
 
   return (
     <Container>

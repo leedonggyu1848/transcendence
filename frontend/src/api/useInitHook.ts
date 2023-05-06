@@ -10,7 +10,6 @@ const useInitHook = () => {
   const socket = useContext(WebsocketContext);
   useEffect(() => {
     if (location.pathname !== "/main/game" && currentGame) {
-      console.log(currentGame);
       socket.emit("leave-game", currentGame.gameDto.title);
     }
   }, [location]);
