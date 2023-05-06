@@ -194,6 +194,7 @@ const GamePage = () => {
             >
               시작하기
             </Button>
+            <Button className="active">초대하기</Button>
             <Button className="active" onClick={handleExit}>
               나가기
             </Button>

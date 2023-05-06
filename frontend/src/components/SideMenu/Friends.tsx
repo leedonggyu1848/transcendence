@@ -59,7 +59,6 @@ const Friends = ({ w }: { w: number }) => {
                   <Message
                     onClick={() => handleDirectMessage(friend.userName)}
                   />
-                  <Game />
                   <Delete onClick={() => handleDeleteFriend(friend.userName)} />
                 </div>
               </FriendInfo>
@@ -150,7 +149,7 @@ const FriendInfo = styled.div`
     cursor: pointer;
   }
   & > .name {
-    width: 50px;
+    width: 80px;
   }
 `;
 
