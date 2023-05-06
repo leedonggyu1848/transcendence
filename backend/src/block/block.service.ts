@@ -11,8 +11,8 @@ export class BlockService {
   ) {}
 
   async getBlockList(user: User) {
-    const blockUsers = user.blockUsers.map((usr) => {
-      return usr.user.blockUsers;
+    const blockUsers = user.blockUsers.map((block) => {
+      return block.blockUser;
     });
     return blockUsers;
   }
