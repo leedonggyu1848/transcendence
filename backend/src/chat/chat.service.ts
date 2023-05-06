@@ -27,6 +27,10 @@ export class ChatService {
     return chatDto;
   }
 
+  async getChatByTitle(title: string) {
+    return await this.chatRepository.findByTitle(title);
+  }
+
   async getChatByTitleWithUser(title: string) {
     return await this.chatRepository.findByTitleWithJoin(title);
   }
@@ -47,6 +51,20 @@ export class ChatService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createDirectMessage(sender: User, receiver: User) {
+    const tmpChat1 = await this.chatRepository.findByTitle(
+      sender.userName + ',' + receiver.userName,
+    );
+    if (tmpChat1) {
+      await this.joinChat(sender, tmpChat1);
+      return tmpChat1.title;
+    }
+    const tmpChat2 = await this.chatRepository.findByTitle(
+      receiver.userName + ',' + sender.userName,
+    );
+    if (tmpChat2) {
+      await this.joinChat(sender, tmpChat2);
+      return tmpChat2.title;
+    }
     const dm = await this.chatRepository.createByChatDto(
       {
         title: sender.userName + ',' + receiver.userName,
