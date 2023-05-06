@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { FriendReqType, UserStatusType } from 'src/entity/common.enum';
 import { User } from 'src/entity/user.entity';
 import { IFriendRepository } from 'src/friend/repository/friend.interface.repository';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class FriendService {
@@ -62,6 +63,7 @@ export class FriendService {
     return false;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async friendRequest(user: User, friend: User) {
     const userReqs = await this.friendRepository.findAllWithJoin(user);
     if (this.requestCheck(userReqs, friend.userName)) return false;
@@ -69,6 +71,7 @@ export class FriendService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async friendResponse(user: User, friend: User, type: boolean) {
     const requests = friend.friends.filter(
       (req) => req.friendName === user.userName && req.accept === false,
@@ -81,6 +84,7 @@ export class FriendService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async cancelFriend(user: User, friend: User) {
     const requests = user.friends.filter(
       (req) => req.friendName === friend.userName && req.accept === false,
@@ -90,6 +94,7 @@ export class FriendService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async deleteFriend(user: User, friend: User) {
     const userRelation = user.friends.filter(
       (req) => req.friendName === friend.userName && req.accept === true,

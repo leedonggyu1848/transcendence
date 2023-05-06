@@ -13,6 +13,7 @@ export class RecordService {
     private userService: UserService,
   ) {}
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async saveGameResult(winner: User, loser: User, type: GameType) {
     await this.userService.updateGameWin(winner, type);
     await this.userService.updateGameLose(loser, type);
@@ -23,7 +24,6 @@ export class RecordService {
     );
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getTotalHistory(page: number) {
     const allRecords = await this.recordRepository.findAll();
     const pageRecords = await this.recordRepository.findPage(page, 10);
@@ -35,7 +35,6 @@ export class RecordService {
     return { records, recordCount };
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async getRecordById(id: number) {
     const record = await this.recordRepository.findById(id);
     const winner = await this.userService.getUserByUserName(record.winner);

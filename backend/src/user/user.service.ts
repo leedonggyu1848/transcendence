@@ -160,10 +160,12 @@ export class UserService {
     return await this.userRepository.findBySocketIdWithJoinBlock(socketId);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateSocketId(user: User, socketId: string) {
     await this.userRepository.updateSocketId(user.id, socketId);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateUserName(user: User, userName: string) {
     const found = await this.userRepository.findByUserName(userName);
     if (found) return false;
@@ -171,6 +173,7 @@ export class UserService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateProfileImage(user: User, image: Buffer) {
     if (user.profile) fs.unlinkSync('./uploads/' + user.profile);
     const timeValue = new Date().getTime().toString();
@@ -203,6 +206,7 @@ export class UserService {
     await this.userRepository.updateWatchGame(user.id, game);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateMatchRank(user: User) {
     await this.userRepository.updateGameRank(user.id);
   }

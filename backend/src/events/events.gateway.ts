@@ -121,9 +121,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[ChangeUserName] userName: ${userName}`);
-    const result = await this.eventsService.changeUserName(socket.id, userName);
-    if (result.success) this.nsp.emit('user-name', result.data);
-    else socket.emit('user-fail', result.msg);
+    try {
+      const result = await this.eventsService.changeUserName(
+        socket.id,
+        userName,
+      );
+      this.nsp.emit('user-name', result);
+    } catch (err) {
+      socket.emit('user-fail', err);
+    }
   }
 
   @SubscribeMessage('user-profile')
@@ -133,9 +139,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[ChangeProfile] image: ${socket.id}`);
     const result = await this.eventsService.changeUserProfile(socket.id, image);
-    if (result.success) {
-      this.nsp.emit('user-profile', result.data);
-    } else socket.emit('user-fail', result.msg);
+    try {
+      this.nsp.emit('user-profile', result);
+    } catch (err) {
+      socket.emit('user-fail', err);
+    }
   }
 
   @SubscribeMessage('game-list')
@@ -152,12 +160,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, gameDto }: { roomName: string; gameDto: GameDto },
   ) {
     this.logger.log(`[CreateGame] roomName: ${roomName}`);
-    const result = await this.eventsService.createGame(gameDto, socket.id);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.createGame(gameDto, socket.id);
       socket.join(roomName);
-      socket.emit('create-game', result.data);
-      socket.broadcast.emit('new-game', result.data.gameDto);
-    } else socket.emit('game-fail', result.msg);
+      socket.emit('create-game', result);
+      socket.broadcast.emit('new-game', result.gameDto);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('join-game')
@@ -167,12 +177,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, password }: { roomName: string; password: string },
   ) {
     this.logger.log(`[JoinGame] roomName: ${roomName}, password: ${password}`);
-    const result = await this.eventsService.joinGame(
-      roomName,
-      password,
-      socket.id,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.joinGame(
+        roomName,
+        password,
+        socket.id,
+      );
       socket.join(roomName);
       socket.emit('join-game', result.data);
       socket.broadcast.emit('user-join-game', {
@@ -181,7 +191,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         type: JoinType.PLAYER,
       });
-    } else socket.emit('game-fail', result.msg);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('watch-game')
@@ -191,12 +203,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, password }: { roomName: string; password: string },
   ) {
     this.logger.log(`[WatchGame] roomName: ${roomName}, password: ${password}`);
-    const result = await this.eventsService.watchGame(
-      roomName,
-      password,
-      socket.id,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.watchGame(
+        roomName,
+        password,
+        socket.id,
+      );
       socket.join(roomName);
       socket.emit('watch-game', result.data);
       socket.broadcast.emit('user-watch-game', {
@@ -205,7 +217,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         type: JoinType.WATCHER,
       });
-    } else socket.emit('game-fail', result.msg);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('leave-game')
@@ -214,8 +228,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() roomName: string,
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
-    const result = await this.eventsService.leaveGame(socket.id);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.leaveGame(socket.id);
       socket.leave(roomName);
       socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
       socket.broadcast.emit('user-leave-game', {
@@ -224,7 +238,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         type: result.type,
       });
-    } else socket.emit('game-fail', result.msg);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('game-invite')
@@ -234,12 +250,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, userName }: { roomName: string; userName: string },
   ) {
     this.logger.log(`[InviteGame] roomName: ${roomName} userName: ${userName}`);
-    const result = await this.eventsService.gameInvite(
-      socket.id,
-      userName,
-      roomName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.gameInvite(
+        socket.id,
+        userName,
+        roomName,
+      );
       socket.emit('game-invite', {
         roomName,
         userName,
@@ -248,7 +264,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         userName: result.invitorUserName,
       });
-    } else socket.emit('game-fail', result.msg);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('game-accept')
@@ -257,24 +275,24 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() roomName: string,
   ) {
     this.logger.log(`[AcceptGame] roomName: ${roomName}`);
-    const result = await this.eventsService.gameAccept(socket.id, roomName);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.gameAccept(socket.id, roomName);
       const joinResult = await this.eventsService.joinGame(
         roomName,
         result.password,
         socket.id,
       );
-      if (joinResult.success) {
-        socket.join(roomName);
-        socket.emit('join-game', joinResult.data);
-        socket.broadcast.emit('user-join-game', {
-          message: `${joinResult.user.userName}가 들어왔습니다.`,
-          userInfo: joinResult.user,
-          roomName,
-          type: JoinType.PLAYER,
-        });
-      } else socket.emit('game-fail', joinResult.msg);
-    } else socket.emit('game-fail', result.msg);
+      socket.join(roomName);
+      socket.emit('join-game', joinResult.data);
+      socket.broadcast.emit('user-join-game', {
+        message: `${joinResult.user.userName}가 들어왔습니다.`,
+        userInfo: joinResult.user,
+        roomName,
+        type: JoinType.PLAYER,
+      });
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('game-reject')
@@ -284,17 +302,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { userName, roomName }: { userName: string; roomName: string },
   ) {
     this.logger.log(`[AcceptGame] roomName: ${roomName}`);
-    const result = await this.eventsService.gameInviteInfo(
-      socket.id,
-      userName,
-      roomName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.gameInviteInfo(
+        socket.id,
+        userName,
+        roomName,
+      );
       socket.emit('game-reject', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('game-reject', { roomName, userName: result.userName });
-    } else socket.emit('game-fail', result.msg);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('game-cancel-invite')
@@ -304,17 +324,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { userName, roomName }: { userName: string; roomName: string },
   ) {
     this.logger.log(`[AcceptGame] roomName: ${roomName}`);
-    const result = await this.eventsService.gameInviteInfo(
-      socket.id,
-      userName,
-      roomName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.gameInviteInfo(
+        socket.id,
+        userName,
+        roomName,
+      );
       socket.emit('game-cancel-invite', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('game-cancel-invite', { roomName, userName: result.userName });
-    } else socket.emit('game-fail', result.msg);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('match-rank')
@@ -356,25 +378,38 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `loser: ${loser}`,
       `type: ${type}`,
     );
-    const result = await this.eventsService.saveGameResult(winner, loser, type);
-    if (result.success) this.nsp.to(roomName).emit('game-result', result.data);
-    else socket.emit('game-fail', result.msg);
+    try {
+      const result = await this.eventsService.saveGameResult(
+        winner,
+        loser,
+        type,
+      );
+      this.nsp.to(roomName).emit('game-result', result);
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('friend-list')
   async handleFriendList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendList]`);
-    const result = await this.eventsService.getFriendList(socket.id);
-    if (result.success) socket.emit('friend-list', result.data);
-    else socket.emit('friend-fail', result.msg);
+    try {
+      const result = await this.eventsService.getFriendList(socket.id);
+      socket.emit('friend-list', result);
+    } catch (err) {
+      socket.emit('friend-fail', err);
+    }
   }
 
   @SubscribeMessage('friend-request-list')
   async handleFriendRequestList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[FriendRequestList]`);
-    const result = await this.eventsService.getFriendRequestList(socket.id);
-    if (result.success) socket.emit('friend-request-list', result.data);
-    else socket.emit('friend-fail', result.msg);
+    try {
+      const result = await this.eventsService.getFriendRequestList(socket.id);
+      socket.emit('friend-request-list', result);
+    } catch (err) {
+      socket.emit('friend-fail', err);
+    }
   }
 
   @SubscribeMessage('request-friend')
@@ -383,11 +418,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`[FriendRequest] friendName: ${friendName}`);
-    const result = await this.eventsService.friendRequest(
-      socket.id,
-      friendName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.friendRequest(
+        socket.id,
+        friendName,
+      );
       const user = result.data.user;
       const friend = result.data.friend;
       socket.emit('request-friend', {
@@ -397,8 +432,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket
         .to(friend.socketId)
         .emit('new-friend', { userName: user.userName, profile: user.profile });
-    } else {
-      socket.emit('friend-fail', result.msg);
+    } catch (err) {
+      socket.emit('friend-fail', err);
     }
   }
 
@@ -408,16 +443,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() { friendName, type }: { friendName: string; type: boolean },
   ) {
     this.logger.log(`[AcceptFriend] friendName: ${friendName}, type: ${type}`);
-    const result = await this.eventsService.friendResponse(
-      socket.id,
-      friendName,
-      type,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.friendResponse(
+        socket.id,
+        friendName,
+        type,
+      );
       socket.emit('response-friend', result.sender);
       this.nsp.sockets.get(result.data)?.emit('friend-result', result.receiver);
-    } else {
-      socket.emit('friend-fail', result.msg);
+    } catch (err) {
+      socket.emit('friend-fail', err);
     }
   }
 
@@ -427,14 +462,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`[CancelFriend] friendName: ${friendName}`);
-    const result = await this.eventsService.cancelFriend(socket.id, friendName);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.cancelFriend(
+        socket.id,
+        friendName,
+      );
       socket.emit('cancel-friend', { userName: friendName });
       this.nsp.sockets
         .get(result.sock)
         ?.emit('cancel-friend', { userName: result.userName });
-    } else {
-      socket.emit('friend-fail', result.msg);
+    } catch (err) {
+      socket.emit('friend-fail', err);
     }
   }
 
@@ -444,14 +482,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() friendName: string,
   ) {
     this.logger.log(`DeleteFriend / friendName: ${friendName}`);
-    const result = await this.eventsService.deleteFriend(socket.id, friendName);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.deleteFriend(
+        socket.id,
+        friendName,
+      );
       socket.emit('delete-friend', { userName: friendName });
       this.nsp.sockets
         .get(result.sock)
         ?.emit('delete-friend', { userName: result.userName });
-    } else {
-      socket.emit('friend-fail', result.msg);
+    } catch (err) {
+      socket.emit('friend-fail', err);
     }
   }
 
@@ -461,8 +502,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[DirectMessage] userName: ${userName}`);
-    const result = await this.eventsService.directMessage(socket.id, userName);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.directMessage(
+        socket.id,
+        userName,
+      );
       socket.emit('send-dm', {
         title: result.title,
         userName: result.receiverName,
@@ -473,8 +517,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         userName: result.senderName,
       });
       this.nsp.sockets.get(result.receiverSocket)?.join(result.title);
-    } else {
-      socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
     }
   }
 
@@ -487,19 +531,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(
       `[CreateChat] roomName: ${roomName}, type: ${type}, password: ${password}`,
     );
-    const result = await this.eventsService.createChat(
-      socket.id,
-      roomName,
-      type,
-      password,
-    );
-    console.log(result);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.createChat(
+        socket.id,
+        roomName,
+        type,
+        password,
+      );
+      console.log(result);
       socket.join(roomName);
       socket.emit('create-success', { roomName, type, operator: result.data });
       this.nsp.emit('create-chat', { roomName, type, operator: result.data });
-    } else {
-      socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
     }
   }
 
@@ -510,12 +554,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, password }: { roomName: string; password: string },
   ) {
     this.logger.log(`[JoinChat] roomName: ${roomName}, password: ${password}`);
-    const result = await this.eventsService.joinChat(
-      socket.id,
-      roomName,
-      password,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.joinChat(
+        socket.id,
+        roomName,
+        password,
+      );
       socket.join(roomName);
       socket.broadcast.emit('join-chat', {
         message: result.msg,
@@ -523,10 +567,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
       });
       socket.emit('join-chat-success', result.data);
-    } else {
-      socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
     }
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('leave-chat')
@@ -535,8 +578,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() roomName: string,
   ) {
     this.logger.log(`[LeaveChat] roomName: ${roomName}`);
-    const result = await this.eventsService.leaveChat(socket.id, roomName);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.leaveChat(socket.id, roomName);
       socket.leave(roomName);
       socket.broadcast.emit('leave-chat', {
         message: result.msg,
@@ -545,10 +588,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         operator: result.operator,
       });
       socket.emit('leave-chat-success', roomName);
-    } else {
-      socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
     }
-    this.logger.log(result.msg);
   }
 
   @SubscribeMessage('chat-invite')
@@ -560,17 +602,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(
       `[ChatInvite] userName: ${userName}, roomName: ${roomName}`,
     );
-    const result = await this.eventsService.chatInvite(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.chatInvite(
+        socket.id,
+        roomName,
+        userName,
+      );
       socket.emit('chat-invite', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('chat-invite', { roomName, userName: result.userName });
-    } else socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('chat-accept')
@@ -579,23 +623,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() roomName: string,
   ) {
     this.logger.log(`[ChatAccept] roomName: ${roomName}`);
-    const result = await this.eventsService.chatAccept(socket.id, roomName);
-    if (result.success) {
+    try {
+      const result = await this.eventsService.chatAccept(socket.id, roomName);
       const joinResult = await this.eventsService.joinChat(
         socket.id,
         roomName,
         result.password,
       );
-      if (joinResult.success) {
-        socket.join(roomName);
-        socket.broadcast.emit('join-chat', {
-          message: joinResult.msg,
-          userName: joinResult.joinuser,
-          roomName,
-        });
-        socket.emit('join-chat-success', joinResult.data);
-      } else socket.emit('chat-fail', result.msg);
-    } else socket.emit('chat-fail', result.msg);
+      socket.join(roomName);
+      socket.broadcast.emit('join-chat', {
+        message: joinResult.msg,
+        userName: joinResult.joinuser,
+        roomName,
+      });
+      socket.emit('join-chat-success', joinResult.data);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('chat-reject')
@@ -605,17 +649,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { userName, roomName }: { userName: string; roomName: string },
   ) {
     this.logger.log(`[ChatReject] roomName: ${roomName}`);
-    const result = await this.eventsService.chatInviteInfo(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.chatInviteInfo(
+        socket.id,
+        roomName,
+        userName,
+      );
       socket.emit('chat-reject', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('chat-reject', { roomName, userName: result.userName });
-    } else socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('chat-cancel-invite')
@@ -625,17 +671,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { userName, roomName }: { userName: string; roomName: string },
   ) {
     this.logger.log(`[ChatCancelInvite] roomName: ${roomName}`);
-    const result = await this.eventsService.chatInviteInfo(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.chatInviteInfo(
+        socket.id,
+        roomName,
+        userName,
+      );
       socket.emit('chat-cancel-invite', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('chat-cancel-invite', { roomName, userName: result.userName });
-    } else socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('all-chat')
@@ -670,16 +718,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, userName }: { roomName: string; userName: string },
   ) {
     this.logger.log(`[KickUser] roomName: ${roomName}, userName: ${userName}`);
-    const result = await this.eventsService.kickUser(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.kickUser(
+        socket.id,
+        roomName,
+        userName,
+      );
       this.nsp.emit('kick-user', { roomName, userName });
       await this.nsp.sockets.get(result.data)?.leave(roomName);
-    } else {
-      socket.emit('chat-fail', result.msg);
+    } catch (err) {
+      socket.emit('chat-fail', err);
     }
   }
 
@@ -690,16 +738,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, userName }: { roomName: string; userName: string },
   ) {
     this.logger.log(`[MuteUser] roomName: ${roomName}, userName: ${userName}`);
-    const result = await this.eventsService.muteUser(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (result.success) {
+    try {
+      const result = await this.eventsService.muteUser(
+        socket.id,
+        roomName,
+        userName,
+      );
       socket.emit('mute-user', { roomName, userName });
-      this.nsp.sockets.get(result.data)?.emit('chat-muted', roomName);
-    } else {
-      socket.emit('chat-fail', result.msg);
+      this.nsp.sockets.get(result)?.emit('chat-muted', roomName);
+    } catch (err) {
+      socket.emit('chat-fail', err);
     }
   }
 
@@ -712,13 +760,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(
       `[ChatChangePassword] roomName: ${roomName}, password: ${password}`,
     );
-    const result = await this.eventsService.changePassword(
-      socket.id,
-      roomName,
-      password,
-    );
-    if (result.success) socket.emit('chat-password', result.msg);
-    else socket.emit('chat-fail', result.msg);
+    try {
+      const result = await this.eventsService.changePassword(
+        socket.id,
+        roomName,
+        password,
+      );
+      socket.emit('chat-password', result);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('chat-operator')
@@ -730,14 +781,30 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(
       `[ChatChangeOperator] roomName: ${roomName}, operator: ${operator}`,
     );
-    const result = await this.eventsService.changeOperator(
-      socket.id,
-      roomName,
-      operator,
-    );
-    if (result.success)
-      this.nsp.to(roomName).emit('chat-operator', result.data);
-    else socket.emit('chat-fail', result.msg);
+    try {
+      const result = await this.eventsService.changeOperator(
+        socket.id,
+        roomName,
+        operator,
+      );
+      this.nsp.to(roomName).emit('chat-operator', result);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
+  }
+
+  @SubscribeMessage('ban-list')
+  async handleBanList(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.logger.log(`[BanList] roomName: ${roomName}`);
+    try {
+      const result = await this.eventsService.getBanList(socket.id, roomName);
+      socket.emit('ban-list', result);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('ban-user')
@@ -747,24 +814,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, userName }: { roomName: string; userName: string },
   ) {
     this.logger.log(`[BanUser] roomName: ${roomName}, userName: ${userName}`);
-    const banResult = await this.eventsService.banUser(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (banResult.success) {
+    try {
+      const banResult = await this.eventsService.banUser(
+        socket.id,
+        roomName,
+        userName,
+      );
       const kickResult = await this.eventsService.kickUser(
         socket.id,
         roomName,
         userName,
       );
-      if (kickResult.success) {
-        this.nsp.emit('ban-user', { roomName, userName });
-        await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
-      } else {
-        socket.emit('chat-fail', kickResult.msg);
-      }
-    } else socket.emit('chat-fail', banResult.msg);
+      this.nsp.emit('ban-user', { roomName, userName });
+      await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('ban-cancel')
@@ -774,31 +839,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, userName }: { roomName: string; userName: string },
   ) {
     this.logger.log(`[BanCancel] roomName: ${roomName}, userName: ${userName}`);
-    const result = await this.eventsService.banCancel(
-      socket.id,
-      roomName,
-      userName,
-    );
-    if (result.success) socket.emit('ban-cancel', { roomName, userName });
-    else socket.emit('chat-fail', result.msg);
-  }
-
-  @SubscribeMessage('ban-list')
-  async handleBanList(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
-  ) {
-    this.logger.log(`[BanList] roomName: ${roomName}`);
-    const result = await this.eventsService.getBanList(socket.id, roomName);
-    if (result.success) socket.emit('ban-list', result.data);
-    else socket.emit('chat-fail', result.msg);
+    try {
+      await this.eventsService.banCancel(socket.id, roomName, userName);
+      socket.emit('ban-cancel', { roomName, userName });
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('block-list')
   async handleBlockList(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[BlockList]`);
-    const result = await this.eventsService.getBlockList(socket.id);
-    socket.emit('block-list', result);
+    try {
+      const result = await this.eventsService.getBlockList(socket.id);
+      socket.emit('block-list', result);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('block-user')
@@ -807,10 +864,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[BlockUser] userName: ${userName}`);
-    const result = await this.eventsService.blockUser(socket.id, userName);
-    if (result.success) socket.emit('block-user', userName);
-    else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
+    try {
+      await this.eventsService.blockUser(socket.id, userName);
+      socket.emit('block-user', userName);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('block-cancel')
@@ -819,10 +878,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() userName: string,
   ) {
     this.logger.log(`[BlockCancel] userName: ${userName}`);
-    const result = await this.eventsService.blockCancel(socket.id, userName);
-    if (result.success) socket.emit('block-cancel', userName);
-    else socket.emit('chat-fail', result.msg);
-    this.logger.log(result.msg);
+    try {
+      await this.eventsService.blockCancel(socket.id, userName);
+      socket.emit('block-cancel', userName);
+    } catch (err) {
+      socket.emit('chat-fail', err);
+    }
   }
 
   @SubscribeMessage('start-game')
