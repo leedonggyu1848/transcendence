@@ -51,14 +51,14 @@ export class ChatService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createDirectMessage(sender: User, receiver: User) {
-    const tmpChat1 = await this.chatRepository.findByTitle(
+    const tmpChat1 = await this.chatRepository.findByTitleWithJoin(
       sender.userName + ',' + receiver.userName,
     );
     if (tmpChat1) {
       await this.joinChat(sender, tmpChat1);
       return tmpChat1.title;
     }
-    const tmpChat2 = await this.chatRepository.findByTitle(
+    const tmpChat2 = await this.chatRepository.findByTitleWithJoin(
       receiver.userName + ',' + sender.userName,
     );
     if (tmpChat2) {
