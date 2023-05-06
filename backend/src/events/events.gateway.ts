@@ -1,5 +1,4 @@
-import { Logger, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,

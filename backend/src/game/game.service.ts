@@ -63,13 +63,10 @@ export class GameService {
     await this.gameRepository.addWatcher(game, user);
   }
 
-  async leaveGame(user: User) {
+  async leaveGame(game: Game, user: User) {
     if (user.joinType === JoinType.OWNER) {
-      this.gameRepository.deleteById(user.playGame);
+      this.gameRepository.deleteById(game);
     } else if (user.joinType === JoinType.PLAYER) {
-      const game = await this.gameRepository.findByTitleWithJoin(
-        user.playGame.title,
-      );
       await this.gameRepository.subtractPlayer(game, user);
       await this.gameRepository.updateCountById(game.id, game.count - 1);
     } else if (user.joinType === JoinType.WATCHER) {

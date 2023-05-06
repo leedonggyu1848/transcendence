@@ -223,14 +223,14 @@ export class EventsService {
   async leaveGame(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (!user) return { success: false, msg: '잘못된 유저 정보입니다.' };
-    if (user.joinType === JoinType.NONE)
+    if (user.joinType === JoinType.NONE || !user.playGame)
       return { success: false, msg: '참여 중인 방이 존재하지 않습니다.' };
+    const game = await this.gameService.getGameByTitleWithUsers(
+      user.playGame.title,
+    );
 
-    await this.gameService.leaveGame(user);
+    await this.gameService.leaveGame(game, user);
     if (user.joinType === JoinType.OWNER) {
-      const game = await this.gameService.getGameByTitleWithUsers(
-        user.playGame.title,
-      );
       await game.players.map(async (player) => {
         await this.userService.updateGameNone(player);
       });

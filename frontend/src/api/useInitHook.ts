@@ -13,7 +13,7 @@ const useInitHook = () => {
       console.log(currentGame);
       socket.emit("leave-game", currentGame.gameDto.title);
     }
-  }, [currentGame, location]);
+  }, [location]);
 };
 
 export default useInitHook;
