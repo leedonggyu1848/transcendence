@@ -395,7 +395,7 @@ export const listenLeaveGame = ({
     setCurrentGame(null);
     setJoinnedChatList({ ...temp });
     setCurrentChat("");
-    if (location.pathname === "/main/game") navigate("/main/lobby");
+    //if (location.pathname === "/main/game") navigate("/main/lobby");
   });
 };
 
