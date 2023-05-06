@@ -52,11 +52,11 @@ const Message = styled.div`
 
 const AlertModalContainer = styled.div`
   position: fixed;
-  width: 350px;
-  height: 400px;
+  width: 400px;
+  height: 500px;
   background: var(--sub-bg-color);
   left: calc(50% - 200px);
-  top: calc(50% - 200px);
+  top: calc(50% - 250px);
   border-radius: 20px;
   z-index: 3;
   color: white;

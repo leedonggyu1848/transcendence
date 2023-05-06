@@ -116,7 +116,6 @@ const CurrentUserInfo = ({
         <PersonalMenu toggle={toggle}>
           <TargetName>{target}</TargetName>
           <div>
-            <MessageIcon onClick={clickDirectMessage} />
             {isFriend && (
               <DeleteFriendIcon onClick={() => clickDeleteFriend(target)} />
             )}

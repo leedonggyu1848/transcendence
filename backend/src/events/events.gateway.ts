@@ -607,7 +607,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         userName,
       );
-      socket.emit('chat-invite', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('chat-invite', { roomName, userName: result.userName });

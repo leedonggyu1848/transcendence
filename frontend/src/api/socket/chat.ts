@@ -643,15 +643,18 @@ export const listenChatInvite = ({
   socket,
   friendRequestList,
   setFriendRequestList,
+  myName,
 }: {
   socket: any;
   friendRequestList: ICombinedRequestAndInvite[];
   setFriendRequestList: any;
+  myName: string;
 }) => {
   socket.on(
     "chat-invite",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
-      console.log("in chat-invite", userName, roomName);
+      console.log("in chat-invite", myName, userName, roomName);
+      if (myName === userName) return;
       setFriendRequestList([...friendRequestList, { userName, roomName }]);
     }
   );
