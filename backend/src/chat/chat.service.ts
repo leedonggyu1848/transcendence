@@ -6,6 +6,7 @@ import { Chat } from 'src/entity/chat.entity';
 import { ChatType } from 'src/entity/common.enum';
 import { User } from 'src/entity/user.entity';
 import * as bcrypt from 'bcrypt';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class ChatService {
@@ -34,14 +35,17 @@ export class ChatService {
     return await this.chatRepository.findAll();
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updatePassword(chat: Chat, password: string) {
     await this.chatRepository.updatePassword(chat, password);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateOperator(chat: Chat, operator: string) {
     await this.chatRepository.updateOperator(chat.id, operator);
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createDirectMessage(sender: User, receiver: User) {
     const dm = await this.chatRepository.createByChatDto(
       {
@@ -57,6 +61,7 @@ export class ChatService {
     return dm.title;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createChat(
     user: User,
     roomName: string,
@@ -90,6 +95,7 @@ export class ChatService {
     return false;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async joinChat(user: User, chat: Chat) {
     const joined = chat.users.filter(
       (usr) => usr.user.userName === user.userName,
@@ -100,6 +106,7 @@ export class ChatService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async leaveChat(user: User, chat: Chat) {
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0) return false;
@@ -118,6 +125,7 @@ export class ChatService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async kickUser(chat: Chat, kickUser: User) {
     const chatuser = await this.chatUserRepository.findByBoth(chat, kickUser);
     await this.chatUserRepository.deleteChatUser(chatuser);

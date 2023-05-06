@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from 'src/entity/user.entity';
 import { IBlockRepository } from 'src/block/repository/block.interface.repository';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class BlockService {
@@ -16,6 +17,7 @@ export class BlockService {
     return blockUsers;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async blockUser(user: User, blockUser: string) {
     const isBan = user.blockUsers.filter(
       (block) => block.blockUser === blockUser,
@@ -25,6 +27,7 @@ export class BlockService {
     return true;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async blockCancel(user: User, blockUser: string) {
     const block = user.blockUsers.find(
       (block) => block.blockUser === blockUser,
