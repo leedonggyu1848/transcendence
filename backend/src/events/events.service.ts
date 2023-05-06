@@ -450,7 +450,7 @@ export class EventsService {
   async getChatList(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithChat(socketId);
     if (!user) throw new Error('맞는 유저가 없습니다.');
-    if (user.chats.length === 0) return { success: true, chats: [] };
+    if (user.chats.length === 0) return [];
     const chatsDto = user.chats.map((chat) => {
       return this.chatService.chatToChatDto(chat.chat);
     });
