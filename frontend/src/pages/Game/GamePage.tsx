@@ -86,7 +86,6 @@ const GamePage = () => {
   };
 
   const handleExit = () => {
-    socket.emit("leave-game", gameInfo.gameDto.title);
     navigate("/main/lobby");
   };
 

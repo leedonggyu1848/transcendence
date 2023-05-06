@@ -62,7 +62,7 @@ const PongGame = ({
         loser: string;
         type: number;
       }) => {
-        console.log("in game-result");
+        console.log("in game-result", gameInfo.gameDto.type);
         if (winner === myName) {
           setAlertInfo({
             type: "success",
@@ -126,8 +126,8 @@ const PongGame = ({
           setCurrentGame(null);
           navigate("/main/lobby");
         } else {
-          setCount(4);
-          resetGame(false);
+          setCount(() => 4);
+          resetGame(() => false);
         }
       }
     );

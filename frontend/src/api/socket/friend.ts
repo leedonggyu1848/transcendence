@@ -192,12 +192,16 @@ export const listenSendDM = ({
   joinnedChatList,
   setJoinnedChatList,
   setCurrentChat,
+  location,
+  navigate,
 }: {
   socket: any;
   myName: string;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
   setCurrentChat: any;
+  location: Location;
+  navigate: any;
 }) => {
   socket.on(
     "send-dm",
@@ -218,6 +222,9 @@ export const listenSendDM = ({
         ...joinnedChatList,
         [title]: { ...temp },
       });
+      if (location.pathname !== "/main/chat") {
+        navigate("/main/chat");
+      }
     }
   );
 };

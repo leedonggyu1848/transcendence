@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import {
   alertModalState,
@@ -17,6 +17,7 @@ const Friends = ({ w }: { w: number }) => {
   const setSideMenuToggle = useSetRecoilState(sideMenuToggle);
   const setAlertInfo = useSetRecoilState(alertModalState);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleDeleteFriend = (friendName: string) => {
     socket.emit("delete-friend", friendName);
@@ -25,6 +26,7 @@ const Friends = ({ w }: { w: number }) => {
 
   const handleRequestMatch = (friendName: string) => {};
   const handleDirectMessage = (friendName: string) => {
+    setSideMenuToggle({ alarm: false, friends: false });
     if (
       friendsList.filter(
         (friend: IFriendDto) => friend.userName === friendName
@@ -39,7 +41,6 @@ const Friends = ({ w }: { w: number }) => {
       return;
     }
     socket.emit("send-dm", friendName);
-    //if (location.pathname)
   };
 
   return (
