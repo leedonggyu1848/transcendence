@@ -4,6 +4,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   friendListState,
   friendRequestListState,
+  myNameState,
   sideMenuToggle,
 } from "../../api/atom";
 import { WebsocketContext } from "../../pages/WrapMainPage";
@@ -14,6 +15,7 @@ const Alarm = ({ w }: { w: number }) => {
   );
   const socket = useContext(WebsocketContext);
   const setSideMenuToggle = useSetRecoilState(sideMenuToggle);
+  const myName = useRecoilValue(myNameState);
 
   const acceptFriendRequest = (friendName: string) => {
     socket.emit("response-friend", { friendName, type: true });
@@ -29,13 +31,31 @@ const Alarm = ({ w }: { w: number }) => {
     socket.emit("cancel-friend", friendName);
   };
 
-  const acceptChatInvite = (roomName: string) => {
-    socket.emit("chat-accept", roomName);
+  const acceptInvite = (inviteType: string, roomName: string) => {
+    if (inviteType === "채팅") {
+      socket.emit("chat-accept", roomName);
+    }
+    if (inviteType === "게임") {
+      socket.emit("game-accept", roomName);
+      console.log("accept-game");
+    }
     setFriendRequestList(
       friendRequestList.filter(
         (friendRequest) => friendRequest.roomName !== roomName
       )
     );
+  };
+
+  const rejectInvite = (
+    inviteType: string,
+    intra_id: string,
+    roomName: string
+  ) => {
+    if (inviteType === "채팅") {
+      socket.emit("chat-reject", { userName: intra_id, roomName });
+    }
+    if (inviteType === "게임") {
+    }
   };
 
   return (
@@ -46,7 +66,7 @@ const Alarm = ({ w }: { w: number }) => {
         {friendRequestList.length > 0 ? (
           <AlarmList>
             {friendRequestList.map(
-              ({ userName: intra_id, time, type, roomName }, idx) =>
+              ({ userName: intra_id, time, type, roomName, inviteType }, idx) =>
                 type !== undefined ? (
                   <FriendRequest key={idx}>
                     <Container>
@@ -82,17 +102,28 @@ const Alarm = ({ w }: { w: number }) => {
                 ) : (
                   <ChatInviteContainer key={idx}>
                     <div>
-                      <Invite>{intra_id}님의 채팅 초대</Invite>
-                      <RoomName>{roomName.slice(1)}</RoomName>
+                      <Invite>
+                        {intra_id}님의 {inviteType} 초대
+                      </Invite>
+                      <RoomName>
+                        {inviteType === "채팅" ? roomName.slice(1) : roomName}
+                      </RoomName>
                     </div>
                     <InviteButtons>
                       <Button
-                        onClick={() => acceptChatInvite(roomName)}
+                        onClick={() => acceptInvite(inviteType, roomName)}
                         className="invite"
                       >
                         수락
                       </Button>
-                      <Button className="invite">거절</Button>
+                      <Button
+                        onClick={() =>
+                          rejectInvite(inviteType, intra_id, roomName)
+                        }
+                        className="invite"
+                      >
+                        거절
+                      </Button>
                     </InviteButtons>
                   </ChatInviteContainer>
                 )
@@ -175,6 +206,7 @@ const ChatInviteContainer = styled.div`
   & > div:first-of-type {
     width: 60%;
   }
+  margin: 10px 0;
 `;
 
 const Name = styled.div``;

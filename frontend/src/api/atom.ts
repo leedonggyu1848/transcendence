@@ -313,5 +313,8 @@ export const sideMenuToggle = atom({
 
 export const inviteModalToggleState = atom({
   key: "inviteModalToggle",
-  default: false,
+  default: {
+    type: "",
+    toggle: false,
+  },
 });

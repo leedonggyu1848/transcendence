@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useRevalidator } from "react-router-dom";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   currentGameUsersState,
   currentGameInfoState,
@@ -12,6 +12,7 @@ import {
   currentChatState,
   joinnedChatState,
   gameListState,
+  inviteModalToggleState,
 } from "../../api/atom";
 import { WebsocketContext } from "../../pages/WrapMainPage";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -38,6 +39,7 @@ const GamePage = () => {
   const gameList = useRecoilValue(gameListState);
   const [rankGameFlag, setRankGameFlag] = useState(false);
   const navigate = useNavigate();
+  const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
 
@@ -85,6 +87,10 @@ const GamePage = () => {
         obstaclePos: [leftPos, rightPos],
       });
     }
+  };
+
+  const openInviteModal = () => {
+    setInviteModalToggle({ type: "game", toggle: true });
   };
 
   const handleExit = () => {
@@ -194,7 +200,11 @@ const GamePage = () => {
             >
               시작하기
             </Button>
-            <Button className="active">초대하기</Button>
+            {gameInfo.ownerDto.userName === myName && (
+              <Button onClick={openInviteModal} className="active">
+                초대하기
+              </Button>
+            )}
             <Button className="active" onClick={handleExit}>
               나가기
             </Button>

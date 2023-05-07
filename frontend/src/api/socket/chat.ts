@@ -173,6 +173,7 @@ export const listenJoinSucces = ({
   setChatList,
   joinnedChatList,
   setJoinnedChatList,
+  location,
 }: {
   myName: string;
   socket: any;
@@ -181,6 +182,7 @@ export const listenJoinSucces = ({
   setChatList: any;
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
+  location: Location;
 }) => {
   socket.on(
     "join-chat-success",
@@ -190,14 +192,12 @@ export const listenJoinSucces = ({
       operator,
       users,
       navigate,
-      location,
     }: {
       roomName: string;
       type: number;
       operator: string;
       users: string[];
       navigate: any;
-      location: Location;
     }) => {
       const temp: IChatDetail = {
         title: roomName,
@@ -655,7 +655,10 @@ export const listenChatInvite = ({
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       console.log("in chat-invite", myName, userName, roomName);
       if (myName === userName) return;
-      setFriendRequestList([...friendRequestList, { userName, roomName }]);
+      setFriendRequestList([
+        ...friendRequestList,
+        { userName, roomName, inviteType: "채팅" },
+      ]);
     }
   );
 };
@@ -663,16 +666,40 @@ export const listenChatInvite = ({
 export const listenChatReject = ({
   socket,
   setFriendList,
+  friendRequestList,
+  setFriendRequestList,
   setRequestFriendListFlag,
 }: {
   socket: any;
   setFriendList: IFriendRequest[];
   setRequestFriendListFlag: any;
+  friendRequestList: ICombinedRequestAndInvite[];
+  setFriendRequestList: any;
 }) => {
   socket.on(
     "chat-reject",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       console.log("in chat-reject", userName, roomName);
+      console.log(
+        friendRequestList.filter(
+          (list) =>
+            !(
+              list.roomName &&
+              list.roomName === roomName &&
+              list.userName === userName
+            )
+        )
+      );
+      setFriendRequestList(
+        friendRequestList.filter(
+          (list) =>
+            !(
+              list.roomName &&
+              list.roomName === roomName &&
+              list.userName === userName
+            )
+        )
+      );
     }
   );
 };

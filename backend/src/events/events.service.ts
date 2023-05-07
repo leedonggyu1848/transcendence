@@ -188,7 +188,7 @@ export class EventsService {
     if (user.joinType !== JoinType.OWNER)
       throw new Error('게임의 방장이 아닙니다.');
     if (invited.socketId === '') throw new Error('유저가 접속 중이 아닙니다.');
-    if (invited.JoinType !== JoinType.NONE)
+    if (invited.joinType !== JoinType.NONE)
       throw new Error('이미 다른 게임에 참가 중입니다.');
     const game = await this.gameService.getGameByTitleWithUsers(roomName);
     if (!game) throw new Error('해당 방이 존재하지 않습니다.');
@@ -202,7 +202,7 @@ export class EventsService {
   async gameAccept(socketId: string, roomName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) throw new Error('잘못된 유저 정보입니다.');
-    if (user.JoinType !== JoinType.NONE)
+    if (user.joinType !== JoinType.NONE)
       throw new Error('이미 다른 게임에 참가 중입니다.');
     const game = await this.gameService.getGameByTitleWithUsers(roomName);
     if (!game) throw new Error('해당 방이 존재하지 않습니다.');

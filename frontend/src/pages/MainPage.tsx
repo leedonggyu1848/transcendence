@@ -93,7 +93,10 @@ import {
 import {
   listenCreateGame,
   listenDisconnectUser,
+  listenGameAccept,
   listenGameFail,
+  listenGameInvite,
+  listenGameReject,
   listenJoinGame,
   listenLeaveGame,
   listenMatchRank,
@@ -295,6 +298,9 @@ const MainPage = () => {
     listenNameChange(hooks);
     listenUserInGame(hooks);
     listenChangeProfile(hooks);
+    listenGameInvite(hooks);
+    listenGameAccept(hooks);
+    listenGameReject(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -352,6 +358,9 @@ const MainPage = () => {
         "user-watch-game",
         "leave-game",
         "user-leave-game",
+        "game-invite",
+        "game-accept",
+        "game-reject",
         "match-rank",
         "user-name",
         "user-ingame",
@@ -385,7 +394,7 @@ const MainPage = () => {
         {createChatModalToggle && <CreateChatModal />}
         {joinChatToggle.toggle && <JoinChatModal />}
         {confirmModalState.toggle && <ConfirmModal />}
-        {inviteModalToggle && <InviteModal />}
+        {inviteModalToggle.toggle && <InviteModal />}
       </MainPageContainer>
     )
   );

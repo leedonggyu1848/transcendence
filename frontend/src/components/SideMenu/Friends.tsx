@@ -24,7 +24,6 @@ const Friends = ({ w }: { w: number }) => {
     setSideMenuToggle({ alarm: false, friends: false });
   };
 
-  const handleRequestMatch = (friendName: string) => {};
   const handleDirectMessage = (friendName: string) => {
     setSideMenuToggle({ alarm: false, friends: false });
     if (

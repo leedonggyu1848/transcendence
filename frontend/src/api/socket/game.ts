@@ -2,6 +2,7 @@ import { SetterOrUpdater } from "recoil";
 import GameDetailInfo from "../../pages/HistoryPage/GameDetailInfo";
 import {
   GameDto,
+  ICombinedRequestAndInvite,
   ICurrentGame,
   IFriendDto,
   IGameRoomInfo,
@@ -190,6 +191,7 @@ export const listenUserJoinGame = ({
       type: number;
       roomName: string;
     }) => {
+      console.log("user-join-game");
       if (currentGame && currentGame.gameDto.title === roomName) {
         setCurrentGame({
           ...currentGame,
@@ -622,3 +624,31 @@ export const listenDisconnectUser = ({
     }
   );
 };
+
+export const listenGameInvite = ({
+  socket,
+  myName,
+  friendRequestList,
+  setFriendRequestList,
+}: {
+  socket: any;
+  myName: string;
+  friendRequestList: ICombinedRequestAndInvite[];
+  setFriendRequestList: any;
+}) => {
+  socket.on(
+    "game-invite",
+    ({ roomName, userName }: { roomName: string; userName: string }) => {
+      console.log("in game-invite", roomName, userName);
+      if (myName === userName) return;
+      setFriendRequestList([
+        ...friendRequestList,
+        { userName, roomName, inviteType: "게임" },
+      ]);
+    }
+  );
+};
+
+export const listenGameAccept = ({ socket }: { socket: any }) => {};
+
+export const listenGameReject = ({ socket }: { socket: any }) => {};

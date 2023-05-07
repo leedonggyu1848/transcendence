@@ -39,7 +39,7 @@ const ChatPage = () => {
   };
 
   const openInviteModal = () => {
-    setInviteModalToggle(true);
+    setInviteModalToggle({ type: "chat", toggle: true });
   };
 
   const joinChatRoom = (roomName: string, type: number) => {
@@ -78,7 +78,9 @@ const ChatPage = () => {
           <HeaderContainer>
             <div>현재 채팅</div>
             <ButtonContainer>
-              <Button onClick={openInviteModal}>초대하기</Button>
+              {joinnedChatList[currentChat].operator === myName && (
+                <Button onClick={openInviteModal}>초대하기</Button>
+              )}
               <Button
                 onClick={() =>
                   LeaveChatRoom(joinnedChatList[currentChat].title)

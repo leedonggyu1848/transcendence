@@ -13,15 +13,21 @@ import ModalBackground from "../ModalBackground";
 const InviteModal = () => {
   const socket = useContext(WebsocketContext);
   const friendList = useRecoilValue(friendListState);
-  const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
+  const [inviteModal, setInviteModalToggle] = useRecoilState(
+    inviteModalToggleState
+  );
   const currentChat = useRecoilValue(currentChatState);
 
   const onCancel = () => {
-    setInviteModalToggle(false);
+    setInviteModalToggle({ type: "", toggle: false });
   };
 
-  const handleInvite = (userName: string) => {
-    socket.emit("chat-invite", { userName, roomName: currentChat });
+  const handleInvite = (type: string, userName: string) => {
+    if (type === "chat")
+      socket.emit("chat-invite", { userName, roomName: currentChat });
+    if (type === "game")
+      socket.emit("game-invite", { userName, roomName: currentChat });
+    setInviteModalToggle({ type: "", toggle: false });
   };
 
   return (
@@ -37,7 +43,9 @@ const InviteModal = () => {
                 <Profile src={friend.profile} />
                 <div className="name">{friend.userName}</div>
                 <Button
-                  onClick={() => handleInvite(friend.userName)}
+                  onClick={() =>
+                    handleInvite(inviteModal.type, friend.userName)
+                  }
                   className={friend.status ? "enable" : "disabled"}
                 >
                   초대하기
