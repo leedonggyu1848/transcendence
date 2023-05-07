@@ -651,4 +651,40 @@ export const listenGameInvite = ({
 
 export const listenGameAccept = ({ socket }: { socket: any }) => {};
 
-export const listenGameReject = ({ socket }: { socket: any }) => {};
+export const listenGameReject = ({
+  socket,
+  friendRequestList,
+  setFriendRequestList,
+  myName,
+  setAlertInfo,
+}: {
+  socket: any;
+  friendRequestList: ICombinedRequestAndInvite[];
+  setFriendRequestList: any;
+  myName: string;
+  setAlertInfo: any;
+}) => {
+  socket.on(
+    "game-reject",
+    ({ userName, roomName }: { userName: string; roomName: string }) => {
+      if (userName !== myName) {
+        console.log(userName, " has reject your game invite");
+        setAlertInfo({
+          type: "failure",
+          header: "",
+          msg: `${userName}님이 초대를 거절했습니다`,
+          toggle: true,
+        });
+      } else {
+        console.log("in game-reject success", userName, roomName);
+        console.log(friendRequestList);
+        setFriendRequestList(
+          friendRequestList.filter(
+            (list) =>
+              !(list.inviteType === "게임" && list.roomName === roomName)
+          )
+        );
+      }
+    }
+  );
+};

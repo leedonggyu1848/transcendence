@@ -256,10 +256,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         userName,
         roomName,
       );
-      socket.emit('game-invite', {
-        roomName,
-        userName,
-      });
       this.nsp.sockets.get(result.invitedSocektId)?.emit('game-invite', {
         roomName,
         userName: result.invitorUserName,
@@ -308,7 +304,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         userName,
         roomName,
       );
-      socket.emit('game-reject', { roomName, userName });
+      socket.emit('game-reject', { roomName, userName: result.userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('game-reject', { roomName, userName: result.userName });
@@ -653,7 +649,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         userName,
       );
-      //socket.emit('chat-reject', { roomName, userName: result.userName });
+      socket.emit('chat-reject', { roomName, userName: result.userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('chat-reject', { roomName, userName: result.userName });

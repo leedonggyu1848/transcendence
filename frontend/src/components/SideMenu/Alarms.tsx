@@ -55,6 +55,7 @@ const Alarm = ({ w }: { w: number }) => {
       socket.emit("chat-reject", { userName: intra_id, roomName });
     }
     if (inviteType === "게임") {
+      socket.emit("game-reject", { userName: intra_id, roomName });
     }
   };
 

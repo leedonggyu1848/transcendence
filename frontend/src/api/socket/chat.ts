@@ -174,6 +174,7 @@ export const listenJoinSucces = ({
   joinnedChatList,
   setJoinnedChatList,
   location,
+  navigate,
 }: {
   myName: string;
   socket: any;
@@ -183,6 +184,7 @@ export const listenJoinSucces = ({
   joinnedChatList: IJoinnedChat;
   setJoinnedChatList: any;
   location: Location;
+  navigate: any;
 }) => {
   socket.on(
     "join-chat-success",
@@ -191,13 +193,11 @@ export const listenJoinSucces = ({
       type,
       operator,
       users,
-      navigate,
     }: {
       roomName: string;
       type: number;
       operator: string;
       users: string[];
-      navigate: any;
     }) => {
       const temp: IChatDetail = {
         title: roomName,
@@ -665,41 +665,40 @@ export const listenChatInvite = ({
 
 export const listenChatReject = ({
   socket,
-  setFriendList,
   friendRequestList,
   setFriendRequestList,
-  setRequestFriendListFlag,
+  myName,
+  setAlertInfo,
 }: {
   socket: any;
   setFriendList: IFriendRequest[];
   setRequestFriendListFlag: any;
   friendRequestList: ICombinedRequestAndInvite[];
   setFriendRequestList: any;
+  myName: string;
+  setAlertInfo: any;
 }) => {
   socket.on(
     "chat-reject",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
-      console.log("in chat-reject", userName, roomName);
-      console.log(
-        friendRequestList.filter(
-          (list) =>
-            !(
-              list.roomName &&
-              list.roomName === roomName &&
-              list.userName === userName
-            )
-        )
-      );
-      setFriendRequestList(
-        friendRequestList.filter(
-          (list) =>
-            !(
-              list.roomName &&
-              list.roomName === roomName &&
-              list.userName === userName
-            )
-        )
-      );
+      if (userName !== myName) {
+        console.log(userName, " has reject your chat invite");
+        setAlertInfo({
+          type: "failure",
+          header: "",
+          msg: `${userName}님이 초대를 거절했습니다`,
+          toggle: true,
+        });
+      } else {
+        console.log("in chat-reject success", userName, roomName);
+        console.log(friendRequestList);
+        setFriendRequestList(
+          friendRequestList.filter(
+            (list) =>
+              !(list.inviteType === "채팅" && list.roomName === roomName)
+          )
+        );
+      }
     }
   );
 };
