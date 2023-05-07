@@ -653,7 +653,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         userName,
       );
-      //socket.emit('chat-reject', { roomName, userName: result.userName });
+      socket.emit('chat-reject', { roomName, userName });
       this.nsp.sockets
         .get(result.socket)
         ?.emit('chat-reject', { roomName, userName: result.userName });
