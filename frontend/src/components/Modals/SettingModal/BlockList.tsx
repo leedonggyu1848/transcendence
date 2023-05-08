@@ -55,7 +55,7 @@ const BlockedUser = styled.div`
 
 const BlockedUsers = styled.div`
   width: 80%;
-  height: 350px;
+  height: 200px;
   background: var(--sub-bg-color);
   border-radius: 10px;
   margin-top: 25px;
@@ -77,7 +77,7 @@ const BlockedUsers = styled.div`
 
 const BlockListContainer = styled.div`
   width: 100%;
-  height: 100%;
+  height: 60%;
   display: flex;
   flex-direction: column;
   justify-content: center;

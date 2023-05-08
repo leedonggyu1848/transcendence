@@ -5,6 +5,7 @@ import { myNameState, settingModalState } from "../../../api/atom";
 import { WebsocketContext } from "../../../pages/WrapMainPage";
 import ModalBackground from "../../ModalBackground";
 import BlockList from "./BlockList";
+import MyStats from "./MyStats";
 import SettingProfile from "./SettingProfile";
 import SettingTextArea from "./SettingTextarea";
 
@@ -56,6 +57,7 @@ const SettingModal = () => {
           <SettingTextArea />
         </Container>
         <Container>
+          <MyStats />
           <BlockList />
         </Container>
       </SettingModalContainer>
