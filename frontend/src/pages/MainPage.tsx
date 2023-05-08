@@ -60,6 +60,7 @@ import {
   listenGameList,
   listenNameChange,
   listenRequestAllChat,
+  listenUserAlert,
 } from "../api/socket/connect";
 import {
   listenCancelFriend,
@@ -252,6 +253,7 @@ const MainPage = () => {
     listenBlockList(hooks);
     listenGameList(hooks);
     listenDisconnectUser(hooks);
+    listenUserAlert(hooks);
 
     //friends apis
     listenCancelFriend(hooks);
@@ -319,6 +321,7 @@ const MainPage = () => {
         "friend-request-list",
         "friend-list",
         "game-list",
+        "user-fail",
         "disconnect-user",
         "cancel-friend",
         "request-friend",

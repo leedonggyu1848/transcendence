@@ -126,6 +126,23 @@ export const listenAlert = ({
   });
 };
 
+export const listenUserAlert = ({
+  socket,
+  setAlertInfo,
+}: {
+  socket: any;
+  setAlertInfo: any;
+}) => {
+  socket.on("user-fail", (message: string) => {
+    setAlertInfo({
+      type: "failure",
+      header: "",
+      msg: message,
+      toggle: true,
+    });
+  });
+};
+
 export const listenBlockList = ({
   socket,
   setBlockList,
