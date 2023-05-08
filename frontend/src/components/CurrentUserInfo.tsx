@@ -125,6 +125,7 @@ const CurrentUserInfo = ({
             {!isFriend && (
               <BlockUserIcon onClick={() => clickBlockUser(target)} />
             )}
+            <InfoIcon onClick={() => {}} />
             <ExitIcon onClick={closePersonalMenu} />
           </div>
         </PersonalMenu>
@@ -132,6 +133,15 @@ const CurrentUserInfo = ({
     </CurrentUserInfoContainer>
   );
 };
+
+const InfoIcon = styled.div`
+  width: 30px;
+  height: 30px;
+  background-image: url("/src/assets/info.png");
+  background-size: 100% 100%;
+  cursor: pointer;
+  margin-right: 15px;
+`;
 
 const DeleteFriendIcon = styled.div`
   width: 30px;

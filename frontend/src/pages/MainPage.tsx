@@ -32,6 +32,7 @@ import {
   myInfoState,
   myNameState,
   operatorModalToggleState,
+  profileModalState,
   rankWaitModalToggleState,
   requestFriendListFlagState,
   settingModalState,
@@ -109,6 +110,7 @@ import {
   listenWatchGame,
 } from "../api/socket/game";
 import InviteModal from "../components/Modals/InviteModal";
+import ProfileModal from "../components/Modals/ProfileModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -124,6 +126,7 @@ const MainPage = () => {
   const [friendRequestList, setFriendRequestList] = useRecoilState(
     friendRequestListState
   );
+  const profileModal = useRecoilValue(profileModalState);
   const [friendList, setFriendList] = useRecoilState(friendListState);
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
@@ -398,6 +401,7 @@ const MainPage = () => {
         {joinChatToggle.toggle && <JoinChatModal />}
         {confirmModalState.toggle && <ConfirmModal />}
         {inviteModalToggle.toggle && <InviteModal />}
+        {profileModal.toggle && <ProfileModal />}
       </MainPageContainer>
     )
   );

@@ -318,3 +318,14 @@ export const inviteModalToggleState = atom({
     toggle: false,
   },
 });
+
+export const profileModalState = atom<{
+  toggle: boolean;
+  user: UserDto | null;
+}>({
+  key: "profileModalState",
+  default: {
+    toggle: false,
+    user: null,
+  },
+});

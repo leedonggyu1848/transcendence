@@ -5,7 +5,7 @@ import { myInfoState } from "../../../api/atom";
 const MyStats = () => {
   const myInfo = useRecoilValue(myInfoState);
   const cal = (a: number, b: number) =>
-    a + b === 0 ? 0 : (a / a + b).toFixed(1);
+    a + b === 0 ? 0 : ((a / (a + b)) * 100).toFixed(1);
   return (
     <MyStatsContainer>
       <h1>내 전적</h1>
