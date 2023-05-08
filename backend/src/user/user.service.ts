@@ -9,6 +9,7 @@ import { randomUUID } from 'crypto';
 import { Game } from 'src/entity/game.entity';
 import { GameType } from 'src/entity/common.enum';
 import { IsolationLevel, Transactional } from 'typeorm-transactional';
+import { Record } from 'src/entity/record.entity';
 
 @Injectable()
 export class UserService {
@@ -70,9 +71,9 @@ export class UserService {
         text:
           'PH18 Pong 2차 인증 코드입니다.\n' +
           '************************\n' +
-          '**         ' +
+          '**           ' +
           key +
-          '         **\n' +
+          '           **\n' +
           '************************',
       };
       transporter.sendMail(mailOptions, function (err, info) {
@@ -211,7 +212,8 @@ export class UserService {
     await this.userRepository.updateGameRank(user.id);
   }
 
-  async updateGameWin(user: User, type: GameType) {
+  async updateGameWin(user: User, type: GameType, record: Record) {
+    await this.userRepository.addRecord(user, record);
     if (type === GameType.NORMAL)
       await this.userRepository.updateNormalWin(user.id, user.normalWin);
     else {
@@ -220,7 +222,8 @@ export class UserService {
     }
   }
 
-  async updateGameLose(user: User, type: GameType) {
+  async updateGameLose(user: User, type: GameType, record: Record) {
+    await this.userRepository.addRecord(user, record);
     if (type === GameType.NORMAL)
       await this.userRepository.updateNormalLose(user.id, user.normalWin);
     else {

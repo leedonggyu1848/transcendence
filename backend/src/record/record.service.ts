@@ -4,6 +4,7 @@ import { GameType } from 'src/entity/common.enum';
 import { IRecordRepository } from './repository/record.interface.repository';
 import { UserService } from 'src/user/user.service';
 import { IsolationLevel, Transactional } from 'typeorm-transactional';
+import { UserSessionDto } from 'src/dto/usersession.dto';
 
 @Injectable()
 export class RecordService {
@@ -15,31 +16,32 @@ export class RecordService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async saveGameResult(winner: User, loser: User, type: GameType) {
-    await this.userService.updateGameWin(winner, type);
-    await this.userService.updateGameLose(loser, type);
-    await this.recordRepository.addRecord(
-      type,
-      winner.userName,
-      loser.userName,
-    );
+    const data = await this.recordRepository.addRecord(type, winner, loser);
+    await this.userService.updateGameWin(winner, type, data.win);
+    await this.userService.updateGameLose(loser, type, data.lose);
   }
 
-  async getTotalHistory(page: number) {
-    const allRecords = await this.recordRepository.findAll();
-    const pageRecords = await this.recordRepository.findPage(page, 10);
-    const tmp = pageRecords.map(
+  async getGameHistory(user: UserSessionDto) {
+    const records = await this.recordRepository.findByUserIdWithJoin(
+      user.userId,
+    );
+    const tmp = records.map(
       async (record) => await this.recordRepository.recordToRecordDto(record),
     );
-    const records = await Promise.all(tmp);
-    const recordCount = allRecords.length;
-    return { records, recordCount };
+    const recordsDto = await Promise.all(tmp);
+    const recordCount = records.length;
+    return { recordsDto, recordCount };
   }
 
   async getRecordById(id: number) {
-    const record = await this.recordRepository.findById(id);
-    const winner = await this.userService.getUserByUserName(record.winner);
-    const loser = await this.userService.getUserByUserName(record.loser);
-    if (!record || !winner || !loser) return null;
-    return { record: record, winner: winner, loser: loser };
+    const record = await this.recordRepository.findByIdWithJoin(id);
+    let player = record.player;
+    let opponent = await this.userService.getUserByUserName(record.opponent);
+    if (!record || !player || !opponent) return null;
+    return {
+      record: this.recordRepository.recordToRecordDto(record),
+      winner: this.userService.userToUserDto(record.win ? player : opponent),
+      loser: this.userService.userToUserDto(record.win ? opponent : player),
+    };
   }
 }

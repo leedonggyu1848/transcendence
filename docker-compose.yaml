@@ -11,7 +11,7 @@ volumes:
 services:
   noder:
     container_name: yooh
-    image: node
+    image: node:latest
     volumes:
       - ./:/tmp
     entrypoint: /tmp/runServers.sh

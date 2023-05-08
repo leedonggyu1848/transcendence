@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { GameType } from './common.enum';
+import { User } from './user.entity';
 
 @Entity()
 export class Record {
@@ -9,11 +10,14 @@ export class Record {
   @Column()
   gameType: GameType;
 
-  @Column()
-  winner: string;
+  @ManyToOne(() => User, (user) => user.records)
+  player: User;
 
   @Column()
-  loser: string;
+  opponent: string;
+
+  @Column()
+  win: boolean;
 
   @Column()
   time: Date;

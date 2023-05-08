@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { JoinType } from 'src/entity/common.enum';
 import { Game } from 'src/entity/game.entity';
+import { Record } from 'src/entity/record.entity';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { IUserRepository } from './user.interface.repository';
@@ -196,5 +197,10 @@ export class UserRepository implements IUserRepository {
 
   async updateUserIntroduce(id: number, introduce: string) {
     await this.userRepository.update(id, { introduce });
+  }
+
+  async addRecord(user: User, record: Record) {
+    user.records.push(record);
+    await this.userRepository.save(user);
   }
 }

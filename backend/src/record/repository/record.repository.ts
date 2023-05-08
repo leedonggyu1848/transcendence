@@ -2,6 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RecordDto } from 'src/dto/record.dto';
 import { GameType } from 'src/entity/common.enum';
 import { Record } from 'src/entity/record.entity';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { IRecordRepository } from './record.interface.repository';
 
@@ -11,31 +12,54 @@ export class RecordRepository implements IRecordRepository {
   ) {}
 
   recordToRecordDto(record: Record) {
+    const winner = record.win ? record.player.userName : record.opponent;
+    const loser = record.win ? record.opponent : record.player.userName;
     const recordDto: RecordDto = {
       id: record.id,
       gameType: record.gameType,
-      winner: record.winner,
-      loser: record.loser,
+      winner: winner,
+      loser: loser,
       time: record.time,
     };
     return recordDto;
   }
 
-  async addRecord(gameType: GameType, winner: string, loser: string) {
-    await this.recordRepository.save({
+  async addRecord(gameType: GameType, winner: User, loser: User) {
+    const win = {
       gameType: gameType,
-      winner: winner,
-      loser: loser,
+      player: winner,
+      opponent: loser.userName,
+      win: true,
       time: new Date(Date.now()),
-    });
+    };
+    const lose = {
+      gameType: gameType,
+      player: loser,
+      opponent: winner.userName,
+      win: false,
+      time: new Date(Date.now()),
+    };
+    await this.recordRepository.save(win);
+    await this.recordRepository.save(lose);
+    return { win, lose };
   }
 
   async findAll() {
     return await this.recordRepository.find();
   }
 
-  async findById(id: number) {
-    return await this.recordRepository.findOneBy({ id: id });
+  async findByUserIdWithJoin(userId: number) {
+    return await this.recordRepository.find({
+      where: { player: { id: userId } },
+      relations: ['player'],
+    });
+  }
+
+  async findByIdWithJoin(id: number) {
+    return await this.recordRepository.findOne({
+      where: { id: id },
+      relations: ['player'],
+    });
   }
 
   async findPage(page: number, pageSize: number) {
@@ -43,12 +67,5 @@ export class RecordRepository implements IRecordRepository {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  }
-
-  async findByPlayer(player: string) {
-    const rec1 = await this.recordRepository.findBy({ winner: player });
-    const rec2 = await this.recordRepository.findBy({ loser: player });
-    const records = rec1.concat(rec2);
-    return records.sort((r1, r2) => r1.time.getTime() - r2.time.getTime());
   }
 }

@@ -11,6 +11,7 @@ import { ChatUser } from './chatuser.entity';
 import { JoinType } from './common.enum';
 import { Friend } from './friend.entity';
 import { Game } from './game.entity';
+import { Record } from './record.entity';
 
 @Entity()
 export class User {
@@ -60,6 +61,9 @@ export class User {
 
   @Column()
   joinType: JoinType;
+
+  @OneToMany(() => Record, (record) => record.player, { onDelete: 'CASCADE' })
+  records: Record[];
 
   @OneToMany(() => Friend, (friend) => friend.user, { cascade: true })
   friends: Friend[];

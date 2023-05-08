@@ -1,5 +1,6 @@
 import { Chat } from 'src/entity/chat.entity';
 import { Game } from 'src/entity/game.entity';
+import { Record } from 'src/entity/record.entity';
 import { User } from 'src/entity/user.entity';
 
 export interface IUserRepository {
@@ -33,4 +34,5 @@ export interface IUserRepository {
   updateRankLose(id: number, lose: number);
   updateProfileImage(id: number, filename: string);
   updateUserIntroduce(id: number, introduce: string);
+  addRecord(user: User, record: Record);
 }
