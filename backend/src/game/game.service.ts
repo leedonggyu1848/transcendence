@@ -47,6 +47,18 @@ export class GameService {
     return await this.gameRepository.findByTitleWithJoin(title);
   }
 
+  async getOpponentUser(title: string, userName: string) {
+    const game = await this.getGameByTitleWithUsers(title);
+    if (!game) throw new Error('맞는 게임 방이 없습니다.');
+    if (game.count !== 2) throw new Error('게임 방에 상대방이 없습니다.');
+    const opponent = game.players.filter((player) => {
+      player.userName !== userName;
+    });
+    return await this.userService.getUserByUserNameWithGame(
+      opponent[0].userName,
+    );
+  }
+
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async createGame(gameDto: GameDto, user: User) {
     const found = await this.gameRepository.findByTitle(gameDto.title);

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import { GameDto } from 'src/dto/game.dto';
-import { JoinType } from 'src/entity/common.enum';
+import { GameType, JoinType } from 'src/entity/common.enum';
 import { GameService } from 'src/game/game.service';
 import {
   CreateChatPayload,
@@ -238,6 +238,50 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         type: result.type,
       });
+    } catch (err) {
+      socket.emit('game-fail', err.message);
+    }
+  }
+
+  @SubscribeMessage('refresh-while-playing')
+  async handleRefreshOnPlaying(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    {
+      roomName,
+      userName,
+      type,
+    }: { roomName: string; userName: string; type: GameType },
+  ) {
+    this.logger.log(
+      `[RefreshOnPlaying] roomName: ${roomName}, userName: ${userName},`,
+      'type: ' + (type === GameType.NORMAL) ? 'NORMAL' : 'RANK',
+    );
+    try {
+      await this.eventsService.loseGameAsAction(roomName, userName, type);
+      socket.to(roomName).emit('refresh-while-playing', { roomName, userName });
+    } catch (err) {
+      socket.emit('game-fail', err.message);
+    }
+  }
+
+  @SubscribeMessage('leave-while-playing')
+  async handleLeaveOnPlaying(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    {
+      roomName,
+      userName,
+      type,
+    }: { roomName: string; userName: string; type: GameType },
+  ) {
+    this.logger.log(
+      `[LeaveOnPlaying] roomName: ${roomName}, userName: ${userName},`,
+      'type: ' + (type === GameType.NORMAL) ? 'NORMAL' : 'RANK',
+    );
+    try {
+      await this.eventsService.loseGameAsAction(roomName, userName, type);
+      socket.to(roomName).emit('leave-while-playing', { roomName, userName });
     } catch (err) {
       socket.emit('game-fail', err.message);
     }
