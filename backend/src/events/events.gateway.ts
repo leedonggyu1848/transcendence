@@ -304,7 +304,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         password: '',
       };
       const create = await this.eventsService.createGame(gameDto, socket.id);
-      socket.emit('game-invite', create);
+      socket.emit('create-game', create);
       socket.broadcast.emit('new-game', create.gameDto);
       const invite = await this.eventsService.gameInvite(
         socket.id,
@@ -590,7 +590,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         password,
       );
       socket.join(roomName);
-      socket.emit('create-success', { roomName, type, owner: result.data });
       this.nsp.emit('create-chat', { roomName, type, owner: result.data });
     } catch (err) {
       socket.emit('chat-fail', err.message);
@@ -988,6 +987,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     result.forEach((data) => {
       socket.broadcast.emit('user-ingame', data);
+    });
+  }
+
+  @SubscribeMessage('end-game')
+  async handleEndGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.logger.log(`[EndGame] roomName: ${roomName}`);
+    socket.broadcast.to(roomName).emit('end-game');
+    const result = await this.eventsService.gameAlert(
+      roomName,
+      '의 게임이 끝났습니다.',
+    );
+    result.forEach((data) => {
+      socket.broadcast.emit('user-gameout', data);
     });
   }
 

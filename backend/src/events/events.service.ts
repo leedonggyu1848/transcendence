@@ -191,7 +191,7 @@ export class EventsService {
   async loseGameAsAction(roomName: string, userName: string, type: GameType) {
     const user = await this.userService.getUserByUserNameWithGame(userName);
     if (!user) throw new Error('잘못된 유저 정보입니다.');
-    if (user.joinType === JoinType.NONE || !user.playGame)
+    if (type !== GameType.RANK && (user.joinType === JoinType.NONE || !user.playGame))
       throw new Error('참여 중인 방이 존재하지 않습니다.');
     const opponent = await this.gameService.getOpponentUser(roomName, userName);
     await this.recordService.saveGameResult(opponent, user, type);
