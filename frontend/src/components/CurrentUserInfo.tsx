@@ -16,12 +16,12 @@ import { WebsocketContext } from "../pages/WrapMainPage";
 const CurrentUserInfo = ({
   data,
   title,
-  operator,
+  owner,
   clickOperatorButton,
 }: {
   data: JoinnedUserDto[];
   title: string;
-  operator: boolean;
+  owner: boolean;
   clickOperatorButton: Function;
 }) => {
   const [toggle, setToggle] = useState(false);
@@ -112,7 +112,7 @@ const CurrentUserInfo = ({
           {title.length > 13 ? "..." : ""}
         </Title>
         <InfoContainer>
-          {operator && <OperatorIcon onClick={() => clickOperatorButton()} />}
+          {owner && <OperatorIcon onClick={() => clickOperatorButton()} />}
           <UserIcon />
           {data.length}
         </InfoContainer>

@@ -53,7 +53,7 @@ export const listenCreateGame = ({
         [gameDto.title]: {
           title: gameDto.title,
           type: 0,
-          operator: "",
+          owner: "",
           userList: [ownerDto.userName],
           chatLogs: [],
           banUsers: [],
@@ -439,6 +439,7 @@ export const listenUserLeaveGame = ({
       type: number;
       roomName: string;
     }) => {
+      console.log("user-leave-game", message, userInfo, type, roomName);
       if (type === 1) {
         if (currentGame && currentGame.gameDto.title === roomName) {
           const temp = { ...joinnedChatList };

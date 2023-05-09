@@ -590,7 +590,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         password,
       );
       socket.join(roomName);
-      socket.emit('create-success', { roomName, type, owner: result.data });
       this.nsp.emit('create-chat', { roomName, type, owner: result.data });
     } catch (err) {
       socket.emit('chat-fail', err.message);

@@ -72,23 +72,23 @@ export const listenCreateChat = ({
     ({
       roomName,
       type,
-      operator,
+      owner,
     }: {
       roomName: string;
       type: number;
-      operator: string;
+      owner: string;
     }) => {
       const temp: IChatRoom = {
         title: roomName,
         type,
-        operator,
+        owner,
         count: 1,
       };
       setChatList([...chatList, temp]);
       const detailTemp: IChatDetail = {
         title: roomName,
         type,
-        operator,
+        owner,
         userList: [myName],
         chatLogs: [],
         banUsers: [],
@@ -96,7 +96,7 @@ export const listenCreateChat = ({
         isMuted: false,
         muteId: -1,
       };
-      if (operator === myName) {
+      if (owner === myName) {
         setCurrentChat(roomName);
         setJoinnedChatList({
           ...joinnedChatList,
@@ -191,18 +191,18 @@ export const listenJoinSucces = ({
     ({
       roomName,
       type,
-      operator,
+      owner,
       users,
     }: {
       roomName: string;
       type: number;
-      operator: string;
+      owner: string;
       users: string[];
     }) => {
       const temp: IChatDetail = {
         title: roomName,
         type,
-        operator,
+        owner,
         userList: [...users, myName],
         chatLogs: [],
         banUsers: [],

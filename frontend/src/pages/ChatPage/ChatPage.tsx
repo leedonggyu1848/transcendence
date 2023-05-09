@@ -78,7 +78,7 @@ const ChatPage = () => {
           <HeaderContainer>
             <div>현재 채팅</div>
             <ButtonContainer>
-              {joinnedChatList[currentChat].operator === myName && (
+              {joinnedChatList[currentChat].owner === myName && (
                 <Button onClick={openInviteModal}>초대하기</Button>
               )}
               <Button
@@ -92,13 +92,13 @@ const ChatPage = () => {
           </HeaderContainer>
           <CurrentChat
             roomName={joinnedChatList[currentChat].title}
-            operator={joinnedChatList[currentChat].operator === myName}
+            owner={joinnedChatList[currentChat].owner === myName}
             myName={myName}
             type={joinnedChatList[currentChat].type}
             data={UserDtoToJoinnedUserDto(
               joinnedChatList[currentChat].userList,
               myName,
-              joinnedChatList[currentChat].operator
+              joinnedChatList[currentChat].owner
             )}
             clickOperatorButton={clickOperatorButton}
           />
@@ -128,12 +128,11 @@ const ChatPage = () => {
 function UserDtoToJoinnedUserDto(
   data: string[],
   myName: string,
-  operator: string
+  owner: string
 ) {
   return data.map((name) => ({
     userName: name,
-    type:
-      name === operator ? "owner" : name === myName ? "opponent" : "watcher",
+    type: name === owner ? "owner" : name === myName ? "opponent" : "watcher",
   }));
 }
 

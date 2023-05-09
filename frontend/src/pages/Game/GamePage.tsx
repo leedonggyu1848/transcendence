@@ -234,7 +234,7 @@ const GamePage = () => {
           <CurrentUserInfo
             data={usersInfo}
             title={gameInfo.gameDto.title}
-            operator={false}
+            owner={false}
             clickOperatorButton={() => {}}
           />
           <ChatBox

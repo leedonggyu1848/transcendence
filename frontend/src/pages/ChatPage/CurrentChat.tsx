@@ -11,14 +11,14 @@ import CurrentUserInfo from "../../components/CurrentUserInfo";
 const CurrentChat = ({
   roomName,
   data,
-  operator,
+  owner,
   clickOperatorButton,
   myName,
   type,
 }: {
   roomName: string;
   data: JoinnedUserDto[];
-  operator: boolean;
+  owner: boolean;
   clickOperatorButton: Function;
   myName: string;
   type: number;
@@ -62,7 +62,7 @@ const CurrentChat = ({
       <CurrentUserInfo
         data={data}
         title={getRoomNameByType(type, roomName, myName)}
-        operator={operator}
+        owner={owner}
         clickOperatorButton={clickOperatorButton}
       />
       <ChatBox

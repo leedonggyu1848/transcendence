@@ -116,14 +116,14 @@ export interface ICombinedRequestAndInvite
 export interface IChatRoom {
   title: string;
   type: number;
-  operator: string;
+  owner: string;
   count: number;
 }
 
 export interface IChatDetail {
   title: string;
   type: number;
-  operator: string;
+  owner: string;
   userList: string[];
   chatLogs: IChatLog[];
   banUsers: string[];
