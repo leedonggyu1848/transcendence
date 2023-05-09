@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AdministratorModule } from 'src/administrator/administrator.module';
 import { BanModule } from 'src/ban/ban.module';
 import { BlockModule } from 'src/block/block.module';
 import { ChatModule } from 'src/chat/chat.module';
@@ -18,6 +19,7 @@ import { EventsService } from './events.service';
     RecordModule,
     GameModule,
     ChatModule,
+    AdministratorModule,
   ],
   providers: [EventsGateway, EventsService],
 })

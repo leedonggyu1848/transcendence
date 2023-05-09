@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { Administrator } from 'src/entity/administrator.entity';
 import { Ban } from 'src/entity/ban.entity';
 import { Block } from 'src/entity/block.entity';
 import { Chat } from 'src/entity/chat.entity';
@@ -22,7 +23,17 @@ export default class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('database.username'),
       password: this.configService.get<string>('database.password'),
       database: this.configService.get<string>('database'),
-      entities: [User, Game, Record, Friend, Chat, ChatUser, Ban, Block],
+      entities: [
+        User,
+        Game,
+        Record,
+        Friend,
+        Chat,
+        ChatUser,
+        Ban,
+        Block,
+        Administrator,
+      ],
       synchronize: true,
     };
   }

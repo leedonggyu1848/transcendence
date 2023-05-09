@@ -96,6 +96,7 @@ export class ChatService {
       password,
     );
     await this.chatUserRepository.addChatUser(chat, user);
+    return chat;
   }
 
   async checkPassword(chat: Chat, password: string) {

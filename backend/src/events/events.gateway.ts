@@ -590,8 +590,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         password,
       );
       socket.join(roomName);
-      socket.emit('create-success', { roomName, type, operator: result.data });
-      this.nsp.emit('create-chat', { roomName, type, operator: result.data });
+      socket.emit('create-success', { roomName, type, owner: result.data });
+      this.nsp.emit('create-chat', { roomName, type, owner: result.data });
     } catch (err) {
       socket.emit('chat-fail', err.message);
     }
@@ -821,22 +821,62 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('chat-operator')
-  async handleChatChangeOperator(
+  @SubscribeMessage('chat-owner')
+  async handleChatChangeOwner(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, operator }: { roomName: string; operator: string },
+    { roomName, owner }: { roomName: string; owner: string },
   ) {
-    this.logger.log(
-      `[ChatChangeOperator] roomName: ${roomName}, operator: ${operator}`,
-    );
+    this.logger.log(`[ChatChangeOwner] roomName: ${roomName}, owner: ${owner}`);
     try {
       const result = await this.eventsService.changeOwner(
         socket.id,
         roomName,
-        operator,
+        owner,
       );
-      this.nsp.to(roomName).emit('chat-operator', result);
+      this.nsp.to(roomName).emit('chat-owner', result);
+    } catch (err) {
+      socket.emit('chat-fail', err.message);
+    }
+  }
+
+  @SubscribeMessage('chat-add-admin')
+  async handleChatAddAdmin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, userName }: { roomName: string; userName: string },
+  ) {
+    this.logger.log(
+      `[ChatAddAdmin] roomName: ${roomName}, userName: ${userName}`,
+    );
+    try {
+      const result = await this.eventsService.addAdministrator(
+        socket.id,
+        roomName,
+        userName,
+      );
+      this.nsp.to(roomName).emit('chat-add-admin', result);
+    } catch (err) {
+      socket.emit('chat-fail', err.message);
+    }
+  }
+
+  @SubscribeMessage('chat-del-admin')
+  async handleChatDelAdmin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    { roomName, userName }: { roomName: string; userName: string },
+  ) {
+    this.logger.log(
+      `[ChatDelAdmin] roomName: ${roomName}, userName: ${userName}`,
+    );
+    try {
+      const result = await this.eventsService.delAdministrator(
+        socket.id,
+        roomName,
+        userName,
+      );
+      this.nsp.to(roomName).emit('chat-del-admin', result);
     } catch (err) {
       socket.emit('chat-fail', err.message);
     }
