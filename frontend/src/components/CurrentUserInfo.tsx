@@ -7,8 +7,10 @@ import {
   currentChatState,
   friendListState,
   myNameState,
+  profileModalState,
 } from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
+import { axiosRequestUserInfo } from "../api/request";
 import { WebsocketContext } from "../pages/WrapMainPage";
 
 const CurrentUserInfo = ({
@@ -40,6 +42,7 @@ const CurrentUserInfo = ({
     setTarget(name);
     setIsFriend(friendList.some((friend) => friend.userName === name));
   };
+  const setProfileModal = useSetRecoilState(profileModalState);
 
   const clickFriendRequest = (friendname: string) => {
     if (friendList.some((friend) => friend.userName === friendname)) return;
@@ -83,6 +86,20 @@ const CurrentUserInfo = ({
     });
   };
 
+  const clickInfoIcon = async (userName: string) => {
+    try {
+      const data = await axiosRequestUserInfo(userName);
+      console.log(data);
+      setProfileModal({
+        toggle: true,
+        user: data,
+      });
+      closePersonalMenu();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const closePersonalMenu = () => {
     setTarget("");
     setToggle(false);
@@ -116,6 +133,7 @@ const CurrentUserInfo = ({
         <PersonalMenu toggle={toggle}>
           <TargetName>{target}</TargetName>
           <div>
+            <InviteIcon onClick={() => {}} />
             {isFriend && (
               <DeleteFriendIcon onClick={() => clickDeleteFriend(target)} />
             )}
@@ -125,7 +143,7 @@ const CurrentUserInfo = ({
             {!isFriend && (
               <BlockUserIcon onClick={() => clickBlockUser(target)} />
             )}
-            <InfoIcon onClick={() => {}} />
+            <InfoIcon onClick={() => clickInfoIcon(target)} />
             <ExitIcon onClick={closePersonalMenu} />
           </div>
         </PersonalMenu>
@@ -160,10 +178,10 @@ const ExitIcon = styled.div`
   margin-right: 10px;
 `;
 
-const MessageIcon = styled.div`
+const InviteIcon = styled.div`
   width: 23px;
   height: 23px;
-  background-image: url("/src/assets/messageIcon.png");
+  background-image: url("/src/assets/PongIcon.png");
   background-size: 100% 100%;
   cursor: pointer;
   margin-right: 15px;

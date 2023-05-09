@@ -145,3 +145,9 @@ export const axiosChangeNickName = async (userName: string) => {
   const response = await instance.post(axiosChangeNickNameURL, { userName });
   return response.data;
 };
+
+const axiosRequestUserInfoURL = "/auth/userinfo/";
+export const axiosRequestUserInfo = async (userName: string) => {
+  const response = await instance.get(axiosRequestUserInfoURL + userName);
+  return response.data;
+};
