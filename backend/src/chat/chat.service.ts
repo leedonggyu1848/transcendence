@@ -21,7 +21,7 @@ export class ChatService {
     const chatDto: ChatDto = {
       title: chat.title,
       type: chat.type,
-      operator: chat.owner,
+      owner: chat.owner,
       count: chat.count,
     };
     return chatDto;
@@ -69,7 +69,7 @@ export class ChatService {
       {
         title: sender.userName + ',' + receiver.userName,
         type: ChatType.DM,
-        operator: sender.userName,
+        owner: sender.userName,
         count: 2,
       },
       '',
@@ -90,7 +90,7 @@ export class ChatService {
       {
         title: roomName,
         type: type,
-        operator: user.userName,
+        owner: user.userName,
         count: 1,
       },
       password,
