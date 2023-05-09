@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
@@ -25,6 +25,7 @@ const GameLobbyContainer = () => {
   const setSelectedNormalGameTitle = useSetRecoilState(
     selectedNormalGameTitleState
   );
+  const location = useLocation();
   const setAlertInfo = useSetRecoilState(alertModalState);
   const socket = useContext(WebsocketContext);
 
