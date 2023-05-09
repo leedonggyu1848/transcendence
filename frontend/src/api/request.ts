@@ -79,7 +79,7 @@ export const axiosRecordGameResult = async (
 const axiosGetHistoryURL = "/game/history/";
 export const axiosGetHistory = async (page: number) => {
   const result = await instance.get(axiosGetHistoryURL + `?page=${page}`);
-  return result.data.records;
+  return result.data.recordsDto;
 };
 
 const axiosGetUserGameRecordURL = "/game/history/";
