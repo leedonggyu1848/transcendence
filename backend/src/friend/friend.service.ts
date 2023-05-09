@@ -65,7 +65,7 @@ export class FriendService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async friendRequest(user: User, friend: User) {
-    const userReqs = await this.friendRepository.findAllWithJoin(user);
+    const userReqs = await this.friendRepository.findAllByUserWithJoin(user);
     if (this.requestCheck(userReqs, friend.userName)) return false;
     await this.friendRepository.addFriend(user, friend, false);
     return true;
@@ -108,5 +108,21 @@ export class FriendService {
     if (friendRelation.length !== 0)
       await this.friendRepository.deleteFriend(friendRelation[0]);
     return true;
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async updateUserName(userName: string, updateName: string) {
+    const friends = await this.friendRepository.findAllByFriend(userName);
+    friends.forEach((friend) => {
+      this.friendRepository.updateFriendName(friend.id, updateName);
+    });
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async updateUserProfile(userName: string, profile: string) {
+    const friends = await this.friendRepository.findAllByFriend(userName);
+    friends.forEach((friend) => {
+      this.friendRepository.updateFriendProfile(friend.id, profile);
+    });
   }
 }

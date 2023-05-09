@@ -75,8 +75,10 @@ export class EventsService {
   async changeUserName(socketId: string, userName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) throw new Error('없는 유저입니다.');
-    const result = await this.userService.updateUserName(user, userName);
-    if (!result) throw new Error('이미 사용 중인 이름입니다.');
+    const found = await this.userService.getUserByUserName(userName);
+    if (found) throw new Error('이미 사용 중인 이름입니다.');
+    await this.userService.updateUserName(user, userName);
+    await this.friendService.updateUserName(user.userName, userName);
     return {
       before: user.userName,
       after: userName,
@@ -86,7 +88,9 @@ export class EventsService {
   async changeUserProfile(socketId: string, image: Buffer) {
     const user = await this.userService.getUserBySocketId(socketId);
     if (!user) throw new Error('없는 유저입니다.');
-    return await this.userService.updateProfileImage(user, image);
+    const path = await this.userService.updateProfileImage(user, image);
+    await this.friendService.updateUserProfile(user.userName, path);
+    return { userName: user.userName, profile: path };
   }
 
   async createGame(gameDto: GameDto, socketId: string) {

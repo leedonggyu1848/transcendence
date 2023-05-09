@@ -176,10 +176,7 @@ export class UserService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateUserName(user: User, userName: string) {
-    const found = await this.userRepository.findByUserName(userName);
-    if (found) return false;
     await this.userRepository.updateUserName(user.id, userName);
-    return true;
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
@@ -190,7 +187,7 @@ export class UserService {
     fs.writeFile(imagePath, image, function () {});
     const findPath = `${user.userId}-${timeValue.toString()}.png`;
     await this.userRepository.updateProfileImage(user.id, findPath);
-    return { userName: user.userName, profile: findPath };
+    return findPath;
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
