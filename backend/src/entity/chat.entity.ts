@@ -10,6 +10,7 @@ import { Ban } from './ban.entity';
 import { ChatUser } from './chatuser.entity';
 import { ChatType } from './common.enum';
 import * as bcrypt from 'bcrypt';
+import { Administrator } from './administrator.entity';
 
 @Entity()
 export class Chat {
@@ -33,7 +34,10 @@ export class Chat {
   }
 
   @Column()
-  operator: string;
+  owner: string;
+
+  @OneToMany(() => Administrator, (admin) => admin.chat, { cascade: true })
+  administrators: Administrator[];
 
   @Column()
   count: number;

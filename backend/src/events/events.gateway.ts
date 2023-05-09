@@ -633,7 +633,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: result.msg,
         userName: result.userName,
         roomName: roomName,
-        operator: result.operator,
+        owner: result.owner,
       });
       socket.emit('leave-chat-success', roomName);
     } catch (err) {
@@ -829,7 +829,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `[ChatChangeOperator] roomName: ${roomName}, operator: ${operator}`,
     );
     try {
-      const result = await this.eventsService.changeOperator(
+      const result = await this.eventsService.changeOwner(
         socket.id,
         roomName,
         operator,

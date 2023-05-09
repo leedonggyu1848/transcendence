@@ -21,7 +21,7 @@ export class ChatService {
     const chatDto: ChatDto = {
       title: chat.title,
       type: chat.type,
-      operator: chat.operator,
+      operator: chat.owner,
       count: chat.count,
     };
     return chatDto;
@@ -45,8 +45,8 @@ export class ChatService {
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async updateOperator(chat: Chat, operator: string) {
-    await this.chatRepository.updateOperator(chat.id, operator);
+  async updateOwner(chat: Chat, owner: string) {
+    await this.chatRepository.updateOwner(chat.id, owner);
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
@@ -86,8 +86,6 @@ export class ChatService {
     type: ChatType,
     password: string,
   ) {
-    const exist = await this.chatRepository.findByTitle(roomName);
-    if (exist) return false;
     const chat = await this.chatRepository.createByChatDto(
       {
         title: roomName,
@@ -98,7 +96,6 @@ export class ChatService {
       password,
     );
     await this.chatUserRepository.addChatUser(chat, user);
-    return true;
   }
 
   async checkPassword(chat: Chat, password: string) {
@@ -133,8 +130,8 @@ export class ChatService {
     else {
       await this.chatRepository.updateCount(chat.id, chat.count - 1);
       chat = await this.chatRepository.findByTitleWithJoin(chat.title);
-      if (chat.operator === user.userName) {
-        await this.chatRepository.updateOperator(
+      if (chat.owner === user.userName) {
+        await this.chatRepository.updateOwner(
           chat.id,
           chat.users[0].user.userName,
         );
