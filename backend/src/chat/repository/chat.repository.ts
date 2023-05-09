@@ -26,7 +26,7 @@ export class ChatRepository implements IChatRepository {
   async findByTitleWithJoin(title: string) {
     return await this.chatRepository.findOne({
       where: { title: title },
-      relations: ['users', 'users.user', 'banUsers'],
+      relations: ['users', 'users.user', 'banUsers', 'administrators'],
     });
   }
 
@@ -36,8 +36,8 @@ export class ChatRepository implements IChatRepository {
     await this.chatRepository.save(data);
   }
 
-  async updateOperator(chatId: number, operator: string) {
-    await this.chatRepository.update(chatId, { operator: operator });
+  async updateOwner(chatId: number, owner: string) {
+    await this.chatRepository.update(chatId, { owner: owner });
   }
 
   async updateCount(chatId: number, count: number) {
