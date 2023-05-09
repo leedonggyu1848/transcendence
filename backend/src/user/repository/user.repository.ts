@@ -200,7 +200,8 @@ export class UserRepository implements IUserRepository {
   }
 
   async addRecord(user: User, record: Record) {
-    user.records.push(record);
+    if (user.records) user.records.push(record);
+    else user.records = [record];
     await this.userRepository.save(user);
   }
 }

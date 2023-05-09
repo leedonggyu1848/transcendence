@@ -174,11 +174,21 @@ export class EventsService {
     const game = await this.gameService.getGameByTitleWithUsers(
       user.playGame.title,
     );
+    if (!game) throw new Error('데이터 저장 오류');
     await this.gameService.leaveGame(game, user);
     return {
       user: this.userService.userToUserDto(user),
       type: user.joinType,
     };
+  }
+
+  async loseGameAsAction(roomName: string, userName: string, type: GameType) {
+    const user = await this.userService.getUserByUserNameWithGame(userName);
+    if (!user) throw new Error('잘못된 유저 정보입니다.');
+    if (user.joinType === JoinType.NONE || !user.playGame)
+      throw new Error('참여 중인 방이 존재하지 않습니다.');
+    const opponent = await this.gameService.getOpponentUser(roomName, userName);
+    await this.recordService.saveGameResult(opponent, user, type);
   }
 
   async gameInvite(socketId: string, userName: string, roomName: string) {
