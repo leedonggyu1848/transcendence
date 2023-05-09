@@ -329,3 +329,18 @@ export const profileModalState = atom<{
     user: null,
   },
 });
+
+export const gameStartState = atom({
+  key: "gameStartState",
+  default: false,
+});
+
+export const gameStartCountState = atom({
+  key: "gameStartCountState",
+  default: false,
+});
+
+export const gameCountState = atom({
+  key: "gameCountState",
+  default: 4,
+});

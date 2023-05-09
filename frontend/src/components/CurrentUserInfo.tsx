@@ -50,10 +50,6 @@ const CurrentUserInfo = ({
     closePersonalMenu();
   };
 
-  const clickDirectMessage = () => {
-    console.log(location);
-  };
-
   const clickDeleteFriend = (friendName: string) => {
     setConfirmModalState({
       msg: `${friendName}님을 친구목록에서 삭제하시겠습니까?`,
@@ -89,7 +85,6 @@ const CurrentUserInfo = ({
   const clickInfoIcon = async (userName: string) => {
     try {
       const data = await axiosRequestUserInfo(userName);
-      console.log(data);
       setProfileModal({
         toggle: true,
         user: data,
