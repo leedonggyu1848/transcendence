@@ -7,8 +7,8 @@ export class Ban {
   id: number;
 
   @ManyToOne(() => Chat, (chat) => chat.banUsers)
-  channel: Chat;
+  chat: Chat;
 
   @Column()
-  userName: string;
+  userId: number;
 }

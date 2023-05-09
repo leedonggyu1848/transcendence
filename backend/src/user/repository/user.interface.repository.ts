@@ -14,12 +14,14 @@ export interface IUserRepository {
   findByUserNameWithJoinAll(socketId: string);
   findByUserNameWithJoinFriend(userName: string);
   findByUserNameWithJoinBlock(userName: string);
+  findByUserNameWithJoinRecord(userName: string);
   findBySocketId(socketId: string);
   findBySocketIdWithJoinGame(socketId: string);
   findBySocketIdWithJoinChat(socketId: string);
   findBySocketIdWithJoinAll(socketId: string);
   findBySocketIdWithJoinFriend(socketId: string);
   findBySocketIdWithJoinBlock(socketId: string);
+  findBySocketIdWithJoinRecord(socketId: string);
   updateSocketId(id: number, socketId: string);
   updateUserName(id: number, userName: string);
   updateAuth(id: number, auth: boolean);

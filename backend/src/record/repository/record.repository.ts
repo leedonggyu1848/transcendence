@@ -11,46 +11,25 @@ export class RecordRepository implements IRecordRepository {
     @InjectRepository(Record) private recordRepository: Repository<Record>,
   ) {}
 
-  recordToRecordDto(record: Record) {
-    const winner = record.win ? record.player.userName : record.opponent;
-    const loser = record.win ? record.opponent : record.player.userName;
-    const recordDto: RecordDto = {
-      id: record.id,
-      gameType: record.gameType,
-      winner: winner,
-      loser: loser,
-      time: record.time,
-    };
-    return recordDto;
-  }
-
-  async addRecord(gameType: GameType, winner: User, loser: User) {
-    const win = {
+  async addRecord(gameType: GameType, player: User, opponent: string) {
+    const record = this.recordRepository.create({
       gameType: gameType,
-      player: winner,
-      opponent: loser.userName,
+      player: player,
+      opponent: opponent,
       win: true,
       time: new Date(Date.now()),
-    };
-    const lose = {
-      gameType: gameType,
-      player: loser,
-      opponent: winner.userName,
-      win: false,
-      time: new Date(Date.now()),
-    };
-    await this.recordRepository.save(win);
-    await this.recordRepository.save(lose);
-    return { win, lose };
+    });
+    await this.recordRepository.save(record);
+    return record;
   }
 
   async findAll() {
     return await this.recordRepository.find();
   }
 
-  async findByUserIdWithJoin(userId: number) {
+  async findByUserIdWithJoin(user: User) {
     return await this.recordRepository.find({
-      where: { player: { id: userId } },
+      where: { player: { id: user.id } },
       relations: ['player'],
     });
   }
@@ -59,13 +38,6 @@ export class RecordRepository implements IRecordRepository {
     return await this.recordRepository.findOne({
       where: { id: id },
       relations: ['player'],
-    });
-  }
-
-  async findPage(page: number, pageSize: number) {
-    return await this.recordRepository.find({
-      skip: (page - 1) * pageSize,
-      take: pageSize,
     });
   }
 }

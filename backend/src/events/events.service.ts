@@ -256,8 +256,8 @@ export class EventsService {
   }
 
   async saveGameResult(win: string, lose: string, type: GameType) {
-    const winner = await this.userService.getUserByUserNameWithGame(win);
-    const loser = await this.userService.getUserByUserNameWithGame(lose);
+    const winner = await this.userService.getUserByUserNameWithRecord(win);
+    const loser = await this.userService.getUserByUserNameWithRecord(lose);
     if (!winner || !loser) throw new Error('유저 이름이 맞지 않습니다.');
     await this.recordService.saveGameResult(winner, loser, type);
     return {
@@ -563,7 +563,8 @@ export class EventsService {
 
   async banUser(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.getUserBySocketId(socketId);
-    if (!user) throw new Error('맞는 유저가 없습니다.');
+    const ban = await this.userService.getUserByUserName(banUser);
+    if (!user || !ban) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     if (chat.operator !== user.userName)
@@ -571,7 +572,7 @@ export class EventsService {
     const isBan = chat.banUsers.filter((ban) => ban.userName === banUser);
     if (isBan.length !== 0)
       throw new Error(`${banUser}는 이미 밴 되어있습니다.`);
-    await this.banService.addBanUser(chat, banUser);
+    await this.banService.addBanUser(chat, ban.userId);
     return `${banUser}가 밴 되었습니다.`;
   }
 

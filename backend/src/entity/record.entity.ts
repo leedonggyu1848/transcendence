@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { GameType } from './common.enum';
 import { User } from './user.entity';
 
@@ -11,6 +17,7 @@ export class Record {
   gameType: GameType;
 
   @ManyToOne(() => User, (user) => user.records)
+  @JoinColumn({ name: 'playerId' })
   player: User;
 
   @Column()

@@ -161,6 +161,14 @@ export class UserService {
     return await this.userRepository.findBySocketIdWithJoinBlock(socketId);
   }
 
+  async getUserBySocketIdWithRecord(socketId: string) {
+    return await this.userRepository.findBySocketIdWithJoinRecord(socketId);
+  }
+
+  async getUserByUserNameWithRecord(userName: string) {
+    return await this.userRepository.findByUserNameWithJoinRecord(userName);
+  }
+
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateSocketId(user: User, socketId: string) {
     await this.userRepository.updateSocketId(user.id, socketId);

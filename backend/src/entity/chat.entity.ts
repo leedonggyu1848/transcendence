@@ -41,6 +41,6 @@ export class Chat {
   @OneToMany(() => ChatUser, (user) => user.chat, { cascade: true })
   users: ChatUser[];
 
-  @OneToMany(() => Ban, (ban) => ban.channel, { cascade: true })
+  @OneToMany(() => Ban, (ban) => ban.chat, { cascade: true })
   banUsers: Ban[];
 }

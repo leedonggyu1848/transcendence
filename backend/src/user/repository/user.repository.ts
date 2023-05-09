@@ -124,6 +124,20 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async findBySocketIdWithJoinRecord(socketId: string) {
+    return await this.userRepository.findOne({
+      where: { socketId: socketId },
+      relations: ['records'],
+    });
+  }
+
+  async findByUserNameWithJoinRecord(userName: string) {
+    return await this.userRepository.findOne({
+      where: { userName: userName },
+      relations: ['records'],
+    });
+  }
+
   async updateSocketId(id: number, socketId: string) {
     await this.userRepository.update(id, {
       socketId: socketId,

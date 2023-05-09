@@ -12,8 +12,8 @@ export class BanService {
   ) {}
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async addBanUser(chat: Chat, userName: string) {
-    await this.banRepository.addBanUser(chat, userName);
+  async addBanUser(chat: Chat, userId: number) {
+    await this.banRepository.addBanUser(chat, userId);
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
