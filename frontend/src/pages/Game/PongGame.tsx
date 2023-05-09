@@ -47,7 +47,7 @@ const PongGame = ({
   const ballRadius = 10;
   const canvasSize = 500;
   const minAngle = 45;
-  const speed = 5; // 공의 속도 조절
+  const speed = 10; // 공의 속도 조절
 
   const MINE_COLOR = "#4375f4";
   const OTHER_COLOR = "#9c4fff";
