@@ -51,9 +51,9 @@ export class GameService {
     const game = await this.getGameByTitleWithUsers(title);
     if (!game) throw new Error('맞는 게임 방이 없습니다.');
     if (game.count !== 2) throw new Error('게임 방에 상대방이 없습니다.');
-    const opponent = game.players.filter((player) => {
-      player.userName !== userName;
-    });
+    const opponent = game.players.filter(
+      (player) => player.userName !== userName,
+    );
     return await this.userService.getUserByUserNameWithGame(
       opponent[0].userName,
     );

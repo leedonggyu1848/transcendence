@@ -5,6 +5,9 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
   currentGameInfoState,
+  gameCountState,
+  gameStartCountState,
+  gameStartState,
   isWatcherState,
   joinnedChatState,
   myInfoState,
@@ -15,20 +18,14 @@ import { useNavigate } from "react-router-dom";
 const PongGame = ({
   roomName,
   isOwner,
-  resetGame,
-  setCount,
   hard,
   obstaclePos,
-  setStartCount,
 }: {
   roomName: string;
   isOwner: boolean;
   owner: string;
   opponent: string;
   type: string;
-  resetGame: React.Dispatch<React.SetStateAction<boolean>>;
-  setCount: React.Dispatch<React.SetStateAction<number>>;
-  setStartCount: React.Dispatch<React.SetStateAction<boolean>>;
   hard: boolean;
   obstaclePos: Array<number>;
 }) => {
@@ -42,6 +39,9 @@ const PongGame = ({
   const navigate = useNavigate();
   const socket = useContext(WebsocketContext);
   const canvas = useRef<HTMLCanvasElement | null>(null);
+  const [start, resetGame] = useRecoilState(gameStartState);
+  const [startCount, setStartCount] = useRecoilState(gameStartCountState);
+  const [count, setCount] = useRecoilState(gameCountState);
   const paddleWidth = 150;
   const paddleHeight = 20;
   const ballRadius = 10;
@@ -402,6 +402,7 @@ const PongGame = ({
 
     function gameLoop() {
       if (gameState !== "playing") return;
+      if (!start && !startCount && count === 4) return;
       if (ctx) {
         ctx.clearRect(0, 0, canvasSize, canvasSize);
         drawBall();

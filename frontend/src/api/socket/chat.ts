@@ -653,7 +653,6 @@ export const listenChatInvite = ({
   socket.on(
     "chat-invite",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
-      console.log("in chat-invite", myName, userName, roomName);
       if (myName === userName) return;
       setFriendRequestList([
         ...friendRequestList,
@@ -682,7 +681,6 @@ export const listenChatReject = ({
     "chat-reject",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       if (userName !== myName) {
-        console.log(userName, " has reject your chat invite");
         setAlertInfo({
           type: "failure",
           header: "",
@@ -690,8 +688,6 @@ export const listenChatReject = ({
           toggle: true,
         });
       } else {
-        console.log("in chat-reject success", userName, roomName);
-        console.log(friendRequestList);
         setFriendRequestList(
           friendRequestList.filter(
             (list) =>

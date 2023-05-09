@@ -1,18 +1,20 @@
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate, useRevalidator } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   currentGameUsersState,
   currentGameInfoState,
-  joinSocketState,
-  myInfoState,
   myNameState,
-  normalJoinTypeState,
   currentChatState,
   joinnedChatState,
   gameListState,
   inviteModalToggleState,
+  gameStartState,
+  gameStartCountState,
+  gameCountState,
+  alertModalState,
+  myInfoState,
 } from "../../api/atom";
 import { WebsocketContext } from "../../pages/WrapMainPage";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -21,24 +23,24 @@ import PongGame from "./PongGame";
 import WaitRoom from "./WaitRoom";
 import { UserDto } from "../../api/interface";
 
-let renderingCount = 0;
-
 const GamePage = () => {
-  const [startCount, setStartCount] = useState(false);
-  const [start, setStart] = useState(false);
+  const [startCount, setStartCount] = useRecoilState(gameStartCountState);
+  const [start, setStart] = useRecoilState(gameStartState);
   const [gameInfo, setGameInfo] = useRecoilState(currentGameInfoState);
   const usersInfo = useRecoilValue(currentGameUsersState);
   const myName = useRecoilValue(myNameState);
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
+  const [myInfo, setMyInfo] = useRecoilState(myInfoState);
   const [obstaclePos, setObstaclePos] = useState([0, 0]);
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
-  const [count, setCount] = useState(4);
+  const [count, setCount] = useRecoilState(gameCountState);
   const gameList = useRecoilValue(gameListState);
   const [rankGameFlag, setRankGameFlag] = useState(false);
   const navigate = useNavigate();
+  const setAlertInfo = useSetRecoilState(alertModalState);
   const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
@@ -97,7 +99,29 @@ const GamePage = () => {
     navigate("/main/lobby");
   };
 
+  const handleRefresh = (e: any) => {
+    if (start || startCount) {
+      const info = {
+        roomName: gameInfo.gameDto.title,
+        userName: myName,
+        type: gameInfo.gameDto.type,
+      };
+      sessionStorage.setItem("refreshWhilePlaying", JSON.stringify(info));
+    }
+  };
+
   useEffect(() => {
+    if (sessionStorage.getItem("refreshWhilePlaying")) {
+      const { userName, roomName, type } = JSON.parse(
+        sessionStorage.getItem("refreshWhilePlaying")
+      );
+
+      socket.emit("refresh-while-playing", {
+        userName,
+        roomName,
+        type,
+      });
+    }
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {
       setStartCount(false);
@@ -158,13 +182,13 @@ const GamePage = () => {
       }
     );
 
-    window.addEventListener("beforeunload", handleExit);
+    window.addEventListener("beforeunload", handleRefresh);
 
     return () => {
       socket.off("start-game");
       socket.off("obstacle-info");
       if (timer) clearInterval(timer);
-      window.removeEventListener("beforeunload", handleExit);
+      window.removeEventListener("beforeunload", handleRefresh);
     };
   }, [gameList, gameInfo, start, startCount, count]);
   return (
@@ -176,14 +200,11 @@ const GamePage = () => {
           {!start && <WaitRoom count={count} />}
           {start && (
             <PongGame
-              setStartCount={setStartCount}
               roomName={gameInfo && gameInfo.gameDto.title}
               isOwner={gameInfo.ownerDto.userName === myName}
               owner={gameInfo.ownerDto.userName}
               opponent={gameInfo.opponentDto?.userName || ""}
               type="normal"
-              resetGame={setStart}
-              setCount={setCount}
               hard={gameInfo.gameDto.interruptMode}
               obstaclePos={obstaclePos}
             />

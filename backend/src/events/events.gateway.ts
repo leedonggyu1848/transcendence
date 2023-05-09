@@ -259,7 +259,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     try {
       await this.eventsService.loseGameAsAction(roomName, userName, type);
-      socket.to(roomName).emit('refresh-while-playing', { roomName, userName });
+      socket
+        .to(roomName)
+        .emit('refresh-while-playing', { roomName, userName, type });
     } catch (err) {
       socket.emit('game-fail', err.message);
     }

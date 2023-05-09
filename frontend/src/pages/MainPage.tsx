@@ -23,7 +23,10 @@ import {
   currentGameInfoState,
   friendListState,
   friendRequestListState,
+  gameCountState,
   gameListState,
+  gameStartCountState,
+  gameStartState,
   getMyInfoFlagState,
   inviteModalToggleState,
   joinChatToggleState,
@@ -101,8 +104,10 @@ import {
   listenGameReject,
   listenJoinGame,
   listenLeaveGame,
+  listenLeaveWhilePlaying,
   listenMatchRank,
   listenNewGame,
+  listenRefreshWhilePlaying,
   listenUserInGame,
   listenUserJoinGame,
   listenUserLeaveGame,
@@ -149,10 +154,9 @@ const MainPage = () => {
   const [rankWaitModal, setRankWaitModal] = useRecoilState(
     rankWaitModalToggleState
   );
-
-  interface PerformanceEntryWithOptionalType extends PerformanceEntry {
-    type?: string;
-  }
+  const setStartCount = useSetRecoilState(gameStartCountState);
+  const setStart = useSetRecoilState(gameStartState);
+  const setCount = useSetRecoilState(gameCountState);
 
   const hooks: any = {
     socket,
@@ -182,6 +186,9 @@ const MainPage = () => {
     requestFriendListFlag,
     setRequestFriendListFlag,
     location,
+    setStart,
+    setCount,
+    setStartCount,
   };
 
   useEffect(() => {
@@ -190,61 +197,97 @@ const MainPage = () => {
       getMyInfo();
       setGetMyInfoFlag(true);
     }
-    if (sessionStorage.getItem("myInfo")) {
-      setMyInfo(JSON.parse(sessionStorage.getItem("myInfo")));
-      sessionStorage.removeItem("myInfo");
-    }
-    if (sessionStorage.getItem("currentChat")) {
-      setCurrentChat(sessionStorage.getItem("currentChat"));
-      sessionStorage.removeItem("currentChat");
-    }
-    if (sessionStorage.getItem("joinnedChat")) {
-      setJoinnedChatList(JSON.parse(sessionStorage.getItem("joinnedChat")));
-      sessionStorage.removeItem("joinnedChat");
-    }
-    if (sessionStorage.getItem("chatList")) {
-      setChatList(JSON.parse(sessionStorage.getItem("chatList")));
-      sessionStorage.removeItem("chatList");
-    }
-    if (sessionStorage.getItem("currentGame")) {
-      setCurrentGame(JSON.parse(sessionStorage.getItem("currentGame")));
-      sessionStorage.removeItem("currentGame");
-    }
-    if (sessionStorage.getItem("friendList")) {
-      setFriendList(JSON.parse(sessionStorage.getItem("friendList")));
-      sessionStorage.removeItem("friendList");
-    }
-    if (sessionStorage.getItem("gameList")) {
-      setGameList(JSON.parse(sessionStorage.getItem("gameList")));
-      sessionStorage.removeItem("gameList");
-    }
-    if (sessionStorage.getItem("friendRequestList")) {
-      setFriendRequestList(
-        JSON.parse(sessionStorage.getItem("friendRequestList"))
-      );
-      sessionStorage.removeItem("friendRequestList");
-    }
+    if (sessionStorage.getItem("data")) {
+      const {
+        myInfo,
+        currentChat,
+        joinnedChatList,
+        chatList,
+        currentGame,
+        friendList,
+        gameList,
+        friendRequestList,
+      } = JSON.parse(sessionStorage.getItem("data"));
 
-    const navigationEntry = performance.getEntriesByType(
-      "navigation"
-    )[0] as PerformanceEntryWithOptionalType;
-    if (navigationEntry?.type === "navigate") {
-      sessionStorage.clear();
+      if (currentChat) setCurrentChat(currentChat);
+      if (joinnedChatList) setJoinnedChatList(joinnedChatList);
+      if (chatList) setChatList(chatList);
+      if (friendList) setFriendList(friendList);
+      if (gameList) setGameList(gameList);
+      if (friendRequestList) setFriendRequestList(friendRequestList);
+      if (sessionStorage.getItem("refreshWhilePlaying")) {
+        const { userName, roomName, type } = JSON.parse(
+          sessionStorage.getItem("refreshWhilePlaying")
+        );
+        if (type === 1) {
+          navigate("/main/lobby");
+          setAlertInfo({
+            type: "failure",
+            header: "",
+            msg: "새로고침 해서 패배 처리 됩니다.",
+            toggle: true,
+          });
+          setMyInfo({
+            ...myInfo,
+            rankLose: myInfo.rankLose + 1,
+          });
+        } else {
+          setAlertInfo({
+            type: "failure",
+            header: "",
+            msg: "새로고침 해서 패배 처리 됩니다.",
+            toggle: true,
+          });
+          setCurrentGame({
+            ...currentGame,
+            ownerDto: {
+              ...currentGame.ownerDto,
+              normalWin:
+                currentGame.ownerDto.userName === userName
+                  ? currentGame.ownerDto.normalWin
+                  : currentGame.ownerDto.normalWin + 1,
+              normalLose:
+                currentGame.ownerDto.userName === userName
+                  ? currentGame.ownerDto.normalLose + 1
+                  : currentGame.ownerDto.normalLose,
+            },
+            opponentDto: {
+              ...currentGame.opponentDto,
+              normalWin:
+                currentGame.opponentDto.userName === userName
+                  ? currentGame.opponentDto.normalWin
+                  : currentGame.opponentDto.normalWin + 1,
+              normalLose:
+                currentGame.opponentDto.userName === userName
+                  ? currentGame.opponentDto.normalLose + 1
+                  : currentGame.opponentDto.normalLose,
+            },
+          });
+          setMyInfo({
+            ...myInfo,
+            normalLose: myInfo.normalLose + 1,
+          });
+        }
+        sessionStorage.removeItem("refreshWhilePlaying");
+      } else {
+        if (currentGame) setCurrentGame(currentGame);
+        if (myInfo) setMyInfo(myInfo);
+      }
+      sessionStorage.removeItem("data");
     }
 
     window.addEventListener("beforeunload", () => {
-      sessionStorage.setItem("myInfo", JSON.stringify(myInfo));
-      sessionStorage.setItem("currentChat", currentChat);
-      sessionStorage.setItem("joinnedChat", JSON.stringify(joinnedChatList));
-      sessionStorage.setItem("friendList", JSON.stringify(friendList));
-      sessionStorage.setItem("gameList", JSON.stringify(gameList));
-      sessionStorage.setItem(
-        "friendRequestList",
-        JSON.stringify(friendRequestList)
-      );
-      sessionStorage.setItem("chatList", JSON.stringify(chatList));
-      if (currentGame)
-        sessionStorage.setItem("currentGame", JSON.stringify(currentGame));
+      const temp = {
+        myInfo,
+        currentChat,
+        joinnedChatList,
+        friendList,
+        gameList,
+        friendRequestList,
+        chatList,
+        currentGame,
+      };
+      sessionStorage.setItem("data", JSON.stringify(temp));
     });
 
     //Connection apis
@@ -306,6 +349,8 @@ const MainPage = () => {
     listenGameInvite(hooks);
     listenGameAccept(hooks);
     listenGameReject(hooks);
+    listenRefreshWhilePlaying(hooks);
+    listenLeaveWhilePlaying(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -370,7 +415,9 @@ const MainPage = () => {
         "match-rank",
         "user-name",
         "user-ingame",
-        "user-profile"
+        "user-profile",
+        "refresh-while-playing",
+        "leave-while-playing"
       );
     };
   }, [

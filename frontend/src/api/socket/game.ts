@@ -1,5 +1,6 @@
 import { SetterOrUpdater } from "recoil";
 import GameDetailInfo from "../../pages/HistoryPage/GameDetailInfo";
+import { socket } from "../../pages/WrapMainPage";
 import {
   GameDto,
   ICombinedRequestAndInvite,
@@ -191,7 +192,6 @@ export const listenUserJoinGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("user-join-game");
       if (currentGame && currentGame.gameDto.title === roomName) {
         setCurrentGame({
           ...currentGame,
@@ -684,6 +684,100 @@ export const listenGameReject = ({
               !(list.inviteType === "게임" && list.roomName === roomName)
           )
         );
+      }
+    }
+  );
+};
+
+export const listenLeaveWhilePlaying = ({ socket }: { socket: any }) => {
+  socket.on(
+    "leave-while-playing",
+    ({ roomName, userName }: { roomName: string; userName: string }) => {
+      console.log("leave-while-playing", roomName, userName);
+    }
+  );
+};
+
+export const listenRefreshWhilePlaying = ({
+  socket,
+  setCount,
+  setStart,
+  setStartCount,
+  setAlertInfo,
+  currentGame,
+  setCurrentGame,
+  myInfo,
+  setMyInfo,
+  navigate,
+}: {
+  socket: any;
+  setCount: any;
+  setStart: any;
+  setStartCount: any;
+  setAlertInfo: any;
+  currentGame: ICurrentGame;
+  setCurrentGame: any;
+  myInfo: UserDto;
+  setMyInfo: any;
+  navigate: any;
+}) => {
+  socket.on(
+    "refresh-while-playing",
+    ({
+      roomName,
+      userName,
+      type,
+    }: {
+      roomName: string;
+      userName: string;
+      type: number;
+    }) => {
+      console.log("refresh-while-playing", roomName, userName);
+      setCount(4);
+      setStart(false);
+      setStartCount(false);
+      setAlertInfo({
+        type: "success",
+        header: "",
+        msg: "상대방이 새로고침해서 승리했습니다",
+        toggle: true,
+      });
+      if (type === 1) {
+        setMyInfo({
+          ...myInfo,
+          rankWin: myInfo.rankWin + 1,
+        });
+        navigate("/main/lobby");
+      } else {
+        setMyInfo({
+          ...myInfo,
+          normalWin: myInfo.normalWin + 1,
+        });
+        setCurrentGame({
+          ...currentGame,
+          ownerDto: {
+            ...currentGame.ownerDto,
+            normalWin:
+              currentGame.ownerDto.userName === myInfo.userName
+                ? currentGame.ownerDto.normalWin + 1
+                : currentGame.ownerDto.normalWin,
+            normalLose:
+              currentGame.ownerDto.userName === myInfo.userName
+                ? currentGame.ownerDto.normalLose
+                : currentGame.ownerDto.normalLose + 1,
+          },
+          opponentDto: {
+            ...currentGame.opponentDto,
+            normalWin:
+              currentGame.opponentDto.userName === myInfo.userName
+                ? currentGame.opponentDto.normalWin + 1
+                : currentGame.opponentDto.normalWin,
+            normalLose:
+              currentGame.opponentDto.userName === myInfo.userName
+                ? currentGame.opponentDto.normalLose
+                : currentGame.opponentDto.normalLose + 1,
+          },
+        });
       }
     }
   );
