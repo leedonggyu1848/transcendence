@@ -7,10 +7,10 @@ import { IBanRepository } from './ban.interface.repository';
 export class BanRepository implements IBanRepository {
   constructor(@InjectRepository(Ban) private banRepository: Repository<Ban>) {}
 
-  async addBanUser(chat: Chat, userName: string) {
+  async addBanUser(chat: Chat, userId: number) {
     const data = await this.banRepository.create({
-      channel: chat,
-      userName: userName,
+      chat: chat,
+      userId: userId,
     });
     await this.banRepository.save(data);
     return data;

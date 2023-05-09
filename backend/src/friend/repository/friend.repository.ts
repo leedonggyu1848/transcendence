@@ -20,15 +20,28 @@ export class FriendRepository implements IFriendRepository {
     });
   }
 
-  async findAll(user: User) {
+  async findAllByUser(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id } },
     });
   }
 
-  async findAllWithJoin(user: User) {
+  async findAllByUserWithJoin(user: User) {
     return await this.friendRepository.find({
       where: { user: { id: user.id } },
+      relations: ['user'],
+    });
+  }
+
+  async findAllByFriend(friendName: string) {
+    return await this.friendRepository.find({
+      where: { friendName: friendName },
+    });
+  }
+
+  async findAllByFriendWithJoin(friendName: string) {
+    return await this.friendRepository.find({
+      where: { friendName: friendName },
       relations: ['user'],
     });
   }
@@ -57,6 +70,14 @@ export class FriendRepository implements IFriendRepository {
       where: { friendName: userName, accept: false },
       relations: ['user'],
     });
+  }
+
+  async updateFriendName(id: number, userName: string) {
+    await this.friendRepository.update(id, { friendName: userName });
+  }
+
+  async updateFriendProfile(id: number, profile: string) {
+    await this.friendRepository.update(id, { friendProfile: profile });
   }
 
   async updateAccept(id: number, accept: boolean) {

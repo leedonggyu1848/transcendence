@@ -1,12 +1,9 @@
 import { GameType } from 'src/entity/common.enum';
-import { Record } from 'src/entity/record.entity';
 import { User } from 'src/entity/user.entity';
 
 export interface IRecordRepository {
-  recordToRecordDto(record: Record);
-  addRecord(gameType: GameType, winner: User, loser: User);
+  addRecord(gameType: GameType, player: User, opponent: string);
   findAll();
-  findByUserIdWithJoin(userId: number);
+  findByUserIdWithJoin(user: User);
   findByIdWithJoin(id: number);
-  findPage(page: number, pageSize: number);
 }

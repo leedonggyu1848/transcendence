@@ -108,7 +108,7 @@ export class ChatService {
   }
 
   checkBaned(user: User, chat: Chat) {
-    const ban = chat.banUsers.filter((ban) => ban.userName === user.userName);
+    const ban = chat.banUsers.filter((ban) => ban.userId === user.userId);
     if (ban.length !== 0) return true;
     return false;
   }

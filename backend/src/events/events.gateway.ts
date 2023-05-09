@@ -297,14 +297,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[InviteGame] roomName: ${roomName} userName: ${userName}`);
     try {
-      const result = await this.eventsService.gameInvite(
+      const gameDto: GameDto = {
+        title: roomName,
+        interruptMode: false,
+        privateMode: false,
+        password: '',
+      };
+      const create = await this.eventsService.createGame(gameDto, socket.id);
+      socket.emit('game-invite', create);
+      socket.broadcast.emit('new-game', create.gameDto);
+      const invite = await this.eventsService.gameInvite(
         socket.id,
         userName,
         roomName,
       );
-      this.nsp.sockets.get(result.invitedSocektId)?.emit('game-invite', {
+      this.nsp.sockets.get(invite.invitedSocektId)?.emit('game-invite', {
         roomName,
-        userName: result.invitorUserName,
+        userName: invite.invitorUserName,
       });
     } catch (err) {
       socket.emit('game-fail', err.message);
