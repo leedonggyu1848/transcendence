@@ -999,7 +999,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket.broadcast.emit('user-ingame', data);
       });
     } catch (err) {
-      socket.emit('game-fail', err);
+      socket.emit('game-fail', err.message);
     }
   }
 
@@ -1021,7 +1021,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket.broadcast.emit('user-gameout', data);
       });
     } catch (err) {
-      socket.emit('game-fail', err);
+      socket.emit('game-fail', err.message);
     }
   }
 
