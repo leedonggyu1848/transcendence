@@ -82,7 +82,7 @@ const GamePage = () => {
     setCount((prev) => prev - 1);
     socket.emit("start-game", {
       roomName: gameInfo.gameDto.title,
-      type: gameInfo.gameDto.type,
+      userName: gameInfo.opponentDto.userName,
     });
     if (gameInfo.gameDto.interruptMode) {
       const leftPos = Math.floor(Math.random() * 30) / 100;
@@ -178,7 +178,6 @@ const GamePage = () => {
             socket.emit("end-game", {
               userName: gameInfo.opponentDto.userName,
               roomName: gameInfo.gameDto.title,
-              type: gameInfo.gameDto.type,
             });
             setStartCount(() => false);
             setCount(() => 4);

@@ -239,7 +239,6 @@ const PongGame = ({
           socket.emit("end-game", {
             userName: gameInfo.opponentDto.userName,
             roomName: gameInfo.gameDto.title,
-            type: gameInfo.gameDto.type,
           });
         }
         gameState = "win";
@@ -304,7 +303,6 @@ const PongGame = ({
           socket.emit("end-game", {
             userName: gameInfo.opponentDto.userName,
             roomName: gameInfo.gameDto.title,
-            type: gameInfo.gameDto.type,
           });
         }
         setAlertInfo({
