@@ -16,7 +16,6 @@ const HistoryPage = () => {
   useEffect(() => {
     async function getData() {
       const result = await axiosGetHistory(1);
-      console.log(result);
       setList([
         ...result.sort(
           (a: IGameHistory, b: IGameHistory) =>

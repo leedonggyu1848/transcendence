@@ -154,9 +154,9 @@ const MainPage = () => {
   const [rankWaitModal, setRankWaitModal] = useRecoilState(
     rankWaitModalToggleState
   );
-  const setStartCount = useSetRecoilState(gameStartCountState);
-  const setStart = useSetRecoilState(gameStartState);
-  const setCount = useSetRecoilState(gameCountState);
+  const [startCount, setStartCount] = useRecoilState(gameStartCountState);
+  const [start, setStart] = useRecoilState(gameStartState);
+  const [count, setCount] = useRecoilState(gameCountState);
   const [stopFlag, setStopFlag] = useRecoilState(stopFlagState);
 
   const hooks: any = {
@@ -187,6 +187,9 @@ const MainPage = () => {
     requestFriendListFlag,
     setRequestFriendListFlag,
     location,
+    start,
+    startCount,
+    count,
     setStart,
     setCount,
     setStartCount,
@@ -406,6 +409,10 @@ const MainPage = () => {
     chatList,
     friendList,
     friendRequestList,
+    start,
+    startCount,
+    count,
+    currentGame,
   ]);
   return (
     token.access_token && (

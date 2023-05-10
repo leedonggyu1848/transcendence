@@ -169,6 +169,7 @@ export const listenUserJoinGame = ({
   setJoinnedChatList,
   gameList,
   setGameList,
+  setStopFlag,
 }: {
   socket: any;
   currentGame: ICurrentGame;
@@ -178,6 +179,7 @@ export const listenUserJoinGame = ({
   setJoinnedChatList: any;
   gameList: GameDto[];
   setGameList: any;
+  setStopFlag: any;
 }) => {
   socket.on(
     "user-join-game",
@@ -193,6 +195,7 @@ export const listenUserJoinGame = ({
       roomName: string;
     }) => {
       if (currentGame && currentGame.gameDto.title === roomName) {
+        setStopFlag(false);
         setCurrentGame({
           ...currentGame,
           opponentDto: { ...userInfo },
@@ -417,7 +420,14 @@ export const listenUserLeaveGame = ({
   start,
   startCount,
   setStopFlag,
+  count,
+  setCount,
+  setStart,
+  setStartCount,
+  myInfo,
+  setMyInfo,
 }: {
+  count: any;
   socket: any;
   navigate: any;
   joinnedChatList: any;
@@ -432,6 +442,11 @@ export const listenUserLeaveGame = ({
   start: any;
   startCount: any;
   setStopFlag: any;
+  setCount: any;
+  setStart: any;
+  setStartCount: any;
+  myInfo: UserDto;
+  setMyInfo: any;
 }) => {
   socket.on(
     "user-leave-game",
@@ -447,7 +462,8 @@ export const listenUserLeaveGame = ({
       roomName: string;
     }) => {
       console.log("user-leave-game", message, userInfo, type, roomName);
-      if (type === 1) {
+      if (type === 1 && currentGame.gameDto.type === 0) {
+        // 방장이 나갔으면서 일반 게임일 때
         if (currentGame && currentGame.gameDto.title === roomName) {
           const temp = { ...joinnedChatList };
           delete temp[currentChat];
@@ -466,6 +482,7 @@ export const listenUserLeaveGame = ({
           gameList.filter((game: GameDto) => game.title !== roomName)
         );
       } else {
+        // 일반에서 opponent 나갔을 때 + 랭크에서 누군가 나갔을 때
         if (!currentGame || currentGame.gameDto.title !== roomName) {
           setGameList(
             gameList.map((game: GameDto) =>
@@ -476,9 +493,44 @@ export const listenUserLeaveGame = ({
           );
           return;
         }
-        if (type === 2) {
-          console.log("userLeft");
+        if (start || startCount || count !== 4) {
+          console.log("leave while game");
+          setAlertInfo({
+            type: "success",
+            header: "",
+            msg: `상대방이 게임 도중 나갔습니다.`,
+            toggle: true,
+          });
+          setMyInfo({
+            ...myInfo,
+            normalWin:
+              currentGame.gameDto.type === 1
+                ? myInfo.normalWin
+                : myInfo.normalWin + 1,
+            rankWin:
+              currentGame.gameDto.type === 1
+                ? myInfo.rankWin + 1
+                : myInfo.rankWin,
+          });
+
+          if (currentGame.gameDto.type === 1) {
+            console.log("상대방 새로고침함");
+            setCurrentGame(null);
+            navigate("/main/lobby");
+          } else {
+            console.log(currentGame);
+            setCurrentGame((prev) => ({
+              ...prev,
+              ownerDto: {
+                ...prev.ownerDto,
+                normalWin: prev.ownerDto.normalWin + 1,
+              },
+            }));
+          }
           setStopFlag(true);
+          setCount(4);
+          setStart(false);
+          setStartCount(false);
           setCurrentGame({
             ...currentGame,
             opponentDto: null,
@@ -667,7 +719,6 @@ export const listenGameInvite = ({
   socket.on(
     "game-invite",
     ({ roomName, userName }: { roomName: string; userName: string }) => {
-      console.log("in game-invite", roomName, userName);
       if (myName === userName) return;
       setFriendRequestList([
         ...friendRequestList,
@@ -696,7 +747,6 @@ export const listenGameReject = ({
     "game-reject",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
       if (userName !== myName) {
-        console.log(userName, " has reject your game invite");
         setAlertInfo({
           type: "failure",
           header: "",
@@ -704,8 +754,6 @@ export const listenGameReject = ({
           toggle: true,
         });
       } else {
-        console.log("in game-reject success", userName, roomName);
-        console.log(friendRequestList);
         setFriendRequestList(
           friendRequestList.filter(
             (list) =>
@@ -722,91 +770,6 @@ export const listenLeaveWhilePlaying = ({ socket }: { socket: any }) => {
     "leave-while-playing",
     ({ roomName, userName }: { roomName: string; userName: string }) => {
       console.log("leave-while-playing", roomName, userName);
-    }
-  );
-};
-
-export const listenRefreshWhilePlaying = ({
-  socket,
-  setCount,
-  setStart,
-  setStartCount,
-  setAlertInfo,
-  currentGame,
-  setCurrentGame,
-  myInfo,
-  setMyInfo,
-  navigate,
-}: {
-  socket: any;
-  setCount: any;
-  setStart: any;
-  setStartCount: any;
-  setAlertInfo: any;
-  currentGame: ICurrentGame;
-  setCurrentGame: any;
-  myInfo: UserDto;
-  setMyInfo: any;
-  navigate: any;
-}) => {
-  socket.on(
-    "refresh-while-playing",
-    ({
-      roomName,
-      userName,
-      type,
-    }: {
-      roomName: string;
-      userName: string;
-      type: number;
-    }) => {
-      console.log("refresh-while-playing", roomName, userName);
-      setCount(4);
-      setStart(false);
-      setStartCount(false);
-      setAlertInfo({
-        type: "success",
-        header: "",
-        msg: "상대방이 새로고침해서 승리했습니다",
-        toggle: true,
-      });
-      if (type === 1) {
-        setMyInfo({
-          ...myInfo,
-          rankWin: myInfo.rankWin + 1,
-        });
-        navigate("/main/lobby");
-      } else {
-        setMyInfo({
-          ...myInfo,
-          normalWin: myInfo.normalWin + 1,
-        });
-        setCurrentGame({
-          ...currentGame,
-          ownerDto: {
-            ...currentGame.ownerDto,
-            normalWin:
-              currentGame.ownerDto.userName === myInfo.userName
-                ? currentGame.ownerDto.normalWin + 1
-                : currentGame.ownerDto.normalWin,
-            normalLose:
-              currentGame.ownerDto.userName === myInfo.userName
-                ? currentGame.ownerDto.normalLose
-                : currentGame.ownerDto.normalLose + 1,
-          },
-          opponentDto: {
-            ...currentGame.opponentDto,
-            normalWin:
-              currentGame.opponentDto.userName === myInfo.userName
-                ? currentGame.opponentDto.normalWin + 1
-                : currentGame.opponentDto.normalWin,
-            normalLose:
-              currentGame.opponentDto.userName === myInfo.userName
-                ? currentGame.opponentDto.normalLose
-                : currentGame.opponentDto.normalLose + 1,
-          },
-        });
-      }
     }
   );
 };

@@ -16,6 +16,7 @@ import {
   alertModalState,
   myInfoState,
   rankGameFlagState,
+  stopFlagState,
 } from "../../api/atom";
 import { WebsocketContext } from "../../pages/WrapMainPage";
 import ChatBox from "../../components/Chat/ChatBox";
@@ -42,6 +43,7 @@ const GamePage = () => {
   const [rankGameFlag, setRankGameFlag] = useRecoilState(rankGameFlagState);
   const navigate = useNavigate();
   const setAlertInfo = useSetRecoilState(alertModalState);
+  const [stopFlag, setStopFlag] = useRecoilState(stopFlagState);
   const setInviteModalToggle = useSetRecoilState(inviteModalToggleState);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setMsg(e.target.value);
@@ -133,6 +135,7 @@ const GamePage = () => {
       setRankGameFlag(true);
       setStartCount(true);
       setCount(count - 1);
+      setStopFlag(false);
       //if (gameInfo.ownerDto.userName === myName)
       //  socket.emit("start-game", gameInfo.gameDto.title);
     }
@@ -182,7 +185,7 @@ const GamePage = () => {
       if (timer) clearInterval(timer);
       window.removeEventListener("beforeunload", handleRefresh);
     };
-  }, [gameList, gameInfo, start, startCount, count, rankGameFlag]);
+  }, [gameList, gameInfo, start, startCount, count, rankGameFlag, myInfo]);
   return (
     gameInfo && (
       <GamePageContainer>

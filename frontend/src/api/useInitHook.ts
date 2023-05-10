@@ -22,7 +22,6 @@ const useInitHook = () => {
     if (location.pathname !== "/main/game" && currentGame) {
       socket.emit("leave-game", {
         roomName: currentGame.gameDto.title,
-        type: currentGame.gameDto.type,
       });
     }
     setCount(4);

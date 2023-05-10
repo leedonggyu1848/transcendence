@@ -229,16 +229,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
     try {
-      if (type === GameType.NORMAL) {
-        const result = await this.eventsService.leaveGame(socket.id);
-        socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
-        socket.broadcast.emit('user-leave-game', {
-          message: `${result.user.userName}가 나갔습니다.`,
-          userInfo: result.user,
-          roomName,
-          type: result.type,
-        });
-      }
+      const result = await this.eventsService.leaveGame(socket.id);
+      socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
+      socket.broadcast.emit('user-leave-game', {
+        message: `${result.user.userName}가 나갔습니다.`,
+        userInfo: result.user,
+        roomName,
+        type: result.type,
+      });
       socket.leave(roomName);
     } catch (err) {
       socket.emit('game-fail', err.message);

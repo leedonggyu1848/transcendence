@@ -51,6 +51,7 @@ const PongGame = ({
   const minAngle = 45;
   const speed = 10; // 공의 속도 조절
   const stopFlag = useRecoilValue(stopFlagState);
+  let req;
 
   const MINE_COLOR = "#4375f4";
   const OTHER_COLOR = "#9c4fff";
@@ -412,7 +413,6 @@ const PongGame = ({
     }
 
     function gameLoop() {
-      console.log("stopFlag :", stopFlag);
       if (stopFlag) return;
       if (gameState !== "playing") return;
       if (!start && !startCount && count === 4) return;
@@ -426,7 +426,7 @@ const PongGame = ({
         reflectBall();
       }
       socket.emit("move-ball", { roomName, x: ball.x, y: ball.y });
-      requestAnimationFrame(gameLoop);
+      req = requestAnimationFrame(gameLoop);
     }
 
     function handleMouseMove(event: MouseEvent) {
@@ -554,6 +554,7 @@ const PongGame = ({
       socket.off("mouse-move");
       socket.off("normal-game-over");
       socket.off("game-result");
+      cancelAnimationFrame(req);
     };
   }, [setCount, stopFlag]);
 

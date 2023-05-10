@@ -9,21 +9,15 @@ const WaitRoom = ({ count }: { count: number }) => {
   const gameInfo = useRecoilValue(currentGameInfoState);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
-  const [owner, setOwner] = useState<UserDto>(myInfo);
-  const [opponent, setOpponent] = useState<UserDto | null>(null);
-  useEffect(() => {
-    if (gameInfo.opponentDto) {
-      if (myName === gameInfo.opponentDto.userName) {
-        setOpponent({ ...gameInfo.ownerDto });
-        setOwner({ ...gameInfo.opponentDto });
-      } else {
-        setOpponent({ ...gameInfo.opponentDto });
-        setOwner({ ...gameInfo.ownerDto });
-      }
-    } else {
-      setOpponent(null);
-    }
-  }, [gameInfo]);
+  const me =
+    gameInfo.ownerDto.userName === myName
+      ? gameInfo.ownerDto
+      : gameInfo.opponentDto;
+  const opponent =
+    gameInfo.ownerDto.userName === myName
+      ? gameInfo.opponentDto || null
+      : gameInfo.ownerDto;
+  console.log("me", me, "opponent", opponent);
   return (
     <WaitRoomContainer>
       {opponent ? (
@@ -35,7 +29,7 @@ const WaitRoom = ({ count }: { count: number }) => {
         </NoUser>
       )}
       <OptionContainer>{count === 4 ? "VS" : count}</OptionContainer>
-      <UserInfo {...owner} />
+      <UserInfo {...me} />
     </WaitRoomContainer>
   );
 };
