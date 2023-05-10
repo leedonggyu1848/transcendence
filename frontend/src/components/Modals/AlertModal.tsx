@@ -4,6 +4,7 @@ import { alertModalState, modalBackToggleState } from "../../api/atom";
 
 const AlertModal = () => {
   const [alertInfo, setAlertState] = useRecoilState(alertModalState);
+  console.log(alertInfo);
   const setBackgroundModal = useSetRecoilState(modalBackToggleState);
   const onClickBackground = () => {
     setBackgroundModal(false);

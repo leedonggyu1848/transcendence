@@ -119,12 +119,6 @@ const GamePage = () => {
       const { userName, roomName, type } = JSON.parse(
         sessionStorage.getItem("refreshWhilePlaying")
       );
-
-      socket.emit("refresh-while-playing", {
-        userName,
-        roomName,
-        type,
-      });
     }
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {

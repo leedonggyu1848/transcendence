@@ -107,7 +107,6 @@ import {
   listenLeaveWhilePlaying,
   listenMatchRank,
   listenNewGame,
-  listenRefreshWhilePlaying,
   listenUserInGame,
   listenUserJoinGame,
   listenUserLeaveGame,
@@ -232,37 +231,14 @@ const MainPage = () => {
             rankLose: myInfo.rankLose + 1,
           });
         } else {
+          navigate("/main/lobby");
           setAlertInfo({
             type: "failure",
             header: "",
             msg: "새로고침 해서 패배 처리 됩니다.",
             toggle: true,
           });
-          setCurrentGame({
-            ...currentGame,
-            ownerDto: {
-              ...currentGame.ownerDto,
-              normalWin:
-                currentGame.ownerDto.userName === userName
-                  ? currentGame.ownerDto.normalWin
-                  : currentGame.ownerDto.normalWin + 1,
-              normalLose:
-                currentGame.ownerDto.userName === userName
-                  ? currentGame.ownerDto.normalLose + 1
-                  : currentGame.ownerDto.normalLose,
-            },
-            opponentDto: {
-              ...currentGame.opponentDto,
-              normalWin:
-                currentGame.opponentDto.userName === userName
-                  ? currentGame.opponentDto.normalWin
-                  : currentGame.opponentDto.normalWin + 1,
-              normalLose:
-                currentGame.opponentDto.userName === userName
-                  ? currentGame.opponentDto.normalLose + 1
-                  : currentGame.opponentDto.normalLose,
-            },
-          });
+          setCurrentGame(null);
           setMyInfo({
             ...myInfo,
             normalLose: myInfo.normalLose + 1,
@@ -349,7 +325,6 @@ const MainPage = () => {
     listenGameInvite(hooks);
     listenGameAccept(hooks);
     listenGameReject(hooks);
-    listenRefreshWhilePlaying(hooks);
     listenLeaveWhilePlaying(hooks);
 
     async function getMyInfo() {
