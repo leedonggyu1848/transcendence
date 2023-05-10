@@ -62,7 +62,7 @@ export class User {
   @Column()
   joinType: JoinType;
 
-  @OneToMany(() => Record, (record) => record.player, { onDelete: 'CASCADE' })
+  @OneToMany(() => Record, (record) => record.player, { cascade: true })
   records: Record[];
 
   @OneToMany(() => Friend, (friend) => friend.user, { cascade: true })

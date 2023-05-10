@@ -45,6 +45,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const data = await this.eventsService.getSocketInfo(socket.id);
     if (!data) return;
     data.gameRooms.forEach(async (room) => {
+      console.log(room);
       await this.handleLeaveGame(socket, room);
     });
     const timeId = setTimeout(async () => {
@@ -225,21 +226,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leave-game')
   async handleLeaveGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, type }: { roomName: string; type: GameType },
+    @MessageBody() roomName: string,
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
     try {
-      if (type === GameType.NORMAL) {
-        const result = await this.eventsService.leaveGame(socket.id);
-        socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
-        socket.broadcast.emit('user-leave-game', {
-          message: `${result.user.userName}가 나갔습니다.`,
-          userInfo: result.user,
-          roomName,
-          type: result.type,
-        });
-      }
+      const result = await this.eventsService.leaveGame(socket.id);
       socket.leave(roomName);
+      socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
+      socket.broadcast.emit('user-leave-game', {
+        message: `${result.user.userName}가 나갔습니다.`,
+        userInfo: result.user,
+        roomName,
+        type: result.type,
+      });
     } catch (err) {
       socket.emit('game-fail', err.message);
     }
