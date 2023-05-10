@@ -14,7 +14,7 @@ export class AdministratorRepository implements IAdministratorRepository {
   async addAdministrator(chat: Chat, user: User) {
     const data = this.administratorRepository.create({
       chat: chat,
-      userId: user.id,
+      userId: user.userId,
     });
     await this.administratorRepository.save(data);
   }

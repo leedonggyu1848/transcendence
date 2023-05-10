@@ -30,10 +30,10 @@ export interface IUserRepository {
   updateWatchGame(id: number, game: Game);
   updateGameRank(id: number);
   updateGameNone(id: number);
-  updateNormalWin(id: number, win: number);
-  updateNormalLose(id: number, lose: number);
-  updateRankWin(id: number, win: number);
-  updateRankLose(id: number, lose: number);
+  updateNormalWin(user: User);
+  updateNormalLose(user: User);
+  updateRankWin(user: User);
+  updateRankLose(user: User);
   updateProfileImage(id: number, filename: string);
   updateUserIntroduce(id: number, introduce: string);
   addRecord(user: User, record: Record);

@@ -189,20 +189,24 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async updateNormalWin(id: number, win: number) {
-    await this.userRepository.update(id, { normalWin: win + 1 });
+  async updateNormalWin(user: User) {
+    await this.userRepository.update(user.id, {
+      normalWin: user.normalWin + 1,
+    });
   }
 
-  async updateNormalLose(id: number, lose: number) {
-    await this.userRepository.update(id, { normalLose: lose + 1 });
+  async updateNormalLose(user: User) {
+    await this.userRepository.update(user.id, {
+      normalLose: user.normalLose + 1,
+    });
   }
 
-  async updateRankWin(id: number, win: number) {
-    await this.userRepository.update(id, { rankWin: win + 1 });
+  async updateRankWin(user: User) {
+    await this.userRepository.update(user.id, { rankWin: user.rankWin + 1 });
   }
 
-  async updateRankLose(id: number, lose: number) {
-    await this.userRepository.update(id, { rankLose: lose + 1 });
+  async updateRankLose(user: User) {
+    await this.userRepository.update(user.id, { rankLose: user.rankLose + 1 });
   }
 
   async updateProfileImage(id: number, filename: string) {
