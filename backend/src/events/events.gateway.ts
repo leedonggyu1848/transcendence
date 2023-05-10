@@ -45,6 +45,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const data = await this.eventsService.getSocketInfo(socket.id);
     if (!data) return;
     data.gameRooms.forEach(async (room) => {
+      console.log(room);
       await this.handleLeaveGame(socket, room);
     });
     const timeId = setTimeout(async () => {
@@ -225,7 +226,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leave-game')
   async handleLeaveGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() { roomName, type }: { roomName: string; type: GameType },
+    @MessageBody() roomName: string,
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
     try {

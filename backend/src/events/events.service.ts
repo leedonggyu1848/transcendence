@@ -42,16 +42,8 @@ export class EventsService {
       });
     }
     let gameRooms = [];
-    if (user.playGame)
-      gameRooms.push({
-        roomName: user.playGame.title,
-        type: user.playGame.type,
-      });
-    if (user.watchGame)
-      gameRooms.push({
-        roomName: user.watchGame.title,
-        type: user.watchGame.type,
-      });
+    if (user.playGame) gameRooms.push(user.playGame.title);
+    if (user.watchGame) gameRooms.push(user.watchGame.title);
     return { chatRooms, gameRooms };
   }
 
@@ -197,6 +189,7 @@ export class EventsService {
         user.userName,
       );
       await this.recordService.saveGameResult(opponent, user, game.type);
+      await this.gameService.changeGameState(game, false);
     }
     await this.gameService.leaveGame(game, user);
     return {
@@ -277,6 +270,8 @@ export class EventsService {
     };
     await this.createGame(gameDto, owner.socketId);
     await this.joinGame(gameDto.title, '', opponent.socketId);
+    const game = await this.gameService.getGameByTitle(gameDto.title);
+    await this.gameService.changeGameState(game, true);
     return {
       roomName: gameDto.title,
       owner: this.userService.userToUserDto(owner),
@@ -714,8 +709,6 @@ export class EventsService {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     const opponent = await this.userService.getUserByUserNameWithGame(userName);
     if (!user || !opponent) throw new Error('맞는 유저가 없습니다.');
-    if (user.playGame.title !== opponent.playGame.title)
-      throw new Error('서로 게임 중이 아닙니다.');
     await this.gameService.changeGameState(user.playGame, playing);
     return [
       this.userService.userToUserDto(user),
