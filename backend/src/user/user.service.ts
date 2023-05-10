@@ -220,9 +220,9 @@ export class UserService {
   async updateGameWin(user: User, type: GameType, record: Record) {
     await this.userRepository.addRecord(user, record);
     if (type === GameType.NORMAL)
-      await this.userRepository.updateNormalWin(user.id, user.normalWin);
+      await this.userRepository.updateNormalWin(user);
     else {
-      await this.userRepository.updateRankWin(user.id, user.normalLose);
+      await this.userRepository.updateRankWin(user);
       await this.userRepository.updateGameNone(user.id);
     }
   }
@@ -230,9 +230,9 @@ export class UserService {
   async updateGameLose(user: User, type: GameType, record: Record) {
     await this.userRepository.addRecord(user, record);
     if (type === GameType.NORMAL)
-      await this.userRepository.updateNormalLose(user.id, user.normalWin);
+      await this.userRepository.updateNormalLose(user);
     else {
-      await this.userRepository.updateRankLose(user.id, user.normalLose);
+      await this.userRepository.updateRankLose(user);
       await this.userRepository.updateGameNone(user.id);
     }
   }
