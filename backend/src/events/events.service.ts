@@ -406,6 +406,7 @@ export class EventsService {
     if (!result) throw new Error(`${roomName}에 이미 참가 중 입니다.`);
     const admins = chat.administrators.map(async (admin) => {
       const found = await this.userService.getUserByUserId(admin.userId);
+      console.log(found);
       return found.userName;
     });
     const userNames = chat.users.map((usr) => {
