@@ -25,13 +25,13 @@ function convertTimeInfo(timeStr: string) {
 
 const Record = ({
   id,
-  type,
+  gameType,
   winner,
   loser,
   time,
 }: {
   id: number;
-  type: number;
+  gameType: number;
   winner: string;
   loser: string;
   time: string;
@@ -45,7 +45,7 @@ const Record = ({
   };
   return (
     <RecordContainer onClick={clickRecord}>
-      <Type>{type ? "랭크" : "일반"}</Type>
+      <Type>{gameType ? "랭크" : "일반"}</Type>
       <Result>W</Result>
       <PlayerName>{winner}</PlayerName>
       <Result>L</Result>
