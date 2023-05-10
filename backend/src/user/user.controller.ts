@@ -43,9 +43,8 @@ export class UserController {
     const user = await this.authService.addUserFromSession(userSession);
     if (!user.auth) await this.authService.sendAuthMail(user);
     const url = user.auth ? 'frontend.home' : 'frontend.auth';
-    return res.redirect(
-      `${this.configService.get<string>(url)}?request=` + user.email,
-    );
+    const request = user.auth ? `` : `?request=${user.emil}`;
+    return res.redirect(`${this.configService.get<string>(url)}` + request);
   }
 
   @Post('/two-factor')
