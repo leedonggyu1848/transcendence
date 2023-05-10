@@ -175,7 +175,7 @@ export class EventsService {
   async leaveGame(socketId: string) {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     if (!user) throw new Error('잘못된 유저 정보입니다.');
-    if (user.joinType === JoinType.NONE || !user.playGame)
+    if (user.joinType === JoinType.NONE)
       throw new Error('참여 중인 방이 존재하지 않습니다.');
     const game = await this.gameService.getGameByTitleWithUsers(
       user.playGame.title,
@@ -424,9 +424,11 @@ export class EventsService {
     if (!user) throw new Error(`맞는 유저가 없습니다.`);
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error(`맞는 채팅방이 없습니다.`);
+    console.log(chat.administrators);
     const isAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.id,
+      (admin) => admin.userId === user.userId,
     );
+    console.log(isAdmin);
     if (isAdmin) await this.administratorService.subtractAdministrator(isAdmin);
     const result = await this.chatService.leaveChat(user, chat);
     if (!result) throw new Error(`참여 중인 방이 없습니다.`);
