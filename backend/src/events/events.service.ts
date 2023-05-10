@@ -249,11 +249,19 @@ export class EventsService {
     }
     const opponent = await this.userService.getUserBySocketId(socketId);
     const owner = await this.userService.getUserBySocketId(this.rankQueue);
+    this.rankQueue = '';
+    const gameDto: GameDto = {
+      title: `${owner.userName} vs ${opponent.userName}`,
+      interruptMode: false,
+      privateMode: false,
+      password: '',
+    };
+    await this.createGame(gameDto, socketId);
+    await this.joinGame(gameDto.title, '', opponent.socketId);
     await this.userService.updateMatchRank(opponent);
     await this.userService.updateMatchRank(owner);
-    this.rankQueue = '';
     return {
-      roomName: `${owner.userName} vs ${opponent.userName}`,
+      roomName: gameDto.title,
       owner: this.userService.userToUserDto(owner),
       opponent: this.userService.userToUserDto(opponent),
       socketId: owner.socketId,

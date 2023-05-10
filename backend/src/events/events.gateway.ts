@@ -225,19 +225,21 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leave-game')
   async handleLeaveGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
+    @MessageBody() { roomName, type }: { roomName: string; type: GameType },
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
     try {
-      const result = await this.eventsService.leaveGame(socket.id);
+      if (type === GameType.NORMAL) {
+        const result = await this.eventsService.leaveGame(socket.id);
+        socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
+        socket.broadcast.emit('user-leave-game', {
+          message: `${result.user.userName}가 나갔습니다.`,
+          userInfo: result.user,
+          roomName,
+          type: result.type,
+        });
+      }
       socket.leave(roomName);
-      socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
-      socket.broadcast.emit('user-leave-game', {
-        message: `${result.user.userName}가 나갔습니다.`,
-        userInfo: result.user,
-        roomName,
-        type: result.type,
-      });
     } catch (err) {
       socket.emit('game-fail', err.message);
     }
