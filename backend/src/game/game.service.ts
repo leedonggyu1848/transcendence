@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LobbyDto } from 'src/dto/lobby.dto';
 import { GameDto } from 'src/dto/game.dto';
-import { JoinType } from 'src/entity/common.enum';
+import { GameType, JoinType } from 'src/entity/common.enum';
 import { IGameRepository } from './repository/game.interface.repository';
 import { User } from 'src/entity/user.entity';
 import { Game } from 'src/entity/game.entity';
@@ -80,7 +80,7 @@ export class GameService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async leaveGame(game: Game, user: User) {
-    if (user.joinType === JoinType.OWNER) {
+    if (user.joinType === JoinType.OWNER || game.type === GameType.RANK) {
       let tmp = game.players.map(async (player) => {
         await this.userService.updateGameNone(player);
       });
@@ -91,7 +91,7 @@ export class GameService {
       );
       Promise.all(tmp);
     } else await this.userService.updateGameNone(user);
-    if (user.joinType === JoinType.OWNER) {
+    if (user.joinType === JoinType.OWNER || game.type === GameType.RANK) {
       await this.gameRepository.deleteById(game);
     } else if (user.joinType === JoinType.PLAYER) {
       await this.gameRepository.updateCountById(game.id, game.count - 1);

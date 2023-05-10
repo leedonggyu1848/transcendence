@@ -42,7 +42,7 @@ export class UserRepository implements IUserRepository {
   async findByUserIdWithJoinGame(userId: number) {
     return await this.userRepository.findOne({
       where: { userId: userId },
-      relations: ['playGame', 'watchGame'],
+      relations: ['playGame', 'watchGame', 'records'],
     });
   }
 
@@ -53,7 +53,7 @@ export class UserRepository implements IUserRepository {
   async findByUserNameWithJoinGame(userName: string) {
     return await this.userRepository.findOne({
       where: { userName: userName },
-      relations: ['playGame', 'watchGame'],
+      relations: ['playGame', 'watchGame', 'records'],
     });
   }
 
@@ -67,7 +67,7 @@ export class UserRepository implements IUserRepository {
   async findByUserNameWithJoinAll(userName: string) {
     return await this.userRepository.findOne({
       where: { userName: userName },
-      relations: ['chats', 'chats.chat', 'playGame', 'watchGame'],
+      relations: ['chats', 'chats.chat', 'playGame', 'watchGame', 'records'],
     });
   }
 
@@ -92,7 +92,7 @@ export class UserRepository implements IUserRepository {
   async findBySocketIdWithJoinGame(socketId: string) {
     return await this.userRepository.findOne({
       where: { socketId: socketId },
-      relations: ['playGame', 'watchGame'],
+      relations: ['playGame', 'watchGame', 'records'],
     });
   }
 
@@ -106,7 +106,7 @@ export class UserRepository implements IUserRepository {
   async findBySocketIdWithJoinAll(socketId: string) {
     return await this.userRepository.findOne({
       where: { socketId: socketId },
-      relations: ['chats', 'chats.chat', 'playGame', 'watchGame'],
+      relations: ['chats', 'chats.chat', 'playGame', 'watchGame', 'records'],
     });
   }
 
