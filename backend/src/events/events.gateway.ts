@@ -977,33 +977,45 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('start-game')
   async handleStartGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
+    @MessageBody()
+    { userName, roomName }: { userName: string; roomName: string },
   ) {
-    this.logger.log(`[StartGame] roomName: ${roomName}`);
-    socket.broadcast.to(roomName).emit('start-game');
-    const result = await this.eventsService.gameAlert(
-      roomName,
-      '가 게임 중입니다.',
-    );
-    result.forEach((data) => {
-      socket.broadcast.emit('user-ingame', data);
-    });
+    this.logger.log(`[StartGame] roomName: ${userName}`);
+    try {
+      socket.broadcast.to(roomName).emit('start-game');
+      const result = await this.eventsService.gameAlert(
+        socket.id,
+        userName,
+        '가 게임 중입니다.',
+      );
+      result.forEach((data) => {
+        socket.broadcast.emit('user-ingame', data);
+      });
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('end-game')
   async handleEndGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() roomName: string,
+    @MessageBody()
+    { userName, roomName }: { userName: string; roomName: string },
   ) {
     this.logger.log(`[EndGame] roomName: ${roomName}`);
-    socket.broadcast.to(roomName).emit('end-game');
-    const result = await this.eventsService.gameAlert(
-      roomName,
-      '의 게임이 끝났습니다.',
-    );
-    result.forEach((data) => {
-      socket.broadcast.emit('user-gameout', data);
-    });
+    try {
+      socket.broadcast.to(roomName).emit('end-game');
+      const result = await this.eventsService.gameAlert(
+        socket.id,
+        userName,
+        '의 게임이 끝났습니다.',
+      );
+      result.forEach((data) => {
+        socket.broadcast.emit('user-gameout', data);
+      });
+    } catch (err) {
+      socket.emit('game-fail', err);
+    }
   }
 
   @SubscribeMessage('obstacle-info')

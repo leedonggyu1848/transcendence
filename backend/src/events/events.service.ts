@@ -191,7 +191,10 @@ export class EventsService {
   async loseGameAsAction(roomName: string, userName: string, type: GameType) {
     const user = await this.userService.getUserByUserNameWithGame(userName);
     if (!user) throw new Error('잘못된 유저 정보입니다.');
-    if (type !== GameType.RANK && (user.joinType === JoinType.NONE || !user.playGame))
+    if (
+      type !== GameType.RANK &&
+      (user.joinType === JoinType.NONE || !user.playGame)
+    )
       throw new Error('참여 중인 방이 존재하지 않습니다.');
     const opponent = await this.gameService.getOpponentUser(roomName, userName);
     await this.recordService.saveGameResult(opponent, user, type);
@@ -668,17 +671,13 @@ export class EventsService {
     if (result) throw new Error(`${blockUser}는 차단 되어있지 않습니다.`);
   }
 
-  async gameAlert(roomName: string, message: string) {
-    const game = await this.gameService.getGameByTitleWithUsers(roomName);
-    const players = game.players.map((player) => {
-      return this.userService.userToUserDto(player);
-    });
-    const data = players.map((player) => {
-      return {
-        userName: player.userName,
-        message: `${player.userName}` + message,
-      };
-    });
-    return data;
+  async gameAlert(socketId: string, userName: string, message: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    const opponent = await this.userService.getUserByUserName(userName);
+    if (!user || !opponent) throw new Error('맞는 유저가 없습니다.');
+    return [
+      this.userService.userToUserDto(user),
+      this.userService.userToUserDto(opponent),
+    ];
   }
 }
