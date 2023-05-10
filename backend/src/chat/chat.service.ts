@@ -7,6 +7,7 @@ import { ChatType } from 'src/entity/common.enum';
 import { User } from 'src/entity/user.entity';
 import * as bcrypt from 'bcrypt';
 import { IsolationLevel, Transactional } from 'typeorm-transactional';
+import { AdministratorService } from 'src/administrator/administrator.service';
 
 @Injectable()
 export class ChatService {

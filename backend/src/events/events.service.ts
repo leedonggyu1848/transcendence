@@ -377,8 +377,11 @@ export class EventsService {
     );
     await this.administratorService.addAdministrator(chat, user);
     return {
-      msg: `${roomName} 채팅방이 생성되었습니다.`,
-      data: user.userName,
+      roomName: roomName,
+      owner: chat.owner,
+      type: chat.type,
+      admins: [user.userNames],
+      users: [user.userName],
     };
   }
 
@@ -393,10 +396,15 @@ export class EventsService {
     if (ban) throw new Error(`${roomName}에 밴 되어있습니다.`);
     const result = await this.chatService.joinChat(user, chat);
     if (!result) throw new Error(`${roomName}에 이미 참가 중 입니다.`);
+    const admins = chat.administrators.map(async (admin) => {
+      const found = await this.userService.getUserByUserId(admin.userId);
+      return found.userName;
+    });
     const userNames = chat.users.map((usr) => {
       if (usr.user) return usr.user.userName;
       return '';
     });
+    Promise.all(admins);
     return {
       msg: `${user.userName}가 들어왔습니다.`,
       joinuser: user.userName,
@@ -404,7 +412,8 @@ export class EventsService {
         roomName: roomName,
         owner: chat.owner,
         type: chat.type,
-        users: userNames,
+        admins: admins,
+        users: [userNames],
       },
     };
   }
