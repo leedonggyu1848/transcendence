@@ -101,6 +101,13 @@ const CurrentUserInfo = ({
     setTimeout(() => setBlock(false), 800);
   };
 
+  const clickInviteGame = (userName: string) => {
+    socket.emit("game-invite", {
+      roomName: `${userName}과의 일반 게임`,
+      userName,
+    });
+  };
+
   useEffect(() => {
     closePersonalMenu();
   }, [currentChat]);
@@ -128,7 +135,7 @@ const CurrentUserInfo = ({
         <PersonalMenu toggle={toggle}>
           <TargetName>{target}</TargetName>
           <div>
-            <InviteIcon onClick={() => {}} />
+            <InviteIcon onClick={() => clickInviteGame(target)} />
             {isFriend && (
               <DeleteFriendIcon onClick={() => clickDeleteFriend(target)} />
             )}

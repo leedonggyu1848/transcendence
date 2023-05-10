@@ -228,8 +228,7 @@ export function listenNameChange({
       Object.keys(temp).forEach((room) => {
         temp[room] = {
           ...temp[room],
-          operator:
-            temp[room].operator === before ? after : temp[room].operator,
+          owner: temp[room].owner === before ? after : temp[room].owner,
           userList: temp[room].userList.map((name) =>
             name === before ? after : name
           ),

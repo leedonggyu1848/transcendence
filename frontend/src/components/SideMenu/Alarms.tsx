@@ -37,7 +37,6 @@ const Alarm = ({ w }: { w: number }) => {
     }
     if (inviteType === "게임") {
       socket.emit("game-accept", roomName);
-      console.log("accept-game");
     }
     setFriendRequestList(
       friendRequestList.filter(

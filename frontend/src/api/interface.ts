@@ -69,7 +69,7 @@ export interface IChatLog {
 
 export interface IGameHistory {
   id: number;
-  type: number;
+  gameType: number;
   loser: string;
   winner: string;
   time: string;
