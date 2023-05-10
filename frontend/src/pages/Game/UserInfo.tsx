@@ -47,7 +47,7 @@ const UserInfo = ({
       </Info>
       <IntroduceContainer>
         <div>인삿말</div>
-        <Introduce>{introduce || "안녕하세요~"}</Introduce>
+        <Introduce>{introduce || "안녕하세요 잘부탁드립니다"}</Introduce>
       </IntroduceContainer>
     </UserInfoContainer>
   );
