@@ -39,6 +39,7 @@ import {
   rankWaitModalToggleState,
   requestFriendListFlagState,
   settingModalState,
+  stopFlagState,
 } from "../api/atom";
 import RankWaitModal from "../components/Modals/RankWaitModal";
 import { WebsocketContext } from "../pages/WrapMainPage";
@@ -156,6 +157,7 @@ const MainPage = () => {
   const setStartCount = useSetRecoilState(gameStartCountState);
   const setStart = useSetRecoilState(gameStartState);
   const setCount = useSetRecoilState(gameCountState);
+  const [stopFlag, setStopFlag] = useRecoilState(stopFlagState);
 
   const hooks: any = {
     socket,
@@ -188,6 +190,8 @@ const MainPage = () => {
     setStart,
     setCount,
     setStartCount,
+    stopFlag,
+    setStopFlag,
   };
 
   useEffect(() => {

@@ -349,3 +349,8 @@ export const rankGameFlagState = atom({
   key: "rankGameFlagState",
   default: false,
 });
+
+export const stopFlagState = atom({
+  key: "stopFlagState",
+  default: false,
+});

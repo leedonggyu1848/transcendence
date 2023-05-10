@@ -414,6 +414,9 @@ export const listenUserLeaveGame = ({
   setAlertInfo,
   currentGame,
   setCurrentGame,
+  start,
+  startCount,
+  setStopFlag,
 }: {
   socket: any;
   navigate: any;
@@ -426,6 +429,9 @@ export const listenUserLeaveGame = ({
   setAlertInfo: any;
   currentGame: ICurrentGame;
   setCurrentGame: any;
+  start: any;
+  startCount: any;
+  setStopFlag: any;
 }) => {
   socket.on(
     "user-leave-game",
@@ -471,6 +477,8 @@ export const listenUserLeaveGame = ({
           return;
         }
         if (type === 2) {
+          console.log("userLeft");
+          setStopFlag(true);
           setCurrentGame({
             ...currentGame,
             opponentDto: null,

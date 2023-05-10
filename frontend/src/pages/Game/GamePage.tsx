@@ -159,20 +159,10 @@ const GamePage = () => {
         if (userInfo.userName === myName) {
         } else {
           if (
-            (count < 4 || start) &&
+            (start || startCount) &&
             gameInfo.opponentDto &&
             gameInfo.opponentDto.userName === userInfo.userName
           ) {
-            socket.emit("game-result", {
-              roomName: gameInfo.gameDto.title,
-              winner: gameInfo.ownerDto.userName,
-              lower: gameInfo.opponentDto.userName,
-              type: gameInfo.gameDto.type,
-            });
-            socket.emit("end-game", {
-              userName: gameInfo.opponentDto.userName,
-              roomName: gameInfo.gameDto.title,
-            });
             setStartCount(() => false);
             setCount(() => 4);
             setGameInfo({

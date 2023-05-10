@@ -12,6 +12,7 @@ import {
   joinnedChatState,
   myInfoState,
   myNameState,
+  stopFlagState,
 } from "../../api/atom";
 import { useNavigate } from "react-router-dom";
 import GameDetailInfo from "../HistoryPage/GameDetailInfo";
@@ -49,6 +50,7 @@ const PongGame = ({
   const canvasSize = 500;
   const minAngle = 45;
   const speed = 10; // 공의 속도 조절
+  const stopFlag = useRecoilValue(stopFlagState);
 
   const MINE_COLOR = "#4375f4";
   const OTHER_COLOR = "#9c4fff";
@@ -410,6 +412,8 @@ const PongGame = ({
     }
 
     function gameLoop() {
+      console.log("stopFlag :", stopFlag);
+      if (stopFlag) return;
       if (gameState !== "playing") return;
       if (!start && !startCount && count === 4) return;
       if (ctx) {
@@ -551,7 +555,7 @@ const PongGame = ({
       socket.off("normal-game-over");
       socket.off("game-result");
     };
-  }, [setCount]);
+  }, [setCount, stopFlag]);
 
   return (
     <Container>
