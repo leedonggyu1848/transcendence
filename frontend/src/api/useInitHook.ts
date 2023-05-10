@@ -20,7 +20,9 @@ const useInitHook = () => {
   const setRankGameFlag = useSetRecoilState(rankGameFlagState);
   useEffect(() => {
     if (location.pathname !== "/main/game" && currentGame) {
-      socket.emit("leave-game", currentGame.gameDto.title);
+      if (sessionStorage.getItem("opponentLeavingWhileGame")) {
+        sessionStorage.removeItem("opponentLeavingWhileGame");
+      } else socket.emit("leave-game", currentGame.gameDto.title);
     }
     setCount(4);
     setStart(false);

@@ -268,17 +268,19 @@ export const listenWatchGame = ({
       opponentDto: UserDto;
       watchersDto: UserDto[];
     }) => {
+      console.log("watch-game", ownerDto, opponentDto, watchersDto);
       setCurrentGame({
         gameDto: { ...gameDto, type: 0 },
         ownerDto,
         opponentDto,
-        watchersDto,
+        watchersDto: [...watchersDto, myInfo],
       });
       setCurrentChat(gameDto.title);
       let tempChatList = [];
       tempChatList.push(ownerDto.userName);
       if (opponentDto) tempChatList.push(opponentDto.userName);
       if (watchersDto) tempChatList = [...tempChatList, ...watchersDto];
+      tempChatList = [...tempChatList, myInfo.userName];
       setJoinnedChatList({
         ...joinnedChatList,
         [gameDto.title]: {
@@ -372,7 +374,6 @@ export const listenLeaveGame = ({
   location: Location;
 }) => {
   socket.on("leave-game", (message: string) => {
-    console.log("in leave-game", message);
     const temp = { ...joinnedChatList };
     delete temp[currentChat];
     //if (currentGame.ownerDto.userName === myName) {
@@ -461,8 +462,8 @@ export const listenUserLeaveGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("user-leave-game", message, userInfo, type, roomName);
-      if (type === 1 && currentGame.gameDto.type === 0) {
+      console.log("user-leave-game");
+      if (type === 1) {
         // 방장이 나갔으면서 일반 게임일 때
         if (currentGame && currentGame.gameDto.title === roomName) {
           const temp = { ...joinnedChatList };
@@ -483,7 +484,7 @@ export const listenUserLeaveGame = ({
         );
       } else {
         // 일반에서 opponent 나갔을 때 + 랭크에서 누군가 나갔을 때
-        if (!currentGame || currentGame.gameDto.title !== roomName) {
+        if (type === 2) {
           setGameList(
             gameList.map((game: GameDto) =>
               game.title === roomName
@@ -491,50 +492,50 @@ export const listenUserLeaveGame = ({
                 : { ...game }
             )
           );
-          return;
         }
+        if (!currentGame || currentGame.gameDto.title !== roomName) return;
         if (start || startCount || count !== 4) {
-          console.log("leave while game");
-          setAlertInfo({
-            type: "success",
-            header: "",
-            msg: `상대방이 게임 도중 나갔습니다.`,
-            toggle: true,
-          });
-          setMyInfo({
-            ...myInfo,
-            normalWin:
-              currentGame.gameDto.type === 1
-                ? myInfo.normalWin
-                : myInfo.normalWin + 1,
-            rankWin:
-              currentGame.gameDto.type === 1
-                ? myInfo.rankWin + 1
-                : myInfo.rankWin,
-          });
+          //게임 중에 나갔을 때
+          if (userInfo.userName === currentGame.opponentDto.userName) {
+            // 상대방이 나갔을 때
+            setAlertInfo({
+              type: "success",
+              header: "",
+              msg: `상대방이 게임 도중 나갔습니다.`,
+              toggle: true,
+            });
+            setMyInfo({
+              ...myInfo,
+              normalWin:
+                currentGame.gameDto.type === 1
+                  ? myInfo.normalWin
+                  : myInfo.normalWin + 1,
+              rankWin:
+                currentGame.gameDto.type === 1
+                  ? myInfo.rankWin + 1
+                  : myInfo.rankWin,
+            });
 
-          if (currentGame.gameDto.type === 1) {
-            console.log("상대방 새로고침함");
-            setCurrentGame(null);
-            navigate("/main/lobby");
-          } else {
-            console.log(currentGame);
-            setCurrentGame((prev) => ({
-              ...prev,
-              ownerDto: {
-                ...prev.ownerDto,
-                normalWin: prev.ownerDto.normalWin + 1,
-              },
-            }));
+            if (currentGame.gameDto.type === 1) {
+              setCurrentGame(null);
+              sessionStorage.setItem("opponentLeavingWhileGame", "true");
+              navigate("/main/lobby");
+            } else {
+              setCurrentGame((prev) => ({
+                ...prev,
+                ownerDto: {
+                  ...prev.ownerDto,
+                  normalWin: prev.ownerDto.normalWin + 1,
+                },
+                opponentDto: null,
+              }));
+            }
+            setStopFlag(true);
+            setCount(4);
+            setStart(false);
+            setStartCount(false);
           }
-          setStopFlag(true);
-          setCount(4);
-          setStart(false);
-          setStartCount(false);
-          setCurrentGame({
-            ...currentGame,
-            opponentDto: null,
-          });
+
           setGameList(
             gameList.map((game: GameDto) =>
               game.title === roomName ? { ...game, cur: 1 } : { ...game }
@@ -553,7 +554,18 @@ export const listenUserLeaveGame = ({
               ],
             },
           });
-        } else if (type === 3) {
+        } else {
+          console.log("여기가맞나");
+          if (type === 2) {
+            if (userInfo.userName === currentGame.opponentDto.userName) {
+              setCurrentGame((prev) => ({
+                ...prev,
+                opponentDto: null,
+              }));
+            }
+          }
+        }
+        if (type === 3) {
           setCurrentGame({
             ...currentGame,
             watchersDto: currentGame.watchersDto.filter(

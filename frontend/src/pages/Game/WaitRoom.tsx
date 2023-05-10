@@ -2,22 +2,32 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { currentGameInfoState, myInfoState, myNameState } from "../../api/atom";
-import { UserDto } from "../../api/interface";
+import { ICurrentGame, UserDto } from "../../api/interface";
 import UserInfo from "./UserInfo";
+
+function getInfo(gameInfo: ICurrentGame, myName: string) {
+  if (gameInfo.opponentDto) {
+    if (myName === gameInfo.ownerDto.userName) {
+      return [gameInfo.ownerDto, gameInfo.opponentDto];
+    } else if (myName === gameInfo.opponentDto.userName) {
+      return [gameInfo.opponentDto, gameInfo.ownerDto];
+    } else {
+      return [gameInfo.ownerDto, gameInfo.opponentDto];
+    }
+  } else {
+    if (myName === gameInfo.ownerDto.userName) {
+      return [gameInfo.ownerDto, null];
+    } else {
+      return [gameInfo.ownerDto, null];
+    }
+  }
+}
 
 const WaitRoom = ({ count }: { count: number }) => {
   const gameInfo = useRecoilValue(currentGameInfoState);
   const myInfo = useRecoilValue(myInfoState);
   const myName = useRecoilValue(myNameState);
-  const me =
-    gameInfo.ownerDto.userName === myName
-      ? gameInfo.ownerDto
-      : gameInfo.opponentDto;
-  const opponent =
-    gameInfo.ownerDto.userName === myName
-      ? gameInfo.opponentDto || null
-      : gameInfo.ownerDto;
-  console.log("me", me, "opponent", opponent);
+  const [me, opponent] = getInfo(gameInfo, myName);
   return (
     <WaitRoomContainer>
       {opponent ? (
