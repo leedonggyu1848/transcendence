@@ -270,6 +270,8 @@ export class EventsService {
     };
     await this.createGame(gameDto, owner.socketId);
     await this.joinGame(gameDto.title, '', opponent.socketId);
+    const game = await this.gameService.getGameByTitle(gameDto.title);
+    await this.gameService.changeGameState(game, true);
     return {
       roomName: gameDto.title,
       owner: this.userService.userToUserDto(owner),
