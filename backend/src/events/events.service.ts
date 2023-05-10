@@ -42,8 +42,16 @@ export class EventsService {
       });
     }
     let gameRooms = [];
-    if (user.playGame) gameRooms.push(user.playGame.title);
-    if (user.watchGame) gameRooms.push(user.watchGame.title);
+    if (user.playGame)
+      gameRooms.push({
+        roomName: user.playGame.title,
+        type: user.playGame.type,
+      });
+    if (user.watchGame)
+      gameRooms.push({
+        roomName: user.watchGame.title,
+        type: user.watchGame.type,
+      });
     return { chatRooms, gameRooms };
   }
 
@@ -178,7 +186,9 @@ export class EventsService {
     if (user.joinType === JoinType.NONE)
       throw new Error('참여 중인 방이 존재하지 않습니다.');
     const game = await this.gameService.getGameByTitleWithUsers(
-      user.playGame.title,
+      user.joinType === JoinType.WATCHER
+        ? user.watchGame.title
+        : user.playGame.title,
     );
     if (!game) throw new Error('데이터 저장 오류');
     await this.gameService.leaveGame(game, user);
@@ -249,17 +259,17 @@ export class EventsService {
     }
     const opponent = await this.userService.getUserBySocketId(socketId);
     const owner = await this.userService.getUserBySocketId(this.rankQueue);
+    if (!opponent || !owner) throw new Error('맞는 유저가 없습니다.');
     this.rankQueue = '';
     const gameDto: GameDto = {
       title: `${owner.userName} vs ${opponent.userName}`,
       interruptMode: false,
       privateMode: false,
       password: '',
+      type: GameType.RANK,
     };
-    await this.createGame(gameDto, socketId);
+    await this.createGame(gameDto, owner.socketId);
     await this.joinGame(gameDto.title, '', opponent.socketId);
-    await this.userService.updateMatchRank(opponent);
-    await this.userService.updateMatchRank(owner);
     return {
       roomName: gameDto.title,
       owner: this.userService.userToUserDto(owner),
@@ -693,10 +703,13 @@ export class EventsService {
     if (result) throw new Error(`${blockUser}는 차단 되어있지 않습니다.`);
   }
 
-  async gameAlert(socketId: string, userName: string, message: string) {
+  async gameAlert(socketId: string, userName: string, playing: boolean) {
     const user = await this.userService.getUserBySocketId(socketId);
     const opponent = await this.userService.getUserByUserName(userName);
     if (!user || !opponent) throw new Error('맞는 유저가 없습니다.');
+    if (user.playGame.title !== opponent.playGame.title)
+      throw new Error('서로 게임 중이 아닙니다.');
+    await this.gameService.changeGameState(user.playGame, playing);
     return [
       this.userService.userToUserDto(user),
       this.userService.userToUserDto(opponent),

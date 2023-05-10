@@ -44,6 +44,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.eventsService.cancelRankGame(socket.id);
     const data = await this.eventsService.getSocketInfo(socket.id);
     if (!data) return;
+    data.gameRooms.forEach(async (room) => {
+      await this.handleLeaveGame(socket, room);
+    });
     const timeId = setTimeout(async () => {
       this.nsp.emit('disconnect-user', {
         userName: data.userName,
@@ -51,9 +54,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       data.chatRooms.forEach((room) => {
         this.handleLeaveChat(socket, room);
-      });
-      data.gameRooms.forEach((room) => {
-        this.handleLeaveGame(socket, room);
       });
       delete this.sessionMap[data.userName];
     }, 1000);
@@ -304,6 +304,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         interruptMode: false,
         privateMode: false,
         password: '',
+        type: GameType.NORMAL,
       };
       const create = await this.eventsService.createGame(gameDto, socket.id);
       socket.emit('create-game', create);
@@ -395,20 +396,24 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('match-rank')
   async handleMatchRank(@ConnectedSocket() socket: Socket) {
     this.logger.log(`[MatchRank]`);
-    const data = await this.eventsService.matchRankGame(socket.id);
-    if (data) {
-      socket.join(data.roomName);
-      socket.emit('match-rank', {
-        roomName: data.roomName,
-        ownerDto: data.owner,
-        opponentDto: data.opponent,
-      });
-      this.nsp.sockets.get(data.socketId)?.join(data.roomName);
-      this.nsp.sockets.get(data.socketId)?.emit('match-rank', {
-        roomName: data.roomName,
-        ownerDto: data.owner,
-        opponentDto: data.opponent,
-      });
+    try {
+      const data = await this.eventsService.matchRankGame(socket.id);
+      if (data) {
+        socket.join(data.roomName);
+        socket.emit('match-rank', {
+          roomName: data.roomName,
+          ownerDto: data.owner,
+          opponentDto: data.opponent,
+        });
+        this.nsp.sockets.get(data.socketId)?.join(data.roomName);
+        this.nsp.sockets.get(data.socketId)?.emit('match-rank', {
+          roomName: data.roomName,
+          ownerDto: data.owner,
+          opponentDto: data.opponent,
+        });
+      }
+    } catch (err) {
+      socket.emit('game-fail', err.message);
     }
   }
 
@@ -988,7 +993,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const result = await this.eventsService.gameAlert(
         socket.id,
         userName,
-        '가 게임 중입니다.',
+        true,
       );
       result.forEach((data) => {
         socket.broadcast.emit('user-ingame', data);
@@ -1010,7 +1015,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const result = await this.eventsService.gameAlert(
         socket.id,
         userName,
-        '의 게임이 끝났습니다.',
+        false,
       );
       result.forEach((data) => {
         socket.broadcast.emit('user-gameout', data);

@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
+import { GameType } from './common.enum';
 
 @Entity()
 export class Game {
@@ -36,9 +37,15 @@ export class Game {
   @Column()
   count: number;
 
-  @OneToMany(() => User, (user) => user.playGame, { onDelete: 'CASCADE' })
+  @Column()
+  type: GameType;
+
+  @Column()
+  playing: boolean;
+
+  @OneToMany(() => User, (user) => user.playGame, { cascade: true })
   players: User[];
 
-  @OneToMany(() => User, (user) => user.watchGame, { onDelete: 'CASCADE' })
+  @OneToMany(() => User, (user) => user.watchGame, { cascade: true })
   watchers: User[];
 }

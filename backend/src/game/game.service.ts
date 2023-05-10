@@ -3,7 +3,6 @@ import { LobbyDto } from 'src/dto/lobby.dto';
 import { GameDto } from 'src/dto/game.dto';
 import { JoinType } from 'src/entity/common.enum';
 import { IGameRepository } from './repository/game.interface.repository';
-import { RecordService } from 'src/record/record.service';
 import { User } from 'src/entity/user.entity';
 import { Game } from 'src/entity/game.entity';
 import { UserService } from 'src/user/user.service';
@@ -23,6 +22,7 @@ export class GameService {
       interruptMode: game.interruptMode,
       privateMode: game.privateMode,
       password: game.password,
+      type: game.type,
     };
     return gameDto;
   }
@@ -65,21 +65,18 @@ export class GameService {
     if (found) return null;
     await this.gameRepository.createByGameDto(gameDto, 1);
     const game = await this.gameRepository.findByTitleWithJoin(gameDto.title);
-    await this.gameRepository.addPlayer(game, user);
     await this.userService.updateOwnGame(user, game);
     return await this.gameRepository.findByTitle(game.title);
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async joinGame(user: User, game: Game) {
-    await this.gameRepository.addPlayer(game, user);
     await this.gameRepository.updateCountById(game.id, game.count + 1);
     await this.userService.updatePlayGame(user, game);
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async watchGame(user: User, game: Game) {
-    await this.gameRepository.addWatcher(game, user);
     await this.userService.updateWatchGame(user, game);
   }
 
@@ -99,10 +96,12 @@ export class GameService {
     if (user.joinType === JoinType.OWNER) {
       await this.gameRepository.deleteById(game);
     } else if (user.joinType === JoinType.PLAYER) {
-      await this.gameRepository.subtractPlayer(game, user);
       await this.gameRepository.updateCountById(game.id, game.count - 1);
-    } else if (user.joinType === JoinType.WATCHER) {
-      await this.gameRepository.subtractWatcher(game, user);
     }
+  }
+
+  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
+  async changeGameState(game: Game, playing: boolean) {
+    await this.gameRepository.updatePlaying(game.id, playing);
   }
 }

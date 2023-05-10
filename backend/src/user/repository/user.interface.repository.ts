@@ -28,7 +28,6 @@ export interface IUserRepository {
   updateOwnGame(id: number, game: Game);
   updatePlayGame(id: number, game: Game);
   updateWatchGame(id: number, game: Game);
-  updateGameRank(id: number);
   updateGameNone(id: number);
   updateNormalWin(user: User);
   updateNormalLose(user: User);

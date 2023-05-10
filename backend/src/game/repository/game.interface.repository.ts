@@ -10,9 +10,6 @@ export interface IGameRepository {
   findByPlayerWithJoin(player: User);
   findByWatcherWithJoin(watcher: User);
   updateCountById(id: number, count: number);
-  addPlayer(game: Game, player: User);
-  addWatcher(game: Game, watcher: User);
-  subtractPlayer(game: Game, player: User);
-  subtractWatcher(game: Game, watcher: User);
+  updatePlaying(id: number, playing: boolean);
   deleteById(game: Game);
 }

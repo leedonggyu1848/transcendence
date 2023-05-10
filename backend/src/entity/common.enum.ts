@@ -3,7 +3,6 @@ export enum JoinType {
   'OWNER',
   'PLAYER',
   'WATCHER',
-  'RANK',
 }
 
 export enum GameType {

@@ -87,6 +87,7 @@ const GameLobbyContainer = () => {
         interruptMode: modeInput.checked,
         privateMode: typeInput.checked,
         password: passwordInput.value,
+        type: 0,
       },
     });
 

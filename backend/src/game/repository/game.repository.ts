@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameDto } from 'src/dto/game.dto';
+import { GameType } from 'src/entity/common.enum';
 import { Game } from 'src/entity/game.entity';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -17,13 +18,15 @@ export class GameRepository implements IGameRepository {
       privateMode: gameDto.privateMode,
       password: gameDto.password,
       count: count,
+      type: gameDto.type,
+      playing: false,
     });
     await this.gameRepository.save(game);
     return game;
   }
 
   async findAll() {
-    return await this.gameRepository.find();
+    return await this.gameRepository.find({ where: { type: GameType.NORMAL } });
   }
 
   async findByTitle(title: string) {
@@ -55,24 +58,8 @@ export class GameRepository implements IGameRepository {
     await this.gameRepository.update(id, { count: count });
   }
 
-  async addPlayer(game: Game, player: User) {
-    game.players.push(player);
-    await this.gameRepository.save(game);
-  }
-
-  async addWatcher(game: Game, watcher: User) {
-    game.watchers.push(watcher);
-    await this.gameRepository.save(game);
-  }
-
-  async subtractPlayer(game: Game, player: User) {
-    game.players = game.players.filter((elem) => elem.id !== player.id);
-    await this.gameRepository.save(game);
-  }
-
-  async subtractWatcher(game: Game, watcher: User) {
-    game.watchers = game.watchers.filter((elem) => elem !== watcher);
-    await this.gameRepository.save(game);
+  async updatePlaying(id: number, playing: boolean) {
+    await this.gameRepository.update(id, { playing: playing });
   }
 
   async deleteById(game: Game) {

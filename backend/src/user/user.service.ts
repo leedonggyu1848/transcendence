@@ -212,11 +212,6 @@ export class UserService {
     await this.userRepository.updateWatchGame(user.id, game);
   }
 
-  @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async updateMatchRank(user: User) {
-    await this.userRepository.updateGameRank(user.id);
-  }
-
   async updateGameWin(user: User, type: GameType, record: Record) {
     await this.userRepository.addRecord(user, record);
     if (type === GameType.NORMAL)
