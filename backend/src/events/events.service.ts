@@ -191,6 +191,13 @@ export class EventsService {
         : user.playGame.title,
     );
     if (!game) throw new Error('데이터 저장 오류');
+    if (game.playing) {
+      const opponent = await this.gameService.getOpponentUser(
+        game.title,
+        user.userName,
+      );
+      await this.recordService.saveGameResult(opponent, user, game.type);
+    }
     await this.gameService.leaveGame(game, user);
     return {
       user: this.userService.userToUserDto(user),
@@ -704,8 +711,8 @@ export class EventsService {
   }
 
   async gameAlert(socketId: string, userName: string, playing: boolean) {
-    const user = await this.userService.getUserBySocketId(socketId);
-    const opponent = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserBySocketIdWithGame(socketId);
+    const opponent = await this.userService.getUserByUserNameWithGame(userName);
     if (!user || !opponent) throw new Error('맞는 유저가 없습니다.');
     if (user.playGame.title !== opponent.playGame.title)
       throw new Error('서로 게임 중이 아닙니다.');
