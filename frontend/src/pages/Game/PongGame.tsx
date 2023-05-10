@@ -14,6 +14,7 @@ import {
   myNameState,
 } from "../../api/atom";
 import { useNavigate } from "react-router-dom";
+import GameDetailInfo from "../HistoryPage/GameDetailInfo";
 
 const PongGame = ({
   roomName,
@@ -235,6 +236,11 @@ const PongGame = ({
             loser: gameInfo.opponentDto.userName,
             type: gameInfo.gameDto.type,
           });
+          socket.emit("end-game", {
+            userName: gameInfo.opponentDto.userName,
+            roomName: gameInfo.gameDto.title,
+            type: gameInfo.gameDto.type,
+          });
         }
         gameState = "win";
         setCount(4);
@@ -293,6 +299,11 @@ const PongGame = ({
             roomName: gameInfo.gameDto.title,
             winner: gameInfo.opponentDto.userName,
             loser: gameInfo.ownerDto.userName,
+            type: gameInfo.gameDto.type,
+          });
+          socket.emit("end-game", {
+            userName: gameInfo.opponentDto.userName,
+            roomName: gameInfo.gameDto.title,
             type: gameInfo.gameDto.type,
           });
         }

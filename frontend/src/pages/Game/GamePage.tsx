@@ -80,7 +80,10 @@ const GamePage = () => {
     }
     setStartCount(() => true);
     setCount((prev) => prev - 1);
-    socket.emit("start-game", gameInfo.gameDto.title);
+    socket.emit("start-game", {
+      roomName: gameInfo.gameDto.title,
+      type: gameInfo.gameDto.type,
+    });
     if (gameInfo.gameDto.interruptMode) {
       const leftPos = Math.floor(Math.random() * 30) / 100;
       const rightPos = (Math.floor(Math.random() * 30) + 50) / 100;
@@ -170,6 +173,11 @@ const GamePage = () => {
               roomName: gameInfo.gameDto.title,
               winner: gameInfo.ownerDto.userName,
               lower: gameInfo.opponentDto.userName,
+              type: gameInfo.gameDto.type,
+            });
+            socket.emit("end-game", {
+              userName: gameInfo.opponentDto.userName,
+              roomName: gameInfo.gameDto.title,
               type: gameInfo.gameDto.type,
             });
             setStartCount(() => false);
