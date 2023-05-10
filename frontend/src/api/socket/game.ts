@@ -516,7 +516,6 @@ export const listenUserLeaveGame = ({
           if (currentGame.gameDto.type === 1) {
             console.log("상대방 새로고침함");
             setCurrentGame(null);
-            sessionStorage.setItem('opponentLeavingWhileGame','true');
             navigate("/main/lobby");
           } else {
             console.log(currentGame);
