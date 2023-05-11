@@ -9,7 +9,7 @@ export interface IChatRepository {
   findByTitleWithJoin(title: string);
   updateType(chat: Chat, type: ChatType);
   updatePassword(chat: Chat, password: string);
-  updateOwner(chat: Chat, owner: string);
+  updateOwner(chat: Chat, owner: number);
   updateCount(chat: Chat, count: number);
   deleteChat(chat: Chat);
 }

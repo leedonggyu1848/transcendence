@@ -53,7 +53,7 @@ export class ChatService {
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
-  async updateOwner(chat: Chat, owner: string) {
+  async updateOwner(chat: Chat, owner: number) {
     await this.chatRepository.updateOwner(chat, owner);
   }
 
@@ -77,7 +77,7 @@ export class ChatService {
       {
         title: sender.userName + ',' + receiver.userName,
         type: ChatType.DM,
-        owner: sender.userName,
+        owner: sender.userId,
         count: 2,
       },
       '',
@@ -98,7 +98,7 @@ export class ChatService {
       {
         title: roomName,
         type: type,
-        owner: user.userName,
+        owner: user.userId,
         count: 1,
       },
       password,
@@ -139,11 +139,19 @@ export class ChatService {
     else {
       await this.chatRepository.updateCount(chat, chat.count - 1);
       chat = await this.chatRepository.findByTitleWithJoin(chat.title);
-      if (chat.owner === user.userName) {
-        await this.chatRepository.updateOwner(
-          chat,
-          chat.users[0].user.userName,
-        );
+      if (chat.owner === user.userId) {
+        const newOwner = chat.administrators.filter((admin) => {
+          admin.userId !== user.userId;
+        });
+        console.log(newOwner);
+        console.log(chat.users[0].user);
+        if (newOwner.length !== 0)
+          await this.chatRepository.updateOwner(chat, newOwner[0].userId);
+        else
+          await this.chatRepository.updateOwner(
+            chat,
+            chat.users[0].user.userId,
+          );
       }
     }
     return true;

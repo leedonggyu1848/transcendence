@@ -34,7 +34,7 @@ export class Chat {
   }
 
   @Column()
-  owner: string;
+  owner: number;
 
   @OneToMany(() => Administrator, (admin) => admin.chat, { cascade: true })
   administrators: Administrator[];

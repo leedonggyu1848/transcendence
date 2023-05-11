@@ -41,7 +41,7 @@ export class ChatRepository implements IChatRepository {
     await this.chatRepository.save(data);
   }
 
-  async updateOwner(chat: Chat, owner: string) {
+  async updateOwner(chat: Chat, owner: number) {
     await this.chatRepository.update(chat.id, { owner: owner });
   }
 

@@ -404,7 +404,7 @@ export class EventsService {
     await this.administratorService.addAdministrator(chat, user);
     return {
       roomName: roomName,
-      owner: chat.owner,
+      owner: user.userName,
       type: chat.type,
       admins: [user.userName],
       users: [user.userName],
@@ -423,6 +423,7 @@ export class EventsService {
     if (ban) throw new Error(`${roomName}에 밴 되어있습니다.`);
     const result = await this.chatService.joinChat(user, chat);
     if (!result) throw new Error(`${roomName}에 이미 참가 중 입니다.`);
+    const owner = await this.userService.getUserByUserId(chat.owner);
     const admins = chat.administrators.map(async (admin) => {
       const found = await this.userService.getUserByUserId(admin.userId);
       return found.userName;
@@ -437,7 +438,7 @@ export class EventsService {
       joinuser: user.userName,
       data: {
         roomName: roomName,
-        owner: chat.owner,
+        owner: owner.userId,
         type: chat.type,
         admins: admins,
         users: userNames,
@@ -457,10 +458,16 @@ export class EventsService {
     if (isAdmin) await this.administratorService.subtractAdministrator(isAdmin);
     const result = await this.chatService.leaveChat(user, chat);
     if (!result) throw new Error(`참여 중인 방이 없습니다.`);
+    const newChat = await this.chatService.getChatByTitle(roomName);
+    let retOwner: string = null;
+    if (newChat) {
+      const newOwner = await this.userService.getUserByUserId(newChat.owner);
+      retOwner = newOwner.userName;
+    }
     return {
       msg: `${user.userName}가 나갔습니다.`,
       userName: user.userName,
-      owner: chat.users[0].user.userName,
+      owner: retOwner,
     };
   }
 
@@ -527,17 +534,22 @@ export class EventsService {
 
   async kickUser(socketId: string, roomName: string, userName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
-    if (!user) throw new Error('맞는 유저가 없습니다.');
+    const kickUser = await this.userService.getUserByUserName(userName);
+    if (!user || !kickUser) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     const foundAdmin = chat.administrators.find(
       (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error('권한이 없습니다.');
-    if (userName === chat.owner) throw new Error(`방장은 강퇴할 수 없습니다.`);
+    if (kickUser.userId === chat.owner)
+      throw new Error(`방장은 강퇴할 수 없습니다.`);
     const data = chat.users.find((usr) => usr.user.userName === userName);
     if (!data) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
-    const kickUser = await this.userService.getUserByUserName(userName);
+    const isAdmin = chat.administrators.find(
+      (admin) => admin.userId === user.userId,
+    );
+    if (isAdmin) await this.administratorService.subtractAdministrator(isAdmin);
     await this.chatService.kickUser(chat, kickUser);
     return {
       msg: `${userName}가 ${roomName}에서 강퇴되었습니다.`,
@@ -555,7 +567,7 @@ export class EventsService {
       (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error(`권한이 없습니다.`);
-    if (userName === chat.owner)
+    if (mutedUser.userId === chat.owner)
       throw new Error(`방장은 음소거 할 수 없습니다.`);
     const data = chat.users.find((usr) => usr.user.userName === userName);
     if (!data) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
@@ -582,7 +594,7 @@ export class EventsService {
     if (!user) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
-    if (chat.owner !== user.userName)
+    if (chat.owner !== user.userId)
       throw new Error(`${roomName}의 방장이 아닙니다.`);
     if (chat.type === ChatType.PRIVATE || chat.type === ChatType.DM)
       throw new Error(`DM과 Private 방에서는 비밀번호를 설정할 수 없습니다.`);
@@ -596,11 +608,11 @@ export class EventsService {
     if (!user || !newOwner) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
-    if (chat.owner !== user.userName)
+    if (chat.owner !== user.userId)
       throw new Error(`${roomName}의 방장이 아닙니다.`);
     const data = chat.users.find((usr) => usr.user.userName === userName);
     if (!data) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
-    await this.chatService.updateOwner(chat.id, userName);
+    await this.chatService.updateOwner(chat.id, newOwner.userId);
     await this.administratorService.addAdministrator(chat, newOwner);
     return { roomName, userName };
   }
@@ -611,7 +623,7 @@ export class EventsService {
     if (!user) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
-    if (chat.owner !== user.userName)
+    if (chat.owner !== user.userId)
       throw new Error(`${roomName}의 방장이 아닙니다.`);
     const isJoin = chat.users.find((usr) => usr.user.userName === userName);
     if (!isJoin) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
@@ -629,7 +641,7 @@ export class EventsService {
     if (!user) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
-    if (chat.owner !== user.userName)
+    if (chat.owner !== user.userId)
       throw new Error(`${roomName}의 방장이 아닙니다.`);
     const isJoin = chat.users.find((usr) => usr.user.userName === userName);
     if (!isJoin) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
@@ -666,7 +678,7 @@ export class EventsService {
       (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error(`권한이 없습니다.`);
-    if (banUser === chat.owner) throw new Error(`방장은 밴 할 수 없습니다.`);
+    if (chat.owner === ban.userId) throw new Error(`방장은 밴 할 수 없습니다.`);
     const isBan = chat.banUsers.find((ban) => ban.userName === banUser);
     if (isBan) throw new Error(`${banUser}는 이미 밴 되어있습니다.`);
     await this.banService.addBanUser(chat, ban.userId);
