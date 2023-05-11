@@ -429,11 +429,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { roomName, winner, loser, type }: GameResultPayload,
   ) {
     this.logger.log(
-      `[GameResult]`,
-      `roomName: ${roomName}`,
-      `winner: ${winner}`,
-      `loser: ${loser}`,
-      `type: ${type}`,
+      `[GameResult] roomName: ${roomName}, winner: ${winner}, loser: ${loser}, type: ${type}`,
     );
     try {
       const result = await this.eventsService.saveGameResult(
@@ -988,12 +984,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[StartGame] roomName: ${userName}`);
     try {
-      socket.broadcast.to(roomName).emit('start-game');
       const result = await this.eventsService.gameAlert(
         socket.id,
         userName,
         true,
       );
+      socket.broadcast.to(roomName).emit('start-game');
       result.forEach((data) => {
         socket.broadcast.emit('user-ingame', data);
       });
@@ -1010,12 +1006,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[EndGame] roomName: ${roomName}`);
     try {
-      socket.broadcast.to(roomName).emit('end-game');
       const result = await this.eventsService.gameAlert(
         socket.id,
         userName,
         false,
       );
+      socket.broadcast.to(roomName).emit('end-game');
       result.forEach((data) => {
         socket.broadcast.emit('user-gameout', data);
       });
