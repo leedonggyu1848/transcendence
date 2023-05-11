@@ -462,7 +462,7 @@ export const listenUserLeaveGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("user-leave-game");
+      console.log("user-leave-game", start, startCount, count);
       if (type === 1) {
         // 방장이 나갔으면서 일반 게임일 때
         if (currentGame && currentGame.gameDto.title === roomName) {
@@ -478,6 +478,24 @@ export const listenUserLeaveGame = ({
             msg: message,
             toggle: true,
           });
+          if (
+            currentGame.opponentDto &&
+            currentGame.opponentDto.userName === myInfo.userName &&
+            (start || startCount || count !== 4)
+          ) {
+            //내가 opponent일 때 방장이 나감
+            setMyInfo({
+              ...myInfo,
+              normalWin:
+                currentGame.gameDto.type === 1
+                  ? myInfo.normalWin
+                  : myInfo.normalWin + 1,
+              rankWin:
+                currentGame.gameDto.type === 1
+                  ? myInfo.rankWin + 1
+                  : myInfo.rankWin,
+            });
+          }
         }
         setGameList(
           gameList.filter((game: GameDto) => game.title !== roomName)
