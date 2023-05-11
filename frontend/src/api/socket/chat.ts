@@ -1,3 +1,4 @@
+import Admins from "../../components/Modals/OperatorModal/Admins";
 import {
   IChatDetail,
   IChatRoom,
@@ -207,6 +208,7 @@ export const listenJoinSucces = ({
       users: string[];
       admins: string[];
     }) => {
+      console.log("join-chat-success", users, admins);
       const temp: IChatDetail = {
         title: roomName,
         type,
@@ -274,7 +276,9 @@ export const listenSomeoneLeave = ({
             userList: joinnedChatList[roomName].userList.filter(
               (name) => name != userName
             ),
-            operator,
+            admins: joinnedChatList[roomName].admins.filter(
+              (name) => name !== userName
+            ),
             chatLogs: [
               ...joinnedChatList[roomName].chatLogs,
               {
@@ -722,11 +726,40 @@ export const listenChatAddAdmin = ({
   socket.on(
     "chat-add-admin",
     ({ roomName, userName }: { roomName: string; userName: string }) => {
+      console.log("chat-add-admin", userName, roomName, joinnedChatList);
       setJoinnedChatList({
         ...joinnedChatList,
         [roomName]: {
           ...joinnedChatList[roomName],
           admins: [...joinnedChatList[roomName].admins, userName],
+        },
+      });
+    }
+  );
+};
+
+export const listenChatDelAdmin = ({
+  socket,
+  joinnedChatList,
+  setJoinnedChatList,
+  currentChat,
+}: {
+  socket: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+  currentChat: string;
+}) => {
+  socket.on(
+    "chat-del-admin",
+    ({ roomName, userName }: { roomName: string; userName: string }) => {
+      console.log("chat-del-admin", userName, roomName);
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          admins: joinnedChatList[roomName].admins.filter(
+            (name) => name !== userName
+          ),
         },
       });
     }

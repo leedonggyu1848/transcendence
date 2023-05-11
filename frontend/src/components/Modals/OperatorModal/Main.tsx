@@ -22,6 +22,7 @@ const Main = ({ head }: { head: string }) => {
   const setAlertInfo = useSetRecoilState(alertModalState);
   const operatorModal = useSetRecoilState(operatorModalToggleState);
   const [joinnedChat, setJoinnedChat] = useRecoilState(joinnedChatState);
+  console.log(joinnedChat);
 
   const handleMuteUser = (username: string) => {
     socket.emit("mute-user", {
@@ -123,9 +124,11 @@ const Main = ({ head }: { head: string }) => {
                 <Button onClick={() => handleMuteUser(user)}>Mute</Button>
                 <Button onClick={() => handleKickUser(user)}>Kick</Button>
                 <Button onClick={() => handleBanUser(user)}>Ban</Button>
-                <Button onClick={() => handleGiveAdmin(currentChat, user)}>
-                  Admin
-                </Button>
+                {head === "Owner" && (
+                  <Button onClick={() => handleGiveAdmin(currentChat, user)}>
+                    Admin
+                  </Button>
+                )}
               </ButtonContainer>
             </User>
           ))}

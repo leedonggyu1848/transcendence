@@ -27,6 +27,7 @@ const CurrentUserInfo = ({
   owner: boolean;
   admins: string[];
 }) => {
+  console.log(data);
   const [toggle, setToggle] = useState(false);
   const [block, setBlock] = useState(false);
   const [target, setTarget] = useState("");

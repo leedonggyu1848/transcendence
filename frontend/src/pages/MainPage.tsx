@@ -84,6 +84,8 @@ import {
   listenBanUser,
   listenBlockUser,
   listenChangeOperator,
+  listenChatAddAdmin,
+  listenChatDelAdmin,
   listenChatInvite,
   listenChatMuted,
   listenChatReject,
@@ -317,6 +319,8 @@ const MainPage = () => {
     listenChatMuted(hooks);
     listenChatInvite(hooks);
     listenChatReject(hooks);
+    listenChatAddAdmin(hooks);
+    listenChatDelAdmin(hooks);
 
     //game apis
     listenCreateGame(hooks);
@@ -379,7 +383,8 @@ const MainPage = () => {
         "ban-cancel",
         "send-dm",
         "receive-dm",
-        "chat-operator",
+        "chat-add-admin",
+        "chat-del-admin",
         "block-list",
         "block-user",
         "block-cancel",

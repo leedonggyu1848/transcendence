@@ -1,11 +1,16 @@
 import styled from "@emotion/styled";
+import { useContext } from "react";
 import { useRecoilValue } from "recoil";
 import { currentChatState, joinnedChatState } from "../../../api/atom";
+import { WebsocketContext } from "../../../pages/WrapMainPage";
 
 const Admins = () => {
   const joinChat = useRecoilValue(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
-  const handlePermissionRelease = (user: string) => {};
+  const socket = useContext(WebsocketContext);
+  const handlePermissionRelease = (user: string) => {
+    socket.emit("chat-del-admin", { roomName: currentChat, userName: user });
+  };
   return (
     <AdminsContainer>
       <Header>Admins</Header>
