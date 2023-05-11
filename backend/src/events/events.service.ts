@@ -633,9 +633,11 @@ export class EventsService {
       throw new Error(`${roomName}의 방장이 아닙니다.`);
     const isJoin = chat.users.find((usr) => usr.user.userName === userName);
     if (!isJoin) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
+    console.log(chat.administrators);
     const isAdmin = chat.administrators.find(
-      (admin) => admin.userId === newAdmin.id,
+      (admin) => admin.userId === newAdmin.userId,
     );
+    console.log(isAdmin);
     if (!isAdmin) throw new Error(`${userName}은 관리자가 아닙니다.`);
     await this.administratorService.subtractAdministrator(isAdmin);
     return { roomName, userName };
