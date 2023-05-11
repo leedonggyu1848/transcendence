@@ -56,8 +56,8 @@ const Main = ({ head }: { head: string }) => {
     setPassword(e.target.value);
   };
 
-  const handleGiveOperator = (roomName: string, username: string) => {
-    socket.emit("chat-operator", { roomName: roomName, operator: username });
+  const handleGiveAdmin = (roomName: string, username: string) => {
+    socket.emit("chat-add-admin", { roomName: roomName, userName: username });
     operatorModal(false);
   };
 
@@ -96,7 +96,7 @@ const Main = ({ head }: { head: string }) => {
       <HeaderContainer>
         <div>{head}</div>
         <div>
-          {head === "owner" && (
+          {head === "Owner" && (
             <div className="passwordTitle">
               <span>비밀번호 변경</span>
               <span
@@ -123,8 +123,8 @@ const Main = ({ head }: { head: string }) => {
                 <Button onClick={() => handleMuteUser(user)}>Mute</Button>
                 <Button onClick={() => handleKickUser(user)}>Kick</Button>
                 <Button onClick={() => handleBanUser(user)}>Ban</Button>
-                <Button onClick={() => handleGiveOperator(currentChat, user)}>
-                  Oper
+                <Button onClick={() => handleGiveAdmin(currentChat, user)}>
+                  Admin
                 </Button>
               </ButtonContainer>
             </User>

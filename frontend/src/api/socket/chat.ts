@@ -707,3 +707,28 @@ export const listenChatReject = ({
     }
   );
 };
+
+export const listenChatAddAdmin = ({
+  socket,
+  joinnedChatList,
+  setJoinnedChatList,
+  currentChat,
+}: {
+  socket: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+  currentChat: string;
+}) => {
+  socket.on(
+    "chat-add-admin",
+    ({ roomName, userName }: { roomName: string; userName: string }) => {
+      setJoinnedChatList({
+        ...joinnedChatList,
+        [roomName]: {
+          ...joinnedChatList[roomName],
+          admins: [...joinnedChatList[roomName].admins, userName],
+        },
+      });
+    }
+  );
+};

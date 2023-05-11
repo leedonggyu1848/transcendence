@@ -57,7 +57,7 @@ const CurrentUserInfo = ({
 
   const clickOperatorButton = () => {
     if (owner) setOwnerModal(true);
-    if (admins.includes(myName)) setOperatorModal(true);
+    else if (admins.includes(myName)) setOperatorModal(true);
   };
 
   const clickDeleteFriend = (friendName: string) => {
@@ -129,7 +129,8 @@ const CurrentUserInfo = ({
           {title.length > 13 ? "..." : ""}
         </Title>
         <InfoContainer>
-          {(owner || admins.includes(myName)) && (
+          {owner && <OwnerIcon onClick={() => clickOperatorButton()} />}
+          {!owner && admins.includes(myName) && (
             <OperatorIcon onClick={() => clickOperatorButton()} />
           )}
           <UserIcon />
@@ -247,8 +248,17 @@ const PersonalMenu = styled.div<{ toggle: boolean }>`
   }
 `;
 
+const OwnerIcon = styled.div`
+  background-image: url("/src/assets/owner.png");
+  width: 15px;
+  height: 15px;
+  background-size: 100% 100%;
+  cursor: pointer;
+  margin-right: 10px;
+`;
+
 const OperatorIcon = styled.div`
-  background-image: url("/src/assets/adminIcon.png");
+  background-image: url("/src/assets/admin.png");
   width: 15px;
   height: 15px;
   background-size: 100% 100%;

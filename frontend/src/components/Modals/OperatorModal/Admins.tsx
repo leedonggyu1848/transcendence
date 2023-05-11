@@ -1,13 +1,56 @@
 import styled from "@emotion/styled";
+import { useRecoilValue } from "recoil";
+import { currentChatState, joinnedChatState } from "../../../api/atom";
 
 const Admins = () => {
+  const joinChat = useRecoilValue(joinnedChatState);
+  const currentChat = useRecoilValue(currentChatState);
+  const handlePermissionRelease = (user: string) => {};
   return (
     <AdminsContainer>
       <Header>Admins</Header>
-      <AdminList></AdminList>
+      <AdminList>
+        {joinChat[currentChat].admins.map((user, idx) => (
+          <User key={idx}>
+            <Name>{user}</Name>
+            <ButtonContainer>
+              <Button onClick={() => handlePermissionRelease(user)}>
+                해제
+              </Button>
+            </ButtonContainer>
+          </User>
+        ))}
+      </AdminList>
     </AdminsContainer>
   );
 };
+
+const User = styled.div`
+  width: 90%;
+  height: 60px;
+  background: var(--dark-bg-color);
+  margin: 0 auto;
+  margin-top: 5px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const ButtonContainer = styled.div`
+  display: flex;
+`;
+const Button = styled.div`
+  border-radius: 10px;
+  background: white;
+  color: black;
+  padding: 5px 10px;
+  margin-right: 10px;
+  cursor: pointer;
+`;
+const Name = styled.div`
+  padding: 10px;
+  margin-left: 10px;
+`;
 
 const Header = styled.div`
   font-size: 1.5rem;

@@ -229,7 +229,7 @@ const GamePage = () => {
             data={usersInfo}
             title={gameInfo.gameDto.title}
             owner={false}
-            clickOperatorButton={() => {}}
+            admins={[]}
           />
           <ChatBox
             onSend={onSend}

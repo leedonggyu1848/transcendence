@@ -16,7 +16,7 @@ const OwnerModal = () => {
     <>
       <ModalBackground onClick={onClickBackground} />
       <OwnerModalContainer>
-        <Main head="owner" />
+        <Main head="Owner" />
         <Admins />
         <Sub />
       </OwnerModalContainer>
