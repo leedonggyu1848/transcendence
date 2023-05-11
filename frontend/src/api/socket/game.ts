@@ -692,7 +692,7 @@ export const listenUserGameOut = ({
   socket.on("user-gameout", ({ userName }: { userName: string }) => {
     setFriendList(
       friendList.map((friend) =>
-        friend.userName === userName ? { ...friend, status: 2 } : { ...friend }
+        friend.userName === userName ? { ...friend, status: 1 } : { ...friend }
       )
     );
   });

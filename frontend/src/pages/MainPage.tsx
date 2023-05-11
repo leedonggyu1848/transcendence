@@ -112,6 +112,7 @@ import {
   listenLeaveWhilePlaying,
   listenMatchRank,
   listenNewGame,
+  listenUserGameOut,
   listenUserInGame,
   listenUserJoinGame,
   listenUserLeaveGame,
@@ -342,6 +343,7 @@ const MainPage = () => {
     listenGameAccept(hooks);
     listenGameReject(hooks);
     listenLeaveWhilePlaying(hooks);
+    listenUserGameOut(hooks);
 
     async function getMyInfo() {
       const myInfo = await axiosGetMyInfo();
@@ -410,7 +412,8 @@ const MainPage = () => {
         "user-ingame",
         "user-profile",
         "refresh-while-playing",
-        "leave-while-playing"
+        "leave-while-playing",
+        "user-gameout"
       );
     };
   }, [
