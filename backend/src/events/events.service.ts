@@ -319,13 +319,22 @@ export class EventsService {
 
   async friendRequest(socketId: string, friendName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
-    const friend = await this.userService.getUserByUserName(friendName);
+    const friend = await this.userService.getUserByUserNameWithFriend(
+      friendName,
+    );
     if (!user || !friend) throw new Error('없는 유저입니다.');
+    const check = await this.friendService.friendResponse(user, friend, true);
+    if (check) {
+      return {
+        data: { user, friend },
+        msg: `${friendName}와 ${user.userName}의 친구 신청이 처리 되었습니다.`,
+      };
+    }
     const result = await this.friendService.friendRequest(user, friend);
     if (!result) throw new Error('이미 친구 신청을 보냈습니다.');
     return {
       data: { user, friend },
-      msg: `${user.userName}가 ${friendName}에게 친구 신청을 보냈습니다.`,
+      msg: `${user.userName}와 ${friendName}의 친구 신청이 처리 되었습니다.`,
     };
   }
 
@@ -536,7 +545,6 @@ export class EventsService {
     if (!user || !kickUser) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
-    console.log(chat.administrators);
     const foundAdmin = chat.administrators.find(
       (admin) => admin.userId === user.userId,
     );

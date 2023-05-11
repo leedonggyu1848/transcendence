@@ -73,14 +73,14 @@ export class FriendService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async friendResponse(user: User, friend: User, type: boolean) {
-    const requests = friend.friends.filter(
+    const requests = friend.friends.find(
       (req) => req.friendName === user.userName && req.accept === false,
     );
-    if (requests.length !== 1) return false;
+    if (!requests) return false;
     if (type) {
-      await this.friendRepository.updateAccept(requests[0].id, true);
+      await this.friendRepository.updateAccept(requests.id, true);
       await this.friendRepository.addFriend(user, friend, true);
-    } else await this.friendRepository.deleteFriend(requests[0]);
+    } else await this.friendRepository.deleteFriend(requests);
     return true;
   }
 
