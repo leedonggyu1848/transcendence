@@ -109,7 +109,10 @@ const GamePage = () => {
     if (start || startCount) {
       const info = {
         roomName: gameInfo.gameDto.title,
-        userName: myName,
+        userName:
+          gameInfo.ownerDto.userName === myName
+            ? gameInfo.opponentDto.userName
+            : gameInfo.ownerDto.userName,
         type: gameInfo.gameDto.type,
       };
       sessionStorage.setItem("refreshWhilePlaying", JSON.stringify(info));
@@ -121,6 +124,10 @@ const GamePage = () => {
       const { userName, roomName, type } = JSON.parse(
         sessionStorage.getItem("refreshWhilePlaying")
       );
+      socket.emit("end-game", {
+        userName,
+        roomName: roomName,
+      });
     }
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {

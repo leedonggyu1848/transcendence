@@ -32,6 +32,7 @@ const useInitHook = () => {
   useEffect(() => {
     setToggles({ alarm: false, friends: false });
     console.log(count, start, startCount);
+
     if (location.pathname !== "/main/game" && currentGame) {
       if (sessionStorage.getItem("opponentLeavingWhileGame")) {
         sessionStorage.removeItem("opponentLeavingWhileGame");
@@ -51,6 +52,14 @@ const useInitHook = () => {
               currentGame.gameDto.type === 1
                 ? myInfo.rankLose + 1
                 : myInfo.rankLose,
+          });
+          let opponent =
+            currentGame.ownerDto.userName === myName
+              ? currentGame.opponentDto.userName
+              : currentGame.ownerDto.userName;
+          socket.emit("end-game", {
+            userName: opponent,
+            roomName: currentGame.gameDto.title,
           });
         }
         socket.emit("leave-game", currentGame.gameDto.title);
