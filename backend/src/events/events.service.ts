@@ -634,7 +634,7 @@ export class EventsService {
     const isJoin = chat.users.find((usr) => usr.user.userName === userName);
     if (!isJoin) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
     const isAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.id,
+      (admin) => admin.userId === newAdmin.id,
     );
     if (!isAdmin) throw new Error(`${userName}은 관리자가 아닙니다.`);
     await this.administratorService.subtractAdministrator(isAdmin);
