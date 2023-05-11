@@ -43,11 +43,18 @@ export class ChatService {
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updatePassword(chat: Chat, password: string) {
     await this.chatRepository.updatePassword(chat, password);
+    if (password === '') {
+      await this.chatRepository.updateType(chat, ChatType.PUBLIC);
+      return ChatType.PUBLIC;
+    } else if (chat.type === ChatType.PUBLIC) {
+      await this.chatRepository.updateType(chat, ChatType.PASSWORD);
+      return ChatType.PASSWORD;
+    }
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async updateOwner(chat: Chat, owner: string) {
-    await this.chatRepository.updateOwner(chat.id, owner);
+    await this.chatRepository.updateOwner(chat, owner);
   }
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
@@ -119,7 +126,7 @@ export class ChatService {
     );
     if (joined.length !== 0) return false;
     await this.chatUserRepository.addChatUser(chat, user);
-    await this.chatRepository.updateCount(chat.id, chat.count + 1);
+    await this.chatRepository.updateCount(chat, chat.count + 1);
     return true;
   }
 
@@ -130,11 +137,11 @@ export class ChatService {
     await this.chatUserRepository.deleteChatUser(chatUser);
     if (chat.count <= 1) await this.chatRepository.deleteChat(chat);
     else {
-      await this.chatRepository.updateCount(chat.id, chat.count - 1);
+      await this.chatRepository.updateCount(chat, chat.count - 1);
       chat = await this.chatRepository.findByTitleWithJoin(chat.title);
       if (chat.owner === user.userName) {
         await this.chatRepository.updateOwner(
-          chat.id,
+          chat,
           chat.users[0].user.userName,
         );
       }
@@ -146,6 +153,6 @@ export class ChatService {
   async kickUser(chat: Chat, kickUser: User) {
     const chatuser = await this.chatUserRepository.findByBoth(chat, kickUser);
     await this.chatUserRepository.deleteChatUser(chatuser);
-    await this.chatRepository.updateCount(chat.id, chat.count - 1);
+    await this.chatRepository.updateCount(chat, chat.count - 1);
   }
 }

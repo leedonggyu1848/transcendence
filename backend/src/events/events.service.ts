@@ -416,6 +416,7 @@ export class EventsService {
     if (!user) throw new Error(`맞는 유저가 없습니다.`);
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error(`맞는 채팅 방이 없습니다.`);
+    console.log(chat);
     const pass = await this.chatService.checkPassword(chat, password);
     if (!pass) throw new Error(`비밀번호가 맞지 않습니다.`);
     const ban = this.chatService.checkBaned(user, chat);
@@ -583,8 +584,10 @@ export class EventsService {
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     if (chat.owner !== user.userName)
       throw new Error(`${roomName}의 방장이 아닙니다.`);
-    await this.chatService.updatePassword(chat, password);
-    return `${roomName}의 비밀번호가 바뀌었습니다.`;
+    if (chat.type === ChatType.PRIVATE || chat.type === ChatType.DM)
+      throw new Error(`DM과 Private 방에서는 비밀번호를 설정할 수 없습니다.`);
+    const type = await this.chatService.updatePassword(chat, password);
+    return { roomName, type };
   }
 
   async changeOwner(socketId: string, roomName: string, userName: string) {

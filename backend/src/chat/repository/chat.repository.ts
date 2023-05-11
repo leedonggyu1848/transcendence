@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatDto } from 'src/dto/chat.dto';
 import { Chat } from 'src/entity/chat.entity';
+import { ChatType } from 'src/entity/common.enum';
 import { Repository } from 'typeorm';
 import { IChatRepository } from './chat.interface.repository';
 
@@ -30,18 +31,22 @@ export class ChatRepository implements IChatRepository {
     });
   }
 
+  async updateType(chat: Chat, type: ChatType) {
+    await this.chatRepository.update(chat.id, { type: type });
+  }
+
   async updatePassword(chat: Chat, password: string) {
     const data = this.chatRepository.create({ ...chat });
     data.password = password;
     await this.chatRepository.save(data);
   }
 
-  async updateOwner(chatId: number, owner: string) {
-    await this.chatRepository.update(chatId, { owner: owner });
+  async updateOwner(chat: Chat, owner: string) {
+    await this.chatRepository.update(chat.id, { owner: owner });
   }
 
-  async updateCount(chatId: number, count: number) {
-    await this.chatRepository.update(chatId, { count: count });
+  async updateCount(chat: Chat, count: number) {
+    await this.chatRepository.update(chat.id, { count: count });
   }
 
   async deleteChat(chat: Chat) {
