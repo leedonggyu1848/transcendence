@@ -138,20 +138,13 @@ export class ChatService {
     if (chat.count <= 1) await this.chatRepository.deleteChat(chat);
     else {
       await this.chatRepository.updateCount(chat, chat.count - 1);
-      chat = await this.chatRepository.findByTitleWithJoin(chat.title);
-      if (chat.owner === user.userId) {
-        const newOwner = chat.administrators.filter((admin) => {
-          admin.userId !== user.userId;
-        });
-        console.log(newOwner);
-        console.log(chat.users[0].user);
-        if (newOwner.length !== 0)
-          await this.chatRepository.updateOwner(chat, newOwner[0].userId);
-        else
-          await this.chatRepository.updateOwner(
-            chat,
-            chat.users[0].user.userId,
-          );
+      const result = await this.chatRepository.findByTitleWithJoin(chat.title);
+      if (result.owner === user.userId) {
+        const newOwner =
+          result.administrators.length !== 0
+            ? result.administrators[0].userId
+            : result.users[0].user.userId;
+        await this.chatRepository.updateOwner(result, newOwner);
       }
     }
     return true;

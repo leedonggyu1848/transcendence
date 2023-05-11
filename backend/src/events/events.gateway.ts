@@ -611,6 +611,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         password,
       );
+      console.log(result);
       socket.join(roomName);
       socket.broadcast.emit('join-chat', {
         message: result.msg,

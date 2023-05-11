@@ -416,7 +416,6 @@ export class EventsService {
     if (!user) throw new Error(`맞는 유저가 없습니다.`);
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error(`맞는 채팅 방이 없습니다.`);
-    console.log(chat);
     const pass = await this.chatService.checkPassword(chat, password);
     if (!pass) throw new Error(`비밀번호가 맞지 않습니다.`);
     const ban = this.chatService.checkBaned(user, chat);
@@ -432,7 +431,6 @@ export class EventsService {
       if (usr.user) return usr.user.userName;
       return '';
     });
-    await Promise.all(admins);
     return {
       msg: `${user.userName}가 들어왔습니다.`,
       joinuser: user.userName,
@@ -440,7 +438,7 @@ export class EventsService {
         roomName: roomName,
         owner: owner.userId,
         type: chat.type,
-        admins: admins,
+        admins: await Promise.all(admins),
         users: userNames,
       },
     };
