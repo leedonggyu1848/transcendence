@@ -3,17 +3,20 @@ import { useLocation } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { WebsocketContext } from "../pages/WrapMainPage";
 import {
+  currentChatState,
   currentGameInfoState,
   gameCountState,
   gameStartCountState,
   gameStartState,
+  joinnedChatState,
   myInfoState,
   myNameState,
   rankGameFlagState,
+  sideMenuToggle,
 } from "./atom";
 
 const useInitHook = () => {
-  const currentGame = useRecoilValue(currentGameInfoState);
+  const [currentGame, setCurrentGame] = useRecoilState(currentGameInfoState);
   const location = useLocation();
   const socket = useContext(WebsocketContext);
   const [count, setCount] = useRecoilState(gameCountState);
@@ -22,7 +25,12 @@ const useInitHook = () => {
   const myName = useRecoilValue(myNameState);
   const setRankGameFlag = useSetRecoilState(rankGameFlagState);
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
+  const setCurrentChat = useSetRecoilState(currentChatState);
+  const [toggles, setToggles] = useRecoilState(sideMenuToggle);
+  const [joinnedChatList, setJoinnedChatList] =
+    useRecoilState(joinnedChatState);
   useEffect(() => {
+    setToggles({ alarm: false, friends: false });
     console.log(count, start, startCount);
     if (location.pathname !== "/main/game" && currentGame) {
       if (sessionStorage.getItem("opponentLeavingWhileGame")) {
@@ -47,6 +55,15 @@ const useInitHook = () => {
         }
         socket.emit("leave-game", currentGame.gameDto.title);
       }
+
+      setCurrentGame(null);
+      setCurrentChat("");
+      const temp = {
+        ...joinnedChatList,
+      };
+      delete temp[currentGame.gameDto.title];
+
+      setJoinnedChatList({ ...temp });
     }
     setCount(4);
     setStart(false);
