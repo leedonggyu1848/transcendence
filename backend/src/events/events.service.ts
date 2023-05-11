@@ -530,7 +530,7 @@ export class EventsService {
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     const foundAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.Id,
+      (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error('권한이 없습니다.');
     if (userName === chat.owner) throw new Error(`방장은 강퇴할 수 없습니다.`);
@@ -551,7 +551,7 @@ export class EventsService {
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     const foundAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.Id,
+      (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error(`권한이 없습니다.`);
     if (userName === chat.owner)
@@ -613,7 +613,7 @@ export class EventsService {
     const isJoin = chat.users.find((usr) => usr.user.userName === userName);
     if (!isJoin) throw new Error(`${roomName}에 ${userName}가 없습니다.`);
     const isAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.id,
+      (admin) => admin.userId === user.userId,
     );
     if (isAdmin) throw new Error(`${userName}은 이미 관리자입니다.`);
     await this.administratorService.addAdministrator(chat, newAdmin);
@@ -644,7 +644,7 @@ export class EventsService {
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     const foundAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.Id,
+      (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error(`권한이 없습니다.`);
     const users = chat.banUsers.map((usr) => {
@@ -660,7 +660,7 @@ export class EventsService {
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     const foundAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.Id,
+      (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error(`권한이 없습니다.`);
     if (banUser === chat.owner) throw new Error(`방장은 밴 할 수 없습니다.`);
@@ -672,14 +672,15 @@ export class EventsService {
 
   async banCancel(socketId: string, roomName: string, banUser: string) {
     const user = await this.userService.getUserBySocketId(socketId);
-    if (!user) throw new Error('맞는 유저가 없습니다.');
+    const banned = await this.userService.getUserByUserName(banUser);
+    if (!user || !banned) throw new Error('맞는 유저가 없습니다.');
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error('해당하는 채팅방이 없습니다.');
     const foundAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.Id,
+      (admin) => admin.userId === user.userId,
     );
     if (!foundAdmin) throw new Error(`권한이 없습니다.`);
-    const ban = chat.banUsers.find((ban) => ban.userName === banUser);
+    const ban = chat.banUsers.find((ban) => ban.userId === banned.userId);
     if (!ban) throw new Error(`${banUser}는 밴 되어있지 않습니다.`);
     await this.banService.deleteBanUser(ban);
   }
