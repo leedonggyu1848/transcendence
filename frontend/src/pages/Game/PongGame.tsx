@@ -68,6 +68,7 @@ const PongGame = ({
         loser: string;
         type: number;
       }) => {
+        console.log("game-result", winner, loser, type);
         if (winner === myName) {
           setAlertInfo({
             type: "success",
@@ -115,13 +116,20 @@ const PongGame = ({
                 : gameInfo.opponentDto.normalLose,
           },
         });
-        if (gameInfo.opponentDto.userName === myName) {
+        if (gameInfo.gameDto.type === 0) {
           setMyInfo({
             ...myInfo,
             normalWin:
               winner === myName ? myInfo.normalWin + 1 : myInfo.normalWin,
             normalLose:
               loser === myName ? myInfo.normalLose + 1 : myInfo.normalLose,
+          });
+        }
+        if (gameInfo.gameDto.type === 1) {
+          setMyInfo({
+            ...myInfo,
+            rankWin: winner === myName ? myInfo.rankWin + 1 : myInfo.rankWin,
+            rankLose: loser === myName ? myInfo.rankLose + 1 : myInfo.rankLose,
           });
         }
         if (gameInfo.gameDto.type) {
@@ -260,6 +268,10 @@ const PongGame = ({
           delete temp[currentGame.gameDto.title];
           setJoinChatList(temp);
           setCurrentGame(null);
+          setMyInfo({
+            ...myInfo,
+            rankWin: myInfo.rankWin + 1,
+          });
           navigate("/main/lobby");
         } else {
           resetGame(false);
@@ -327,6 +339,10 @@ const PongGame = ({
           delete temp[currentGame.gameDto.title];
           setJoinChatList(temp);
           setCurrentGame(null);
+          setMyInfo({
+            ...myInfo,
+            rankLose: myInfo.rankLose + 1,
+          });
           navigate("/main/lobby");
         } else {
           setGameInfo({

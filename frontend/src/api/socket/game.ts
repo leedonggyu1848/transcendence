@@ -376,20 +376,8 @@ export const listenLeaveGame = ({
   socket.on("leave-game", (message: string) => {
     const temp = { ...joinnedChatList };
     delete temp[currentChat];
-    //if (currentGame.ownerDto.userName === myName) {
-    //  setGameList(
-    //    gameList.filter((game: GameDto) => game.title !== currentChat)
-    //  );
-    //} else {
-    //  setGameList(
-    //    gameList.map((game: GameDto) =>
-    //      game.title === currentChat
-    //        ? { ...game, cur: game.cur - 1 }
-    //        : { ...game }
-    //    )
-    //  );
-    //}
     if (
+      currentGame &&
       currentGame.opponentDto &&
       currentGame.opponentDto.userName === myName
     ) {
