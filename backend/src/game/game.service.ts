@@ -6,7 +6,11 @@ import { IGameRepository } from './repository/game.interface.repository';
 import { User } from 'src/entity/user.entity';
 import { Game } from 'src/entity/game.entity';
 import { UserService } from 'src/user/user.service';
-import { IsolationLevel, Transactional } from 'typeorm-transactional';
+import {
+  IsolationLevel,
+  runOnTransactionComplete,
+  Transactional,
+} from 'typeorm-transactional';
 
 @Injectable()
 export class GameService {
@@ -89,7 +93,7 @@ export class GameService {
           await this.userService.updateGameNone(watcher);
         }),
       );
-      Promise.all(tmp);
+      await Promise.all(tmp);
     } else await this.userService.updateGameNone(user);
     if (user.joinType === JoinType.OWNER || game.type === GameType.RANK) {
       await this.gameRepository.deleteById(game);

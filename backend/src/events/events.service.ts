@@ -285,10 +285,16 @@ export class EventsService {
   }
 
   async saveGameResult(win: string, lose: string, type: GameType) {
-    const winner = await this.userService.getUserByUserNameWithRecord(win);
-    const loser = await this.userService.getUserByUserNameWithRecord(lose);
+    const winner = await this.userService.getUserByUserNameWithGame(win);
+    const loser = await this.userService.getUserByUserNameWithGame(lose);
     if (!winner || !loser) throw new Error('유저 이름이 맞지 않습니다.');
     await this.recordService.saveGameResult(winner, loser, type);
+    const game = await this.gameService.getGameByTitleWithUsers(
+      winner.playGame.title,
+    );
+    await this.gameService.changeGameState(game, false);
+    if (game.type === GameType.RANK)
+      await this.gameService.leaveGame(game, winner);
     return {
       winner: win,
       loser: lose,
@@ -709,7 +715,6 @@ export class EventsService {
     const user = await this.userService.getUserBySocketIdWithGame(socketId);
     const opponent = await this.userService.getUserByUserNameWithGame(userName);
     if (!user || !opponent) throw new Error('맞는 유저가 없습니다.');
-    await this.gameService.changeGameState(user.playGame, playing);
     return [
       this.userService.userToUserDto(user),
       this.userService.userToUserDto(opponent),
