@@ -30,7 +30,7 @@ const CreateChatModal = () => {
   const onChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "password") {
       setToggle(false);
-      setInfo({ ...info, type: 2 });
+      setInfo({ ...info, type: 0 });
     } else {
       setToggle(true);
       setInfo({ ...info, type: e.target.value === "public" ? 0 : 1 });

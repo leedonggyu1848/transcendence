@@ -253,13 +253,14 @@ export const listenSomeoneLeave = ({
       message,
       userName,
       roomName,
-      operator,
+      owner,
     }: {
       message: string;
       userName: string;
       roomName: string;
-      operator: string;
+      owner: string;
     }) => {
+      console.log(owner, joinnedChatList);
       setChatList(
         chatList
           .map((chat) => ({
@@ -269,6 +270,10 @@ export const listenSomeoneLeave = ({
           .filter((chat) => chat.count !== 0)
       );
       if (joinnedChatList[roomName]) {
+        const tempAdmin = joinnedChatList[roomName].admins.filter(
+          (name) => name !== userName
+        );
+        if (!tempAdmin.includes(owner)) tempAdmin.push(owner);
         setJoinnedChatList({
           ...joinnedChatList,
           [roomName]: {
@@ -276,9 +281,8 @@ export const listenSomeoneLeave = ({
             userList: joinnedChatList[roomName].userList.filter(
               (name) => name != userName
             ),
-            admins: joinnedChatList[roomName].admins.filter(
-              (name) => name !== userName
-            ),
+            owner,
+            admins: tempAdmin,
             chatLogs: [
               ...joinnedChatList[roomName].chatLogs,
               {
@@ -370,6 +374,9 @@ export const listenKickUser = ({
             userList: joinnedChatList[roomName].userList.filter(
               (name) => name !== userName
             ),
+            admins: joinnedChatList[roomName].admins.filter(
+              (name) => name !== userName
+            ),
             chatLogs: [
               ...joinnedChatList[roomName].chatLogs,
               {
@@ -413,7 +420,7 @@ export const listenBanUser = ({
   socket.on(
     "ban-user",
     ({ userName, roomName }: { userName: string; roomName: string }) => {
-      if (userName === myName) {
+      if (userName === myName && joinnedChatList[roomName]) {
         if (currentChat === roomName) {
           setCurrentChat("");
         }
@@ -423,7 +430,7 @@ export const listenBanUser = ({
         delete temp[roomName];
         setJoinnedChatList({ ...temp });
       }
-      if (userName !== myName) {
+      if (userName !== myName && joinnedChatList[roomName]) {
         setJoinnedChatList({
           ...joinnedChatList,
           [roomName]: {
@@ -432,6 +439,9 @@ export const listenBanUser = ({
               (name) => name !== userName
             ),
             banUsers: [...joinnedChatList[roomName].banUsers, userName],
+            admins: joinnedChatList[roomName].admins.filter(
+              (name) => name !== userName
+            ),
             chatLogs: [
               ...joinnedChatList[roomName].chatLogs,
               {
@@ -762,6 +772,40 @@ export const listenChatDelAdmin = ({
           ),
         },
       });
+    }
+  );
+};
+
+export const listChatPassword = ({
+  socket,
+  chatList,
+  setChatList,
+  joinnedChatList,
+  setJoinnedChatList,
+}: {
+  socket: any;
+  chatList: IChatRoom[];
+  setChatList: any;
+  joinnedChatList: IJoinnedChat;
+  setJoinnedChatList: any;
+}) => {
+  socket.on(
+    "chat-password",
+    ({ roomName, type }: { roomName: string; type: number }) => {
+      setChatList(
+        chatList.map((chat) =>
+          chat.title === roomName ? { ...chat, type } : { ...chat }
+        )
+      );
+      if (joinnedChatList[roomName]) {
+        setJoinnedChatList({
+          ...joinnedChatList,
+          [roomName]: {
+            ...joinnedChatList[roomName],
+            type,
+          },
+        });
+      }
     }
   );
 };

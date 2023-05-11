@@ -106,12 +106,14 @@ const Main = ({ head }: { head: string }) => {
               />
             </div>
           )}
-          <Input
-            maxLength={15}
-            type="password"
-            onChange={onChange}
-            value={password}
-          />
+          {head === "Owner" && (
+            <Input
+              maxLength={15}
+              type="password"
+              onChange={onChange}
+              value={password}
+            />
+          )}
         </div>
       </HeaderContainer>
       <UsersContainer>

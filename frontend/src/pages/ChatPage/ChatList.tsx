@@ -12,7 +12,7 @@ const ChatList = ({
     <ChatListContainer>
       {data
         .filter((room) => room.type % 2 === 0)
-        .map(({ title, type, operator, count }, idx) => (
+        .map(({ title, type, owner, count }, idx) => (
           <Chat key={idx}>
             <Title title={title.slice(1)}>
               {title.slice(1, 10)}
@@ -26,9 +26,7 @@ const ChatList = ({
               />
               <PersonIcon />
               <div>{count}</div>
-              <Button
-                onClick={() => joinChatRoom(title, type, operator, count)}
-              >
+              <Button onClick={() => joinChatRoom(title, type, owner, count)}>
                 입장
               </Button>
             </Current>

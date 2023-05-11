@@ -1,13 +1,18 @@
 import styled from "@emotion/styled";
 import { useContext } from "react";
 import { useRecoilValue } from "recoil";
-import { currentChatState, joinnedChatState } from "../../../api/atom";
+import {
+  currentChatState,
+  joinnedChatState,
+  myNameState,
+} from "../../../api/atom";
 import { WebsocketContext } from "../../../pages/WrapMainPage";
 
 const Admins = () => {
   const joinChat = useRecoilValue(joinnedChatState);
   const currentChat = useRecoilValue(currentChatState);
   const socket = useContext(WebsocketContext);
+  const myName = useRecoilValue(myNameState);
   const handlePermissionRelease = (user: string) => {
     socket.emit("chat-del-admin", { roomName: currentChat, userName: user });
   };
@@ -15,16 +20,18 @@ const Admins = () => {
     <AdminsContainer>
       <Header>Admins</Header>
       <AdminList>
-        {joinChat[currentChat].admins.map((user, idx) => (
-          <User key={idx}>
-            <Name>{user}</Name>
-            <ButtonContainer>
-              <Button onClick={() => handlePermissionRelease(user)}>
-                해제
-              </Button>
-            </ButtonContainer>
-          </User>
-        ))}
+        {joinChat[currentChat].admins
+          .filter((name) => name != myName)
+          .map((user, idx) => (
+            <User key={idx}>
+              <Name>{user}</Name>
+              <ButtonContainer>
+                <Button onClick={() => handlePermissionRelease(user)}>
+                  해제
+                </Button>
+              </ButtonContainer>
+            </User>
+          ))}
       </AdminList>
     </AdminsContainer>
   );

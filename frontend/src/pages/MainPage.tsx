@@ -80,6 +80,7 @@ import {
   listenSendDM,
 } from "../api/socket/friend";
 import {
+  listChatPassword,
   listenBanCancel,
   listenBanUser,
   listenBlockUser,
@@ -321,6 +322,7 @@ const MainPage = () => {
     listenChatReject(hooks);
     listenChatAddAdmin(hooks);
     listenChatDelAdmin(hooks);
+    listChatPassword(hooks);
 
     //game apis
     listenCreateGame(hooks);
@@ -385,6 +387,7 @@ const MainPage = () => {
         "receive-dm",
         "chat-add-admin",
         "chat-del-admin",
+        "chat-password",
         "block-list",
         "block-user",
         "block-cancel",
