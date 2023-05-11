@@ -135,7 +135,9 @@ const CurrentUserInfo = ({
         <PersonalMenu toggle={toggle}>
           <TargetName>{target}</TargetName>
           <div>
-            <InviteIcon onClick={() => clickInviteGame(target)} />
+            {location.pathname !== "/main/game" && (
+              <InviteIcon onClick={() => clickInviteGame(target)} />
+            )}
             {isFriend && (
               <DeleteFriendIcon onClick={() => clickDeleteFriend(target)} />
             )}

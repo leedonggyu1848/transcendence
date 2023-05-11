@@ -15,7 +15,8 @@ export const listenCancelFriend = ({
   setFriendRequestList: any;
   friendRequestList: any;
 }) => {
-  socket.on("cancel-friend", (userName: string) => {
+  socket.on("cancel-friend", ({ userName }: { userName: string }) => {
+    console.log("cancel-friend", userName);
     setFriendRequestList(
       friendRequestList.filter(
         (friend: IFriendRequest) => friend.userName !== userName
@@ -209,7 +210,7 @@ export const listenSendDM = ({
       const temp: IChatDetail = {
         title: title,
         type: 3,
-        operator: "",
+        owner: "",
         userList: [myName, userName],
         chatLogs: [],
         banUsers: [],
@@ -246,7 +247,7 @@ export const listenReceiveDM = ({
       const temp: IChatDetail = {
         title: title,
         type: 3,
-        operator: "",
+        owner: "",
         userList: [myName, userName],
         chatLogs: [],
         banUsers: [],

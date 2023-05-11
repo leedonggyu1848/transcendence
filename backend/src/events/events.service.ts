@@ -551,6 +551,7 @@ export class EventsService {
     const foundAdmin = chat.administrators.find(
       (admin) => admin.userId === user.Id,
     );
+    console.log(foundAdmin);
     if (foundAdmin.length === 0) throw new Error(`권한이 없습니다.`);
     if (userName === chat.owner)
       throw new Error(`방장은 음소거 할 수 없습니다.`);
