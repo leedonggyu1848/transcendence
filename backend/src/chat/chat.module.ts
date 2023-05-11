@@ -5,6 +5,8 @@ import { ChatUser } from 'src/entity/chatuser.entity';
 import { ChatRepository } from 'src/chat/repository/chat.repository';
 import { ChatUserRepository } from 'src/chat/repository/chatuser.repository';
 import { ChatService } from './chat.service';
+import { UserModule } from 'src/user/user.module';
+import { AdministratorModule } from 'src/administrator/administrator.module';
 
 const chatRepo = {
   provide: 'IChatRepository',
@@ -17,7 +19,11 @@ const chatUserRepo = {
 };
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, ChatUser])],
+  imports: [
+    UserModule,
+    AdministratorModule,
+    TypeOrmModule.forFeature([Chat, ChatUser]),
+  ],
   providers: [ChatService, chatRepo, chatUserRepo],
   exports: [ChatService, chatRepo, chatUserRepo],
 })

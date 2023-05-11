@@ -8,6 +8,8 @@ import { User } from 'src/entity/user.entity';
 import * as bcrypt from 'bcrypt';
 import { IsolationLevel, Transactional } from 'typeorm-transactional';
 import { AdministratorService } from 'src/administrator/administrator.service';
+import { AdministratorRepository } from 'src/administrator/repository/administrator.repository';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChatService {
@@ -16,6 +18,8 @@ export class ChatService {
     private chatRepository: IChatRepository,
     @Inject('IChatUserRepository')
     private chatUserRepository: IChatUserRepository,
+    private userService: UserService,
+    private administratorService: AdministratorService,
   ) {}
 
   chatToChatDto(chat: Chat) {
@@ -140,11 +144,13 @@ export class ChatService {
       await this.chatRepository.updateCount(chat, chat.count - 1);
       const result = await this.chatRepository.findByTitleWithJoin(chat.title);
       if (result.owner === user.userId) {
-        const newOwner =
+        const newOwner = await this.userService.getUserByUserId(
           result.administrators.length !== 0
             ? result.administrators[0].userId
-            : result.users[0].user.userId;
-        await this.chatRepository.updateOwner(result, newOwner);
+            : result.users[0].user.userId,
+        );
+        await this.chatRepository.updateOwner(result, newOwner.userId);
+        await this.administratorService.addAdministrator(result, newOwner);
       }
     }
     return true;
