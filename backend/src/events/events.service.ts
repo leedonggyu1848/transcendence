@@ -440,7 +440,7 @@ export class EventsService {
         owner: chat.owner,
         type: chat.type,
         admins: admins,
-        users: [userNames],
+        users: userNames,
       },
     };
   }
