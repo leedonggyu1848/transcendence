@@ -472,6 +472,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[FriendRequest] friendName: ${friendName}`);
     try {
+      const check = await this.eventsService.checkBeforeFriendRequest(
+        socket.id,
+        friendName,
+      );
+      if (check) {
+        socket.emit('response-friend', check.sender);
+        this.nsp.sockets.get(check.data)?.emit('friend-result', check.receiver);
+        return;
+      }
       const result = await this.eventsService.friendRequest(
         socket.id,
         friendName,

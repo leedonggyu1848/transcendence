@@ -317,7 +317,7 @@ export class EventsService {
     return [...sendDto, ...receiveDto];
   }
 
-  async friendRequest(socketId: string, friendName: string) {
+  async checkBeforeFriendRequest(socketId: string, friendName: string) {
     const user = await this.userService.getUserBySocketId(socketId);
     const friend = await this.userService.getUserByUserNameWithFriend(
       friendName,
@@ -326,10 +326,24 @@ export class EventsService {
     const check = await this.friendService.friendResponse(user, friend, true);
     if (check) {
       return {
-        data: { user, friend },
-        msg: `${friendName}와 ${user.userName}의 친구 신청이 처리 되었습니다.`,
+        data: friend.socketId,
+        sender: { userName: friendName, profile: friend.profile, type: true },
+        receiver: {
+          userName: user.userName,
+          profile: user.profile,
+          type: true,
+        },
+        msg: `${user.userName}와 ${friendName}의 친구 신청이 처리 되었습니다.`,
       };
     }
+  }
+
+  async friendRequest(socketId: string, friendName: string) {
+    const user = await this.userService.getUserBySocketId(socketId);
+    const friend = await this.userService.getUserByUserNameWithFriend(
+      friendName,
+    );
+    if (!user || !friend) throw new Error('없는 유저입니다.');
     const result = await this.friendService.friendRequest(user, friend);
     if (!result) throw new Error('이미 친구 신청을 보냈습니다.');
     return {
