@@ -138,6 +138,10 @@ export class ChatService {
   async leaveChat(user: User, chat: Chat) {
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
     if (chatUser.length === 0) return false;
+    const isAdmin = chat.administrators.find((admin) => {
+      admin.userId === user.userId;
+    });
+    if (isAdmin) this.administratorService.subtractAdministrator(isAdmin);
     await this.chatUserRepository.deleteChatUser(chatUser);
     if (chat.count <= 1) await this.chatRepository.deleteChat(chat);
     else {
