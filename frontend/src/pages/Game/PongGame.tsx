@@ -243,6 +243,9 @@ const PongGame = ({
             userName: gameInfo.opponentDto.userName,
             roomName: gameInfo.gameDto.title,
           });
+          if (currentGame.gameDto.type === 1) {
+            socket.emit("leave-game", currentGame.gameDto.title);
+          }
         }
         gameState = "win";
         setCount(4);
@@ -307,6 +310,9 @@ const PongGame = ({
             userName: gameInfo.opponentDto.userName,
             roomName: gameInfo.gameDto.title,
           });
+          if (currentGame.gameDto.type === 1) {
+            socket.emit("leave-game", currentGame.gameDto.title);
+          }
         }
         setAlertInfo({
           type: "failure",
