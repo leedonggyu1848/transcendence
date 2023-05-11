@@ -11,7 +11,7 @@ import {
 } from "../../../api/atom";
 import { WebsocketContext } from "../../../pages/WrapMainPage";
 
-const Main = () => {
+const Main = ({ head }: { head: string }) => {
   const [currentChatUserList, setCurrentChatUserList] = useRecoilState(
     currentChatUserListState
   );
@@ -94,12 +94,17 @@ const Main = () => {
   return (
     <MainContainer>
       <HeaderContainer>
-        <div>Operator</div>
+        <div>{head}</div>
         <div>
-          <div className="passwordTitle">
-            <span>비밀번호 변경</span>
-            <span className="button" onClick={() => changePasswod(password)} />
-          </div>
+          {head === "owner" && (
+            <div className="passwordTitle">
+              <span>비밀번호 변경</span>
+              <span
+                className="button"
+                onClick={() => changePasswod(password)}
+              />
+            </div>
+          )}
           <Input
             maxLength={15}
             type="password"

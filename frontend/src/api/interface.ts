@@ -124,6 +124,7 @@ export interface IChatDetail {
   title: string;
   type: number;
   owner: string;
+  admins: string[];
   userList: string[];
   chatLogs: IChatLog[];
   banUsers: string[];

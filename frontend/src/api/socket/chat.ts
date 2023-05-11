@@ -73,11 +73,16 @@ export const listenCreateChat = ({
       roomName,
       type,
       owner,
+      admins,
+      users,
     }: {
       roomName: string;
       type: number;
       owner: string;
+      admins: string[];
+      users: string[];
     }) => {
+      console.log("create-chat", roomName, type, owner, admins, users);
       const temp: IChatRoom = {
         title: roomName,
         type,
@@ -91,6 +96,7 @@ export const listenCreateChat = ({
         owner,
         userList: [myName],
         chatLogs: [],
+        admins: [],
         banUsers: [],
         newMsg: false,
         isMuted: false,
@@ -193,17 +199,20 @@ export const listenJoinSucces = ({
       type,
       owner,
       users,
+      admins,
     }: {
       roomName: string;
       type: number;
       owner: string;
       users: string[];
+      admins: string[];
     }) => {
       const temp: IChatDetail = {
         title: roomName,
         type,
         owner,
         userList: [...users, myName],
+        admins: [...admins],
         chatLogs: [],
         banUsers: [],
         newMsg: false,

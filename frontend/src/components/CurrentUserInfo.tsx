@@ -6,7 +6,10 @@ import {
   confirmModalToggleState,
   currentChatState,
   friendListState,
+  joinnedChatState,
   myNameState,
+  operatorModalToggleState,
+  ownerModalToggleState,
   profileModalState,
 } from "../api/atom";
 import { JoinnedUserDto } from "../api/interface";
@@ -17,12 +20,12 @@ const CurrentUserInfo = ({
   data,
   title,
   owner,
-  clickOperatorButton,
+  admins,
 }: {
   data: JoinnedUserDto[];
   title: string;
   owner: boolean;
-  clickOperatorButton: Function;
+  admins: string[];
 }) => {
   const [toggle, setToggle] = useState(false);
   const [block, setBlock] = useState(false);
@@ -34,6 +37,8 @@ const CurrentUserInfo = ({
   const friendList = useRecoilValue(friendListState);
   const [isFriend, setIsFriend] = useState(false);
   const currentChat = useRecoilValue(currentChatState);
+  const setOperatorModal = useSetRecoilState(operatorModalToggleState);
+  const setOwnerModal = useSetRecoilState(ownerModalToggleState);
   const openPersonalMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     const name = e.currentTarget.textContent as string;
     if (myName === name) return;
@@ -48,6 +53,11 @@ const CurrentUserInfo = ({
     if (friendList.some((friend) => friend.userName === friendname)) return;
     socket.emit("request-friend", friendname);
     closePersonalMenu();
+  };
+
+  const clickOperatorButton = () => {
+    if (owner) setOwnerModal(true);
+    if (admins.includes(myName)) setOperatorModal(true);
   };
 
   const clickDeleteFriend = (friendName: string) => {
@@ -119,7 +129,9 @@ const CurrentUserInfo = ({
           {title.length > 13 ? "..." : ""}
         </Title>
         <InfoContainer>
-          {owner && <OperatorIcon onClick={() => clickOperatorButton()} />}
+          {(owner || admins.includes(myName)) && (
+            <OperatorIcon onClick={() => clickOperatorButton()} />
+          )}
           <UserIcon />
           {data.length}
         </InfoContainer>

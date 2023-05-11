@@ -1,32 +1,34 @@
 import styled from "@emotion/styled";
 import { useSetRecoilState } from "recoil";
-import { operatorModalToggleState } from "../../../api/atom";
+import { ownerModalToggleState } from "../../../api/atom";
 import ModalBackground from "../../ModalBackground";
+import Admins from "./Admins";
 import Main from "./Main";
 import Sub from "./Sub";
 
-const OperatorModal = () => {
-  const setOperatorModalToggle = useSetRecoilState(operatorModalToggleState);
+const OwnerModal = () => {
+  const setOwnerModal = useSetRecoilState(ownerModalToggleState);
   const onClickBackground = () => {
-    setOperatorModalToggle(false);
+    setOwnerModal(false);
   };
 
   return (
     <>
       <ModalBackground onClick={onClickBackground} />
-      <OperatorModalContainer>
-        <Main head="Administrator" />
+      <OwnerModalContainer>
+        <Main head="owner" />
+        <Admins />
         <Sub />
-      </OperatorModalContainer>
+      </OwnerModalContainer>
     </>
   );
 };
 
-const OperatorModalContainer = styled.div`
-  width: 680px;
+const OwnerModalContainer = styled.div`
+  width: 900px;
   height: 450px;
   position: fixed;
-  left: calc(50% - 340px);
+  left: calc(50% - 450px);
   top: calc(50% - 225px);
   background: var(--main-bg-color);
   border-radius: 10px;
@@ -37,4 +39,4 @@ const OperatorModalContainer = styled.div`
   color: white;
 `;
 
-export default OperatorModal;
+export default OwnerModal;

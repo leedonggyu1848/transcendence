@@ -12,16 +12,16 @@ const CurrentChat = ({
   roomName,
   data,
   owner,
-  clickOperatorButton,
   myName,
   type,
+  admins,
 }: {
   roomName: string;
   data: JoinnedUserDto[];
   owner: boolean;
-  clickOperatorButton: Function;
   myName: string;
   type: number;
+  admins: string[];
 }) => {
   const socket = useContext(WebsocketContext);
   const [msg, setMsg] = useState("");
@@ -63,7 +63,7 @@ const CurrentChat = ({
         data={data}
         title={getRoomNameByType(type, roomName, myName)}
         owner={owner}
-        clickOperatorButton={clickOperatorButton}
+        admins={admins}
       />
       <ChatBox
         height={340}

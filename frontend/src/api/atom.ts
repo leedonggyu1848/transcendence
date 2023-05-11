@@ -155,6 +155,11 @@ export const operatorModalToggleState = atom({
   default: false,
 });
 
+export const ownerModalToggleState = atom({
+  key: "ownerModalToggleState",
+  default: false,
+});
+
 export const selectedGameRecord = atom<ISelectedGameRecord>({
   key: "selectedGameRecord",
   default: {

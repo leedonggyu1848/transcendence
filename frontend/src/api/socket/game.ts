@@ -1,12 +1,9 @@
 import { SetterOrUpdater } from "recoil";
-import GameDetailInfo from "../../pages/HistoryPage/GameDetailInfo";
-import { socket } from "../../pages/WrapMainPage";
 import {
   GameDto,
   ICombinedRequestAndInvite,
   ICurrentGame,
   IFriendDto,
-  IGameRoomInfo,
   IJoinnedChat,
   UserDto,
 } from "../interface";
@@ -57,6 +54,7 @@ export const listenCreateGame = ({
           userList: [ownerDto.userName],
           chatLogs: [],
           banUsers: [],
+          admins: [],
           newMsg: false,
           isMuted: false,
           muteId: -1,

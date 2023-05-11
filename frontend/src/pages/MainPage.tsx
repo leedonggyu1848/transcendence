@@ -35,6 +35,7 @@ import {
   myInfoState,
   myNameState,
   operatorModalToggleState,
+  ownerModalToggleState,
   profileModalState,
   rankWaitModalToggleState,
   requestFriendListFlagState,
@@ -116,6 +117,7 @@ import {
 } from "../api/socket/game";
 import InviteModal from "../components/Modals/InviteModal";
 import ProfileModal from "../components/Modals/ProfileModal";
+import OwnerModal from "../components/Modals/OperatorModal/OwnerModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -139,6 +141,7 @@ const MainPage = () => {
   const [requestFriendListFlag, setRequestFriendListFlag] = useRecoilState(
     requestFriendListFlagState
   );
+  const ownerModalToggle = useRecoilValue(ownerModalToggleState);
   const navigate = useNavigate();
 
   const myName = useRecoilValue(myNameState);
@@ -429,6 +432,7 @@ const MainPage = () => {
         {joinGameModalToggle.toggle && <JoinGameModal />}
         {alertModalToggle.toggle && <AlertModal />}
         {operatorModalToggle && <OperatorModal />}
+        {ownerModalToggle && <OwnerModal />}
         {settingModalToggle && <SettingModal />}
         {createChatModalToggle && <CreateChatModal />}
         {joinChatToggle.toggle && <JoinChatModal />}

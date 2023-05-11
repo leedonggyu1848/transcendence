@@ -22,9 +22,6 @@ const ChatPage = () => {
   const socket = useContext(WebsocketContext);
   const openOperatorModal = useSetRecoilState(operatorModalToggleState);
   const openCreateChatModal = useSetRecoilState(createChatModalToggleState);
-  const clickOperatorButton = () => {
-    openOperatorModal(true);
-  };
   const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const chatList = useRecoilValue(chatListState);
   const [joinnedChatList, setJoinChatList] = useRecoilState(joinnedChatState);
@@ -93,6 +90,7 @@ const ChatPage = () => {
           <CurrentChat
             roomName={joinnedChatList[currentChat].title}
             owner={joinnedChatList[currentChat].owner === myName}
+            admins={joinnedChatList[currentChat].admins}
             myName={myName}
             type={joinnedChatList[currentChat].type}
             data={UserDtoToJoinnedUserDto(
@@ -100,7 +98,6 @@ const ChatPage = () => {
               myName,
               joinnedChatList[currentChat].owner
             )}
-            clickOperatorButton={clickOperatorButton}
           />
         </WapperContainer>
       )}

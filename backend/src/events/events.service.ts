@@ -400,7 +400,7 @@ export class EventsService {
       roomName: roomName,
       owner: chat.owner,
       type: chat.type,
-      admins: [user.userNames],
+      admins: [],
       users: [user.userName],
     };
   }
