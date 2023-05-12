@@ -11,12 +11,17 @@ export class RecordRepository implements IRecordRepository {
     @InjectRepository(Record) private recordRepository: Repository<Record>,
   ) {}
 
-  async addRecord(gameType: GameType, player: User, opponent: string) {
+  async addRecord(
+    gameType: GameType,
+    player: User,
+    opponent: string,
+    win: boolean,
+  ) {
     const record = this.recordRepository.create({
       gameType: gameType,
       player: player,
       opponent: opponent,
-      win: true,
+      win: win,
       time: new Date(Date.now()),
     });
     await this.recordRepository.save(record);

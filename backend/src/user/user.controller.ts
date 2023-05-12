@@ -30,7 +30,7 @@ export class UserController {
   @Get('/login')
   @UseGuards(PhGuard)
   login() {
-    this.logger.log('Login');
+    this.logger.log('[Login]');
   }
 
   @Get('/logincallback')
@@ -39,7 +39,7 @@ export class UserController {
     @Res() res: Response,
     @UserDeco() userSession: UserSessionDto,
   ) {
-    this.logger.log(`Login: ${userSession.intraId}`);
+    this.logger.log(`[LoginCallback] ${userSession.intraId}`);
     const user = await this.authService.addUserFromSession(userSession);
     if (!user.auth) await this.authService.sendAuthMail(user);
     const url = user.auth ? 'frontend.home' : 'frontend.auth';
@@ -54,31 +54,36 @@ export class UserController {
     @UserDeco() userSession: UserSessionDto,
     @Body('code') code: string,
   ) {
-    this.logger.log(`[TwoFactorAuth] code: ${code}`);
+    this.logger.log(`[TwoFactorAuth] ${userSession.intraId} ${code}`);
     const result = await this.authService.checkAuthCode(userSession, code);
     res.status(HttpStatus.OK).send(result);
   }
 
   @Get('/logout')
   @UseGuards(TwoFactorGuard)
-  logout(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`Logout: ${user.intraId}`);
+  logout(@Res() res: Response, @UserDeco() userSessionDto: UserSessionDto) {
+    this.logger.log(`[Logout] ${userSessionDto.intraId}`);
     res.clearCookie('access_token');
     res.status(HttpStatus.NO_CONTENT).send();
   }
 
   @Get('/userinfo')
   @UseGuards(TwoFactorGuard)
-  async getMyInfo(@Res() res: Response, @UserDeco() user: UserSessionDto) {
-    this.logger.log(`User info request: ${user.intraId}`);
-    const data = await this.authService.getUserDtoByUserId(user.userId);
+  async getMyInfo(
+    @Res() res: Response,
+    @UserDeco() userSessionDto: UserSessionDto,
+  ) {
+    this.logger.log(`[GetMyInfo] ${userSessionDto.intraId}`);
+    const data = await this.authService.getUserDtoByUserId(
+      userSessionDto.userId,
+    );
     res.status(HttpStatus.OK).send(data);
   }
 
   @Get('/userinfo/:userName')
   @UseGuards(TwoFactorGuard)
   async getUserInfo(@Res() res: Response, @Param('userName') userName: string) {
-    this.logger.log(`User info request: ${userName}`);
+    this.logger.log(`[GetUserInfo] ${userName}`);
     const data = await this.authService.getUserDtoByUserName(userName);
     res.status(HttpStatus.OK).send(data);
   }
@@ -87,12 +92,16 @@ export class UserController {
   @UseGuards(TwoFactorGuard)
   async updateIntroduce(
     @Res() res: Response,
-    @UserDeco() user: UserSessionDto,
+    @UserDeco() userSessionDto: UserSessionDto,
     @Body('introduce') introduce: string,
   ) {
-    this.logger.log(`Introduce update: ${user.intraId}`);
-    await this.authService.updateUserIntroduce(user, introduce);
-    const result = await this.authService.getUserByUserName(user.intraId);
+    this.logger.log(
+      `[UpdateIntroduce] ${userSessionDto.intraId}, ${introduce}`,
+    );
+    await this.authService.updateUserIntroduce(userSessionDto, introduce);
+    const result = await this.authService.getUserByUserName(
+      userSessionDto.intraId,
+    );
     res.status(HttpStatus.OK).send(result);
   }
 }

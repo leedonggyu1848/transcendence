@@ -33,9 +33,12 @@ export class GameController {
   @Get('/history/:id')
   @UseGuards(TwoFactorGuard)
   async getGameRecord(@Res() res: Response, @Param('id') id: number) {
-    this.logger.log(`[GetRecord]`);
-    const data = await this.recordService.getRecordById(id);
-    if (!data) throw new BadRequestException('잘못된 데이터 요청입니다.');
-    res.status(HttpStatus.OK).send(data);
+    this.logger.log(`[GetRecord] ${id}`);
+    try {
+      const data = await this.recordService.getRecordById(id);
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      throw new BadRequestException(err.message);
+    }
   }
 }

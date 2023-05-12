@@ -35,12 +35,14 @@ export class RecordService {
       type,
       winner,
       loser.userName,
+      true,
     );
     await this.userService.updateGameWin(winner, type, win);
     const lose = await this.recordRepository.addRecord(
       type,
       loser,
       winner.userName,
+      false,
     );
     await this.userService.updateGameLose(loser, type, lose);
   }
@@ -58,7 +60,8 @@ export class RecordService {
     const record = await this.recordRepository.findByIdWithJoin(id);
     let player = record.player;
     let opponent = await this.userService.getUserByUserName(record.opponent);
-    if (!record || !player || !opponent) return null;
+    if (!record || !player || !opponent)
+      throw new Error('잘못된 데이터 입니다.');
     return {
       record: this.recordToRecordDto(record),
       winner: this.userService.userToUserDto(record.win ? player : opponent),

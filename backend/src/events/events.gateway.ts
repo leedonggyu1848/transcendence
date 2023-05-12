@@ -129,6 +129,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.nsp.emit('user-name', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('user-fail', err.message);
     }
   }
@@ -143,6 +144,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       this.nsp.emit('user-profile', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('user-fail', err.message);
     }
   }
@@ -167,6 +169,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.emit('create-game', result);
       socket.broadcast.emit('new-game', result.gameDto);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -193,6 +196,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         type: JoinType.PLAYER,
       });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -219,6 +223,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         type: JoinType.WATCHER,
       });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -230,16 +235,28 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.logger.log(`[LeaveGame] roomName: ${roomName}`);
     try {
-      const result = await this.eventsService.leaveGame(socket.id);
+      const leave = await this.eventsService.leaveGame(socket.id, roomName);
+      if (leave.opponent) {
+        const result = await this.eventsService.gameAlert(
+          socket.id,
+          leave.opponent,
+          false,
+        );
+        socket.broadcast.to(roomName).emit('end-game');
+        result.forEach((data) => {
+          socket.broadcast.emit('user-gameout', data);
+        });
+      }
       socket.emit('leave-game', `${roomName}에서 나왔습니다.`);
       socket.broadcast.emit('user-leave-game', {
-        message: `${result.user.userName}가 나갔습니다.`,
-        userInfo: result.user,
+        message: `${leave.user.userName}가 나갔습니다.`,
+        userInfo: leave.user,
         roomName,
-        type: result.type,
+        type: leave.type,
       });
       socket.leave(roomName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -264,6 +281,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .to(roomName)
         .emit('refresh-while-playing', { roomName, userName, type });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -286,6 +304,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.eventsService.loseGameAsAction(roomName, userName, type);
       socket.to(roomName).emit('leave-while-playing', { roomName, userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -318,6 +337,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         userName: invite.invitorUserName,
       });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -344,6 +364,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         type: JoinType.PLAYER,
       });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -366,6 +387,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.socket)
         ?.emit('game-reject', { roomName, userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -388,6 +410,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.socket)
         ?.emit('game-cancel-invite', { roomName, userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -412,6 +435,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -439,6 +463,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.nsp.to(roomName).emit('game-result', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -450,6 +475,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const result = await this.eventsService.getFriendList(socket.id);
       socket.emit('friend-list', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('friend-fail', err.message);
     }
   }
@@ -461,6 +487,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const result = await this.eventsService.getFriendRequestList(socket.id);
       socket.emit('friend-request-list', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('friend-fail', err.message);
     }
   }
@@ -495,6 +522,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .to(friend.socketId)
         .emit('new-friend', { userName: user.userName, profile: user.profile });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('friend-fail', err.message);
     }
   }
@@ -514,6 +542,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.emit('response-friend', result.sender);
       this.nsp.sockets.get(result.data)?.emit('friend-result', result.receiver);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('friend-fail', err.message);
     }
   }
@@ -534,6 +563,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.sock)
         ?.emit('cancel-friend', { userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('friend-fail', err.message);
     }
   }
@@ -554,6 +584,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.sock)
         ?.emit('delete-friend', { userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('friend-fail', err.message);
     }
   }
@@ -580,6 +611,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       this.nsp.sockets.get(result.receiverSocket)?.join(result.title);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -603,6 +635,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.join(roomName);
       this.nsp.emit('create-chat', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -629,6 +662,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       socket.emit('join-chat-success', result.data);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -650,6 +684,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       socket.emit('leave-chat-success', roomName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -673,6 +708,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.socket)
         ?.emit('chat-invite', { roomName, userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -698,6 +734,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       socket.emit('join-chat-success', joinResult.data);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -720,6 +757,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.socket)
         ?.emit('chat-reject', { roomName, userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -742,6 +780,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(result.socket)
         ?.emit('chat-cancel-invite', { roomName, userName: result.userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -787,6 +826,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.nsp.emit('kick-user', { roomName, userName });
       await this.nsp.sockets.get(result.data)?.leave(roomName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -807,6 +847,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.emit('mute-user', { roomName, userName });
       this.nsp.sockets.get(result)?.emit('chat-muted', roomName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -828,6 +869,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.nsp.emit('chat-password', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -847,6 +889,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.nsp.to(roomName).emit('chat-owner', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -868,6 +911,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.nsp.to(roomName).emit('chat-add-admin', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -889,6 +933,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.nsp.to(roomName).emit('chat-del-admin', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -903,6 +948,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const result = await this.eventsService.getBanList(socket.id, roomName);
       socket.emit('ban-list', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -928,6 +974,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.nsp.emit('ban-user', { roomName, userName });
       await this.nsp.sockets.get(kickResult.data)?.leave(roomName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -943,6 +990,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.eventsService.banCancel(socket.id, roomName, userName);
       socket.emit('ban-cancel', { roomName, userName });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -954,6 +1002,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const result = await this.eventsService.getBlockList(socket.id);
       socket.emit('block-list', result);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -968,6 +1017,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.eventsService.blockUser(socket.id, userName);
       socket.emit('block-user', userName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -982,6 +1032,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.eventsService.blockCancel(socket.id, userName);
       socket.emit('block-cancel', userName);
     } catch (err) {
+      this.logger.error(err);
       socket.emit('chat-fail', err.message);
     }
   }
@@ -1004,6 +1055,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket.broadcast.emit('user-ingame', data);
       });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
@@ -1026,6 +1078,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket.broadcast.emit('user-gameout', data);
       });
     } catch (err) {
+      this.logger.error(err);
       socket.emit('game-fail', err.message);
     }
   }
