@@ -49,7 +49,7 @@ const PongGame = ({
   const ballRadius = 10;
   const canvasSize = 500;
   const minAngle = 45;
-  const speed = 10; // 공의 속도 조절
+  let speed = 10; // 공의 속도 조절
   const stopFlag = useRecoilValue(stopFlagState);
   let req;
 
@@ -289,6 +289,7 @@ const PongGame = ({
         }
       } else if (myPaddleCollision) {
         // 내 패들에 닿았을 때
+        speed += 0.1;
         const relativeIntersectX = myPaddle.x + myPaddle.width / 2 - ball.x;
         const normalizedIntersectX = relativeIntersectX / (myPaddle.width / 2);
         const bounceAngle = normalizedIntersectX * (Math.PI / 4); // 최대 45도
@@ -297,6 +298,7 @@ const PongGame = ({
         ball.dy = -speed * Math.cos(bounceAngle);
       } else if (otherPaddleCollision) {
         // 상대 패들에 닿았을 때
+        speed += 0.1;
         const relativeIntersectX =
           otherPaddle.x + otherPaddle.width / 2 - ball.x;
         const normalizedIntersectX =
