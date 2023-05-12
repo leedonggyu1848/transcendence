@@ -27,7 +27,6 @@ const CurrentUserInfo = ({
   owner: boolean;
   admins: string[];
 }) => {
-  console.log(data);
   const [toggle, setToggle] = useState(false);
   const [block, setBlock] = useState(false);
   const [target, setTarget] = useState("");
@@ -131,7 +130,7 @@ const CurrentUserInfo = ({
         </Title>
         <InfoContainer>
           {owner && <OwnerIcon onClick={() => clickOperatorButton()} />}
-          {!owner && admins.includes(myName) && (
+          {!owner && admins && admins.includes(myName) && (
             <OperatorIcon onClick={() => clickOperatorButton()} />
           )}
           <UserIcon />

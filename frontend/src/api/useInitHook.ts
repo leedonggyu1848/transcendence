@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { WebsocketContext } from "../pages/WrapMainPage";
 import {
+  alertModalState,
   currentChatState,
   currentGameInfoState,
   gameCountState,
@@ -25,13 +26,13 @@ const useInitHook = () => {
   const myName = useRecoilValue(myNameState);
   const setRankGameFlag = useSetRecoilState(rankGameFlagState);
   const [myInfo, setMyInfo] = useRecoilState(myInfoState);
-  const setCurrentChat = useSetRecoilState(currentChatState);
+  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [toggles, setToggles] = useRecoilState(sideMenuToggle);
+  const setAlertModal = useSetRecoilState(alertModalState);
   const [joinnedChatList, setJoinnedChatList] =
     useRecoilState(joinnedChatState);
   useEffect(() => {
     setToggles({ alarm: false, friends: false });
-    console.log(count, start, startCount);
 
     if (location.pathname !== "/main/game" && currentGame) {
       if (sessionStorage.getItem("opponentLeavingWhileGame")) {
@@ -53,13 +54,19 @@ const useInitHook = () => {
                 ? myInfo.rankLose + 1
                 : myInfo.rankLose,
           });
-          let opponent =
-            currentGame.ownerDto.userName === myName
-              ? currentGame.opponentDto.userName
-              : currentGame.ownerDto.userName;
-          socket.emit("end-game", {
-            userName: opponent,
-            roomName: currentGame.gameDto.title,
+          //let opponent =
+          //  currentGame.ownerDto.userName === myName
+          //    ? currentGame.opponentDto.userName
+          //    : currentGame.ownerDto.userName;
+          //socket.emit("end-game", {
+          //  userName: opponent,
+          //  roomName: currentGame.gameDto.title,
+          //});
+          setAlertModal({
+            type: "failure",
+            header: "",
+            msg: "게임 도중 나가서 패배했습니다",
+            toggle: true,
           });
         }
         socket.emit("leave-game", currentGame.gameDto.title);

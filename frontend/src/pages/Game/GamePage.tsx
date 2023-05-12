@@ -120,15 +120,15 @@ const GamePage = () => {
   };
 
   useEffect(() => {
-    if (sessionStorage.getItem("refreshWhilePlaying")) {
-      const { userName, roomName, type } = JSON.parse(
-        sessionStorage.getItem("refreshWhilePlaying")
-      );
-      socket.emit("end-game", {
-        userName,
-        roomName: roomName,
-      });
-    }
+    //if (sessionStorage.getItem("refreshWhilePlaying")) {
+    //  const { userName, roomName, type } = JSON.parse(
+    //    sessionStorage.getItem("refreshWhilePlaying")
+    //  );
+    //  socket.emit("end-game", {
+    //    userName,
+    //    roomName: roomName,
+    //  });
+    //}
     let timer: NodeJS.Timeout | undefined;
     if (count === 0) {
       setStartCount(false);
@@ -139,18 +139,22 @@ const GamePage = () => {
       timer = setTimeout(() => setCount(count - 1), 1000);
     }
     if (!rankGameFlag && gameInfo && gameInfo.gameDto.type) {
+      if (myName === gameInfo.ownerDto.userName)
+        socket.emit("start-game", {
+          roomName: gameInfo.gameDto.title,
+          userName: gameInfo.opponentDto.userName,
+        });
       setRankGameFlag(true);
       setStartCount(true);
       setCount(count - 1);
       setStopFlag(false);
-      //if (gameInfo.ownerDto.userName === myName)
-      //  socket.emit("start-game", gameInfo.gameDto.title);
     }
-
-    socket.on("start-game", () => {
-      setStartCount(() => true);
-      setCount((prev) => prev - 1);
-    });
+    if (gameInfo && gameInfo.gameDto.type === 0) {
+      socket.on("start-game", () => {
+        setStartCount(() => true);
+        setCount((prev) => prev - 1);
+      });
+    }
 
     socket.on("obstacle-info", ([leftPos, rightPos]: Array<number>) => {
       setObstaclePos([leftPos, rightPos]);

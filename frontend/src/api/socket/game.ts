@@ -266,7 +266,6 @@ export const listenWatchGame = ({
       opponentDto: UserDto;
       watchersDto: UserDto[];
     }) => {
-      console.log("watch-game", ownerDto, opponentDto, watchersDto);
       setCurrentGame({
         gameDto: { ...gameDto, type: 0 },
         ownerDto,
@@ -448,7 +447,6 @@ export const listenUserLeaveGame = ({
       type: number;
       roomName: string;
     }) => {
-      console.log("user-leave-game", start, startCount, count);
       if (type === 1) {
         // 방장이 나갔으면서 일반 게임일 때
         if (currentGame && currentGame.gameDto.title === roomName) {
@@ -559,7 +557,6 @@ export const listenUserLeaveGame = ({
             },
           });
         } else {
-          console.log("여기가맞나");
           if (type === 2) {
             if (userInfo.userName === currentGame.opponentDto.userName) {
               setCurrentGame((prev) => ({
@@ -785,7 +782,6 @@ export const listenLeaveWhilePlaying = ({ socket }: { socket: any }) => {
   socket.on(
     "leave-while-playing",
     ({ roomName, userName }: { roomName: string; userName: string }) => {
-      console.log("leave-while-playing", roomName, userName);
     }
   );
 };

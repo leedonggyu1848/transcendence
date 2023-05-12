@@ -68,7 +68,6 @@ const PongGame = ({
         loser: string;
         type: number;
       }) => {
-        console.log("game-result", winner, loser, type);
         if (winner === myName) {
           setAlertInfo({
             type: "success",

@@ -16,7 +16,6 @@ export const listenCancelFriend = ({
   friendRequestList: any;
 }) => {
   socket.on("cancel-friend", ({ userName }: { userName: string }) => {
-    console.log("cancel-friend", userName);
     setFriendRequestList(
       friendRequestList.filter(
         (friend: IFriendRequest) => friend.userName !== userName

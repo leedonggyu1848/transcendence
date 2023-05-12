@@ -83,7 +83,6 @@ export const listenCreateChat = ({
       admins: string[];
       users: string[];
     }) => {
-      console.log("create-chat", roomName, type, owner, admins, users);
       const temp: IChatRoom = {
         title: roomName,
         type,
@@ -208,7 +207,6 @@ export const listenJoinSucces = ({
       users: string[];
       admins: string[];
     }) => {
-      console.log("join-chat-success", users, admins);
       const temp: IChatDetail = {
         title: roomName,
         type,
@@ -260,7 +258,6 @@ export const listenSomeoneLeave = ({
       roomName: string;
       owner: string;
     }) => {
-      console.log(owner, joinnedChatList);
       setChatList(
         chatList
           .map((chat) => ({
@@ -736,7 +733,6 @@ export const listenChatAddAdmin = ({
   socket.on(
     "chat-add-admin",
     ({ roomName, userName }: { roomName: string; userName: string }) => {
-      console.log("chat-add-admin", userName, roomName, joinnedChatList);
       setJoinnedChatList({
         ...joinnedChatList,
         [roomName]: {
@@ -762,7 +758,6 @@ export const listenChatDelAdmin = ({
   socket.on(
     "chat-del-admin",
     ({ roomName, userName }: { roomName: string; userName: string }) => {
-      console.log("chat-del-admin", userName, roomName);
       setJoinnedChatList({
         ...joinnedChatList,
         [roomName]: {

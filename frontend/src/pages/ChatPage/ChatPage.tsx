@@ -31,16 +31,6 @@ const ChatPage = () => {
 
   useInitHook();
 
-  if (currentChat) {
-    console.log(
-      UserDtoToJoinnedUserDto(
-        joinnedChatList[currentChat].userList,
-        myName,
-        joinnedChatList[currentChat].owner
-      )
-    );
-  }
-
   const LeaveChatRoom = (roomName: string) => {
     socket.emit("leave-chat", roomName);
   };
@@ -137,7 +127,6 @@ function UserDtoToJoinnedUserDto(
   myName: string,
   owner: string
 ) {
-  console.log(data);
   return data.map((name) => ({
     userName: name,
     type: name === owner ? "owner" : name === myName ? "opponent" : "watcher",

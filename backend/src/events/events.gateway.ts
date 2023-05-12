@@ -45,7 +45,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const data = await this.eventsService.getSocketInfo(socket.id);
     if (!data) return;
     data.gameRooms.forEach(async (room) => {
-      console.log(room);
       await this.handleLeaveGame(socket, room);
     });
     const timeId = setTimeout(async () => {
@@ -653,7 +652,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomName,
         password,
       );
-      console.log(result);
       socket.join(roomName);
       socket.broadcast.emit('join-chat', {
         message: result.msg,
