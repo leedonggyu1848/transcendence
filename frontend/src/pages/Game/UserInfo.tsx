@@ -99,7 +99,9 @@ const Profile = styled.div<{ profile: string }>`
   border-radius: 10px;
   background-image: ${({ profile }) =>
     profile
-      ? `url('http://localhost:3000/${profile}?v=${new Date().getTime()}')`
+      ? `url('${
+          import.meta.env.VITE_FRONT_ADDRESS
+        }/${profile}?v=${new Date().getTime()}')`
       : 'url("/src/assets/defaultProfile.png")'};
   background-size: 100% 100%;
   margin-left: 10px;

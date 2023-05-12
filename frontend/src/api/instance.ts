@@ -5,7 +5,7 @@ axios.defaults.withCredentials = true;
 
 const instance = axios.create({
   // baseURL: window.location.origin,
-  baseURL: "http://localhost:3000/api/",
+  baseURL: import.meta.env.VITE_FRONT_ADDRESS + "/api/",
   withCredentials: true,
 });
 

@@ -4,7 +4,7 @@ import { socket } from "./WrapMainPage";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
-  const loginURL = "http://localhost:3000/api/auth/login";
+  const loginURL = `${import.meta.env.VITE_FRONT_ADDRESS}/api/auth/login`;
   const clickLogin = () => {
     setLoading(true);
     window.location.replace(loginURL);

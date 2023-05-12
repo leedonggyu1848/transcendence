@@ -120,6 +120,9 @@ const GamePage = () => {
   };
 
   useEffect(() => {
+    if (!gameInfo) {
+      navigate(-1);
+    }
     //if (sessionStorage.getItem("refreshWhilePlaying")) {
     //  const { userName, roomName, type } = JSON.parse(
     //    sessionStorage.getItem("refreshWhilePlaying")
