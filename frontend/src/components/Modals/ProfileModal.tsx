@@ -102,7 +102,9 @@ const ProfileImage = styled.div<{ profile: string }>`
   height: 200px;
   border-radius: 100%;
   background: ${({ profile }) =>
-    profile ? `url(${profile})` : "url(/src/assets/defaultProfile.png)"};
+    profile
+      ? `url(${import.meta.env.VITE_FRONT_ADDRESS}/${profile})`
+      : "url(/src/assets/defaultProfile.png)"};
   background-size: 100% 100%;
   margin-bottom: 20px;
 `;
