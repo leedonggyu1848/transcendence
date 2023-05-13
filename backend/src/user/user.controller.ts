@@ -64,7 +64,9 @@ export class UserController {
   logout(@Res() res: Response, @UserDeco() userSessionDto: UserSessionDto) {
     this.logger.log(`[Logout] ${userSessionDto.intraId}`);
     res.clearCookie('access_token');
-    res.status(HttpStatus.NO_CONTENT).send();
+    res
+      .status(HttpStatus.NO_CONTENT)
+      .redirect(this.configService.get<string>('cors.origin'));
   }
 
   @Get('/userinfo')
