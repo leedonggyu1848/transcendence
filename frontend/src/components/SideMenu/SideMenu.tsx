@@ -22,6 +22,7 @@ const SideMenu = ({ w }: { w: number }) => {
 
   const clickLogout = async () => {
     await axiosLogout();
+    navigate("/");
   };
 
   return (
