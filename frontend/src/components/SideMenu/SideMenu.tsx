@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   alertModalState,
@@ -7,19 +8,21 @@ import {
   requestAlarmListState,
   sideMenuToggle,
 } from "../../api/atom";
+import { axiosLogout } from "../../api/request";
 import { WebsocketContext } from "../../pages/WrapMainPage";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
 
 const SideMenu = ({ w }: { w: number }) => {
   const [toggles, setToggles] = useRecoilState(sideMenuToggle);
-  const socket = useContext(WebsocketContext);
-  const setAlertInfo = useSetRecoilState(alertModalState);
   const [friendRequestList, setFriendRequestList] = useRecoilState(
     friendRequestListState
   );
+  const navigate = useNavigate();
 
-  const clickLogout = () => {};
+  const clickLogout = async () => {
+    await axiosLogout();
+  };
 
   return (
     <SideMenuContainer>
@@ -33,7 +36,7 @@ const SideMenu = ({ w }: { w: number }) => {
           <NewRequest>{friendRequestList.length}</NewRequest>
         )}
       </AlarmIcon>
-      <LogoutIcon />
+      <LogoutIcon onClick={clickLogout} />
       {toggles.friends && <Friends w={w} />}
       {toggles.alarm && <Alarms w={w} />}
     </SideMenuContainer>

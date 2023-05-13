@@ -151,3 +151,8 @@ export const axiosRequestUserInfo = async (userName: string) => {
   const response = await instance.get(axiosRequestUserInfoURL + userName);
   return response.data;
 };
+
+const axiosLogoutURL = "/auth/logout";
+export const axiosLogout = async () => {
+  await instance.get(axiosLogoutURL);
+};
