@@ -31,8 +31,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qwe123
       POSTGRES_DB: transcendence
-    volumes:
-      - ./data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
