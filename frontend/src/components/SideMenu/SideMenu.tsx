@@ -1,15 +1,8 @@
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  alertModalState,
-  friendRequestListState,
-  requestAlarmListState,
-  sideMenuToggle,
-} from "../../api/atom";
+import { useRecoilState } from "recoil";
+import { friendRequestListState, sideMenuToggle } from "../../api/atom";
 import { axiosLogout } from "../../api/request";
-import { WebsocketContext } from "../../pages/WrapMainPage";
 import Alarms from "./Alarms";
 import Friends from "./Friends";
 
