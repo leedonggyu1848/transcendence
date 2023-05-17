@@ -39,6 +39,7 @@ import {
   profileModalState,
   rankWaitModalToggleState,
   requestFriendListFlagState,
+  SetNameModalToggle,
   settingModalState,
   stopFlagState,
 } from "../api/atom";
@@ -122,6 +123,7 @@ import {
 import InviteModal from "../components/Modals/InviteModal";
 import ProfileModal from "../components/Modals/ProfileModal";
 import OwnerModal from "../components/Modals/OperatorModal/OwnerModal";
+import SetNameModal from "../components/Modals/SetNameModal";
 
 const MainPage = () => {
   const [token, _] = useCookies(["access_token"]);
@@ -165,6 +167,7 @@ const MainPage = () => {
   const [start, setStart] = useRecoilState(gameStartState);
   const [count, setCount] = useRecoilState(gameCountState);
   const [stopFlag, setStopFlag] = useRecoilState(stopFlagState);
+  const setNameModal = useRecoilValue(SetNameModalToggle);
 
   const hooks: any = {
     socket,
@@ -450,6 +453,7 @@ const MainPage = () => {
         {confirmModalState.toggle && <ConfirmModal />}
         {inviteModalToggle.toggle && <InviteModal />}
         {profileModal.toggle && <ProfileModal />}
+        {!myName && setNameModal && <SetNameModal />}
       </MainPageContainer>
     )
   );

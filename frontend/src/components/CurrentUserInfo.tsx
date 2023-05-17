@@ -95,7 +95,6 @@ const CurrentUserInfo = ({
   const clickInfoIcon = async (userName: string) => {
     try {
       const data = await axiosRequestUserInfo(userName);
-      console.log(data);
       setProfileModal({
         toggle: true,
         user: data,

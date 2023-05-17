@@ -359,3 +359,8 @@ export const stopFlagState = atom({
   key: "stopFlagState",
   default: false,
 });
+
+export const SetNameModalToggle = atom({
+  key: "setNameModalToggle",
+  default: true,
+});

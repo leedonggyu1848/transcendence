@@ -124,14 +124,12 @@ const PongGame = ({
               loser === myName ? myInfo.normalLose + 1 : myInfo.normalLose,
           });
         }
-        if (gameInfo.gameDto.type === 1) {
+        if (gameInfo.gameDto.type) {
           setMyInfo({
             ...myInfo,
             rankWin: winner === myName ? myInfo.rankWin + 1 : myInfo.rankWin,
             rankLose: loser === myName ? myInfo.rankLose + 1 : myInfo.rankLose,
           });
-        }
-        if (gameInfo.gameDto.type) {
           const temp = { ...joinChatList };
           delete temp[currentGame.gameDto.title];
           setJoinChatList(temp);

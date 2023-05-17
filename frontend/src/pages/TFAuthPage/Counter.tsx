@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 function getTime(timer: number) {
   const m = Math.floor(timer / 60);
-  const s = timer % 60 > 10 ? timer % 60 : "0" + (timer % 60);
+  const s = timer % 60 >= 10 ? timer % 60 : "0" + (timer % 60);
   return m + ":" + s;
 }
 
