@@ -73,7 +73,7 @@ const ModalBackground = styled.div`
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 3;
+  z-index: 1;
 `;
 
 const SetNameModalContainer = styled.div`
@@ -90,7 +90,7 @@ const SetNameModalContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 4;
+  z-index: 2;
   & > h1,
   h2 {
     width: 70%;
