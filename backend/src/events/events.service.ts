@@ -472,10 +472,6 @@ export class EventsService {
     if (!user) throw new Error(`맞는 유저가 없습니다.`);
     const chat = await this.chatService.getChatByTitleWithUser(roomName);
     if (!chat) throw new Error(`맞는 채팅방이 없습니다.`);
-    const isAdmin = chat.administrators.find(
-      (admin) => admin.userId === user.userId,
-    );
-    if (isAdmin) await this.administratorService.subtractAdministrator(isAdmin);
     const result = await this.chatService.leaveChat(user, chat);
     if (!result) throw new Error(`참여 중인 방이 없습니다.`);
     const newChat = await this.chatService.getChatByTitle(roomName);

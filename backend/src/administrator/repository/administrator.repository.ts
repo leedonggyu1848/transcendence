@@ -24,6 +24,6 @@ export class AdministratorRepository implements IAdministratorRepository {
   }
 
   async deleteAdministrator(admin: Administrator) {
-    await this.administratorRepository.remove(admin);
+    await this.administratorRepository.delete(admin.id);
   }
 }

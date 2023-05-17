@@ -137,11 +137,11 @@ export class ChatService {
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async leaveChat(user: User, chat: Chat) {
     const chatUser = await this.chatUserRepository.findByBoth(chat, user);
-    if (chatUser.length === 0) return false;
-    const isAdmin = chat.administrators.find((admin) => {
-      admin.userId === user.userId;
-    });
-    if (isAdmin) this.administratorService.subtractAdministrator(isAdmin);
+    if (chatUser.length == 0) return false;
+    const isAdmin = chat.administrators.find(
+      (admin) => admin.userId === user.userId,
+    );
+    if (isAdmin) await this.administratorService.subtractAdministrator(isAdmin);
     await this.chatUserRepository.deleteChatUser(chatUser);
     if (chat.count <= 1) await this.chatRepository.deleteChat(chat);
     else {
@@ -154,7 +154,11 @@ export class ChatService {
             : result.users[0].user.userId,
         );
         await this.chatRepository.updateOwner(result, newOwner.userId);
-        await this.administratorService.addAdministrator(result, newOwner);
+        const isAdmin = chat.administrators.find(
+          (admin) => admin.userId === newOwner.userId,
+        );
+        if (!isAdmin)
+          await this.administratorService.addAdministrator(result, newOwner);
       }
     }
     return true;
