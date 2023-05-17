@@ -4,7 +4,7 @@ import { Record } from 'src/entity/record.entity';
 import { User } from 'src/entity/user.entity';
 
 export interface IUserRepository {
-  createUser(userId: number, userName: string, email: string);
+  createUser(userId: number, email: string);
   findAll();
   findByUserId(userId: number);
   findByUserIdWithJoinGame(userId: number);

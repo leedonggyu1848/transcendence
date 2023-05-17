@@ -41,12 +41,7 @@ export class UserService {
       user.userId,
     );
     if (found) return found;
-    else
-      return await this.userRepository.createUser(
-        user.userId,
-        user.intraId,
-        user.email,
-      );
+    else return await this.userRepository.createUser(user.userId, user.email);
   }
 
   async sendAuthMail(user: User) {

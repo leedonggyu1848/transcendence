@@ -12,10 +12,10 @@ export class UserRepository implements IUserRepository {
     private userRepository: Repository<User>,
   ) {}
 
-  async createUser(userId: number, userName: string, email: string) {
+  async createUser(userId: number, email: string) {
     const user = this.userRepository.create({
       userId: userId,
-      userName: userName,
+      userName: '',
       email: email,
       auth: false,
       socketId: '',
