@@ -8,5 +8,4 @@ RUN npm install
 COPY ./.env ./
 COPY ./src ./src
 
-
 CMD ["npm", "run", "start"]

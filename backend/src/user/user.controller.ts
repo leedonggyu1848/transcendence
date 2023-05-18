@@ -23,7 +23,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiProperty,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
