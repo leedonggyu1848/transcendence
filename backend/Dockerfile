@@ -7,7 +7,6 @@ RUN npm install
 
 COPY ./.env ./
 COPY ./src ./src
-COPY ./uploads ./uploads
 
 
 CMD ["npm", "run", "start"]
