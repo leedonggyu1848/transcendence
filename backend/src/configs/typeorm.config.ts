@@ -34,7 +34,7 @@ export default class TypeOrmConfigService implements TypeOrmOptionsFactory {
         Block,
         Administrator,
       ],
-      synchronize: true,
+      synchronize: false,
     };
   }
 }
