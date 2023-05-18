@@ -1,10 +1,10 @@
 create table if not exists  chat
 (
     id       serial
-        constraint "PK_9d0b2ba74336710fd31154738a5"
+        constraint "PK_CHAT"
             primary key,
     title    varchar not null
-        constraint "UQ_ca8307d94feb11060e0cf5f724b"
+        constraint "UQ_CHAT_TITLE"
             unique,
     type     integer not null,
     password varchar not null,
@@ -15,32 +15,32 @@ create table if not exists  chat
 create table if not exists  ban
 (
     id       serial
-        constraint "PK_071cddb7d5f18439fd992490618"
+        constraint "PK_BAN"
             primary key,
     "userId" integer not null,
     "chatId" integer
-        constraint "FK_3b6fc1efcf5183db4dff38e20ac"
+        constraint "FK_BAN_CHAT_ID"
             references chat
 );
 
 create table if not exists  administrator
 (
     id       serial
-        constraint "PK_ee58e71b3b4008b20ddc7b3092b"
+        constraint "PK_ADMINISTRATOR"
             primary key,
     "userId" integer not null,
     "chatId" integer
-        constraint "FK_b68493687a0b9acae27c1ccf241"
+        constraint "FK_ADMINISTRATOR_CHAT_ID"
             references chat
 );
 
 create table if not exists  game
 (
     id              serial
-        constraint "PK_352a30652cd352f552fef73dec5"
+        constraint "PK_GAME"
             primary key,
     title           varchar not null
-        constraint "UQ_0152ed47a9e8963b5aaceb51e77"
+        constraint "UQ_GAME_TITLE"
             unique,
     "interruptMode" boolean not null,
     "privateMode"   boolean not null,
@@ -53,15 +53,13 @@ create table if not exists  game
 create table if not exists  "user"
 (
     id            serial
-        constraint "PK_cace4a159ff9f2512dd42373760"
+        constraint "PK_USER"
             primary key,
     "userId"      integer                               not null
-        constraint "UQ_d72ea127f30e21753c9e229891e"
+        constraint "UQ_USER_USERID"
             unique,
     "socketId"    varchar default ''::character varying not null,
-    "userName"    varchar                               not null
-        constraint "UQ_da5934070b5f2726ebfd3122c80"
-            unique,
+    "userName"    varchar                               not null,
     email         varchar                               not null,
     auth          boolean                               not null,
     profile       varchar                               not null,
@@ -72,62 +70,62 @@ create table if not exists  "user"
     "rankLose"    integer                               not null,
     "joinType"    integer                               not null,
     "playGameId"  integer
-        constraint "FK_cf8c0e7b6afbaf0bd0920fad396"
+        constraint "FK_USER_PLAY_GAME_ID"
             references game,
     "watchGameId" integer
-        constraint "FK_747d685ba260f7659a13d08456f"
+        constraint "FK_USER_WATCH_GAME_ID"
             references game
 );
 
 create table if not exists  block
 (
     id          serial
-        constraint "PK_d0925763efb591c2e2ffb267572"
+        constraint "PK_BLOCK"
             primary key,
     "blockUser" varchar not null,
     "userId"    integer
-        constraint "FK_b7c8985f27f5b0d1820832318da"
+        constraint "FK_BLOCK_USER_ID"
             references "user"
 );
 
 create table if not exists  chat_user
 (
     id       serial
-        constraint "PK_15d83eb496fd7bec7368b30dbf3"
+        constraint "PK_CHAT_USER"
             primary key,
     "chatId" integer
-        constraint "FK_8826d04b711b84e36398894275c"
+        constraint "FK_CHAT_USER_CHAT_ID"
             references chat,
     "userId" integer
-        constraint "FK_5e9874ea3bd3524db95c2d88e53"
+        constraint "FK_CHAT_USER_USER_ID"
             references "user"
 );
 
 create table if not exists  friend
 (
     id              serial
-        constraint "PK_1b301ac8ac5fcee876db96069b6"
+        constraint "PK_FRIEND"
             primary key,
     "friendName"    varchar   not null,
     "friendProfile" varchar   not null,
     accept          boolean   not null,
     time            timestamp not null,
     "userId"        integer
-        constraint "FK_855044ea856e46f62a46acebd65"
+        constraint "FK_FRIEND_USER_ID"
             references "user"
 );
 
 create table if not exists  record
 (
     id         serial
-        constraint "PK_5cb1f4d1aff275cf9001f4343b9"
+        constraint "PK_RECORD"
             primary key,
     "gameType" integer   not null,
     opponent   varchar   not null,
     win        boolean   not null,
     time       timestamp not null,
     "playerId" integer
-        constraint "FK_b167bf67eb2a1bc4b7c0d8ff40a"
+        constraint "FK_RECORD_PLAYER_ID"
             references "user"
 );
 
