@@ -115,8 +115,13 @@ export class EventsService {
       throw new Error('이미 다른 방에 참여 중입니다.');
     const game = await this.gameService.getGameByTitleWithUsers(title);
     if (!game) throw new Error('해당 방이 존재하지 않습니다.');
-    if (game.privateMode && !(await bcrypt.compare(password, game.password)))
-      throw new Error('비밀번호가 맞지 않습니다.');
+    if (game.privateMode) {
+      if (
+        password != game.password ||
+        !(await bcrypt.compare(password, game.password))
+      )
+        throw new Error('비밀번호가 맞지 않습니다.');
+    }
     if (game.count == 2) throw new Error('해당 방에 자리가 없습니다.');
     if (!game.players) throw new Error('잘못된 방 입니다.');
     await this.gameService.joinGame(user, game);

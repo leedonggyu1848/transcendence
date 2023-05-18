@@ -113,7 +113,11 @@ export class ChatService {
 
   async checkPassword(chat: Chat, password: string) {
     if (chat.type !== ChatType.PASSWORD) return true;
-    if (!(await bcrypt.compare(password, chat.password))) return false;
+    if (
+      password != chat.password &&
+      !(await bcrypt.compare(password, chat.password))
+    )
+      return false;
     return true;
   }
 
