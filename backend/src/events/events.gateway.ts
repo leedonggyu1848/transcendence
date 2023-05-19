@@ -65,7 +65,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() userName: string,
   ) {
-    this.logger.log(`[SocketConnect] socketId: ${socket.id}`);
+    this.logger.log(
+      `[SocketConnect] socketId: ${socket.id}, userName: ${userName}`,
+    );
     const rooms = await this.eventsService.registUser(userName, socket.id);
     if (this.sessionMap[userName]) {
       const timeId = this.sessionMap[userName];

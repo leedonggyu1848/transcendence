@@ -24,7 +24,7 @@ export class User {
   @Column({ default: '' })
   socketId: string;
 
-  @Column({ default: '' })
+  @Column({ unique: true })
   userName: string;
 
   @Column()
