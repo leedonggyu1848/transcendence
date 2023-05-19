@@ -11,6 +11,11 @@ const SetNameModal = () => {
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const regex = /[^a-zA-Z0-9]/;
+    if (regex.test(e.target.value)) {
+      return;
+    }
+
     setName(e.target.value);
   };
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -30,6 +35,7 @@ const SetNameModal = () => {
           type="text"
           ref={inputRef}
           placeholder="Nickname"
+          value={name}
         />
         <Button onClick={setNickName}>설정하기</Button>
       </SetNameModalContainer>

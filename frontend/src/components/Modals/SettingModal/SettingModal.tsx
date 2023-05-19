@@ -18,6 +18,7 @@ const SettingModal = () => {
   const socket = useContext(WebsocketContext);
   const [editName, setEditName] = useState(false);
   const nameInput = useRef<HTMLInputElement>(null);
+  const [nameValue, setNameValue] = useState("");
 
   const handleClickName = () => {
     setEditName(true);
@@ -31,6 +32,14 @@ const SettingModal = () => {
       }
       socket.emit("user-name", e.currentTarget.value);
     }
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const regex = /[^a-zA-Z0-9]/;
+    if (regex.test(e.target.value)) {
+      return;
+    }
+    setNameValue(e.currentTarget.value);
   };
 
   useEffect(() => {
@@ -52,6 +61,8 @@ const SettingModal = () => {
               onKeyUp={onSubmit}
               ref={nameInput}
               placeholder={myName}
+              value={nameValue}
+              onChange={onChange}
             />
           )}
           <SettingTextArea />

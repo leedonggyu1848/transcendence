@@ -16,6 +16,8 @@ services:
       - tcnetwork
     environment:
       VITE_FRONT_ADDRESS: "${VITE_FRONT_ADDRESS}"
+    volumes:
+      - ./frontend/src:/frontend/src
 
   backend:
     container_name: backend

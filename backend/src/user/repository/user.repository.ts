@@ -27,7 +27,6 @@ export class UserRepository implements IUserRepository {
       rankLose: 0,
       joinType: JoinType.NONE,
     });
-    console.log(user);
     await this.userRepository.save(user);
     return user;
   }

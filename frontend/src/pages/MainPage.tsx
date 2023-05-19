@@ -453,7 +453,7 @@ const MainPage = () => {
         {confirmModalState.toggle && <ConfirmModal />}
         {inviteModalToggle.toggle && <InviteModal />}
         {profileModal.toggle && <ProfileModal />}
-        {!myName && setNameModal && <SetNameModal />}
+        {myName && myName.includes("@") && setNameModal && <SetNameModal />}
       </MainPageContainer>
     )
   );
