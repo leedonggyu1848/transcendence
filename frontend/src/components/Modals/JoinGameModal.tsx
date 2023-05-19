@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
@@ -10,6 +10,7 @@ import {
   selectedNormalGameTitleState,
 } from "../../api/atom";
 import { axiosJoinGame, axiosWatchGame } from "../../api/request";
+import { WebsocketContext } from "../../pages/WrapMainPage";
 import ModalBackground from "../ModalBackground";
 
 const JoinGameModal = () => {
@@ -21,6 +22,7 @@ const JoinGameModal = () => {
   const setCurrentNormalGameInfo = useSetRecoilState(currentGameInfoState);
   const setNormalJoinType = useSetRecoilState(normalJoinTypeState);
   const navigator = useNavigate();
+  const socket = useContext(WebsocketContext);
 
   const onCancel = () => {
     setBackgroundModal(false);
@@ -30,24 +32,14 @@ const JoinGameModal = () => {
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setPassword(e.currentTarget.value);
 
-  const clickJoin = async () => {
-    try {
-      const data =
-        joinModal.type === "join"
-          ? await axiosJoinGame(gameTitle, password)
-          : await axiosWatchGame(gameTitle, password);
-      setCurrentNormalGameInfo({ ...data });
-      navigator("/main/game");
-      setJoinModal({ toggle: false, type: "" });
-      setNormalJoinType(joinModal.type === "join" ? "join" : "watch");
-    } catch (e: any) {
-      if (e.response.status === 400) {
-        setErrMsg("비밀번호가 틀렸습니다");
-        setPassword("");
-        return;
-      }
-      console.error(e);
+  const clickJoin = () => {
+    if (joinModal.type === "join") {
+      socket.emit("join-game", { roomName: gameTitle, password });
     }
+    if (joinModal.type === "watch") {
+      socket.emit("watch-game", { roomName: gameTitle, password });
+    }
+    setPassword("");
   };
   return (
     <>

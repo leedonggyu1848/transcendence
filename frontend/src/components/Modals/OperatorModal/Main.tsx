@@ -116,23 +116,25 @@ const Main = ({ head }: { head: string }) => {
         </div>
       </HeaderContainer>
       <UsersContainer>
-        {joinnedChat[currentChat].userList
-          .filter((name) => name !== myName)
-          .map((user, idx) => (
-            <User key={idx}>
-              <Name>{user}</Name>
-              <ButtonContainer>
-                <Button onClick={() => handleMuteUser(user)}>Mute</Button>
-                <Button onClick={() => handleKickUser(user)}>Kick</Button>
-                <Button onClick={() => handleBanUser(user)}>Ban</Button>
-                {head === "Owner" && (
-                  <Button onClick={() => handleGiveAdmin(currentChat, user)}>
-                    Admin
-                  </Button>
-                )}
-              </ButtonContainer>
-            </User>
-          ))}
+        {currentChat &&
+          joinnedChat[currentChat] &&
+          joinnedChat[currentChat].userList
+            .filter((name) => name !== myName)
+            .map((user, idx) => (
+              <User key={idx}>
+                <Name>{user}</Name>
+                <ButtonContainer>
+                  <Button onClick={() => handleMuteUser(user)}>Mute</Button>
+                  <Button onClick={() => handleKickUser(user)}>Kick</Button>
+                  <Button onClick={() => handleBanUser(user)}>Ban</Button>
+                  {head === "Owner" && (
+                    <Button onClick={() => handleGiveAdmin(currentChat, user)}>
+                      Admin
+                    </Button>
+                  )}
+                </ButtonContainer>
+              </User>
+            ))}
       </UsersContainer>
     </MainContainer>
   );
