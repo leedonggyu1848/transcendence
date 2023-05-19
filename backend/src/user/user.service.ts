@@ -37,6 +37,7 @@ export class UserService {
 
   @Transactional({ isolationLevel: IsolationLevel.REPEATABLE_READ })
   async addUserFromSession(user: UserSessionDto) {
+    console.log(user);
     const found = await this.userRepository.findByUserIdWithJoinGame(
       user.userId,
     );

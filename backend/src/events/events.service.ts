@@ -117,7 +117,7 @@ export class EventsService {
     if (!game) throw new Error('해당 방이 존재하지 않습니다.');
     if (game.privateMode) {
       if (
-        password != game.password ||
+        password != game.password &&
         !(await bcrypt.compare(password, game.password))
       )
         throw new Error('비밀번호가 맞지 않습니다.');
@@ -731,14 +731,14 @@ export class EventsService {
     const user = await this.userService.getUserBySocketIdWithBlock(socketId);
     if (!user) throw new Error('맞는 유저가 없습니다.');
     const result = await this.blockService.blockUser(user, blockUser);
-    if (result) throw new Error(`${blockUser}는 이미 차단 되어있습니다.`);
+    if (!result) throw new Error(`${blockUser}는 이미 차단 되어있습니다.`);
   }
 
   async blockCancel(socketId: string, blockUser: string) {
     const user = await this.userService.getUserBySocketIdWithBlock(socketId);
     if (!user) throw new Error('맞는 유저가 없습니다.');
     const result = await this.blockService.blockCancel(user, blockUser);
-    if (result) throw new Error(`${blockUser}는 차단 되어있지 않습니다.`);
+    if (!result) throw new Error(`${blockUser}는 차단 되어있지 않습니다.`);
   }
 
   async gameAlert(socketId: string, userName: string, start: boolean) {
