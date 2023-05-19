@@ -56,10 +56,12 @@ create table if not exists  "user"
         constraint "PK_USER"
             primary key,
     "userId"      integer                               not null
-        constraint "UQ_USER_USERID"
+        constraint "UQ_USER_USER_ID"
             unique,
     "socketId"    varchar default ''::character varying not null,
-    "userName"    varchar                               not null,
+    "userName"    varchar                               not null
+        constraint "UQ_USER_NAME"
+            unique,
     email         varchar                               not null,
     auth          boolean                               not null,
     profile       varchar                               not null,
