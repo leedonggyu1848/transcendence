@@ -28,7 +28,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       cookies.remove("access_token", {
         path: "/",
-        domain: "localhost",
+        domain: "10.12.6.6",
       });
       window.location.href = "/no_auth";
       //alert(error.response.data.message);

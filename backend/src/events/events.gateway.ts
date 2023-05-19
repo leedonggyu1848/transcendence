@@ -22,7 +22,7 @@ import { EventsService } from './events.service';
 @WebSocketGateway({
   namespace: 'GameChat',
   cors: {
-    origin: ['http://localhost:5173'],
+    origin: ['http://10.12.6.6:5173'],
   },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -1105,8 +1105,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleMouseMove(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    { roomName, x }: { roomName: string; x: number },
+    { roomName, x, type }: { roomName: string; x: number; type: string },
   ) {
-    socket.broadcast.to(roomName).emit('mouse-move', { x });
+    socket.broadcast.to(roomName).emit('mouse-move', { x, type });
   }
 }

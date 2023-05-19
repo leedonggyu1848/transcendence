@@ -49,7 +49,7 @@ const PongGame = ({
   const ballRadius = 10;
   const canvasSize = 500;
   const minAngle = 45;
-  let speed = 10; // 공의 속도 조절
+  let speed = 1; // 공의 속도 조절
   const stopFlag = useRecoilValue(stopFlagState);
   let req;
 
@@ -446,6 +446,7 @@ const PongGame = ({
 
     function handleMouseMove(event: MouseEvent) {
       const rect = canvas.current?.getBoundingClientRect();
+      if (myType === "watcher") return;
       if (rect) {
         const mouseX = event.clientX - rect.left;
         if (ctx) {
@@ -455,11 +456,9 @@ const PongGame = ({
             paddleWidth + 3,
             paddleHeight + 10
           );
-          ctx.clearRect(otherPaddle.x, 10, paddleWidth + 3, paddleHeight + 2);
         }
         myPaddle.x = mouseX - myPaddle.width / 2;
         drawMyPaddle();
-        drawOtherPaddle();
         socket.emit("mouse-move", {
           roomName,
           x: myPaddle.x,
@@ -469,18 +468,32 @@ const PongGame = ({
     }
 
     socket.on("mouse-move", ({ x, type }: { x: number; type: string }) => {
-      if (ctx) {
-        ctx.clearRect(
-          myPaddle.x,
-          canvasSize - paddleHeight - 15,
-          paddleWidth,
-          paddleHeight + 10
-        );
+      if (!ctx) return;
+      if (myType === "owner" && type === "opponent") {
         ctx.clearRect(otherPaddle.x, 10, paddleWidth, paddleHeight + 2);
+        otherPaddle.x = x;
+        drawOtherPaddle();
+      } else if (myType === "opponent" && type === "owner") {
+        ctx.clearRect(otherPaddle.x, 10, paddleWidth, paddleHeight + 2);
+        otherPaddle.x = x;
+        drawOtherPaddle();
+      } else {
+        if (type === "opponent") {
+          ctx.clearRect(
+            myPaddle.x,
+            canvasSize - paddleHeight - 15,
+            paddleWidth,
+            paddleHeight + 10
+          );
+          myPaddle.x = x;
+          drawMyPaddle();
+        }
+        if (type === "owner") {
+          ctx.clearRect(otherPaddle.x, 10, paddleWidth, paddleHeight + 2);
+          otherPaddle.x = x;
+          drawOtherPaddle();
+        }
       }
-      otherPaddle.x = x;
-      drawOtherPaddle();
-      drawMyPaddle();
     });
 
     socket.on("move-ball", ({ xPos, yPos }) => {
