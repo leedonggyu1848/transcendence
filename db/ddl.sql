@@ -59,9 +59,7 @@ create table if not exists  "user"
         constraint "UQ_d72ea127f30e21753c9e229891e"
             unique,
     "socketId"    varchar default ''::character varying not null,
-    "userName"    varchar                               not null
-        constraint "UQ_da5934070b5f2726ebfd3122c80"
-            unique,
+    "userName"    varchar default ''::character varying not null,
     email         varchar                               not null,
     auth          boolean                               not null,
     profile       varchar                               not null,
