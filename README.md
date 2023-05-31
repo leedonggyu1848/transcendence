@@ -8,6 +8,6 @@
 
 > React + TypeScript
 
-## Backend : donggle, jpark2
+## Backend : dongglee, jpark2
 
 > Nest + TypeScript
